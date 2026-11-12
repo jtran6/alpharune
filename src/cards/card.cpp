@@ -108,6 +108,10 @@ void Card::forgetPlayPayments(GameState& state, const Card* card, PlayerId playe
     counters.erase("__played_from_facedown");
     counters.erase("__facedown_play_bf");
     counters.erase("__facedown_play_turn");
+    counters.erase(kShowOffDid);
+    counters.erase(kShowOffMight);
+    counters.erase(kShowOffEnergy);
+    counters.erase(kShowOffPower);
     if (!card) return;
     for (const auto& oac : {card->optionalAdditionalCost(),
                             card->optionalAdditionalCost(state, player)})
@@ -1467,6 +1471,93 @@ std::vector<ActivatedAbility> Card::activatedAbilities() const {
     } };
     appendEmpowerAbilities(out);
     return out;
+}
+
+bool GearCard::restrictsPlayLocations() const {
+    return def().keywords.has(Keyword::Deploy);
+}
+
+std::vector<LocationId> GearCard::getPlayLocations(const GameState& state, PlayerId) const {
+    std::vector<LocationId> out;
+    if (!def().keywords.has(Keyword::Deploy)) return out;
+    out.reserve(state.battlefields.size());
+    for (const auto& bf : state.battlefields)
+        out.push_back(LocationId{BattlefieldLocation{bf.id}});
+    return out;
+}
+
+bool Card::playedWithShowOff(const GameObject& obj) {
+    auto it = obj.card_counters.find(kShowOffDid);
+    return it != obj.card_counters.end() && it->second != 0;
+}
+
+bool Card::settleShowOff(CardContext& ctx) {
+    auto& ri_opt = ctx.state.chain.resuming;
+    if (!ri_opt.has_value()) return true;
+    auto& ri = *ri_opt;
+    if (ri.shown_off.has_value()) return true;
+    if (!def().keywords.has(Keyword::ShowOff)) return true;
+
+    std::vector<GameObjectId> options;
+    const auto& hand = ctx.state.player(ctx.controller).hand;
+    for (auto id : hand) {
+        if (!ctx.state.objectExists(id)) continue;
+        if (matchesShowOff(ctx, ctx.state.getObject(id))) options.push_back(id);
+    }
+    for (auto& [id, obj] : ctx.state.objects.onBoard()) {
+        if (id == ctx.source || obj.controller != ctx.controller) continue;
+        if (!obj.location.has_value()) continue;
+        if (matchesShowOff(ctx, obj)) options.push_back(id);
+    }
+    std::sort(options.begin(), options.end());
+    options.erase(std::unique(options.begin(), options.end()), options.end());
+
+    auto decline = [&]() {
+        ChainItem::ShownOff none;
+        ri.shown_off = none;
+    };
+    if (options.empty()) {
+        decline();
+        return true;
+    }
+
+    const int go = confirmOptional(ctx, "Show off?", [&] { return !options.empty(); });
+    if (go < 0) return false;
+    if (go == 0) {
+        decline();
+        return true;
+    }
+
+    const GameObjectId picked = pickUnseenCard(ctx, "Show off — choose a card or a friendly permanent",
+                                               options);
+    if (ri.resume_point == 7) return false;   // the pick is still pending
+    if (picked == kInvalidId || !ctx.state.objectExists(picked)) {
+        decline();
+        return true;
+    }
+
+    const auto& obj = ctx.state.getObject(picked);
+    ChainItem::ShownOff shown;
+    shown.did = true;
+    shown.object = picked;
+    shown.might = obj.current_might;
+    shown.from_hand = obj.zone == ZoneType::Hand;
+    if (ctx.registry && obj.card_def_id != kInvalidId) {
+        if (const Card* other = ctx.registry->get(obj.card_def_id)) {
+            shown.energy = other->def().energy_cost;
+            shown.power = other->def().power_cost;
+        }
+    }
+    if (shown.from_hand) {
+        ctx.events.emit(CardRevealedEvent{picked, obj.card_def_id, obj.owner,
+                                          true, ctx.controller, ZoneType::Hand});
+    }
+    ri.shown_off = shown;
+    RIFT_TRACE(ctx.events, "SHOW OFF: " + obj.name +
+                     " (M=" + std::to_string(shown.might) +
+                     " E=" + std::to_string(shown.energy) +
+                     " P=" + std::to_string(shown.power) + ")");
+    return true;
 }
 
 } // namespace riftbound

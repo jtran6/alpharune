@@ -217,7 +217,12 @@ enum class Keyword : uint32_t {
     Weaponmaster = 22,
     Empower      = 23,  // Vendetta: activated "[Cost]: Empower this" (CR 827)
     Flow         = 24,  // Vendetta: spell may be played from trash for its Flow cost, then banished
-    Count        = 25,
+    // Radiance (CR 830–832). Added at the end so earlier keyword values stay
+    // put; the observation multi-hot widens with Keyword::Count.
+    Deploy       = 25,  // gear: a battlefield only; not recalled; dies when an opponent holds here
+    Disarm       = 26,  // "When I attack, give an enemy unit here -X [M] this turn"
+    ShowOff      = 27,  // as this is finalized, you may show off a matching object
+    Count        = 28,
 };
 
 // Fixed-size keyword bitset

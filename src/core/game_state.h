@@ -166,6 +166,16 @@ struct PlayerState {
     // Turn-scoped effects of a resolved spell (reset in resetTurnTracking):
     bool units_enter_ready_this_turn = false;   // "Units you play this turn enter ready" (Confront, Bushwhack)
     bool unit_died_this_turn = false;           // a unit this player controlled died this turn (Spoils of War)
+    bool gear_died_this_turn = false;           // a gear this player controlled died this turn
+    bool units_skip_awaken_ready = false;       // Firebrand Raider: units don't ready in Awaken
+    bool units_enter_ready_at_your_bf = false;  // The Exile: units played to your battlefields enter ready
+    int next_unit_any_battlefield = 0;          // Last Caress: the next unit may be played to any battlefield
+    int next_unit_accelerate = 0;               // Firelights' Hideout: the next unit has Accelerate
+    int gear_ability_bonus_damage = 0;          // Ziggs, Short-Fused: friendly gear abilities deal +1
+    int high_energy_plays_this_turn = 0;        // a card with Energy cost 7+ was played
+    int played_to_battlefield_this_turn = 0;    // a unit or gear was played to a battlefield
+    int battlefields_conquered_this_turn = 0;
+    int fanfare_draws = 0;                      // Fanfare: the next N unit plays draw 1
     // How many units this player controlled died this turn, and how many of
     // those during their own Beginning Phase: "the first time a friendly unit
     // dies (during your Beginning Phase) each turn" counts the turn's deaths,
@@ -382,6 +392,13 @@ struct PlayerState {
     int spell_discount_power = 0;
     bool spells_cant_be_countered = false;  // Mel, Newly Awakened
     int extra_minus_might = 0;            // Mel, Newly Awakened: your -[M] effects give extra
+    bool deploy_gear_have_action = false; // Jarvan IV, Martial Paragon: gear with [Deploy] have [Action]
+    bool spells_have_reaction = false;    // Kai'Sa, Rebel: while she is in a showdown, your spells have [Reaction]
+    int extra_exhausted_channel = 0;      // Seraphic Wyvern: channel 1 more, exhausted
+    // Neeko, Blending In: the three legends chosen at deckbuilding, besides
+    // the starting legend. Deck lists do not carry them yet (the gallery has
+    // no field for the choice); the play effect reads this when a deck sets it.
+    std::vector<CardDefId> neeko_legends;
     std::vector<std::string> locked_spell_names;  // Fallen Feline: this player can't play these
     int first_gear_ability_discount = 0;  // Piltovan Forge: first friendly gear ability each turn costs [N] less
 
@@ -422,6 +439,11 @@ struct PlayerState {
         unit_died_in_beginning_this_turn = false;
         units_enter_ready_this_turn = false;
         unit_died_this_turn = false;
+        gear_died_this_turn = false;
+        high_energy_plays_this_turn = 0;
+        played_to_battlefield_this_turn = 0;
+        battlefields_conquered_this_turn = 0;
+        fanfare_draws = 0;
         unit_deaths_this_turn = 0;
         unit_deaths_in_beginning_this_turn = 0;
         buff_might_bonus_this_turn = 0;
@@ -462,6 +484,11 @@ struct BattlefieldState {
     // Facedown sub-zone
     std::vector<GameObjectId> facedown;
     int facedown_max_occupancy = 1;
+    int extra_facedown = 0;    // Bushwhack Trap: the controller may hide one more card here
+    // Gravity Field: an opponent of arrival_exempt pays this to move here.
+    int arrival_energy = 0;
+    int arrival_power = 0;
+    int arrival_exempt = -1;
 
     // Staged events
     bool showdown_staged = false;
@@ -807,6 +834,23 @@ struct ChainItem {
     // card class, so the ability is the keyword's (engine/keyword_abilities.h)
     // rather than the source card's: `card_def_id` is not consulted.
     std::optional<Keyword> keyword_ability;
+    // [Disarm N] locked when the keyword ability was queued (CR 831.2: the
+    // sum of every instance, not re-read as it resolves).
+    int keyword_amount = 0;
+
+    // [Show Off] (CR 832): chosen as this item is finalized, before its cost
+    // for a spell. `did` false means the player declined or had nothing that
+    // matched. Might / Energy / Power are the shown object's at that moment
+    // (832.1.d.1) — later changes do not rewrite them.
+    struct ShownOff {
+        bool did = false;
+        GameObjectId object = kInvalidId;
+        int might = 0;
+        int energy = 0;
+        int power = 0;
+        bool from_hand = false;
+    };
+    std::optional<ShownOff> shown_off;
 
     // ── Simultaneous triggers (CR 383.3.d) ──
     // Triggered abilities that triggered at the same time share a batch

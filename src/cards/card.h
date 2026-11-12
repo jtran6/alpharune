@@ -1143,6 +1143,12 @@ public:
     /// triggers (CR 420.4.a; TriggerManager::onSpellResolved). A countered
     /// spell triggers nothing (420.4.a.1).
     static constexpr const char* kPlayedNotFromHand = "__played_not_from_hand";
+    /// [Show Off] succeeded for this play (CR 832). Written as the permanent
+    /// enters, from the chain item's locked facts. A spell reads the item.
+    static constexpr const char* kShowOffDid = "__showoff";
+    static constexpr const char* kShowOffMight = "__showoff_might";
+    static constexpr const char* kShowOffEnergy = "__showoff_energy";
+    static constexpr const char* kShowOffPower = "__showoff_power";
     /// Forget what was paid for an earlier play of `object`: kAdditionalCostPaid
     /// and the paid_flag of its optionalAdditionalCost(). The engine calls
     /// this as every play of a card begins — whatever the play path and
@@ -1398,6 +1404,37 @@ public:
         return entersReadyOnPlay(state, controller);
     }
 
+    /// [Show Off] (CR 832): whether `obj` is something this card may show off.
+    /// Default false — a card with the keyword overrides it. The engine asks
+    /// the controller's hand and the friendly permanents on the board.
+    virtual bool matchesShowOff(const GameState& /*state*/, const GameObject& /*obj*/) const {
+        return false;
+    }
+    /// Same test with the resolving context, so a cost ("Energy cost 7 or
+    /// more") can be read off the card. Default: the state-only test.
+    virtual bool matchesShowOff(const CardContext& ctx, const GameObject& obj) const {
+        return matchesShowOff(ctx.state, obj);
+    }
+    /// Heimerdinger, Academy Instructor: a unit token another effect would
+    /// play may be a 3 [M] Mech instead. True replaces `name` / `might` / `tags`.
+    virtual bool replacePlayedUnitToken(CardContext& /*ctx*/, std::string& /*name*/,
+                                        int& /*might*/,
+                                        std::vector<std::string>& /*tags*/) const {
+        return false;
+    }
+    /// Starry-Eyed Songstress: energy a spell may cost less if this permanent
+    /// can pay its optional cost right now. The play gate offers the spell
+    /// when that discount would pay for it.
+    virtual int optionalSpellEnergyOff(const GameState& /*state*/,
+                                       GameObjectId /*self*/) const { return 0; }
+    /// Pay that discount (exhaust what it names). 0 if declined or unpaid.
+    virtual int takeOptionalSpellEnergyOff(CardContext& /*ctx*/) const { return 0; }
+    /// Ask the show-off choice while this item is being finalized. True when
+    /// the choice is settled (including "no" and "nothing matched"); false
+    /// while a prompt is pending. Writes ChainItem::shown_off.
+    bool settleShowOff(CardContext& ctx);
+    /// The permanent was played after a successful show-off.
+    static bool playedWithShowOff(const GameObject& obj);
 
 private:
     // Facts about the card class that need no game state, asked very often.
@@ -1419,7 +1456,13 @@ class UnitCard : public Card {};
 
 class SpellCard : public Card {};
 
-class GearCard : public Card {};
+class GearCard : public Card {
+public:
+    /// [Deploy] gear is played only to a battlefield (CR 830.1.b). A gear
+    /// that overrides these replaces that permission.
+    bool restrictsPlayLocations() const override;
+    std::vector<LocationId> getPlayLocations(const GameState& state, PlayerId player) const override;
+};
 
 class LegendCard : public Card {};
 

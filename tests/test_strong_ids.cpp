@@ -355,6 +355,8 @@ TEST(StrongIds, EveryObjectIdReadFromAnIntegerSlotIsOnTheAuditedList) {
         {"src/cards/card.cpp", 7},
         {"src/cards/card_helpers.h", 12},   // +1: chooseFittingSubset's members, written plain by its record (batch M1)
         {"src/cards/gear/0160_dazzling_aurora.cpp", 1},   // the revealed rest, written plain (batch 6 R6)
+        {"src/cards/gear/1059_dockside_lock_up.cpp", 1},  // the banished unit, written as card_counters["__locked"]
+        {"src/cards/legends/1065_lady_of_clockwork.cpp", 1},  // the gear made a unit, written as card_counters["__clock_gear"]
         {"src/cards/gear/0412_the_zero_drive.cpp", 1},
         {"src/cards/gear/0698_scryer_s_bloom.cpp", 1},
         {"src/cards/gear/0924_shady_spectacles.cpp", 1},

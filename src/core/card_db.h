@@ -46,6 +46,7 @@ struct CardDef {
     int assault_value = 0;
     int shield_value = 0;
     int deflect_value = 0;
+    int disarm_value = 0;   // [Disarm N]; 0 with the keyword means 1 (CR 831)
 
     std::string ability_text;
     std::string effect_text;

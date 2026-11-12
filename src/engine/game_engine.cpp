@@ -1034,6 +1034,7 @@ void GameEngine::awakenPhase() {
                 const Card* card = obj.card_def_id != kInvalidId
                     ? card_registry_.get(obj.card_def_id) : nullptr;
                 if (card && !card->canBeReadied()) continue;   // "I can't be readied."
+                if (obj.isUnit() && state_.player(player).units_skip_awaken_ready) continue;
                 obj.is_exhausted = false;
                 events_.emit(ObjectStateChangedEvent{id, "readied"});
                 events_.emit(ObjectStateChangedEvent{id, "became_ready"});
@@ -1524,6 +1525,20 @@ void GameEngine::doExpirationBody() {
                 }
             }
         }
+        if (obj.temp_disarm_value != 0) {
+            obj.disarm_value -= obj.temp_disarm_value;
+            obj.temp_disarm_value = 0;
+            if (obj.disarm_value <= 0) {
+                obj.disarm_value = 0;
+                if (obj.card_def_id != kInvalidId) {
+                    const auto& def = card_db_.get(obj.card_def_id);
+                    if (!def.keywords.has(Keyword::Disarm))
+                        obj.keywords.clear(Keyword::Disarm);
+                } else {
+                    obj.keywords.clear(Keyword::Disarm);
+                }
+            }
+        }
         obj.recomputeMight();   // the temp fields were cleared above
 
         // Pure-flag keywords granted "this turn" (Bounty Hunter's
@@ -1705,6 +1720,7 @@ void GameEngine::adoptPrefinalizedChoices(ChainItem& item) {
         ci.chosen_stamps = std::move(done.chosen_stamps);
         ci.chosen_item = done.chosen_item;
         ci.may_answer = done.may_answer;
+        ci.shown_off = done.shown_off;
         ci.finalize_costs_paid = done.finalize_costs_paid;
         ci.finalize_checked = 0;
         ci.choices_finalized = true;
@@ -1719,6 +1735,15 @@ void GameEngine::adoptPrefinalizedChoices(ChainItem& item) {
 }
 
 void GameEngine::chooseFirstExecution(ChainItem& item) {
+    // A permanent. Only [Show Off] chooses as it is finalized (CR 832.1.c.2),
+    // while the item is still on the chain — resolvePermanent erases it
+    // first. Everything else a permanent chooses waits for its play trigger.
+    if (!item.is_spell && !item.is_ability) {
+        const Card* pcard = card_registry_.get(item.card_def_id);
+        if (pcard && pcard->def().keywords.has(Keyword::ShowOff))
+            runFinalizePass(item);
+        return;
+    }
     if (item.is_ability && !item.is_activated_ability) {
         // A triggered ability: its "you may", costs and targets (CR 383.3)
         // are chosen by the card's own callback, through the choice helpers
@@ -2308,6 +2333,7 @@ bool GameEngine::accelerateAvailable(PlayerId player, GameObjectId card_id,
     // no Domain, CR 805.1.b.2).
     if (!card.isUnit()) return false;
     if (card.keywords.has(Keyword::Accelerate)) return true;
+    if (state_.player(player).next_unit_accelerate > 0) return true;
     // A card on the player's board may give the unit being played
     // [Accelerate] for this play (Rek'Sai, Breacher: "played from anywhere
     // other than a player's hand"; Card::grantsAccelerateTo).
@@ -2511,6 +2537,7 @@ void GameEngine::runFinalizePass(ChainItem& item) {
         ci.owed_power = done.owed_power;
         ci.owed_power_mask = done.owed_power_mask;
         ci.may_answer = done.may_answer;
+        ci.shown_off = done.shown_off;
         ci.finalize_costs_paid = done.finalize_costs_paid;
         ci.finalize_checked = 0;
         ci.choices_finalized = true;
@@ -3217,9 +3244,26 @@ Card::PlayCostAdjust GameEngine::payAdditionalPlayCosts(PlayerId player, GameObj
     CardContext ctx{state_, events_, *effect_executor_, player, card_id};
     const EffectExecutor::ActingFor acting(*effect_executor_, card_id);
     ctx.registry = &card_registry_;
-    const auto adj = cc->payAdditionalPlayCost(ctx, [&](const Card::PlayCostAdjust& a) {
+    auto adj = cc->payAdditionalPlayCost(ctx, [&](const Card::PlayCostAdjust& a) {
         return canAffordWith(player, card_id, extra_any_power, a);
     });
+    // A different permanent's optional discount for this spell (Starry-Eyed
+    // Songstress). Taken when the spell needs it, or when the player accepts.
+    if (card.isSpell() && adj.energy_reduction == 0 && !adj.ignore_cost) {
+        for (auto& [id, obj] : state_.objects.inPlay()) {
+            if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
+            Card* other = card_registry_.get(obj.card_def_id);
+            if (!other || other->optionalSpellEnergyOff(state_, id) <= 0) continue;
+            CardContext octx{state_, events_, *effect_executor_, player, id};
+            octx.registry = &card_registry_;
+            const EffectExecutor::ActingFor acting(*effect_executor_, id);
+            const int got = other->takeOptionalSpellEnergyOff(octx);
+            if (got > 0) {
+                adj.energy_reduction += got;
+                break;
+            }
+        }
+    }
     if (adj.ignore_cost || adj.energy_reduction > 0 || adj.power_reduction > 0)
         RIFT_TRACE(events_, "ADDITIONAL_COST: " + state_.getObject(card_id).name +
                          (adj.ignore_cost ? " ignores its cost"
@@ -3663,6 +3707,11 @@ void GameEngine::executePlayCard(const Intent& intent) {
         if (it != ps.hand.end()) ps.hand.erase(it);
     } else if (card.zone == ZoneType::ChampionZone) {
         ps.champion_zone = kInvalidId;
+    } else if (card.zone == ZoneType::Banishment) {
+        auto& pile = state_.player(card.owner).banishment;
+        auto it = std::find(pile.begin(), pile.end(), intent.card);
+        if (it != pile.end()) pile.erase(it);
+        card.card_counters.erase("__playable_through_turn");
     } else if (intent.play_source == Intent::PlaySource::Trash &&
                card.zone == ZoneType::Trash) {
         // Played from the trash (a play-from-trash permission).
@@ -4115,6 +4164,11 @@ void GameEngine::executePlaySpell(const Intent& intent) {
     if (card.zone == ZoneType::Hand) {
         auto it = std::find(ps.hand.begin(), ps.hand.end(), intent.card);
         if (it != ps.hand.end()) ps.hand.erase(it);
+    } else if (card.zone == ZoneType::Banishment) {
+        auto& pile = state_.player(card.owner).banishment;
+        auto it = std::find(pile.begin(), pile.end(), intent.card);
+        if (it != pile.end()) pile.erase(it);
+        card.card_counters.erase("__playable_through_turn");
     } else if (intent.play_source == Intent::PlaySource::Trash &&
                card.zone == ZoneType::Trash) {
         // Trash-replay (Death from Below): play the spell straight out of trash.
@@ -4778,6 +4832,13 @@ void GameEngine::resolveSpell(const ChainItem& item) {
     ctx.firing_trigger = item.fired_trigger;
     ctx.registry = &card_registry_;  // lets effects dispatch into other cards' logic
 
+    // [Show Off] is part of finalizing this item (CR 832.1.c.2), before the
+    // card's own choices. A pending "may" / pick returns; the pass re-enters.
+    if (card && item.finalizing && !item.keyword_ability &&
+        card->def().keywords.has(Keyword::ShowOff) &&
+        !card->settleShowOff(ctx))
+        return;
+
     if (card && item.is_equip) {
         // An Equip (CR 818.1.c.2): "attach this gear to a unit you control" —
         // the unit it chose, if it is still a legal target (testing phase D15).
@@ -4859,6 +4920,16 @@ void GameEngine::resolvePermanent(const ChainItem& item) {
         ? ZoneType::BattlefieldZone : ZoneType::Base;
     card.location = loc;
 
+    // [Show Off] was decided while the item was still on the chain. The play
+    // trigger and "I enter ready if you showed off" read it from the object:
+    // the item is gone by then (CR 832).
+    if (item.shown_off.has_value() && item.shown_off->did) {
+        card.card_counters["__showoff"] = 1;
+        card.card_counters["__showoff_might"] = item.shown_off->might;
+        card.card_counters["__showoff_energy"] = item.shown_off->energy;
+        card.card_counters["__showoff_power"] = item.shown_off->power;
+    }
+
     // Units enter exhausted (CR 143.4) unless Accelerate / an "enters ready" effect
     if (card.isUnit()) {
         bool enters_ready = false;
@@ -4913,6 +4984,18 @@ void GameEngine::resolvePermanent(const ChainItem& item) {
         // A continuous effect of another unit on the board ("Other friendly
         // units enter ready." — its applyPassiveAura lists it as a source).
         if (state_.player(card.controller).otherUnitsEnterReady(card.id)) enters_ready = true;
+        if (state_.player(card.controller).units_enter_ready_at_your_bf &&
+            card.location.has_value()) {
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*card.location)) {
+                const auto& slot = state_.battlefields[bf->id.raw()];
+                if (slot.controller.has_value() && *slot.controller == card.controller)
+                    enters_ready = true;
+            }
+        }
+        if (state_.player(card.controller).next_unit_accelerate > 0)
+            state_.player(card.controller).next_unit_accelerate = 0;
+        if (state_.player(card.controller).next_unit_any_battlefield > 0)
+            state_.player(card.controller).next_unit_any_battlefield = 0;
         card.is_exhausted = !enters_ready;
     }
     // Gear enters ready (CR 149.1) unless it says "This enters exhausted."
@@ -5014,6 +5097,16 @@ Intent GameEngine::queryAgentForChain(PlayerId player,
 void GameEngine::executeStandardMove(const Intent& intent) {
     if (!intent.move_destination.has_value()) return;
     auto dest = *intent.move_destination;
+    if (const auto* bfl = std::get_if<BattlefieldLocation>(&dest)) {
+        const auto& slot = state_.battlefields[bfl->id.raw()];
+        if ((slot.arrival_energy > 0 || slot.arrival_power > 0) &&
+            static_cast<int>(intent.player) != slot.arrival_exempt) {
+            if (!effect_executor_->payResources(intent.player, slot.arrival_energy,
+                                                slot.arrival_power, resource::kAnyDomain,
+                                                SpendFor::Other))
+                return;
+        }
+    }
 
     // CR 144.3: "Players may perform multiple Units' standard move
     // simultaneously" — one action, one destination, any origins. The intent
@@ -5083,6 +5176,20 @@ void GameEngine::executeStandardMove(const Intent& intent) {
     // unit's move sees all of them arrived and all of them exhausted.
     for (auto unit_id : moving) state_.getObject(unit_id).is_exhausted = true;   // CR 144.2
     for (auto unit_id : moving) events_.emit(ObjectStateChangedEvent{unit_id, "exhausted"});
+    // "When you exhaust three or more friendly units at the same time"
+    // (Seraphine, Inspiring). A standard move exhausts every unit in it together.
+    if (static_cast<int>(moving.size()) >= 3) {
+        std::vector<GameObjectId> watchers;
+        for (auto& [id, obj] : state_.objects.inPlay()) {
+            if (obj.controller != intent.player || obj.card_def_id == kInvalidId) continue;
+            const Card* c = card_registry_.get(obj.card_def_id);
+            if (c && c->firesOn(TriggerType::WhenYouExhaustThreeOrMore))
+                watchers.push_back(id);
+        }
+        for (auto wid : watchers)
+            effect_executor_->queueTriggeredAbility(wid, intent.player,
+                                                    TriggerType::WhenYouExhaustThreeOrMore);
+    }
     std::vector<LocationId> origins;
     origins.reserve(moving.size());
     for (auto unit_id : moving) {
@@ -5608,8 +5715,17 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
     // (CR 144.3, executeStandardMove).
     auto all_units = state_.allUnitsControlledBy(player);
     for (auto unit_id : all_units) {
-        for (const auto& dest : standardMoveDestinations(state_.getObject(unit_id), player))
+        for (const auto& dest : standardMoveDestinations(state_.getObject(unit_id), player)) {
+            if (const auto* bfl = std::get_if<BattlefieldLocation>(&dest)) {
+                const auto& slot = state_.battlefields[bfl->id.raw()];
+                if ((slot.arrival_energy > 0 || slot.arrival_power > 0) &&
+                    static_cast<int>(player) != slot.arrival_exempt &&
+                    !resource::canPayIn(state_, player, slot.arrival_energy, slot.arrival_power,
+                                        resource::kAnyDomain, SpendFor::Other))
+                    continue;
+            }
             actions.push_back(Intent::standardMove(player, {unit_id}, dest));
+        }
     }
 
     // Play units from hand — must be able to afford the cost.
@@ -5705,19 +5821,67 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         }
     }
 
-    // Play gear from hand (to base only, CR 149.2)
+    // Play gear from hand. Ordinary gear goes to base only (CR 149.2).
+    // [Deploy] gear is played only to a battlefield (CR 830.1.b).
     for (auto card_id : ps.hand) {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isGear()) continue;
         if (!canAfford(player, card_id)) continue;
+        const Card* gear = card.card_def_id != kInvalidId
+            ? card_registry_.get(card.card_def_id) : nullptr;
 
         Intent play_intent;
         play_intent.type = IntentType::PlayCard;
         play_intent.player = player;
         play_intent.card = card_id;
+        if (gear && gear->restrictsPlayLocations()) {
+            for (const auto& loc : gear->getPlayLocations(state_, player)) {
+                Intent restricted = play_intent;
+                restricted.play_location = loc;
+                actions.push_back(restricted);
+            }
+            continue;
+        }
         play_intent.play_location = BaseLocation{player};
         actions.push_back(play_intent);
+    }
+
+    // A card banished so it may be played until the next Ending Phase
+    // (Runeblade Anvil, Akali, Brash). It still pays its cost.
+    for (GameObjectId card_id : ps.banishment) {
+        if (!state_.objectExists(card_id)) continue;
+        auto& card = state_.getObject(card_id);
+        auto mark = card.card_counters.find("__playable_through_turn");
+        if (mark == card.card_counters.end() || mark->second != state_.turn.turn_number) continue;
+        if (state_.turn.turn_player != player) continue;
+        const Card* card_obj = card_registry_.get(card.card_def_id);
+        if (!card_obj || !canAfford(player, card_id)) continue;
+        Intent play_intent;
+        play_intent.type = IntentType::PlayCard;
+        play_intent.player = player;
+        play_intent.card = card_id;
+        play_intent.play_source = Intent::PlaySource::Banishment;
+        if (card.isUnit()) {
+            play_intent.play_location = BaseLocation{player};
+            actions.push_back(play_intent);
+            if (ps.units_play_base_only) continue;
+            for (const auto& bf : state_.battlefields) {
+                if (!unitPlayableAt(card_obj, player, bf, &card)) continue;
+                Intent at = play_intent;
+                at.play_location = BattlefieldLocation{bf.id};
+                actions.push_back(at);
+            }
+        } else if (card.isGear() && card_obj->restrictsPlayLocations()) {
+            for (const auto& loc : card_obj->getPlayLocations(state_, player)) {
+                Intent at = play_intent;
+                at.play_location = loc;
+                actions.push_back(at);
+            }
+        } else {
+            play_intent.play_location = BaseLocation{player};
+            actions.push_back(play_intent);
+        }
     }
 
     // Play spells from hand — Neutral Open allows any spell (Action or not).
@@ -5781,7 +5945,8 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         // Can hide at any controlled BF with available facedown slot
         for (auto& bf : state_.battlefields) {
             if (!bf.controller.has_value() || *bf.controller != player) continue;
-            if (static_cast<int>(bf.facedown.size()) >= bf.facedown_max_occupancy) continue;
+            if (static_cast<int>(bf.facedown.size()) >=
+                bf.facedown_max_occupancy + bf.extra_facedown) continue;
 
             Intent hide;
             hide.type = IntentType::HideCard;
@@ -5933,10 +6098,26 @@ void GameEngine::generateReactionPermanentActions(PlayerId player, IntentType in
         play.player = player;
         play.card = card_id;
         if (card.isGear()) {
-            if (!card.hasKeyword(Keyword::QuickDraw) && !card_obj->hasReactionTiming()) continue;
+            const bool showdown = intent_type == IntentType::PlayActionCard;
+            const bool deploy = card.hasKeyword(Keyword::Deploy);
+            bool timing = card.hasKeyword(Keyword::QuickDraw) || card_obj->hasReactionTiming();
+            // [Action] gear, and [Deploy] gear a continuous effect gives
+            // [Action] (Jarvan IV, Martial Paragon), in a showdown.
+            if (showdown && (card.hasKeyword(Keyword::Action) ||
+                             (deploy && ps.deploy_gear_have_action)))
+                timing = true;
+            if (!timing) continue;
             if (!canAfford(player, card_id)) continue;
-            play.play_location = BaseLocation{player};
-            actions.push_back(play);
+            if (card_obj->restrictsPlayLocations()) {
+                for (const auto& loc : card_obj->getPlayLocations(state_, player)) {
+                    Intent restricted = play;
+                    restricted.play_location = loc;
+                    actions.push_back(restricted);
+                }
+            } else {
+                play.play_location = BaseLocation{player};
+                actions.push_back(play);
+            }
         } else if (card.isUnit()) {
             if (!card_obj->hasReactionTiming()) continue;
             if (!canAfford(player, card_id)) continue;
@@ -6233,7 +6414,7 @@ void GameEngine::generateSpellActions(PlayerId player, bool action_ok,
         if (!card.isSpell()) continue;
         // Check timing keywords
         bool has_action = card.keywords.has(Keyword::Action);
-        bool has_reaction = card.keywords.has(Keyword::Reaction);
+        bool has_reaction = card.keywords.has(Keyword::Reaction) || ps.spells_have_reaction;
 
         // Reaction grants all Action permissions too (CR 813.1.b)
         if (has_reaction) has_action = true;
@@ -6592,7 +6773,7 @@ void GameEngine::generateTrashReplayActions(PlayerId player, bool action_ok,
 
         // Timing gate — identical to generateSpellActions (CR 309/806/813).
         bool has_action = card.keywords.has(Keyword::Action);
-        bool has_reaction = card.keywords.has(Keyword::Reaction);
+        bool has_reaction = card.keywords.has(Keyword::Reaction) || ps.spells_have_reaction;
         if (has_reaction) has_action = true;
         bool allowed = false;
         if (state_.turn.isNeutralOpen()) {
@@ -7955,6 +8136,12 @@ void GameEngine::recalculateAuras() {
         ps.spell_discount_power = 0;
         ps.spells_cant_be_countered = false;     // Mel, Newly Awakened
         ps.extra_minus_might = 0;
+        ps.deploy_gear_have_action = false;      // Jarvan IV, Martial Paragon
+        ps.units_skip_awaken_ready = false;      // Firebrand Raider
+        ps.units_enter_ready_at_your_bf = false; // The Exile
+        ps.gear_ability_bonus_damage = 0;        // Ziggs, Short-Fused
+        ps.spells_have_reaction = false;         // Kai'Sa, Rebel
+        ps.extra_exhausted_channel = 0;          // Seraphic Wyvern
         ps.locked_spell_names.clear();           // Fallen Feline
         ps.first_gear_ability_discount = 0;      // Piltovan Forge
     }
@@ -7962,6 +8149,9 @@ void GameEngine::recalculateAuras() {
     // Altar of Blood). Reset here; re-asserted by unit/BF applyPassiveAura.
     for (auto& bf : state_.battlefields) {
         bf.multi_move_tax[0] = bf.multi_move_tax[1] = 0;   // Mageseeker Investigator
+        bf.extra_facedown = 0;                             // Bushwhack Trap
+        bf.arrival_energy = bf.arrival_power = 0;          // Gravity Field
+        bf.arrival_exempt = -1;
         bf.opp_hidden_unrevealable[0] = bf.opp_hidden_unrevealable[1] = false;
         bf.ignore_tank[0] = bf.ignore_tank[1] = false;   // Dune Surfer
         bf.ignore_deflect_here = false;                  // Heisho
@@ -8918,7 +9108,10 @@ void GameEngine::recallMisplacedObjects() {
         if (obj.controller == PlayerId::None) continue;
         const LocationId home{BaseLocation{obj.controller}};
         bool recall = false;
-        if (obj.isGear() && !obj.attached_to.has_value() && obj.isAtBattlefield())
+        // [Deploy] gear is not recalled from a battlefield (CR 830.1.b), and a
+        // gear that has become a unit is not "non-Unit Gear" (CR 323.6).
+        if (obj.isGear() && !obj.isUnit() && !obj.attached_to.has_value() &&
+            obj.isAtBattlefield() && !obj.hasKeyword(Keyword::Deploy))
             recall = true;
         if ((obj.isPermanent() || obj.isRune()) && !obj.attached_to.has_value() &&
             obj.isAtBase() && *obj.location != home)
@@ -9061,6 +9254,7 @@ GameObjectId GameEngine::instantiateCard(CardDefId def_id, PlayerId owner) {
     obj.assault_value = def.assault_value;
     obj.shield_value = def.shield_value;
     obj.deflect_value = def.deflect_value;
+    obj.disarm_value = def.disarm_value;
     obj.might_bonus = def.might_bonus;
 
     return obj_id;
@@ -9404,7 +9598,10 @@ EffectiveCardCost effectiveCardCost(const GameState& state, const CardDef& def,
     const auto& ps = state.player(player);
     // "Ignoring" a cost sets that Base Cost to zero; cost increases can still
     // raise the total above zero (CR 356.1.b, 356.1.b.3).
-    const bool ignore_energy = ps.transient_ignore_energy || adj.ignore_cost;
+    // A card banished to be played "ignoring its Energy cost" (Clocktower
+    // Guardian) stamps this; the rest of that play still pays Power.
+    const bool ignore_energy = ps.transient_ignore_energy || adj.ignore_cost ||
+        card.card_counters.find("__ignore_energy") != card.card_counters.end();
     const bool ignore_power = ps.transient_ignore_power || adj.ignore_cost;
     const int base_energy = ignore_energy ? 0 : (base ? base->energy : def.energy_cost);
     const int base_power = ignore_power ? 0 : (base ? base->power : def.power_cost);
@@ -9505,6 +9702,17 @@ bool GameEngine::canAfford(PlayerId player, GameObjectId card_obj, int extra_any
                 return true;
             if (addl.mandatory) return false;
         }
+    }
+    if (card.isSpell()) {
+        int off = 0;
+        for (auto& [id, obj] : state_.objects.inPlay()) {
+            if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
+            if (const Card* other = card_registry_.get(obj.card_def_id))
+                off = std::max(off, other->optionalSpellEnergyOff(state_, id));
+        }
+        if (off > 0 && canAffordWith(player, card_obj, extra_any_power,
+                                    Card::PlayCostAdjust{.energy_reduction = off}))
+            return true;
     }
     return canAffordWith(player, card_obj, extra_any_power, Card::PlayCostAdjust{});
 }

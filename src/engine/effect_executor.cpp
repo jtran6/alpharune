@@ -153,6 +153,7 @@ void EffectExecutor::dealDamage(GameObjectId target, int amount,
             // (Void Gate). Applied before any doubling.
             if (amount > 0) {
                 int bonus = state_.player(src_obj.controller).bonus_damage_dealt +
+                            (src_obj.isGear() ? state_.player(src_obj.controller).gear_ability_bonus_damage : 0) +
                             obj.aura_bonus_damage_taken +
                             // Ravenborn Tome rider, bound to this spell object at
                             // play time — applies to every instance it deals.
@@ -644,6 +645,7 @@ void EffectExecutor::killObject(GameObjectId target) {
                              " (id=" + toString(target) + ")");
         }
 
+        state_.player(controller).gear_died_this_turn = true;
         events_.emit(LeftBoardEvent{target, controller, CardType::Gear,
             was_at.value_or(BaseLocation{controller}),
             is_token ? ZoneType::Banishment : ZoneType::Trash, true});
@@ -1263,6 +1265,13 @@ void EffectExecutor::giveTemporaryMight(GameObjectId target, int amount, int min
     // Not "buffed": +/-[M] this turn places no Buff counter (CR 427.1), so it
     // must not fire "When you buff" abilities.
     events_.emit(ObjectStateChangedEvent{target, "might_changed"});
+    // "When you reduce the Might of an enemy unit" (Ahri, Confident). The
+    // reducer is the controller of the spell or ability that is resolving.
+    if (amount < 0 && state_.chain.resuming.has_value()) {
+        obj.card_counters["__might_reducer"] =
+            static_cast<int>(state_.chain.resuming->controller);
+        events_.emit(ObjectStateChangedEvent{target, "might_reduced"});
+    }
 }
 
 void EffectExecutor::giveKeywordThisCombat(GameObjectId unit, Keyword kw, int value,
@@ -1313,6 +1322,11 @@ void EffectExecutor::giveTemporaryKeyword(GameObjectId target,
     // Kept apart from the printed deflect_value (deflectCostFor adds the two);
     // two grants in one turn add up.
     else if (kw == Keyword::Deflect) obj.temp_deflect_value += value;
+    else if (kw == Keyword::Disarm) {
+        const int n = std::max(1, value);
+        obj.disarm_value += n;
+        obj.temp_disarm_value += n;
+    }
     obj.recomputeMight();
     // Not "buffed": a keyword given this turn is not a Buff counter (CR 427.1).
     events_.emit(ObjectStateChangedEvent{target, "keyword_granted"});
@@ -1506,7 +1520,9 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
     if (unit.banish_if_would_die_this_turn)
         candidates.push_back({Kind::BanishInstead, kInvalidId, {}, "banish it instead"});
     // "If a unit here would die ..." on the battlefield it is at (Altar of
-    // Blood); then its controller's cards in play, by object id.
+    // Blood); then its controller's cards in play. The order is what that
+    // player sees: the choice is "which replacement first", and an index into
+    // an object-id sort is a different card when the ids are relabelled.
     std::vector<GameObjectId> sources;
     if (const auto dying_bf = unit.battlefieldId())
         for (const auto& bf : state.battlefields)
@@ -1518,7 +1534,7 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
         if (!other.location.has_value() && other.zone != ZoneType::LegendZone) continue;
         in_play.push_back(id);
     }
-    std::sort(in_play.begin(), in_play.end());
+    openspiel::sortObjectsAsSeen(state, in_play, controller);
     sources.insert(sources.end(), in_play.begin(), in_play.end());
     for (auto sid : sources) {
         const Card* card = exec.cardFor(state.getObject(sid).card_def_id);
@@ -1681,9 +1697,12 @@ void EffectExecutor::announceRecycledToMainDeck(GameObjectId card) {
 void EffectExecutor::drawHeldCard(PlayerId player, GameObjectId card, bool seen_by_all) {
     if (!state_.objectExists(card) || state_.leftWhileSeen(card)) return;
     auto& obj = state_.getObject(card);
-    deck::putInHand(state_, card,
-                    seen_by_all ? knowledge::everyone() : knowledge::only(player),
-                    deck::Place::Held, player);
+    const knowledge::Seers seers =
+        seen_by_all ? knowledge::everyone() : knowledge::only(player);
+    // A look that then draws the card leaves it in the deck until here.
+    // Take it out first, or the same object is in the hand and the deck.
+    deck::take(state_, card, deck::Place::Held, seers, /*slot_public=*/false);
+    deck::putInHand(state_, card, seers, deck::Place::Held, player);
     if (seen_by_all)
         RIFT_TRACE(events_, "  DREW: " + obj.name + " (id=" + toString(card) + ")");
     else
@@ -1894,6 +1913,9 @@ void EffectExecutor::recycleCards(PlayerId effect_controller,
             drop(zps.hand);
             drop(zps.trash);
             drop(zps.banishment);
+            // A looked-at card is still listed in its deck. Putting it on the
+            // bottom without this erase would list it twice.
+            drop(zps.main_deck);
         }
         to_recycle.push_back(cid);
     }
@@ -2074,6 +2096,15 @@ void EffectExecutor::channelRunes(PlayerId player, int count, bool enter_exhaust
         events_.emit(RuneChanneledEvent{rune_id, player});
         events_.emit(EnteredBoardEvent{
             rune_id, player, CardType::Rune, BaseLocation{player}, false});
+    }
+    // Seraphic Wyvern: "If you would channel runes, channel that many plus 1
+    // exhausted rune instead." The extra is not itself a channel that adds
+    // another (the flag is set aside for the extra).
+    if (count > 0 && ps.extra_exhausted_channel > 0) {
+        const int extra = ps.extra_exhausted_channel;
+        ps.extra_exhausted_channel = 0;
+        channelRunes(player, extra, true);
+        ps.extra_exhausted_channel = extra;
     }
 }
 
@@ -2340,6 +2371,7 @@ void EffectExecutor::copyUnit(GameObjectId token_id, GameObjectId source_id) {
         token.assault_value = def.assault_value;
         token.shield_value = def.shield_value;
         token.deflect_value = def.deflect_value;
+        token.disarm_value = def.disarm_value;
         // The copy has the copied supertype (a copy of a Champion is a
         // Champion); whether it is a token is intrinsic and unchanged.
         token.super_type = def.super_type == SuperType::Token ? SuperType::None
@@ -2355,9 +2387,10 @@ void EffectExecutor::copyUnit(GameObjectId token_id, GameObjectId source_id) {
         token.keywords = src.keywords;
         token.keywords.bits &= ~src.temp_keywords.bits;
         token.super_type = SuperType::None;
-        token.assault_value = src.assault_value;
-        token.shield_value = src.shield_value;
+        token.assault_value = std::max(0, src.assault_value - src.temp_assault_value);
+        token.shield_value = std::max(0, src.shield_value - src.temp_shield_value);
         token.deflect_value = src.deflect_value;
+        token.disarm_value = std::max(0, src.disarm_value - src.temp_disarm_value);
     }
 
     // Keep token's own: owner, controller, location, zone, super_type (stays Token)
@@ -2382,6 +2415,21 @@ GameObjectId EffectExecutor::createToken(PlayerId controller, CardType type,
                                           CardDefId token_card, bool enters_exhausted) {
     if (token_depth_ == 0) last_tokens_.clear();
     const bool asked_enter_ready = enter_ready;
+    std::string token_name = name;
+    int token_might = might;
+    std::vector<std::string> token_tags = tags;
+    // A replacement of the token being played (Heimerdinger, Academy
+    // Instructor). Only a unit token, and only one replacement.
+    if (type == CardType::Unit) {
+        for (auto& [id, obj] : state_.objects.onBoard()) {
+            if (obj.controller != controller || obj.card_def_id == kInvalidId || !card_registry_) continue;
+            Card* c = card_registry_->get(obj.card_def_id);
+            if (!c) continue;
+            CardContext ctx{state_, events_, *this, controller, id};
+            ctx.registry = card_registry_;
+            if (c->replacePlayedUnitToken(ctx, token_name, token_might, token_tags)) break;
+        }
+    }
     auto id = state_.createObject();
     last_tokens_.push_back(id);
     auto& obj = state_.getObject(id);
@@ -2391,10 +2439,10 @@ GameObjectId EffectExecutor::createToken(PlayerId controller, CardType type,
     obj.super_type = SuperType::Token;
     obj.is_token = true;   // CR 185.1 intrinsic
     obj.card_def_id = token_card;
-    obj.name = name;
-    obj.base_might = might;
-    obj.current_might = might;
-    obj.tags = tags;
+    obj.name = token_name;
+    obj.base_might = token_might;
+    obj.current_might = token_might;
+    obj.tags = token_tags;
     obj.keywords = keywords;
     obj.location = location;
     // Renata Glasc, Industrialist: "Your tokens enter ready." Continuous
@@ -3174,6 +3222,13 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
     if (obj.isUnit() && location.has_value() && !unitMayBePlayedTo(player, *location)) {
         RIFT_TRACE(events_, "PLAY_BLOCKED: " + obj.name + " (id=" + toString(card) +
                          ") can't be played there — it is not played");
+        return false;
+    }
+    // [Deploy]: play or create this only to a battlefield (CR 830.1.b).
+    if (obj.isGear() && obj.hasKeyword(Keyword::Deploy) &&
+        !(location.has_value() && std::holds_alternative<BattlefieldLocation>(*location))) {
+        RIFT_TRACE(events_, "PLAY_BLOCKED: " + obj.name +
+                         " has [Deploy] and is not played to a battlefield");
         return false;
     }
     // [Accelerate] (CR 805.1.b): "As you play me, you may pay [1][C] ...". A

@@ -88,7 +88,7 @@ TEST_F(DeckFuzz, ASeedIsOneDeck) {
         EXPECT_TRUE(sameDeck(builder_->build(seed), again.build(seed))) << seed;
 }
 
-constexpr uint64_t kDeckOfSeedOne = 13376009122867512520ull;
+constexpr uint64_t kDeckOfSeedOne = 1912168231183561600ull;
 
 // Pinned: a deck seed in a findings document or a result file means this deck.
 // It changes when the card pool does (a new set, a ban); say so where the

@@ -428,7 +428,7 @@ TEST(FeaturePerspective, TheVectorEndsInZeroPaddingToAMultipleOfSixteenFloats) {
     }
     // The id ranges the constant is sized for.
     EXPECT_EQ(ml::kCardVocabSize, 2048);
-    EXPECT_EQ(ml::kLastRegisteredCardId, 955);
+    EXPECT_EQ(ml::kLastRegisteredCardId, 1123);
     EXPECT_EQ(ml::kRadianceLastCardId - ml::kRadianceFirstCardId + 1, 210);
     EXPECT_EQ(ml::kLegacyLastCardId - ml::kLegacyFirstCardId + 1, 400);
     EXPECT_EQ(ml::kCardVocabSize - ml::kSpareFirstCardId + 1, 483);

@@ -128,6 +128,8 @@ void dumpRegistry(const CardDB& db, const std::string& path) {
         Keyword::Level, Keyword::Predict, Keyword::QuickDraw, Keyword::Reaction,
         Keyword::Repeat, Keyword::Shield, Keyword::Tank, Keyword::Temporary,
         Keyword::Unique, Keyword::Vision, Keyword::Weaponmaster,
+        Keyword::Empower, Keyword::Flow, Keyword::Deploy, Keyword::Disarm,
+        Keyword::ShowOff,
     };
 
     // Sort by card_id for stable, diff-friendly output.

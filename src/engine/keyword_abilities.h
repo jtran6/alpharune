@@ -28,4 +28,9 @@ Card* keywordAbilityCard(Keyword keyword);
 /// the ability (`own_card_fires`).
 int keywordAbilityInstances(const GameObject& object, Keyword keyword, bool own_card_fires);
 
+/// [Disarm] (CR 831): the sum of every instance on `object` — the printed or
+/// temporary value, plus each aura grant. An omitted value is 1. Multiple
+/// instances are one ability that uses this sum, not one ability each.
+int disarmTotal(const GameObject& object);
+
 } // namespace riftbound

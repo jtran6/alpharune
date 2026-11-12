@@ -2008,7 +2008,8 @@ TEST_F(SweepTriggersTest, DeathReplacements_TheControllerChoosesWhenSeveralApply
 }
 
 // ... nobody is asked when only one applies, and with nobody to ask the order
-// is the listed one: the unit's own, then cards in play by object id.
+// is the listed one: the unit's own, then cards in play as the controller
+// sees them (not by object id — that order changes when ids are relabelled).
 TEST_F(SweepTriggersTest, DeathReplacements_OrderIsStableWithoutAChoice) {
     constexpr CardDefId kZhonyas = 77, kGuardianAngel = 374;
     auto lone = addUnit(P1, kInvalidId, 2, 0);
@@ -2019,9 +2020,11 @@ TEST_F(SweepTriggersTest, DeathReplacements_OrderIsStableWithoutAChoice) {
     EXPECT_TRUE(atBase(lone));
     EXPECT_FALSE(obj(only).location.has_value());
 
-    // Guardian Angel created first (lower id) and Zhonya's second, and the
-    // unit also carries "heal, exhaust and recall it instead": the default
-    // (first option) is the unit's own, leaving both gear in play.
+    // Guardian Angel created first (lower object id) and Zhonya's second. The
+    // listed order follows the cards as seen, so Zhonya's (the lower card id)
+    // is offered before Guardian Angel. The unit also carries "heal, exhaust
+    // and recall it instead": the default (first option) is the unit's own,
+    // leaving both gear in play.
     auto unit = addUnit(P1, kInvalidId, 2, 0);
     auto angel = addAttachedGear(P1, unit, kGuardianAngel);
     auto zhonya = addGear(P1, kZhonyas);
@@ -2030,8 +2033,8 @@ TEST_F(SweepTriggersTest, DeathReplacements_OrderIsStableWithoutAChoice) {
     resolveThroughEngine([&](EffectExecutor& exec, GameState&) { exec.killObject(unit); }, &dflt);
     ASSERT_EQ(dflt.prompts.size(), 1u);
     ASSERT_EQ(dflt.prompts[0].size(), 3u);
-    EXPECT_NE(dflt.prompts[0][1].choice_label.find("Guardian Angel"), std::string::npos);
-    EXPECT_NE(dflt.prompts[0][2].choice_label.find("Zhonya"), std::string::npos);
+    EXPECT_NE(dflt.prompts[0][1].choice_label.find("Zhonya"), std::string::npos);
+    EXPECT_NE(dflt.prompts[0][2].choice_label.find("Guardian Angel"), std::string::npos);
     EXPECT_TRUE(atBase(unit));
     EXPECT_TRUE(obj(angel).location.has_value());
     EXPECT_TRUE(obj(zhonya).location.has_value());

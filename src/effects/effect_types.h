@@ -219,6 +219,15 @@ enum class TriggerType : uint8_t {
                                  // settles (StateSettledEvent)
     WhenAnOpponentHidesACard,    // delayed abilities only: the other player hid a card;
                                  // triggering_subject = the hidden card
+    WhenYouReduceMight,          // "When you reduce the Might of an enemy unit" (Ahri, Confident);
+                                 // triggering_subject = the unit that was given -[M]
+    WhenIBecomeExhausted,        // "When I become exhausted,"
+    WhenAFriendlyUnitBecomesExhausted, // "When another friendly unit becomes exhausted,";
+                                 // triggering_subject = the unit
+    WhenYouExhaustThreeOrMore,   // "when you exhaust three or more friendly units at the same time"
+    WhenAFriendlyGearDies,       // "When a friendly gear dies," (Battlefield Armorer);
+                                 // triggering_subject = the gear
+    WhenFriendlyUnitsAttackHere, // "When one or more friendly units attack here," (Demacian Standard)
 };
 
 // ─── Conditions ─────────────────────────────────────────────────────────────
