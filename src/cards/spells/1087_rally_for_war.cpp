@@ -36,7 +36,7 @@ public:
             for (auto& [id, obj] : ctx.state.objects.atLocation(LocationId{BattlefieldLocation{bf.id}}))
                 if (obj.isUnit() && obj.controller != ctx.controller) occ = true;
             if (!occ) continue;
-            labels.push_back("Battlefield");
+            labels.push_back(battlefieldLabel(ctx.state, bf));
             idx.push_back(i);
         }
         if (labels.empty()) { if (finalizingChoices(ctx)) return; return; }

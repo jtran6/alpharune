@@ -20,7 +20,9 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto gears = boardObjects(ctx.state, [&](const GameObject& o) { return o.isGear() && o.controller == ctx.controller; });
-        int go = confirmOptional(ctx, "Lady of Clockwork: pay [1] to make a gear a unit", [ok=!gears.empty()]{ return ok; });
+        const bool can_pay = canPayEnergy(ctx, ctx.controller, 1);
+        int go = confirmOptional(ctx, "Lady of Clockwork: pay [1] to make a gear a unit",
+                                 [ok=!gears.empty() && can_pay]{ return ok; });
         if (go < 0) return;
         GameObjectId t = kInvalidId;
         if (go == 1) {

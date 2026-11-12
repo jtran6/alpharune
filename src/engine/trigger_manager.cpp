@@ -1353,8 +1353,19 @@ void TriggerManager::queueOwnDeathTrigger(GameObjectId object, PlayerId controll
     const auto& obj = state_.getObject(object);
     // Only a [Deathknell] ability is repeated: a plain "When I die ..." (Draven,
     // Audacious "When I die in combat") is not a Deathknell effect.
-    const int extra = obj.hasKeyword(Keyword::Deathknell)
+    int extra = obj.hasKeyword(Keyword::Deathknell)
         ? std::max(0, state_.player(controller).deathknell_double_count) : 0;
+    // "Friendly Deathknell effects here" (Detonation Amplifier). Karthus's
+    // global extra is the counter above; a card that names a place answers
+    // extraDeathknellTriggers for the object that died.
+    if (obj.hasKeyword(Keyword::Deathknell)) {
+        for (const auto& [id, other] : state_.objects.onBoard()) {
+            if (other.controller != controller || other.card_def_id == kInvalidId) continue;
+            const Card* card = card_registry_.get(other.card_def_id);
+            if (card)
+                extra += std::max(0, card->extraDeathknellTriggers(state_, id, obj));
+        }
+    }
     for (int i = 0; i < extra; ++i)
         fireTrigger(object, controller, 0, TriggerType::WhenIDie, /*subject=*/object);
     if (extra > 0) {
@@ -1553,15 +1564,21 @@ void TriggerManager::onScore(const ScoreEvent& e) {
         }
         for (auto gid : gear_here) {
             if (!state_.objectExists(gid)) continue;
-            const CardDefId gdef = state_.getObject(gid).card_def_id;
-            if (e.method == ScoreMethod::Conquer &&
-                cardFiresOn(card_registry_, gdef, TriggerType::WhenIConquer))
-                fireTrigger(gid, e.player, 0, TriggerType::WhenIConquer);
-            if (e.method == ScoreMethod::Hold &&
-                cardFiresOn(card_registry_, gdef, TriggerType::WhenIHold))
-                fireTrigger(gid, e.player, 0, TriggerType::WhenIHold);
-            if (cardFiresOn(card_registry_, gdef, TriggerType::WhenIConquerOrHold))
-                fireTrigger(gid, e.player, 0, TriggerType::WhenIConquerOrHold);
+            const auto& gear = state_.getObject(gid);
+            const CardDefId gdef = gear.card_def_id;
+            // A unit that is also a gear was already scored in the unit loop
+            // (unitsAt includes is_unit_gear). Firing When I hold / conquer
+            // again here is a second trigger for the same score.
+            if (!gear.isUnit()) {
+                if (e.method == ScoreMethod::Conquer &&
+                    cardFiresOn(card_registry_, gdef, TriggerType::WhenIConquer))
+                    fireTrigger(gid, e.player, 0, TriggerType::WhenIConquer);
+                if (e.method == ScoreMethod::Hold &&
+                    cardFiresOn(card_registry_, gdef, TriggerType::WhenIHold))
+                    fireTrigger(gid, e.player, 0, TriggerType::WhenIHold);
+                if (cardFiresOn(card_registry_, gdef, TriggerType::WhenIConquerOrHold))
+                    fireTrigger(gid, e.player, 0, TriggerType::WhenIConquerOrHold);
+            }
             if (e.method == ScoreMethod::Conquer &&
                 cardFiresOn(card_registry_, gdef, TriggerType::WhenYouConquerHere))
                 fireTrigger(gid, e.player, 0, TriggerType::WhenYouConquerHere);

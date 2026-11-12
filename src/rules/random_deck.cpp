@@ -242,6 +242,8 @@ DeckSubmission RandomDeckBuilder::build(uint64_t seed) const {
     bool has_neeko = deck.chosen_champion.raw() == 1084;
     for (CardDefId id : deck.main_deck)
         if (id.raw() == 1084) has_neeko = true;
+    for (CardDefId id : deck.sideboard)
+        if (id.raw() == 1084) has_neeko = true;
     if (has_neeko) {
         const std::string champion = db_.get(deck.legend).name;
         std::vector<CardDefId> choices;
@@ -288,6 +290,7 @@ std::string RandomDeckBuilder::toDeckList(const DeckSubmission& deck) const {
     section("MainDeck", deck.main_deck);
     section("Battlefields", deck.battlefields);
     section("Runes", deck.rune_deck);
+    if (!deck.neeko_legends.empty()) section("Neeko", deck.neeko_legends);
     return out.str();
 }
 

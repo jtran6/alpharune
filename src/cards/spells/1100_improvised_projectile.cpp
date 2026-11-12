@@ -19,9 +19,11 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeResolve; }
     FinalizeChoice mayChooseAtFinalization(const GameState& state, PlayerId player,
                                            GameObjectId object) const override {
-        return friendlyUnitChoice(state, player, object, [](const GameObject& u) {
-            return u.isAtBattlefield();
-        });
+        if (object == kInvalidId || !state.objectExists(object)) return FinalizeChoice::No;
+        const auto& o = state.getObject(object);
+        if (o.isGear() && o.controller == player && o.location.has_value()) return FinalizeChoice::Yes;
+        if (o.isUnit() && o.isAtBattlefield()) return FinalizeChoice::Yes;
+        return FinalizeChoice::No;
     }
     bool hasLegalTargets(const GameState& state, PlayerId player) const override {
         const bool gear = !boardObjects(state, [&](const GameObject& o) {

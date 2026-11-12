@@ -35,10 +35,12 @@ public:
             std::vector<std::optional<LocationId>> places;
             const bool deploy = ctx.state.getObject(card).isGear() &&
                                 ctx.state.getObject(card).hasKeyword(Keyword::Deploy);
+            const bool unit = ctx.state.getObject(card).isUnit();
             if (!deploy) {
                 labels.push_back("Your base");
                 places.push_back(LocationId{BaseLocation{ctx.controller}});
             }
+            if (deploy || unit)
             for (const auto& bf : ctx.state.battlefields) {
                 LocationId loc{BattlefieldLocation{bf.id}};
                 if (ctx.state.getObject(card).isUnit() &&

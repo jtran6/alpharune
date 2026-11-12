@@ -22,10 +22,14 @@ public:
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.id != ctx.source; });
         int go = confirmOptional(ctx, "Lulu: a unit's base Might becomes 4 this turn", [ok=!units.empty()]{ return ok; });
         if (go < 0) return;
+        GameObjectId t = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Lulu: base Might 4", units);
+            if (t == kInvalidId) return;
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        auto t = pickTarget(ctx, "Lulu: base Might 4", units);
-        if (t != kInvalidId) {
+        if (go == 1 && t != kInvalidId && ctx.state.objectExists(t) &&
+            ctx.state.getObject(t).location.has_value()) {
             ctx.state.getObject(t).base_might_this_turn = 4;
             ctx.state.getObject(t).recomputeMight();
         }

@@ -26,16 +26,15 @@ public:
                               int ability_index) const override {
         if (!BattlefieldCard::canActivateAbilityAt(state, player, source, ability_index)) return false;
         if (state.turn.turn_player != player || !state.objectExists(source)) return false;
-        const char* key = player == PlayerId::Player1 ? "__market_p1" : "__market_p2";
+        // Stamped when the cost is paid (payAndQueueAbility), so a countered
+        // activation is still this turn's use.
+        const std::string key = "__ability_used_turn_" + std::to_string(ability_index);
         auto it = state.getObject(source).card_counters.find(key);
         return it == state.getObject(source).card_counters.end() ||
                it->second != state.turn.turn_number + 1;
     }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
         ctx.executor.drawCards(ctx.controller, 1);
-        if (!ctx.state.objectExists(ctx.source)) return;
-        const char* key = ctx.controller == PlayerId::Player1 ? "__market_p1" : "__market_p2";
-        ctx.state.getObject(ctx.source).card_counters[key] = ctx.state.turn.turn_number + 1;
     }
 
 private:

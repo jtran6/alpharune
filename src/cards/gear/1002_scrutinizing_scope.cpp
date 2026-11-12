@@ -21,13 +21,11 @@ public:
         c.energy = 1; c.exhaust = true;
         return c;
     }
-    unsigned choicesAtFinalization() const override { return kFinalizeActivate; }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto guess = pickValueAs(ctx, opponent(ctx.controller),
                                  "Scrutinizing Scope: guess a card type",
                                  {"Unit", "Gear", "Spell"}, PromptKind::Mode, /*slot=*/7);
         if (!guess) return;
-        if (finalizingChoices(ctx)) return;
         const int said = *guess;
         if (said < 0) return;
         auto& deck = ctx.state.player(ctx.controller).main_deck;

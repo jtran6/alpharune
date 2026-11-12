@@ -26,27 +26,39 @@ public:
             return;
         }
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
-        int go = confirmOptional(ctx, "Exemplar of Demacia: exhaust me and pay [A] to move a unit there", [ok=!units.empty()]{ return ok; });
+        const bool ready = ctx.state.objectExists(ctx.source) &&
+                           !ctx.state.getObject(ctx.source).is_exhausted;
+        const bool can_pay = ready && ctx.executor.canPayAnyPower(ctx.controller, 1);
+        int go = confirmOptional(ctx, "Exemplar of Demacia: exhaust me and pay [A] to move a unit there",
+                                 [ok=!units.empty() && can_pay]{ return ok; });
         if (go < 0) return;
         GameObjectId t = kInvalidId;
-        BattlefieldId dest = kInvalidId;
         if (go == 1) {
             t = pickTarget(ctx, "Exemplar: move a friendly unit", units);
             if (ctx.state.chain.resuming && ctx.state.chain.resuming->resume_point == 7) return;
-            if (ctx.state.objectExists(sub) && ctx.state.getObject(sub).location.has_value()) {
-                if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(sub).location))
-                    dest = bf->id;
-            }
             if (costDueNow(ctx)) {
-                const bool paid = t != kInvalidId && dest.valid() &&
+                BattlefieldId there = kInvalidId;
+                if (ctx.state.objectExists(sub) && ctx.state.getObject(sub).location.has_value()) {
+                    if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(sub).location))
+                        there = bf->id;
+                }
+                auto& ri = *ctx.state.chain.resuming;
+                while (ri.resume_data.size() <= 17) ri.resume_data.push_back(0);
+                ri.resume_data[16] = there.valid() ? there.raw() + 1 : 0;
+                const bool legend_ready = ctx.state.objectExists(ctx.source) &&
+                                          !ctx.state.getObject(ctx.source).is_exhausted;
+                const bool paid = t != kInvalidId && there.valid() && legend_ready &&
                     ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other);
                 if (!paid) markCostUnpaid(ctx);
                 else ctx.executor.exhaustObject(ctx.source);
             }
         }
         if (finalizingChoices(ctx)) return;
-        if (go != 1 || costUnpaid(ctx) || t == kInvalidId || !dest.valid()) return;
-        ctx.executor.moveToBattlefield(t, dest);
+        int locked = 0;
+        if (ctx.state.chain.resuming && ctx.state.chain.resuming->resume_data.size() > 16)
+            locked = ctx.state.chain.resuming->resume_data[16];
+        if (go != 1 || costUnpaid(ctx) || t == kInvalidId || locked <= 0) return;
+        ctx.executor.moveToBattlefield(t, BattlefieldId::fromRaw(locked - 1));
     }
 
 private:

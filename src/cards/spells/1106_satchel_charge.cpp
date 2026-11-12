@@ -30,7 +30,18 @@ public:
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
         auto t = pickTarget(ctx, "Satchel Charge: move a friendly unit", units);
         if (finalizingChoices(ctx)) return;
-        if (t != kInvalidId && ctx.state.objectExists(t) && ctx.state.getObject(t).location.has_value()) {
+        // The Bomb's battlefield is chosen as that token is played, after
+        // this marker (CR 420.3.b.2). That prompt re-enters this callback,
+        // so the move is stamped the first time and not run again.
+        bool already = false;
+        if (ctx.state.chain.resuming.has_value()) {
+            auto& rd = ctx.state.chain.resuming->resume_data;
+            while (rd.size() <= 20) rd.push_back(0);
+            already = rd[20] != 0;
+            rd[20] = 1;
+        }
+        if (!already && t != kInvalidId && ctx.state.objectExists(t) &&
+            ctx.state.getObject(t).location.has_value()) {
             if (std::holds_alternative<BaseLocation>(*ctx.state.getObject(t).location)) {
                 if (!ctx.state.battlefields.empty()) ctx.executor.moveToBattlefield(t, ctx.state.battlefields[0].id);
             } else ctx.executor.moveToBase(t);

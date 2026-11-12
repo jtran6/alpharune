@@ -40,7 +40,7 @@ public:
             for (auto& [id, obj] : ctx.state.objects.atLocation(LocationId{BattlefieldLocation{bf.id}}))
                 if (obj.isUnit()) occ = true;
             if (!occ) continue;
-            labels.push_back("Battlefield");
+            labels.push_back(battlefieldLabel(ctx.state, bf));
             ids.push_back(bf.id);
         }
         if (labels.empty()) return;

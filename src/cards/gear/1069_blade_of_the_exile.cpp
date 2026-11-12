@@ -23,40 +23,58 @@ public:
         c.power = 0;
         return c;
     }
+    // "[A] or exhaust a friendly unit." The [A] is Power of any Domain,
+    // spent as a gear cost so gear-only Power pays it. Weaponmaster's
+    // "[A] less" (EquipTerms::power_discount) takes that Power to 0, and
+    // then neither half is asked.
     bool canPayEquipExtraCost(const GameState& state, PlayerId controller,
-                              GameObjectId, GameObjectId) const override {
-        if (resource::canPayIn(state, controller, 0, 1, resource::kAnyDomain, SpendFor::Other))
+                              GameObjectId, GameObjectId,
+                              const EquipTerms& terms) const override {
+        const int power = std::max(0, 1 - std::max(0, terms.power_discount));
+        if (power == 0 ||
+            resource::canPayIn(state, controller, 0, power, resource::kAnyDomain, SpendFor::Gear))
             return true;
         return !chooseableUnits(state, controller, [&](const GameObject& u) {
             return u.controller == controller && !u.is_exhausted;
         }).empty();
     }
-    bool payEquipExtraCost(CardContext& ctx, GameObjectId) override {
-        const bool power = resource::canPayIn(ctx.state, ctx.controller, 0, 1, resource::kAnyDomain,
-                                              SpendFor::Other);
+    bool canPayEquipExtraCost(const GameState& state, PlayerId controller,
+                              GameObjectId gear, GameObjectId unit) const override {
+        return canPayEquipExtraCost(state, controller, gear, unit, EquipTerms{});
+    }
+    bool payEquipExtraCost(CardContext& ctx, GameObjectId, const EquipTerms& terms) override {
+        const int power = std::max(0, 1 - std::max(0, terms.power_discount));
+        if (power == 0) return true;
+        const bool can_power = resource::canPayIn(ctx.state, ctx.controller, 0, power,
+                                                  resource::kAnyDomain, SpendFor::Gear);
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
             return u.controller == ctx.controller && !u.is_exhausted;
         });
-        if (power && units.empty())
-            return ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other);
-        if (!power && !units.empty()) {
+        if (can_power && units.empty())
+            return ctx.executor.payResources(ctx.controller, 0, power, resource::kAnyDomain,
+                                             SpendFor::Gear);
+        if (!can_power && !units.empty()) {
             const GameObjectId u = ctx.executor.chooseObjectNow(
                 ctx.controller, units, "Blade of the Exile: exhaust a friendly unit");
             if (u == kInvalidId) return false;
             ctx.executor.exhaustObject(u);
             return true;
         }
-        if (!power) return false;
+        if (!can_power) return false;
         const int which = ctx.executor.chooseValueNow(
             ctx.controller, {"Pay [A]", "Exhaust a friendly unit"},
             "Blade of the Exile: [A] or exhaust a friendly unit", PromptKind::Mode);
         if (which == 0)
-            return ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other);
+            return ctx.executor.payResources(ctx.controller, 0, power, resource::kAnyDomain,
+                                             SpendFor::Gear);
         const GameObjectId u = ctx.executor.chooseObjectNow(
             ctx.controller, units, "Blade of the Exile: exhaust a friendly unit");
         if (u == kInvalidId) return false;
         ctx.executor.exhaustObject(u);
         return true;
+    }
+    bool payEquipExtraCost(CardContext& ctx, GameObjectId unit) override {
+        return payEquipExtraCost(ctx, unit, EquipTerms{});
     }
 
 private:

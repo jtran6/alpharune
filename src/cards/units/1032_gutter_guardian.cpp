@@ -17,6 +17,7 @@ public:
     const CardDef& def() const override { return def_; }
 
     bool matchesShowOff(const GameState&, const GameObject& obj) const override {
+        if (obj.isToken()) return false;
         return obj.hasKeyword(Keyword::Hidden);
     }
     bool triggeredAbilityAdds(TriggerType) const override { return true; }

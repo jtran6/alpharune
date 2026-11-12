@@ -101,6 +101,7 @@ private:
     void checkRuneDomains(const DeckSubmission& deck, ValidationResult& result,
                           const CardDef& legend) const;
     void checkBanList(const DeckSubmission& deck, ValidationResult& result) const;
+    void checkNeekoLegends(const DeckSubmission& deck, ValidationResult& result) const;
 
     std::set<CardDefId> banned_ids_;
     std::vector<std::string> banned_names_;  // for error messages

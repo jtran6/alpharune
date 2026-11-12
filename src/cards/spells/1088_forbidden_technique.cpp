@@ -48,18 +48,28 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeResolve | kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         int go = confirmOptional(ctx, "Forbidden Technique: play this from your trash for [1] and 2 Fury?",
-                                 [] { return true; });
+                                 [&] {
+                                     if (!ctx.state.objectExists(ctx.source) ||
+                                         ctx.state.getObject(ctx.source).zone != ZoneType::Trash)
+                                         return false;
+                                     if (!hasLegalTargets(ctx.state, ctx.controller)) return false;
+                                     return ctx.executor.canPayWithAdds(
+                                         ctx.controller, 1, 2, resource::maskOf(Domain::Fury), SpendFor::Spell);
+                                 });
         if (go < 0) return;
         if (go == 1 && costDueNow(ctx)) {
             const bool paid = ctx.executor.payResources(
                 ctx.controller, 1, 2, resource::maskOf(Domain::Fury), SpendFor::Spell);
             if (!paid) markCostUnpaid(ctx);
-            else if (ctx.state.objectExists(ctx.source))
-                ctx.state.getObject(ctx.source).card_counters["__ft_banish"] = 1;
         }
         if (finalizingChoices(ctx)) return;
         if (go != 1 || costUnpaid(ctx)) return;
-        ctx.executor.playIgnoringCost(ctx.controller, ctx.source, std::nullopt);
+        if (!ctx.executor.playIgnoringCost(ctx.controller, ctx.source, std::nullopt)) return;
+        // playIgnoringCost forgets per-play stamps first. The banish belongs
+        // to this play, so it is stamped after that, and cleared once the
+        // spell resolves.
+        if (ctx.state.objectExists(ctx.source))
+            ctx.state.getObject(ctx.source).card_counters["__ft_banish"] = 1;
     }
 
 private:

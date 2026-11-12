@@ -437,6 +437,9 @@ public:
     static void markCostUnpaid(CardContext& ctx);
     /// Whether an earlier run of this callback recorded that.
     static bool costUnpaid(const CardContext& ctx);
+    /// The same bit on a chain item the finalize pass has already copied off
+    /// the resume slot (CR 405.2: an unpaid triggered ability is not performed).
+    static bool itemCostUnpaid(const ChainItem& item);
 
     /// Variable-X cost helper (CR principle: "pay any amount of [X]").
     ///
@@ -972,6 +975,18 @@ public:
         int power_discount = 0;         // Weaponmaster: "for [A] less" (CR 821.1.c)
         bool even_if_attached = false;  // Weaponmaster: "even if it's already attached"
     };
+    /// The extra cost after Equip discounts. The default ignores the
+    /// discount and calls the form that does not take terms, so a card
+    /// whose extra cost is not Power keeps working.
+    virtual bool canPayEquipExtraCost(const GameState& state, PlayerId controller,
+                                      GameObjectId gear, GameObjectId unit,
+                                      const EquipTerms& /*terms*/) const {
+        return canPayEquipExtraCost(state, controller, gear, unit);
+    }
+    virtual bool payEquipExtraCost(CardContext& ctx, GameObjectId unit,
+                                   const EquipTerms& /*terms*/) {
+        return payEquipExtraCost(ctx, unit);
+    }
     /// This gear's Equip cost for `unit` after `terms`' discounts.
     EquipCost netEquipCost(const GameState& state, PlayerId controller, GameObjectId gear,
                            GameObjectId unit, const EquipTerms& terms) const;
@@ -1262,6 +1277,15 @@ public:
                                    PlayerId /*scorer*/, BattlefieldId /*bf*/,
                                    bool /*hold*/) const { return 0; }
 
+    /// "Friendly [Deathknell] effects here trigger an additional time."
+    /// Asked of every card the dying object's controller has on the board
+    /// when that object's Deathknell is queued. `dying` has already left;
+    /// its last-known location is where "here" was. Each +1 queues that
+    /// Deathknell once more. A global "your Deathknell effects" (Karthus)
+    /// stays on `PlayerState::deathknell_double_count`.
+    virtual int extraDeathknellTriggers(const GameState& /*state*/, GameObjectId /*self*/,
+                                        const GameObject& /*dying*/) const { return 0; }
+
     /// "When ONE OR MORE enemy units die, ..." (Battle Mistress): true makes
     /// `trigger` fire once for a set of events that happen together instead of
     /// once per event — while an ability of this source for that trigger is
@@ -1450,6 +1474,8 @@ public:
     /// while a prompt is pending. Writes ChainItem::shown_off. The prompts
     /// use their own resume slots, so they do not consume the spell's target.
     bool settleShowOff(CardContext& ctx);
+    /// Printed [Show Off], or [Show Off] an aura has granted this object.
+    bool showsOff(const GameState& state, GameObjectId source) const;
     /// The same choice for a permanent an effect plays, which never takes a
     /// finalize pass of its own (CR 420.3.b, 832.1.c). Synchronous: it stamps
     /// the show-off counters on `card` before the permanent enters.

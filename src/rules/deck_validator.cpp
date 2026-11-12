@@ -31,6 +31,7 @@ ValidationResult DeckValidator::validate(const DeckSubmission& deck) const {
     checkCopyLimits(deck, result);
     checkSignatureLimits(deck, result, legend);
     checkBanList(deck, result);
+    checkNeekoLegends(deck, result);
 
     return result;
 }
@@ -358,6 +359,8 @@ DeckSubmission DeckValidator::loadFromDeckList(const std::string& path,
             for (int i = 0; i < count; ++i) deck.rune_deck.push_back(id);
         } else if (section == "sideboard") {
             for (int i = 0; i < count; ++i) deck.sideboard.push_back(id);
+        } else if (section == "neeko") {
+            for (int i = 0; i < count; ++i) deck.neeko_legends.push_back(id);
         } else {
             fail("unknown section '" + section + "'");
         }
@@ -373,6 +376,36 @@ DeckSubmission DeckValidator::loadFromDeckList(const std::string& path,
 // ═══════════════════════════════════════════════════════════════════════════════
 // Ban list
 // ═══════════════════════════════════════════════════════════════════════════════
+
+void DeckValidator::checkNeekoLegends(const DeckSubmission& deck,
+                                      ValidationResult& result) const {
+    auto contains = [](const std::vector<CardDefId>& ids, int raw) {
+        for (CardDefId id : ids) if (id.raw() == raw) return true;
+        return false;
+    };
+    const bool has_neeko = deck.chosen_champion.raw() == 1084 ||
+                           contains(deck.main_deck, 1084) || contains(deck.sideboard, 1084);
+    if (!has_neeko) {
+        if (!deck.neeko_legends.empty())
+            result.addError("Neeko legends are only legal when Neeko, Blending In is in the deck");
+        return;
+    }
+    if (deck.neeko_legends.size() > 3)
+        result.addError("Neeko allows at most 3 additional legends, got " +
+                        std::to_string(deck.neeko_legends.size()));
+    const std::string starting = deck.legend != kInvalidId
+        ? db_.get(deck.legend).name : std::string{};
+    std::set<std::string> names;
+    for (CardDefId id : deck.neeko_legends) {
+        const auto& card = db_.get(id);
+        if (card.card_type != CardType::Legend)
+            result.addError("Neeko legend is not a legend: " + card.name);
+        if (!starting.empty() && card.name == starting)
+            result.addError("Neeko legend matches the starting legend: " + card.name);
+        if (!names.insert(card.name).second)
+            result.addError("Neeko legends must be different: " + card.name);
+    }
+}
 
 void DeckValidator::loadBanList(const std::string& csv_path) {
     std::ifstream file(csv_path);

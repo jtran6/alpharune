@@ -17,18 +17,16 @@ public:
     const CardDef& def() const override { return def_; }
 
     unsigned choicesAtFinalization() const override { return kFinalizeResolve; }
-    FinalizeChoice mayChooseAtFinalization(const GameState& state, PlayerId player,
+    FinalizeChoice mayChooseAtFinalization(const GameState& state, PlayerId,
                                            GameObjectId object) const override {
-        return friendlyUnitChoice(state, player, object, [](const GameObject& u) {
-            return u.isAtBattlefield();
-        });
+        if (object == kInvalidId || !state.objectExists(object)) return FinalizeChoice::No;
+        const auto& u = state.getObject(object);
+        return (u.isUnit() && u.isAtBattlefield()) ? FinalizeChoice::Yes : FinalizeChoice::No;
     }
-    bool hasLegalTargets(const GameState& state, PlayerId) const override {
-        for (const auto& bf : state.battlefields) {
-            for (const auto& [id, obj] : state.objects.atLocation(LocationId{BattlefieldLocation{bf.id}}))
-                if (obj.isUnit()) return true;
-        }
-        return false;
+    bool hasLegalTargets(const GameState& state, PlayerId player) const override {
+        return !chooseableUnits(state, player, [](const GameObject& u) {
+            return u.isAtBattlefield();
+        }).empty();
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
         // splitDamageAmong resets resume_data when it starts, which wiped the
@@ -46,7 +44,7 @@ public:
                 bool any = false;
                 LocationId there{BattlefieldLocation{ctx.state.battlefields[i].id}};
                 for (const auto& [id, obj] : ctx.state.objects.atLocation(there))
-                    if (obj.isUnit()) any = true;
+                    if (obj.isUnit() && !obj.untargetable_by_enemy && obj.location.has_value()) any = true;
                 if (!any) continue;
                 const auto bf_card = ctx.state.battlefields[i].card_object_id;
                 labels.push_back(ctx.state.objectExists(bf_card)
@@ -72,7 +70,9 @@ public:
         if (stored < 0 || stored >= static_cast<int>(ctx.state.battlefields.size())) return;
         std::vector<GameObjectId> units;
         LocationId there{BattlefieldLocation{ctx.state.battlefields[stored].id}};
-        for (auto& [id, obj] : ctx.state.objects.atLocation(there)) if (obj.isUnit()) units.push_back(id);
+        units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            return u.location.has_value() && *u.location == there;
+        });
         std::vector<GameObjectId> damaged;
         splitDamageAmong(ctx, "Scorched Earth", 5, ctx.source, units, damaged);
     }

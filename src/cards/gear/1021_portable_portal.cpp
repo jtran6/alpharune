@@ -30,13 +30,22 @@ public:
             if (!u.location.has_value() || !ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value()) return false;
             return *u.location == *ctx.state.getObject(ctx.source).location;
         });
-        int go = confirmOptional(ctx, "Portable Portal: pay [O] to ready a unit here", [ok=!units.empty()]{ return ok; });
+        const bool can_pay = resource::canPay(ctx.state, ctx.controller, 0, 1, Domain::Body);
+        int go = confirmOptional(ctx, "Portable Portal: pay [O] to ready a unit here",
+                                 [ok=!units.empty() && can_pay]{ return ok; });
         if (go < 0) return;
+        GameObjectId t = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Portable Portal: ready", units);
+            if (t == kInvalidId) return;
+            if (costDueNow(ctx) &&
+                !ctx.executor.payResources(ctx.controller, 0, 1, resource::maskOf(Domain::Body),
+                                           SpendFor::Other)) {
+                markCostUnpaid(ctx);
+            }
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        if (!ctx.executor.payResources(ctx.controller, 0, 1, resource::maskOf(Domain::Body), SpendFor::Other)) return;
-        auto t = pickTarget(ctx, "Portable Portal: ready", units);
-        if (t != kInvalidId) ctx.executor.readyObject(t);
+        if (go == 1 && t != kInvalidId && !costUnpaid(ctx)) ctx.executor.readyObject(t);
     }
 
 private:

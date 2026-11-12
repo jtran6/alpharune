@@ -21,7 +21,8 @@ public:
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (ctx.state.battlefields.empty()) { if (finalizingChoices(ctx)) return; return; }
         std::vector<std::string> labels;
-        for (const auto& bf : ctx.state.battlefields) labels.push_back("Battlefield");
+        for (const auto& bf : ctx.state.battlefields)
+            labels.push_back(battlefieldLabel(ctx.state, bf));
         int mode = pickMode(ctx, "Bedeviling Stranger: a battlefield", static_cast<int>(labels.size()), labels);
         if (mode < 0) return;
         if (finalizingChoices(ctx)) return;

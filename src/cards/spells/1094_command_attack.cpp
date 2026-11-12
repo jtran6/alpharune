@@ -21,20 +21,35 @@ public:
         return FinalizeChoice::No;
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        int mode = pickMode(ctx, "Command: Attack", 2, {"Move a friendly Deploy gear", "Look at the top 5"});
+        auto gears = boardObjects(ctx.state, [&](const GameObject& o) {
+            return o.isGear() && o.controller == ctx.controller && o.hasKeyword(Keyword::Deploy);
+        });
+        // Mode 0 needs a Deploy gear and a battlefield. With neither, only
+        // the look is offered, so the spell is not played into a required
+        // choice that has no option.
+        uint32_t modes = 2u;
+        if (!gears.empty() && !ctx.state.battlefields.empty()) modes |= 1u;
+        int mode = pickMode(ctx, "Command: Attack", 2,
+                            {"Move a friendly Deploy gear", "Look at the top 5"}, modes);
         if (mode < 0) return;
+        GameObjectId gear = kInvalidId;
+        int where = -1;
+        if (mode == 0) {
+            gear = pickTarget(ctx, "Command: Attack: a Deploy gear", gears);
+            if (gear == kInvalidId) return;
+            std::vector<std::string> labels;
+            for (const auto& bf : ctx.state.battlefields)
+                labels.push_back(battlefieldLabel(ctx.state, bf));
+            auto w = pickValueAs(ctx, ctx.controller, "Command: Attack: a battlefield",
+                                 labels, PromptKind::Location, 16);
+            if (!w) return;
+            where = *w;
+        }
         if (finalizingChoices(ctx)) return;
         if (mode == 0) {
-            auto gears = boardObjects(ctx.state, [&](const GameObject& o) {
-                return o.isGear() && o.controller == ctx.controller && o.hasKeyword(Keyword::Deploy);
-            });
-            auto t = pickTarget(ctx, "Command: Attack: a Deploy gear", gears);
-            if (t == kInvalidId) return;
-            std::vector<std::string> labels;
-            for (const auto& bf : ctx.state.battlefields) labels.push_back("Battlefield");
-            if (labels.empty()) return;
-            int where = pickMode(ctx, "Command: Attack: a battlefield", static_cast<int>(labels.size()), labels);
-            if (where >= 0) ctx.executor.moveToBattlefield(t, ctx.state.battlefields[where].id);
+            if (gear != kInvalidId && where >= 0 &&
+                where < static_cast<int>(ctx.state.battlefields.size()))
+                ctx.executor.moveToBattlefield(gear, ctx.state.battlefields[where].id);
         } else {
             auto& deck = ctx.state.player(ctx.controller).main_deck;
             int n = std::min(5, static_cast<int>(deck.size()));

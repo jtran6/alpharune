@@ -21,7 +21,6 @@ public:
         c.exhaust = true;
         return c;
     }
-    unsigned choicesAtFinalization() const override { return kFinalizeActivate; }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
         const PlayerId them = opponent(ctx.controller);
         BattlefieldId here = kInvalidId;
@@ -34,8 +33,16 @@ public:
         });
         auto t = selectObjectAs(ctx, them, "Angler Wyrm: move a unit you control here", units, /*slot=*/7);
         if (!t) return;
-        if (finalizingChoices(ctx)) return;
-        if (*t == kInvalidId || !here.valid()) return;
+        // "My battlefield" is where I am as this resolves. A unit that died
+        // in response is not in the list the opponent was just shown.
+        here = kInvalidId;
+        if (ctx.state.objectExists(ctx.source) && ctx.state.getObject(ctx.source).location.has_value()) {
+            if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
+                here = bf->id;
+        }
+        if (*t == kInvalidId || !here.valid() || !ctx.state.objectExists(*t) ||
+            !ctx.state.getObject(*t).location.has_value())
+            return;
         ctx.executor.moveToBattlefield(*t, here);
     }
 

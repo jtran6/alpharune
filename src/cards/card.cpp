@@ -112,6 +112,22 @@ void Card::forgetPlayPayments(GameState& state, const Card* card, PlayerId playe
     counters.erase(kShowOffMight);
     counters.erase(kShowOffEnergy);
     counters.erase(kShowOffPower);
+    // Per-resolution scratch. A second cast of the same object is a new play
+    // (CR 124.1): a stamp left by the previous resolution must not steer it.
+    counters.erase("__bp_might");
+    counters.erase("__scorched_bf");
+    counters.erase("__ft_banish");
+    counters.erase("__chrono_x");
+    counters.erase("__chrono_banished");
+    counters.erase("__cn");
+    counters.erase("__encore_applied");
+    counters.erase("__encore_looks");
+    counters.erase("__encore_topn");
+    for (int i = 0; i < 8; ++i) {
+        counters.erase("__encore_top" + std::to_string(i));
+        counters.erase("__cu" + std::to_string(i));
+        counters.erase("__cl" + std::to_string(i));
+    }
     if (!card) return;
     for (const auto& oac : {card->optionalAdditionalCost(),
                             card->optionalAdditionalCost(state, player)})
@@ -259,6 +275,10 @@ void Card::markCostUnpaid(CardContext& ctx) {
 bool Card::costUnpaid(const CardContext& ctx) {
     const auto& r = ctx.state.chain.resuming;
     return r.has_value() && (choiceState(*r) & kCostUnpaid);
+}
+
+bool Card::itemCostUnpaid(const ChainItem& item) {
+    return (choiceState(item) & kCostUnpaid) != 0;
 }
 
 bool Card::killAsCost(CardContext& ctx, GameObjectId object) const {
@@ -1331,7 +1351,7 @@ bool Card::canPayEquip(const GameState& state, PlayerId controller, GameObjectId
                           cost.power_any_domain ? Domain::Count : cost.power_domain,
                           SpendFor::Gear))
         return false;
-    return canPayEquipExtraCost(state, controller, gear, unit);
+    return canPayEquipExtraCost(state, controller, gear, unit, terms);
 }
 
 bool Card::payEquipAndAttach(CardContext& ctx, GameObjectId unit, const EquipTerms& terms) {
@@ -1342,7 +1362,7 @@ bool Card::payEquipAndAttach(CardContext& ctx, GameObjectId unit, const EquipTer
                                                                           : cost.power_domain),
                                    SpendFor::Gear))
         return false;
-    if (!payEquipExtraCost(ctx, unit)) return false;
+    if (!payEquipExtraCost(ctx, unit, terms)) return false;
     // The extra cost may have removed either end ("Kill a friendly unit").
     if (!equipEndsOnBoard(ctx.state, ctx.source, unit)) return false;
     // EffectExecutor::attachGear takes an attached Equipment off its old
@@ -1360,7 +1380,7 @@ bool Card::payEquip(CardContext& ctx, GameObjectId unit, const EquipTerms& terms
                                                                           : cost.power_domain),
                                    SpendFor::Gear))
         return false;
-    return payEquipExtraCost(ctx, unit);
+    return payEquipExtraCost(ctx, unit, terms);
 }
 
 bool Card::attachByEquip(CardContext& ctx, GameObjectId unit) {
@@ -1486,6 +1506,16 @@ std::vector<LocationId> GearCard::getPlayLocations(const GameState& state, Playe
     return out;
 }
 
+bool Card::showsOff(const GameState& state, GameObjectId source) const {
+    if (def().keywords.has(Keyword::ShowOff)) return true;
+    if (!state.objectExists(source)) return false;
+    const auto& obj = state.getObject(source);
+    if (obj.hasKeyword(Keyword::ShowOff)) return true;
+    for (const auto& ae : obj.aura_effects)
+        if (ae.keyword == Keyword::ShowOff) return true;
+    return false;
+}
+
 bool Card::playedWithShowOff(const GameObject& obj) {
     auto it = obj.card_counters.find(kShowOffDid);
     return it != obj.card_counters.end() && it->second != 0;
@@ -1563,7 +1593,7 @@ bool Card::settleShowOff(CardContext& ctx) {
     if (!ri_opt.has_value()) return true;
     auto& ri = *ri_opt;
     if (ri.shown_off.has_value()) return true;
-    if (!def().keywords.has(Keyword::ShowOff)) return true;
+    if (!showsOff(ctx.state, ctx.source)) return true;
 
     const int instances = showOffInstances(ctx);
     while (static_cast<int>(ri.resume_data.size()) < kShowOffBase + instances * kShowOffStride)
@@ -1636,7 +1666,6 @@ bool Card::settleShowOff(CardContext& ctx) {
     }
 
     ri.shown_offs.clear();
-    ChainItem::ShownOff combined;
     for (int i = 0; i < instances; ++i) {
         const int slot = kShowOffBase + i * kShowOffStride;
         ChainItem::ShownOff one;
@@ -1647,25 +1676,21 @@ bool Card::settleShowOff(CardContext& ctx) {
             one.energy = ri.resume_data[slot + 3];
             one.power = ri.resume_data[slot + 4];
             one.from_hand = ri.resume_data[slot + 5] != 0;
-            if (!combined.did) combined = one;
-            else {
-                combined.might += one.might;
-                combined.energy += one.energy;
-                combined.power += one.power;
-            }
         }
         ri.shown_offs.push_back(one);
     }
-    ri.shown_off = combined;
+    // The printed instance only. A later, granted instance is its own
+    // record in shown_offs and does not rewrite this one (CR 832.2.a).
+    if (!ri.shown_offs.empty()) ri.shown_off = ri.shown_offs.front();
     return true;
 }
 
 void Card::offerShowOffNow(CardContext& ctx) {
-    if (!def().keywords.has(Keyword::ShowOff)) return;
+    if (!showsOff(ctx.state, ctx.source)) return;
     if (!ctx.state.objectExists(ctx.source)) return;
     const int instances = showOffInstances(ctx);
     int might = 0, energy = 0, power = 0;
-    bool any = false;
+    bool printed = false;
     std::vector<GameObjectId> taken;
     for (int i = 0; i < instances; ++i) {
         auto options = showOffOptions(ctx, *this);
@@ -1677,12 +1702,17 @@ void Card::offerShowOffNow(CardContext& ctx) {
             ctx.controller, options, "Show off — choose a card or a friendly permanent");
         if (picked == kInvalidId || !ctx.state.objectExists(picked)) continue;
         const auto& obj = ctx.state.getObject(picked);
-        any = true;
-        might += obj.current_might;
-        if (ctx.registry && obj.card_def_id != kInvalidId) {
-            if (const Card* other = ctx.registry->get(obj.card_def_id)) {
-                energy += other->def().energy_cost;
-                power += other->def().power_cost;
+        // The linked record is the first instance, the one this card
+        // printed. Later instances are still shown off; they do not add
+        // their Might to that record (CR 832.2.a).
+        if (i == 0) {
+            printed = true;
+            might = obj.current_might;
+            if (ctx.registry && obj.card_def_id != kInvalidId) {
+                if (const Card* other = ctx.registry->get(obj.card_def_id)) {
+                    energy = other->def().energy_cost;
+                    power = other->def().power_cost;
+                }
             }
         }
         if (obj.zone == ZoneType::Hand) {
@@ -1691,7 +1721,7 @@ void Card::offerShowOffNow(CardContext& ctx) {
         }
         taken.push_back(picked);
     }
-    if (!any || !ctx.state.objectExists(ctx.source)) return;
+    if (!printed || !ctx.state.objectExists(ctx.source)) return;
     auto& self = ctx.state.getObject(ctx.source);
     self.card_counters[kShowOffDid] = 1;
     self.card_counters[kShowOffMight] = might;

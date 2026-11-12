@@ -35,7 +35,7 @@ public:
         std::vector<BattlefieldId> open;
         for (const auto& bf : ctx.state.battlefields) {
             if (bf.controller.has_value()) continue;
-            labels.push_back("Open battlefield");
+            labels.push_back("Open — " + battlefieldLabel(ctx.state, bf));
             open.push_back(bf.id);
         }
         if (!open.empty()) {

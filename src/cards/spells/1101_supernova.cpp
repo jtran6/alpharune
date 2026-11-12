@@ -16,9 +16,11 @@ class Supernova_1101 : public SpellCard {
 public:
     const CardDef& def() const override { return def_; }
     unsigned choicesAtFinalization() const override { return kFinalizeResolve; }
-    FinalizeChoice mayChooseAtFinalization(const GameState& state, PlayerId player,
+    FinalizeChoice mayChooseAtFinalization(const GameState& state, PlayerId,
                                            GameObjectId object) const override {
-        return friendlyUnitChoice(state, player, object);
+        if (object == kInvalidId || !state.objectExists(object)) return FinalizeChoice::No;
+        const auto& u = state.getObject(object);
+        return (u.isUnit() && u.location.has_value()) ? FinalizeChoice::Yes : FinalizeChoice::No;
     }
     bool hasLegalTargets(const GameState& state, PlayerId player) const override {
         return !chooseableUnits(state, player, [](const GameObject&) { return true; }).empty();

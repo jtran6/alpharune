@@ -44,7 +44,7 @@ public:
         KeywordSet kw; kw.set(Keyword::Deploy); kw.set(Keyword::Deathknell);
         LocationId loc{BattlefieldLocation{ctx.state.battlefields[mode].id}};
         for (int i = 0; i < n; ++i)
-            ctx.executor.createToken(ctx.controller, CardType::Gear, "Bomb", 0, {}, kw, loc,
+            ctx.executor.createToken(ctx.controller, CardType::Gear, "Bomb", 0, {"Bomb"}, kw, loc,
                                      false, {}, kBombGearCardDefId);
     }
 

@@ -3,6 +3,7 @@
 
 #include "tests/cards/card_test_fixture.h"
 
+#include <functional>
 #include <gtest/gtest.h>
 
 namespace riftbound::test {
@@ -260,7 +261,7 @@ TEST_F(RadianceReview, BlackMarketEachPlayerOnceOnTheirTurn) {
         return yes;
     };
     EXPECT_TRUE(offered(P2));
-    state.getObject(market).card_counters["__market_p2"] = state.turn.turn_number + 1;
+    state.getObject(market).card_counters["__ability_used_turn_0"] = state.turn.turn_number + 1;
     EXPECT_FALSE(offered(P2));
 }
 
@@ -284,7 +285,8 @@ TEST_F(RadianceReview, BlackMarketActivationDrawsOnce) {
     act.ability_index = 0;
     withEngine([&](GameEngine& e) { e.testHook_executeIntent(act); }, nullptr, nullptr, P1);
     EXPECT_EQ(state.player(P1).hand.size(), 1u);
-    EXPECT_EQ(state.getObject(market).card_counters["__market_p1"], state.turn.turn_number + 1);
+    EXPECT_EQ(state.getObject(market).card_counters["__ability_used_turn_0"],
+              state.turn.turn_number + 1);
     bool again = false;
     withEngine([&](GameEngine& e) {
         for (const auto& intent : e.testHook_mainPhaseActions(P1))
@@ -341,6 +343,275 @@ TEST_F(RadianceReview, EquipCostsAreWhatTheCardPrints) {
     EXPECT_EQ(cost.energy, 1);
     EXPECT_EQ(cost.power, 0);
     EXPECT_TRUE(blade->canPayEquipExtraCost(state, P1, gear, unit));
+}
+
+// A priority window comes before a choice that is made as an item resolves.
+// The callback runs on the engine's state (the fixture's copy).
+class ResponseThenChoose : public AgentInterface {
+public:
+    std::function<void(GameState&)> during_priority;
+    bool choice_before_response = false;
+    bool responded = false;
+    Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+        if (legal.empty()) return Intent{};
+        const bool choice = std::all_of(legal.begin(), legal.end(),
+            [](const Intent& i) { return i.type == IntentType::MakeChoice; });
+        if (!choice) {
+            if (!responded && during_priority) {
+                during_priority(const_cast<GameState&>(state));
+                responded = true;
+            }
+            for (const auto& i : legal)
+                if (i.type == IntentType::PassPriority || i.type == IntentType::PassFocus) return i;
+            return legal.front();
+        }
+        if (!responded) choice_before_response = true;
+        if (pick) return pick(legal);
+        return legal.front();
+    }
+    EnginePathAgent::Picker pick;
+};
+
+TEST_F(RadianceReview, ChronobreakReplaysEachUnitOnceWhenXIsAtLeastTwo) {
+    addRune(P1, Domain::Fury);
+    addRune(P1, Domain::Fury);
+    auto first = addUnit(P1, kInvalidId, 2, -1);
+    auto second = addUnit(P1, kInvalidId, 2, 0);
+    state.getObject(first).damage_marked = 1;
+    state.getObject(second).damage_marked = 1;
+    auto spell = addToHand(P1, 1117);
+    EnginePathAgent agent(EnginePathAgent::script({
+        2, static_cast<int>(first.raw()), static_cast<int>(first.raw()),
+        0, 0, EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent, std::nullopt, nullptr, false);
+    EXPECT_TRUE(state.getObject(first).location.has_value());
+    EXPECT_TRUE(state.getObject(second).location.has_value());
+    EXPECT_EQ(state.getObject(first).damage_marked, 0);
+    EXPECT_EQ(state.getObject(second).damage_marked, 0);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 0);
+}
+
+TEST_F(RadianceReview, EncoreLookTwiceDrawsTwoDifferentCards) {
+    state.player(P1).rune_pool.energy = 3;
+    state.player(P1).rune_pool.universal_power = 1;
+    auto bottom = addToDeck(P1, 956);
+    auto next = addToDeck(P1, 957);
+    auto under = addToDeck(P1, 958);
+    auto top = addToDeck(P1, 1085);
+    auto spell = addToHand(P1, 1121);
+    EnginePathAgent agent(EnginePathAgent::script({
+        3, 3, static_cast<int>(top.raw()), static_cast<int>(next.raw()),
+        EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    const auto& hand = state.player(P1).hand;
+    ASSERT_EQ(hand.size(), 2u);
+    EXPECT_NE(hand[0], hand[1]);
+    EXPECT_NE(std::find(hand.begin(), hand.end(), top), hand.end());
+    EXPECT_NE(std::find(hand.begin(), hand.end(), next), hand.end());
+    EXPECT_EQ(std::find(hand.begin(), hand.end(), under), hand.end());
+    EXPECT_EQ(std::find(hand.begin(), hand.end(), bottom), hand.end());
+}
+
+TEST_F(RadianceReview, EncoreCanDealToTheSameUnitTwice) {
+    state.player(P1).rune_pool.energy = 3;
+    state.player(P1).rune_pool.universal_power = 1;
+    auto victim = addUnit(P2, kInvalidId, 5, 0);
+    auto spell = addToHand(P1, 1121);
+    EnginePathAgent agent(EnginePathAgent::script({
+        0, 0, static_cast<int>(victim.raw()), static_cast<int>(victim.raw()),
+        EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_EQ(state.getObject(victim).damage_marked, 4);
+}
+
+TEST_F(RadianceReview, StalePerObjectCounterDoesNotSteerTheNextCast) {
+    state.player(P1).rune_pool.energy = 10;
+    auto unit = addUnit(P1, kInvalidId, 2, -1);
+    auto spell = addToHand(P1, 1088);
+    state.getObject(spell).card_counters["__ft_banish"] = 1;
+    EnginePathAgent agent(EnginePathAgent::script({
+        static_cast<int>(unit.raw()), EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_EQ(state.getObject(spell).zone, ZoneType::Trash);
+    EXPECT_EQ(std::find(state.player(P1).banishment.begin(), state.player(P1).banishment.end(), spell),
+              state.player(P1).banishment.end());
+
+    auto prepared = addToHand(P1, 1093);
+    auto fighter = addUnit(P1, kInvalidId, 2, -1);
+    EnginePathAgent once(EnginePathAgent::script({
+        static_cast<int>(fighter.raw()), EnginePathAgent::kRest}));
+    playThroughEngine(prepared, &once);
+    const int after_first = state.getObject(fighter).current_might;
+    EXPECT_EQ(after_first, state.getObject(fighter).base_might + 2);
+    auto& trash = state.player(P1).trash;
+    trash.erase(std::remove(trash.begin(), trash.end(), prepared), trash.end());
+    state.getObject(prepared).zone = ZoneType::Hand;
+    state.getObject(prepared).location.reset();
+    state.player(P1).hand.push_back(prepared);
+    EnginePathAgent twice(EnginePathAgent::script({
+        static_cast<int>(fighter.raw()), EnginePathAgent::kRest}));
+    playThroughEngine(prepared, &twice);
+    EXPECT_EQ(state.getObject(fighter).current_might, after_first + 2);
+}
+
+TEST_F(RadianceReview, SpellIsNotOfferedWhenNoTargetCanBePaidFor) {
+    auto enemy = addUnit(P2, kInvalidId, 3, 0);
+    state.getObject(enemy).keywords.set(Keyword::Deflect);
+    state.getObject(enemy).deflect_value = 5;
+    state.player(P1).rune_pool.energy = 9;
+    auto hand = addToHand(P1, 1098);
+    auto banished = addToHand(P1, 1098);
+    toBanishment(P1, banished);
+    state.getObject(banished).card_counters["__playable_through_turn"] = state.turn.turn_number;
+    withEngine([&](GameEngine& e) {
+        for (const auto& intent : e.testHook_mainPhaseActions(P1)) {
+            EXPECT_NE(intent.card, hand);
+            EXPECT_NE(intent.card, banished);
+        }
+    });
+}
+
+TEST_F(RadianceReview, ExemplarDoesNotMoveWhenItIsAlreadyExhausted) {
+    auto champion = state.createObject();
+    auto& legend = state.getObject(champion);
+    legend.card_def_id = 1072;
+    legend.name = card_db.get(1072).name;
+    legend.card_type = CardType::Legend;
+    legend.owner = P1;
+    legend.controller = P1;
+    legend.zone = ZoneType::LegendZone;
+    legend.is_exhausted = true;
+    state.player(P1).legend_zone = champion;
+    state.player(P1).rune_pool.universal_power = 5;
+    auto gear = place(P1, 967, 0);
+    auto unit = addUnit(P1, kInvalidId, 2, -1);
+    EnginePathAgent agent(EnginePathAgent::script({
+        1, static_cast<int>(unit.raw()), EnginePathAgent::kRest}));
+    fireTriggerThroughEngine(champion, TriggerType::WhenYouPlayAGear, &agent, gear);
+    EXPECT_TRUE(std::holds_alternative<BaseLocation>(*state.getObject(unit).location));
+    EXPECT_TRUE(state.getObject(champion).is_exhausted);
+}
+
+TEST_F(RadianceReview, ScopeAndAnglerChooseAfterResponses) {
+    state.player(P1).rune_pool.energy = 5;
+    auto scope = place(P1, 1002, -1);
+    auto buried = addToDeck(P1, 1085);
+    auto top = addToDeck(P1, 1042);
+    ResponseThenChoose scope_agent;
+    scope_agent.during_priority = [&](GameState& st) {
+        auto& deck = st.player(P1).main_deck;
+        deck.erase(std::remove(deck.begin(), deck.end(), buried), deck.end());
+        deck.push_back(buried);
+    };
+    scope_agent.pick = [&](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (i.chosen_value && *i.chosen_value == 2) return i;
+        return legal.front();
+    };
+    Intent act;
+    act.type = IntentType::ActivateAbility;
+    act.player = P1;
+    act.ability_source = scope;
+    act.ability_index = 0;
+    withEngine([&](GameEngine& e) { e.testHook_executeIntent(act); }, &scope_agent, &scope_agent);
+    EXPECT_TRUE(scope_agent.responded);
+    EXPECT_FALSE(scope_agent.choice_before_response);
+    EXPECT_EQ(std::find(state.player(P1).hand.begin(), state.player(P1).hand.end(), buried),
+              state.player(P1).hand.end());
+    (void)top;
+
+    auto wyrm = place(P1, 1042, 0);
+    auto old_unit = addUnit(P2, kInvalidId, 2, -1);
+    ResponseThenChoose wyrm_agent;
+    GameObjectId late = kInvalidId;
+    wyrm_agent.during_priority = [&](GameState& st) {
+        st.getObject(old_unit).zone = ZoneType::Trash;
+        st.getObject(old_unit).location.reset();
+        st.player(P2).trash.push_back(old_unit);
+        late = st.createObject();
+        auto& born = st.getObject(late);
+        born.owner = P2;
+        born.controller = P2;
+        born.card_type = CardType::Unit;
+        born.name = "Late";
+        born.zone = ZoneType::Base;
+        born.location = BaseLocation{P2};
+        born.base_might = 1;
+        born.current_might = 1;
+    };
+    wyrm_agent.pick = [&](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == late) return i;
+        return legal.front();
+    };
+    Intent bite;
+    bite.type = IntentType::ActivateAbility;
+    bite.player = P1;
+    bite.ability_source = wyrm;
+    bite.ability_index = 0;
+    withEngine([&](GameEngine& e) { e.testHook_executeIntent(bite); }, &wyrm_agent, &wyrm_agent);
+    EXPECT_FALSE(wyrm_agent.choice_before_response);
+    ASSERT_NE(late, kInvalidId);
+    ASSERT_TRUE(state.objectExists(late));
+    ASSERT_TRUE(state.getObject(late).location.has_value());
+    EXPECT_TRUE(std::holds_alternative<BattlefieldLocation>(*state.getObject(late).location));
+}
+
+TEST_F(RadianceReview, NeekoAddsNothingIfSheLeavesBeforeTheTriggerResolves) {
+    auto champion = state.createObject();
+    auto& legend = state.getObject(champion);
+    legend.card_def_id = 1072;
+    legend.name = card_db.get(1072).name;
+    legend.card_type = CardType::Legend;
+    legend.owner = P1;
+    legend.controller = P1;
+    legend.zone = ZoneType::LegendZone;
+    state.player(P1).legend_zone = champion;
+    state.player(P1).neeko_legends = {1065};
+    auto neeko = addUnit(P1, 1084, 4, -1);
+    ResponseThenChoose agent;
+    agent.during_priority = [&](GameState& st) {
+        st.getObject(neeko).zone = ZoneType::Trash;
+        st.getObject(neeko).location.reset();
+        st.player(P1).trash.push_back(neeko);
+    };
+    fireTriggerThroughEngine(neeko, TriggerType::WhenYouPlayMe, &agent, kInvalidId, &agent);
+    for (auto& [id, obj] : state.objects)
+        EXPECT_NE(obj.card_def_id.raw(), 1065);
+}
+
+TEST_F(RadianceReview, UnitGearScoresItsHoldTriggerOnce) {
+    state.battlefields[0].controller = P1;
+    addUnit(P1, kInvalidId, 3, 0);
+    auto dock = place(P1, 1059, 0);
+    state.getObject(dock).is_unit_gear = true;
+    withEngine([&](GameEngine& e) {
+        e.testHook_scoreHold(P1, BattlefieldId::fromRaw(0));
+        int holds = 0;
+        for (const auto& item : e.mutableState().chain.items)
+            if (item.source == dock && item.fired_trigger == TriggerType::WhenIHold) ++holds;
+        EXPECT_EQ(holds, 1);
+    });
+}
+
+TEST_F(RadianceReview, BlackMarketStampBlocksASecondActivationBeforeItResolves) {
+    auto market = state.createObject();
+    auto& obj = state.getObject(market);
+    obj.card_def_id = 1075;
+    obj.name = card_db.get(1075).name;
+    obj.card_type = CardType::Battlefield;
+    obj.owner = P1;
+    obj.controller = P1;
+    obj.zone = ZoneType::BattlefieldZone;
+    state.battlefields[0].card_object_id = market;
+    state.player(P1).rune_pool.universal_power = 4;
+    addToDeck(P1, 956);
+    state.getObject(market).card_counters["__ability_used_turn_0"] = state.turn.turn_number + 1;
+    withEngine([&](GameEngine& e) {
+        for (const auto& intent : e.testHook_mainPhaseActions(P1))
+            EXPECT_FALSE(intent.type == IntentType::ActivateAbility && intent.ability_source == market);
+    }, nullptr, nullptr, P1);
+    EXPECT_TRUE(state.player(P1).hand.empty());
 }
 
 }  // namespace test_radiance_review

@@ -17,8 +17,12 @@ public:
     const CardDef& def() const override { return def_; }
 
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
-    unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
+        // The legend is chosen as this resolves (the patch note: do not reveal
+        // it until it is added). If Neeko has left the board, nothing is added.
+        if (finalizingChoices(ctx)) return;
+        if (!ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value())
+            return;
         const auto& legends = ctx.state.player(ctx.controller).neeko_legends;
         std::vector<CardDefId> choices;
         std::vector<std::string> labels;
@@ -30,7 +34,7 @@ public:
             if (!champion.empty() && printed.name == champion) continue;
             bool present = false;
             for (auto& [oid, obj] : ctx.state.objects.inPlay()) {
-                if (obj.zone == ZoneType::LegendZone && obj.owner == ctx.controller &&
+                if (obj.zone.get() == ZoneType::LegendZone && obj.owner == ctx.controller &&
                     (obj.card_def_id == id || obj.name.get() == printed.name))
                     present = true;
             }
@@ -38,11 +42,12 @@ public:
             choices.push_back(id);
             labels.push_back(printed.name);
         }
-        if (choices.empty()) { if (finalizingChoices(ctx)) return; return; }
+        if (choices.empty()) return;
         int mode = pickMode(ctx, "Neeko: add a legend while I'm on the board", static_cast<int>(labels.size()), labels);
         if (mode < 0) return;
-        if (finalizingChoices(ctx)) return;
-        if (mode >= static_cast<int>(choices.size()) || !ctx.state.objectExists(ctx.source)) return;
+        if (!ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value())
+            return;
+        if (mode >= static_cast<int>(choices.size())) return;
         const CardDef& printed = ctx.registry->get(choices[static_cast<std::size_t>(mode)])->def();
         const GameObjectId added = ctx.state.createObject();
         auto& legend = ctx.state.getObject(added);
@@ -54,6 +59,10 @@ public:
         legend.zone = ZoneType::LegendZone;
         legend.base_might = printed.might;
         legend.keywords = printed.keywords;
+        legend.assault_value = printed.assault_value;
+        legend.shield_value = printed.shield_value;
+        legend.deflect_value = printed.deflect_value;
+        legend.disarm_value = printed.disarm_value;
         legend.tags = printed.tags;
         legend.domains = printed.domains;
         legend.is_token = false;

@@ -17,6 +17,7 @@ public:
     const CardDef& def() const override { return def_; }
 
     bool matchesShowOff(const CardContext& ctx, const GameObject& obj) const override {
+        if (obj.isToken()) return false;
         if (obj.card_def_id == kInvalidId || !ctx.registry || !ctx.registry->get(obj.card_def_id)) return false;
         return ctx.registry->get(obj.card_def_id)->def().energy_cost >= 7;
     }

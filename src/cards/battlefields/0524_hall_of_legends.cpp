@@ -38,11 +38,17 @@ public:
         auto& ps = ctx.state.player(ctx.controller);
         if (costDueNow(ctx) && !payEnergy(ctx, ctx.controller, 1)) return;
         if (finalizingChoices(ctx)) return;   // choices and costs end here (CR 383.3)
+        std::vector<GameObjectId> legends;
         GameObjectId lz = ps.legend_zone;
-        if (lz != kInvalidId && ctx.state.objectExists(lz)) {
-            ctx.executor.readyObject(lz);
-            RIFT_TRACE(ctx.events, "HALL OF LEGENDS: paid [1] -> readied legend");
+        if (lz != kInvalidId && ctx.state.objectExists(lz)) legends.push_back(lz);
+        for (auto& [id, obj] : ctx.state.objects.inPlay()) {
+            if (obj.zone.get() != ZoneType::LegendZone || obj.controller != ctx.controller) continue;
+            if (std::find(legends.begin(), legends.end(), id) != legends.end()) continue;
+            legends.push_back(id);
         }
+        for (auto id : legends) ctx.executor.readyObject(id);
+        if (!legends.empty())
+            RIFT_TRACE(ctx.events, "HALL OF LEGENDS: paid [1] -> readied legend");
     }
 private:
     const CardDef def_ = [] {

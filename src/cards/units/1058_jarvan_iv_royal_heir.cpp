@@ -22,12 +22,17 @@ public:
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
         int go = confirmOptional(ctx, "Jarvan: move a unit you control to my battlefield", [ok=!units.empty()]{ return ok; });
         if (go < 0) return;
+        GameObjectId t = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Jarvan: move here", units);
+            if (t == kInvalidId) return;
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1 || !ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value()) return;
+        if (go != 1 || t == kInvalidId || !ctx.state.objectExists(ctx.source) ||
+            !ctx.state.getObject(ctx.source).location.has_value()) return;
         auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location);
         if (!bf) return;
-        auto t = pickTarget(ctx, "Jarvan: move here", units);
-        if (t != kInvalidId) ctx.executor.moveToBattlefield(t, bf->id);
+        ctx.executor.moveToBattlefield(t, bf->id);
     }
 
 private:

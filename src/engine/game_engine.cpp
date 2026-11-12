@@ -1041,14 +1041,22 @@ void GameEngine::awakenPhase() {
                 events_.emit(ObjectStateChangedEvent{id, "became_ready"});
             }
         }
-        // Also ready the legend
+        // Also ready the legend, and any legend Neeko added to the Legend Zone
+        // (it is not the starting legend, and it is not on the board).
         auto legend_id = state_.player(player).legend_zone;
-        if (legend_id != kInvalidId && state_.objectExists(legend_id)) {
-            auto& legend = state_.getObject(legend_id);
-            if (legend.is_exhausted) {
-                legend.is_exhausted = false;
-                events_.emit(ObjectStateChangedEvent{legend_id, "readied"});
-            }
+        auto readyLegend = [&](GameObjectId id) {
+            if (id == kInvalidId || !state_.objectExists(id)) return;
+            auto& legend = state_.getObject(id);
+            if (legend.zone != ZoneType::LegendZone || legend.controller != player) return;
+            if (!legend.is_exhausted) return;
+            legend.is_exhausted = false;
+            events_.emit(ObjectStateChangedEvent{id, "readied"});
+        };
+        readyLegend(legend_id);
+        for (auto& [id, obj] : state_.objects.inPlay()) {
+            if (id == legend_id) continue;
+            if (obj.zone.get() != ZoneType::LegendZone || obj.controller != player) continue;
+            readyLegend(id);
         }
     }   // (the readying's batch ends here)
     // CR 335: a phase is left only with no outstanding task and nothing
@@ -1742,7 +1750,7 @@ void GameEngine::chooseFirstExecution(ChainItem& item) {
     // first. Everything else a permanent chooses waits for its play trigger.
     if (!item.is_spell && !item.is_ability) {
         const Card* pcard = card_registry_.get(item.card_def_id);
-        if (pcard && pcard->def().keywords.has(Keyword::ShowOff))
+        if (pcard && pcard->showsOff(state_, item.source))
             runFinalizePass(item);
         return;
     }
@@ -2524,6 +2532,12 @@ void GameEngine::runFinalizePass(ChainItem& item) {
     // Not a spell (it resolves whatever its targets, CR 359.3.e.1), not an
     // activated ability (its cost is paid), and not an ability whose target
     // becomes illegal later (a mistarget: it was finalized).
+    // A cost that was attempted and failed (a kill replaced by something
+    // else: Dusk Rose Lab) still reaches the end-of-choices marker. The
+    // ability was performed; resolution reads the unpaid mark and does not
+    // try the cost again. Removing every unpaid item here took that
+    // priority window away. An ability the player cannot pay for is not
+    // offered (the card's still_legal), so declining it is may_answer == 0.
     const bool not_performed = done.is_ability && !done.is_activated_ability &&
                                ((done.may_answer == 0 && !done.may_is_partial) ||
                                 done.required_choice_missing);
@@ -4859,7 +4873,7 @@ void GameEngine::resolveSpell(const ChainItem& item) {
     // [Show Off] is part of finalizing this item (CR 832.1.c.2), before the
     // card's own choices. A pending "may" / pick returns; the pass re-enters.
     if (card && item.finalizing && !item.keyword_ability &&
-        card->def().keywords.has(Keyword::ShowOff) &&
+        card->showsOff(state_, item.source) &&
         !card->settleShowOff(ctx))
         return;
 
@@ -5727,6 +5741,12 @@ bool GameEngine::unitPlayableAt(const Card* card_obj, PlayerId player,
     return riftbound::unitPlayableAt(state_, card_obj, player, bf, unit);
 }
 
+namespace {
+std::vector<std::vector<GameObjectId>> spellTargetSets(
+    const Card* card, const GameState& state, PlayerId player,
+    const TargetRequirements& req, const std::vector<GameObjectId>& legal);
+}
+
 std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const {
     std::vector<Intent> actions;
     actions.reserve(kOptionsReserved);   // one buffer, not one per doubling
@@ -5881,6 +5901,9 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         if (state_.turn.turn_player != player) continue;
         const Card* card_obj = card_registry_.get(card.card_def_id);
         if (!card_obj || !canAfford(player, card_id)) continue;
+        // Brynhir lockout covers a banished "play me until the next Ending
+        // Phase" the same way it covers a card in hand.
+        if (locked_out) continue;
         Intent play_intent;
         play_intent.type = IntentType::PlayCard;
         play_intent.player = player;
@@ -5903,10 +5926,39 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
                 actions.push_back(at);
             }
         } else if (card.isSpell()) {
-            // A banished spell is still a spell: no target, no play (Hard
-            // Bargain with an empty chain). The base-only branch below is
-            // what offered it.
-            if (!card_obj->hasLegalTargets(state_, player, card_db_)) continue;
+            // The same offer gate as a spell from hand or the trash: a
+            // required target, a pair, or a finalize pass that cannot be paid
+            // for (a Deflect the spell cannot meet) is not a play.
+            if (state_.player(player).cant_play_spells_this_turn) continue;
+            Card* spell_card = card_registry_.get(card.card_def_id);
+            if (!spell_card || !spell_card->hasLegalTargets(state_, player, card_db_)) continue;
+            const bool afford_plain = canAfford(player, card_id);
+            auto legal_targets = spell_card->enumerateLegalTargets(state_, player);
+            auto req = spell_card->getTargetRequirements();
+            bool offer = false;
+            if ((req.count > 0 && spell_card->needsPlayTimeTarget()) ||
+                spell_card->needsPlayTimeTargetPair()) {
+                bool payable = legal_targets.empty() &&
+                    (afford_plain || (spell_card->needsPlayTimeTargetPair() &&
+                                      (spell_card->choicesAtFinalization() & Card::kFinalizeResolve)));
+                for (auto t : legal_targets)
+                    if (!payable && canAffordChoosing(player, card_id, {t})) payable = true;
+                if (payable && spell_card->needsPlayTimeTargetPair() &&
+                    (spell_card->choicesAtFinalization() & Card::kFinalizeResolve) &&
+                    (!afford_plain || anyDeflectFor(player)))
+                    payable = payableThroughAFinalizeChoice(player, card_id, nullptr, true);
+                offer = payable;
+            } else if (req.count == 0 || (req.optional && legal_targets.empty())) {
+                offer = afford_plain || payableThroughAFinalizeChoice(player, card_id, nullptr);
+                if (offer && afford_plain &&
+                    (spell_card->choicesAtFinalization() & Card::kFinalizeResolve) &&
+                    !spell_card->needsPlayTimeTarget() && anyDeflectFor(player))
+                    offer = payableThroughAFinalizeChoice(player, card_id, nullptr, true);
+            } else {
+                for (auto& tset : spellTargetSets(spell_card, state_, player, req, legal_targets))
+                    if (canAffordChoosing(player, card_id, tset)) offer = true;
+            }
+            if (!offer) continue;
             play_intent.play_location = std::nullopt;
             actions.push_back(play_intent);
         } else {

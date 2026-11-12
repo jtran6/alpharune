@@ -29,10 +29,14 @@ public:
         auto enemies = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller != ctx.controller; });
         int go = confirmOptional(ctx, "Hunting Blind: move an enemy unit here", [ok=!enemies.empty()]{ return ok; });
         if (go < 0) return;
+        GameObjectId t = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Hunting Blind: move here", enemies);
+            if (t == kInvalidId) return;
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        auto t = pickTarget(ctx, "Hunting Blind: move here", enemies);
-        if (t == kInvalidId || !ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value()) return;
+        if (go != 1 || t == kInvalidId || !ctx.state.objectExists(ctx.source) ||
+            !ctx.state.getObject(ctx.source).location.has_value()) return;
         if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
             ctx.executor.moveToBattlefield(t, bf->id);
     }

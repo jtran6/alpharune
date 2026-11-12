@@ -429,10 +429,18 @@ inline void createGoldToken(CardContext& ctx) {
     (void)tid;
 }
 
-/// [Show Off] on a resolving spell (CR 832). Null when the player declined.
+/// [Show Off] on a resolving spell (CR 832). Null when the player declined
+/// this spell's own instance. A granted extra instance is its own show-off:
+/// showing off only that one does not satisfy the spell's own "if you did"
+/// (CR 832.2.a). The first record is the printed instance.
 inline const ChainItem::ShownOff* spellShowOff(const CardContext& ctx) {
     if (!ctx.state.chain.resuming.has_value()) return nullptr;
-    const auto& shown = ctx.state.chain.resuming->shown_off;
+    const auto& ri = *ctx.state.chain.resuming;
+    if (!ri.shown_offs.empty()) {
+        if (!ri.shown_offs.front().did) return nullptr;
+        return &ri.shown_offs.front();
+    }
+    const auto& shown = ri.shown_off;
     if (!shown.has_value() || !shown->did) return nullptr;
     return &*shown;
 }
@@ -457,6 +465,12 @@ inline GameObjectId banishTopUntilEnding(CardContext& ctx) {
     return top;
 }
 
+inline std::string battlefieldLabel(const GameState& state, const BattlefieldState& bf) {
+    if (state.objectExists(bf.card_object_id))
+        return state.getObject(bf.card_object_id).name.get();
+    return "Battlefield #" + std::to_string(static_cast<int>(bf.id.raw()));
+}
+
 inline GameObjectId playBombToken(Card& card, CardContext& ctx, const std::string& label) {
     const int n = static_cast<int>(ctx.state.battlefields.size());
     if (n <= 0) return kInvalidId;
@@ -477,7 +491,7 @@ inline GameObjectId playBombToken(Card& card, CardContext& ctx, const std::strin
     KeywordSet kw;
     kw.set(Keyword::Deploy);
     kw.set(Keyword::Deathknell);
-    return ctx.executor.createToken(ctx.controller, CardType::Gear, "Bomb", 0, {}, kw,
+    return ctx.executor.createToken(ctx.controller, CardType::Gear, "Bomb", 0, {"Bomb"}, kw,
                                     LocationId{BattlefieldLocation{ctx.state.battlefields[which].id}},
                                     /*enter_ready=*/false, {}, kBombGearCardDefId);
 }

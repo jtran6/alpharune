@@ -16,10 +16,22 @@ class DetonationAmplifier_967 : public GearCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    void applyPassiveAura(GameState& state, PlayerId controller) const override {
-        forEachSelfOnce(*this, state, controller, [&](GameObjectId, GameObject& me) {
-            if (me.location.has_value()) state.player(controller).deathknell_double_count++;
-        });
+    // "Friendly Deathknell effects here", not every Deathknell that player
+    // has. The global counter would double one at another battlefield.
+    int extraDeathknellTriggers(const GameState& state, GameObjectId self,
+                                const GameObject& dying) const override {
+        if (!state.objectExists(self)) return 0;
+        const auto& me = state.getObject(self);
+        if (!me.location.has_value()) return 0;
+        std::optional<LocationId> where;
+        if (dying.last_known.valid && dying.last_known.location.has_value())
+            where = dying.last_known.location;
+        else if (dying.location.has_value())
+            where = *dying.location;
+        else
+            where = dying.last_location;
+        if (!where.has_value() || *where != *me.location) return 0;
+        return 1;
     }
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
@@ -29,10 +41,14 @@ public:
         });
         int go = confirmOptional(ctx, "Detonation Amplifier: kill another friendly unit or gear to draw 1", [ok=!opts.empty()]{ return ok; });
         if (go < 0) return;
+        if (go == 1) {
+            const GameObjectId id = pickTarget(ctx, "Detonation Amplifier: kill", opts);
+            if (id == kInvalidId) return;
+            if (costDueNow(ctx)) killAsCost(ctx, id);
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        auto id = pickTarget(ctx, "Detonation Amplifier: kill", opts);
-        if (id != kInvalidId && killAsCost(ctx, id)) ctx.executor.drawCards(ctx.controller, 1);
+        if (go == 1 && costAlreadyPaid(ctx) && !costUnpaid(ctx))
+            ctx.executor.drawCards(ctx.controller, 1);
     }
 
 private:

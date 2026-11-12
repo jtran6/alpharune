@@ -3317,7 +3317,7 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
     // answer is stamped before "I enter ready if you showed off" is read.
     if (!obj.isSpell() && card_registry_ && obj.card_def_id != kInvalidId) {
         if (Card* shown_card = card_registry_->get(obj.card_def_id)) {
-            if (shown_card->def().keywords.has(Keyword::ShowOff)) {
+            if (shown_card->showsOff(state_, card)) {
                 CardContext sctx{state_, events_, *this, player, card};
                 sctx.registry = card_registry_;
                 const ActingFor acting(*this, card);

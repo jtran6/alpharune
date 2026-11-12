@@ -20,13 +20,20 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto opts = boardObjects(ctx.state, [](const GameObject& o) { return o.isUnit() || o.isGear(); });
-        int go = confirmOptional(ctx, "Mordekaiser: discard 1 to kill a unit or gear", [ok=!opts.empty()]{ return ok; });
+        const bool can = !opts.empty() && !ctx.state.player(ctx.controller).hand.empty();
+        int go = confirmOptional(ctx, "Mordekaiser: discard 1 to kill a unit or gear", [ok=can]{ return ok; });
         if (go < 0) return;
+        GameObjectId t = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Mordekaiser: kill", opts);
+            if (t == kInvalidId) return;
+            // The discard is the cost, paid once as this is finalized. The
+            // kill is the effect and runs after the marker, so a prompt in
+            // the discard cannot kill twice.
+            if (costDueNow(ctx)) ctx.executor.discardCards(ctx.controller, 1);
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        ctx.executor.discardCards(ctx.controller, 1);
-        auto t = pickTarget(ctx, "Mordekaiser: kill", opts);
-        if (t != kInvalidId) ctx.executor.killObject(t);
+        if (go == 1 && t != kInvalidId) ctx.executor.killObject(t);
     }
 
 private:

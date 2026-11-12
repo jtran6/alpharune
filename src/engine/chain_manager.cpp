@@ -305,7 +305,7 @@ void ChainManager::stepFinalize(
     // erases the item before the permanent's own callbacks run.
     bool show_off = false;
     if (state_.chain.items[i].is_permanent && state_.objectExists(state_.chain.items[i].source))
-        show_off = state_.getObject(state_.chain.items[i].source).keywords.has(Keyword::ShowOff);
+        show_off = state_.getObject(state_.chain.items[i].source).hasKeyword(Keyword::ShowOff);
     if (finalize_choices_ && (!state_.chain.items[i].is_permanent || show_off))
         finalize_choices_(state_.chain.items[i]);
     bool found = false;

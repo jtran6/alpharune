@@ -852,9 +852,9 @@ struct ChainItem {
     };
     std::optional<ShownOff> shown_off;
     // One entry per [Show Off] instance (CR 832.2: each is handled on its
-    // own). `shown_off` is the first that was shown, with Might / Energy /
-    // Power summed across the instances that were, so a single linked
-    // effect still reads one record.
+    // own). `shown_off` is the first instance, the one this card printed.
+    // A linked "if you showed off" reads that instance only (CR 832.2.a):
+    // a granted instance does not satisfy it, and the numbers are not summed.
     std::vector<ShownOff> shown_offs;
 
     // ── Simultaneous triggers (CR 383.3.d) ──
