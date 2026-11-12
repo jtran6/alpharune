@@ -29,7 +29,11 @@ public:
                 here = bf->id;
         }
         auto units = chooseableUnits(ctx.state, them, [&](const GameObject& u) {
-            return u.controller == them;
+            if (u.controller != them) return false;
+            if (!here.valid() || !u.location.has_value()) return true;
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*u.location))
+                return bf->id != here;
+            return true;
         });
         auto t = selectObjectAs(ctx, them, "Angler Wyrm: move a unit you control here", units, /*slot=*/7);
         if (!t) return;
@@ -43,6 +47,8 @@ public:
         if (*t == kInvalidId || !here.valid() || !ctx.state.objectExists(*t) ||
             !ctx.state.getObject(*t).location.has_value())
             return;
+        if (const auto* at = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(*t).location))
+            if (at->id == here) return;
         ctx.executor.moveToBattlefield(*t, here);
     }
 

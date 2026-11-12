@@ -18,13 +18,19 @@ public:
 
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto legend = ctx.state.player(ctx.controller).legend_zone;
-        if (legend != kInvalidId) ctx.executor.readyObject(legend);
+        auto legends = friendlyLegends(ctx.state, ctx.controller);
+        if (legends.empty()) return;
+        GameObjectId which = legends.front();
+        if (legends.size() > 1) {
+            auto picked = selectObject(ctx, "Heartening Soul: ready a friendly legend", legends, 8);
+            if (!picked) return;
+            which = *picked;
+        }
+        if (which != kInvalidId) ctx.executor.readyObject(which);
     }
     void applyPassiveAura(GameState& state, PlayerId controller) const override {
         forEachSelfOnce(*this, state, controller, [&](GameObjectId self, GameObject&) {
-            auto legend = state.player(controller).legend_zone;
-            if (legend != kInvalidId && state.objectExists(legend))
+            for (auto legend : friendlyLegends(state, controller))
                 state.getObject(legend).card_counters["__heartening"] = self.raw();
         });
     }

@@ -529,6 +529,20 @@ inline void moveToLocation(EffectExecutor& exec, GameObjectId obj,
 
 inline bool isMighty(const GameObject& obj) { return obj.current_might >= 5; }
 
+/// Every legend that player controls: the starting legend and any legend
+/// Neeko added. "Your legend" is one of these, chosen as the effect resolves.
+inline std::vector<GameObjectId> friendlyLegends(const GameState& state, PlayerId player) {
+    std::vector<GameObjectId> legends;
+    const GameObjectId primary = state.player(player).legend_zone;
+    if (primary != kInvalidId && state.objectExists(primary)) legends.push_back(primary);
+    for (const auto& [id, obj] : state.objects.inPlay()) {
+        if (obj.zone.get() != ZoneType::LegendZone || obj.controller != player) continue;
+        if (std::find(legends.begin(), legends.end(), id) == legends.end())
+            legends.push_back(id);
+    }
+    return legends;
+}
+
 /// For the triggerCondition of a "Once each turn, when ..." ability
 /// (CR 383.3.e.1: "If its trigger condition would be fulfilled and it has
 /// already been performed that many times, it does not trigger"): true while

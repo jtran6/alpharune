@@ -28,12 +28,21 @@ public:
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto units = chooseableUnits(ctx.state, ctx.controller, [](const GameObject&) { return true; });
         auto t = pickTarget(ctx, "Battle Preparations: +2 [M]", units);
+        if (ctx.state.chain.resuming.has_value() &&
+            ctx.state.chain.resuming->resume_point == 7)
+            return;
         if (finalizingChoices(ctx)) return;
-        // The rune pick below re-enters this callback. The +2 is applied once.
-        if (t != kInvalidId && ctx.state.objectExists(ctx.source) &&
-            ctx.state.getObject(ctx.source).card_counters["__bp_might"] == 0) {
+        // The rune pick below re-enters this callback. The +2 is applied once
+        // per execution. The note lives on the chain item: Repeat clears it
+        // with the item, so the next execution grants +2 again. A card
+        // counter would survive that reset and skip the second grant.
+        bool applied = false;
+        if (ctx.state.chain.resuming.has_value())
+            applied = ctx.state.chain.resuming->execution_memo >= 0;
+        if (!applied && t != kInvalidId && ctx.state.objectExists(t)) {
             ctx.executor.giveTemporaryMight(t, 2);
-            ctx.state.getObject(ctx.source).card_counters["__bp_might"] = 1;
+            if (ctx.state.chain.resuming.has_value())
+                ctx.state.chain.resuming->execution_memo = 1;
         }
         if (spellShowOff(ctx)) {
             std::vector<GameObjectId> exhausted;

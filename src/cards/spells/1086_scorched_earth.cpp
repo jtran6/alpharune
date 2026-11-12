@@ -29,22 +29,27 @@ public:
         }).empty();
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        // splitDamageAmong resets resume_data when it starts, which wiped the
-        // battlefield mode and made the finalize pass ask it again until the
-        // 1024-choice bound. The chosen battlefield is kept on the spell.
+        // splitDamageAmong replaces resume_data when it starts. The chosen
+        // battlefield is kept on the chain item, which Repeat resets, so the
+        // next execution asks again. A card counter survived that reset and
+        // skipped the prompt.
         int stored = -1;
-        if (ctx.state.objectExists(ctx.source)) {
-            auto it = ctx.state.getObject(ctx.source).card_counters.find("__scorched_bf");
-            if (it != ctx.state.getObject(ctx.source).card_counters.end()) stored = it->second;
-        }
+        if (ctx.state.chain.resuming.has_value())
+            stored = ctx.state.chain.resuming->execution_memo;
         if (stored < 0) {
             std::vector<std::string> labels;
             std::vector<int> idx;
             for (int i = 0; i < static_cast<int>(ctx.state.battlefields.size()); ++i) {
                 bool any = false;
                 LocationId there{BattlefieldLocation{ctx.state.battlefields[i].id}};
-                for (const auto& [id, obj] : ctx.state.objects.atLocation(there))
-                    if (obj.isUnit() && !obj.untargetable_by_enemy && obj.location.has_value()) any = true;
+                for (const auto& [id, obj] : ctx.state.objects.atLocation(there)) {
+                    (void)id;
+                    if (!obj.isUnit() || !obj.location.has_value()) continue;
+                    // Same rule as chooseableUnits: a unit the caster controls
+                    // is damageable even when an enemy could not choose it.
+                    if (obj.controller == ctx.controller || !obj.untargetable_by_enemy)
+                        any = true;
+                }
                 if (!any) continue;
                 const auto bf_card = ctx.state.battlefields[i].card_object_id;
                 labels.push_back(ctx.state.objectExists(bf_card)
@@ -64,8 +69,8 @@ public:
                 return;
             }
             stored = idx[mode];
-            if (ctx.state.objectExists(ctx.source))
-                ctx.state.getObject(ctx.source).card_counters["__scorched_bf"] = stored;
+            if (ctx.state.chain.resuming.has_value())
+                ctx.state.chain.resuming->execution_memo = stored;
         }
         if (stored < 0 || stored >= static_cast<int>(ctx.state.battlefields.size())) return;
         std::vector<GameObjectId> units;

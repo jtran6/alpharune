@@ -614,5 +614,333 @@ TEST_F(RadianceReview, BlackMarketStampBlocksASecondActivationBeforeItResolves) 
     EXPECT_TRUE(state.player(P1).hand.empty());
 }
 
+// Sets repeats_paid on the first resolution prompt, so the spell executes
+// again after the choices that were already made.
+class RepeatOnResolve : public EnginePathAgent {
+public:
+    using EnginePathAgent::EnginePathAgent;
+    bool stamped = false;
+    Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+        if (!stamped && state.chain.resuming.has_value() &&
+            !state.chain.resuming->finalizing && state.chain.resuming->is_spell) {
+            const_cast<GameState&>(state).chain.resuming->repeats_paid = 1;
+            stamped = true;
+        }
+        return EnginePathAgent::selectAction(state, legal);
+    }
+};
+
+GameObjectId legendInZone(GameState& state, CardDB& card_db, PlayerId owner, CardDefId def_id,
+                          bool starting) {
+    auto id = state.createObject();
+    auto& obj = state.getObject(id);
+    obj.owner = owner;
+    obj.controller = owner;
+    obj.card_def_id = def_id;
+    obj.name = card_db.get(def_id).name;
+    obj.card_type = CardType::Legend;
+    obj.zone = ZoneType::LegendZone;
+    obj.is_exhausted = true;
+    if (starting) state.player(owner).legend_zone = id;
+    return id;
+}
+
+TEST_F(RadianceReview, EncoreDealsAfterDeflectSpendsTheLastPower) {
+    auto victim = addUnit(P2, kInvalidId, 5, 0);
+    state.getObject(victim).keywords.set(Keyword::Deflect);
+    state.getObject(victim).deflect_value = 1;
+    // The spell's own Power (funded as it is played) plus the Deflect.
+    // Paying the Deflect spends the last Power before the spell resolves.
+    state.player(P1).rune_pool.universal_power = 1;
+    addToDeck(P1, 956);
+    auto spell = addToHand(P1, 1121);
+    EnginePathAgent agent(EnginePathAgent::script({
+        0, 3, static_cast<int>(victim.raw()), EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_EQ(state.getObject(victim).damage_marked, 2);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
+}
+
+TEST_F(RadianceReview, EncoreDealsTwiceWhenEachDeflectSpendsPower) {
+    auto victim = addUnit(P2, kInvalidId, 8, 0);
+    state.getObject(victim).keywords.set(Keyword::Deflect);
+    state.getObject(victim).deflect_value = 1;
+    state.player(P1).rune_pool.universal_power = 2;
+    auto spell = addToHand(P1, 1121);
+    EnginePathAgent agent(EnginePathAgent::script({
+        0, 0, static_cast<int>(victim.raw()), static_cast<int>(victim.raw()),
+        EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_EQ(state.getObject(victim).damage_marked, 4);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
+}
+
+TEST_F(RadianceReview, HallOfLegendsReadiesOneChosenLegend) {
+    auto starting = legendInZone(state, card_db, P1, 1072, true);
+    auto extra = legendInZone(state, card_db, P1, 1065, false);
+    auto hall = state.createObject();
+    auto& bf = state.getObject(hall);
+    bf.card_def_id = 524;
+    bf.name = card_db.get(524).name;
+    bf.card_type = CardType::Battlefield;
+    bf.owner = P1;
+    bf.controller = P1;
+    bf.zone = ZoneType::BattlefieldZone;
+    state.battlefields[0].card_object_id = hall;
+    state.battlefields[0].controller = P1;
+    state.player(P1).rune_pool.energy = 1;
+    EnginePathAgent agent(EnginePathAgent::script({
+        1, static_cast<int>(extra.raw()), EnginePathAgent::kRest}));
+    fireTriggerThroughEngine(hall, TriggerType::WhenYouConquerHere, &agent);
+    EXPECT_TRUE(state.getObject(starting).is_exhausted);
+    EXPECT_FALSE(state.getObject(extra).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 0);
+}
+
+TEST_F(RadianceReview, ForbiddenTechniqueIsNotPlayedFromAnotherZone) {
+    auto tired = addUnit(P1, kInvalidId, 2, -1);
+    state.getObject(tired).is_exhausted = true;
+    auto technique = addToHand(P1, 1088);
+    toTrash(P1, technique);
+    state.player(P1).rune_pool.energy = 1;
+    addRune(P1, Domain::Fury);
+    addRune(P1, Domain::Fury);
+    auto costly = addToHand(P1, 123);
+    struct MoveAfterYes : AgentInterface {
+        GameObjectId technique = kInvalidId;
+        bool saw_choice = false;
+        bool moved = false;
+        EnginePathAgent::Picker answers;
+        explicit MoveAfterYes(EnginePathAgent::Picker p) : answers(std::move(p)) {}
+        Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+            if (legal.empty()) return Intent{};
+            const bool choice = std::all_of(legal.begin(), legal.end(),
+                [](const Intent& i) { return i.type == IntentType::MakeChoice; });
+            if (choice) {
+                saw_choice = true;
+                return answers(legal);
+            }
+            if (saw_choice && !moved) {
+                moved = true;
+                auto& st = const_cast<GameState&>(state);
+                auto& trash = st.player(PlayerId::Player1).trash;
+                trash.erase(std::remove(trash.begin(), trash.end(), technique), trash.end());
+                st.getObject(technique).zone = ZoneType::Hand;
+                st.player(PlayerId::Player1).hand.push_back(technique);
+            }
+            for (const auto& i : legal)
+                if (i.type == IntentType::PassPriority || i.type == IntentType::PassFocus) return i;
+            return legal.front();
+        }
+    } agent(EnginePathAgent::script({1, static_cast<int>(tired.raw()), EnginePathAgent::kRest}));
+    agent.technique = technique;
+    playThroughEngine(costly, &agent);
+    EXPECT_EQ(state.getObject(technique).zone, ZoneType::Hand);
+    EXPECT_TRUE(state.getObject(tired).is_exhausted);
+}
+
+TEST_F(RadianceReview, ForbiddenTechniqueBanishesWhenTheReadyTargetIsIllegal) {
+    auto tired = addUnit(P1, kInvalidId, 2, -1);
+    state.getObject(tired).is_exhausted = true;
+    auto technique = addToHand(P1, 1088);
+    toTrash(P1, technique);
+    state.player(P1).rune_pool.energy = 1;
+    addRune(P1, Domain::Fury);
+    addRune(P1, Domain::Fury);
+    auto costly = addToHand(P1, 123);
+    ResponseThenChoose agent;
+    int windows = 0;
+    agent.during_priority = [&](GameState& st) {
+        ++windows;
+        // After the ready target is chosen and before the spell resolves.
+        if (windows < 2) return;
+        if (st.getObject(tired).zone == ZoneType::Trash) return;
+        st.getObject(tired).zone = ZoneType::Trash;
+        st.getObject(tired).location.reset();
+        st.player(P1).trash.push_back(tired);
+    };
+    agent.pick = EnginePathAgent::script({1, static_cast<int>(tired.raw()), EnginePathAgent::kRest});
+    playThroughEngine(costly, &agent);
+    EXPECT_EQ(state.getObject(technique).zone, ZoneType::Banishment);
+}
+
+TEST_F(RadianceReview, BattlePreparationsGrantsMightOnEachRepeat) {
+    auto gear = place(P1, 967, -1);
+    auto unit = addUnit(P1, kInvalidId, 2, -1);
+    addRune(P1, Domain::Fury, true);
+    auto spell = addToHand(P1, 1093);
+    RepeatOnResolve agent(EnginePathAgent::script({
+        1, static_cast<int>(gear.raw()), static_cast<int>(unit.raw()), 0,
+        static_cast<int>(unit.raw()), 0, EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_TRUE(agent.stamped);
+    EXPECT_EQ(state.getObject(unit).current_might, state.getObject(unit).base_might + 4);
+}
+
+TEST_F(RadianceReview, ScorchedEarthAsksForABattlefieldOnEachRepeat) {
+    auto left = addUnit(P1, kInvalidId, 6, 0);
+    auto right = addUnit(P2, kInvalidId, 6, 1);
+    auto spell = addToHand(P1, 1086);
+    RepeatOnResolve agent(EnginePathAgent::script({EnginePathAgent::kRest}));
+    int battlefields = 0;
+    agent.pick = [&](const std::vector<Intent>& legal) {
+        if (!legal.empty() && legal.front().choice_label.rfind("Battlefield #", 0) == 0) {
+            ++battlefields;
+            const int which = battlefields == 1 ? 0 : 1;
+            return legal[which < static_cast<int>(legal.size()) ? which : 0];
+        }
+        return legal.front();
+    };
+    // The split assigns itself when only one unit is there, so the repeat
+    // has to be paid before resolution, on the spell's chain item.
+    auto stamp = agent.pick;
+    agent.pick = [stamp, &agent](const std::vector<Intent>& legal) {
+        return stamp(legal);
+    };
+    struct StampOnChain : RepeatOnResolve {
+        using RepeatOnResolve::RepeatOnResolve;
+        Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+            if (!stamped) {
+                auto& items = const_cast<GameState&>(state).chain.items;
+                for (auto& ci : items) {
+                    if (!ci.is_spell || ci.card_def_id.raw() != 1086) continue;
+                    ci.repeats_paid = 1;
+                    stamped = true;
+                }
+            }
+            return RepeatOnResolve::selectAction(state, legal);
+        }
+    };
+    StampOnChain stamped_agent(agent.pick);
+    playThroughEngine(spell, &stamped_agent);
+    agent.stamped = stamped_agent.stamped;
+    EXPECT_GE(battlefields, 2);
+    EXPECT_EQ(state.getObject(left).damage_marked, 5);
+    EXPECT_EQ(state.getObject(right).damage_marked, 5);
+}
+
+TEST_F(RadianceReview, ScorchedEarthDamagesYourOwnProtectedUnit) {
+    auto mine = addUnit(P1, kInvalidId, 6, 0);
+    state.getObject(mine).untargetable_by_enemy = true;
+    auto spell = addToHand(P1, 1086);
+    EnginePathAgent agent(EnginePathAgent::script({EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_EQ(state.getObject(mine).damage_marked, 5);
+}
+
+TEST_F(RadianceReview, ChronobreakBanishesATokenUnitAndDoesNotReplayIt) {
+    auto token = addUnit(P1, kInvalidId, 1, -1);
+    state.getObject(token).is_token = true;
+    state.getObject(token).damage_marked = 0;
+    auto real = addUnit(P1, kInvalidId, 2, 0);
+    state.getObject(real).damage_marked = 1;
+    state.player(P1).rune_pool.universal_power = 1;
+    auto spell = addToHand(P1, 1117);
+    EnginePathAgent agent(EnginePathAgent::script({
+        1, static_cast<int>(token.raw()), EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_FALSE(state.getObject(token).location.has_value());
+    EXPECT_EQ(std::find(state.player(P1).banishment.begin(), state.player(P1).banishment.end(), token),
+              state.player(P1).banishment.end());
+    EXPECT_TRUE(state.getObject(real).location.has_value());
+    EXPECT_EQ(state.getObject(real).damage_marked, 1);
+}
+
+TEST_F(RadianceReview, GrantedShowOffShowsAMightyUnit) {
+    auto mighty = addUnit(P1, kInvalidId, 5, -1);
+    state.getObject(mighty).base_might = 5;
+    state.getObject(mighty).current_might = 5;
+    auto weak = addUnit(P1, kInvalidId, 2, -1);
+    auto spell = addToHand(P1, 1121);
+    state.getObject(spell).keywords.set(Keyword::ShowOff);
+    bool offered_mighty = false;
+    bool offered_weak = false;
+    auto advancing = EnginePathAgent::script({1, static_cast<int>(mighty.raw()), EnginePathAgent::kRest});
+    auto show_off_pick = std::make_shared<bool>(false);
+    EnginePathAgent agent(advancing);
+    agent.pick = [&, advancing, show_off_pick](const std::vector<Intent>& legal) {
+        bool may = false;
+        for (const auto& i : legal)
+            if (i.choice_label.find("Show off") != std::string::npos) may = true;
+        if (may) *show_off_pick = true;
+        else if (*show_off_pick) {
+            for (const auto& i : legal) {
+                if (i.chosen_objects.empty()) continue;
+                if (i.chosen_objects.front() == mighty) offered_mighty = true;
+                if (i.chosen_objects.front() == weak) offered_weak = true;
+            }
+            *show_off_pick = false;
+        }
+        return advancing(legal);
+    };
+    playThroughEngine(spell, &agent);
+    EXPECT_TRUE(offered_mighty);
+    EXPECT_FALSE(offered_weak);
+}
+
+TEST_F(RadianceReview, GrantedShowOffDoesNotSatisfyThePrintedShowOff) {
+    auto gear = place(P1, 967, -1);
+    auto mighty = addUnit(P1, kInvalidId, 5, -1);
+    state.getObject(mighty).base_might = 5;
+    state.getObject(mighty).current_might = 5;
+    auto unit = addUnit(P1, kInvalidId, 2, 0);
+    addRune(P1, Domain::Fury, true);
+    auto spell = addToHand(P1, 1093);
+    bool injected = false;
+    bool offered_mighty = false;
+    EnginePathAgent agent(EnginePathAgent::script({
+        1, static_cast<int>(mighty.raw()), static_cast<int>(unit.raw()), EnginePathAgent::kRest}));
+    auto advancing = EnginePathAgent::script({
+        1, static_cast<int>(mighty.raw()), static_cast<int>(unit.raw()), EnginePathAgent::kRest});
+    agent.pick = [&](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == mighty)
+                offered_mighty = true;
+        return advancing(legal);
+    };
+    // Decline the printed gear show-off and grant "Show Off a Mighty unit"
+    // before the next instance is asked.
+    struct Grant : EnginePathAgent {
+        using EnginePathAgent::EnginePathAgent;
+        bool injected = false;
+        bool offered_mighty = false;
+        GameObjectId mighty = kInvalidId;
+        Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+            for (const auto& i : legal)
+                if (!i.chosen_objects.empty() && i.chosen_objects.front() == mighty)
+                    offered_mighty = true;
+            if (!injected) {
+                bool may = false;
+                for (const auto& i : legal)
+                    if (i.choice_label.find("Show off") != std::string::npos) may = true;
+                if (may && state.chain.resuming.has_value()) {
+                    auto& spell = const_cast<GameState&>(state).getObject(state.chain.resuming->source);
+                    GameObject::AuraEffect ae;
+                    ae.keyword = Keyword::ShowOff;
+                    ae.keyword_value = 1;
+                    spell.aura_effects.push_back(ae);
+                    injected = true;
+                    for (const auto& i : legal)
+                        if (i.chosen_value && *i.chosen_value == 0) return i;
+                }
+            }
+            return EnginePathAgent::selectAction(state, legal);
+        }
+    } grant(std::move(advancing));
+    grant.mighty = mighty;
+    (void)injected;
+    (void)offered_mighty;
+    (void)agent;
+    (void)gear;
+    playThroughEngine(spell, &grant);
+    EXPECT_TRUE(grant.injected);
+    EXPECT_TRUE(grant.offered_mighty);
+    // The printed show-off was declined, so the rune stays exhausted.
+    bool any_ready = false;
+    for (auto id : state.runesInBase(P1))
+        if (state.objectExists(id) && !state.getObject(id).is_exhausted) any_ready = true;
+    EXPECT_FALSE(any_ready);
+}
+
 }  // namespace test_radiance_review
 }  // namespace riftbound::test

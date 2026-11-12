@@ -390,8 +390,10 @@ void DeckValidator::checkNeekoLegends(const DeckSubmission& deck,
             result.addError("Neeko legends are only legal when Neeko, Blending In is in the deck");
         return;
     }
-    if (deck.neeko_legends.size() > 3)
-        result.addError("Neeko allows at most 3 additional legends, got " +
+    // The three legends are chosen at deckbuilding, shared by every Neeko
+    // (October 16 2026 patch notes). Fewer than three is not a legal list.
+    if (deck.neeko_legends.size() != 3)
+        result.addError("Neeko chooses exactly 3 additional legends, got " +
                         std::to_string(deck.neeko_legends.size()));
     const std::string starting = deck.legend != kInvalidId
         ? db_.get(deck.legend).name : std::string{};

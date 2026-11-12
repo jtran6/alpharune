@@ -25,30 +25,31 @@ public:
         // including when it is ready right now: the legend may still be
         // exhausted in response before this resolves.
         auto legend_ready_state = [&]() {
-            auto& ps = ctx.state.player(ctx.controller);
             // CR 445.2 / 164.2.a: floating Energy or a ready rune can pay.
+            // Any legend that player controls qualifies, not only the starting one.
             if (!canPayEnergy(ctx, ctx.controller, 1)) return false;
-            GameObjectId lz = ps.legend_zone;
-            return lz != kInvalidId && ctx.state.objectExists(lz);
+            return !friendlyLegends(ctx.state, ctx.controller).empty();
         };
         int conf = confirmOptional(ctx, "Hall of Legends: pay [1] to ready your legend?",
                                    legend_ready_state);
         if (conf == -1) return;  // waiting on agent
         if (conf == 0) return;   // declined / can't pay
-        auto& ps = ctx.state.player(ctx.controller);
         if (costDueNow(ctx) && !payEnergy(ctx, ctx.controller, 1)) return;
         if (finalizingChoices(ctx)) return;   // choices and costs end here (CR 383.3)
-        std::vector<GameObjectId> legends;
-        GameObjectId lz = ps.legend_zone;
-        if (lz != kInvalidId && ctx.state.objectExists(lz)) legends.push_back(lz);
-        for (auto& [id, obj] : ctx.state.objects.inPlay()) {
-            if (obj.zone.get() != ZoneType::LegendZone || obj.controller != ctx.controller) continue;
-            if (std::find(legends.begin(), legends.end(), id) != legends.end()) continue;
-            legends.push_back(id);
+        // "Ready your legend" is one legend that player controls, chosen as
+        // this resolves (not a target).
+        auto legends = friendlyLegends(ctx.state, ctx.controller);
+        if (legends.empty()) return;
+        GameObjectId which = legends.front();
+        if (legends.size() > 1) {
+            auto picked = selectObject(ctx, "Hall of Legends: ready a legend", legends, /*slot=*/8);
+            if (!picked) return;
+            which = *picked;
         }
-        for (auto id : legends) ctx.executor.readyObject(id);
-        if (!legends.empty())
+        if (which != kInvalidId && ctx.state.objectExists(which)) {
+            ctx.executor.readyObject(which);
             RIFT_TRACE(ctx.events, "HALL OF LEGENDS: paid [1] -> readied legend");
+        }
     }
 private:
     const CardDef def_ = [] {

@@ -25,7 +25,17 @@ public:
             if (finalizingChoices(ctx)) return;
             return;
         }
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
+        BattlefieldId there = kInvalidId;
+        if (ctx.state.objectExists(sub) && ctx.state.getObject(sub).location.has_value())
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(sub).location))
+                there = bf->id;
+        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            if (u.controller != ctx.controller) return false;
+            if (!there.valid() || !u.location.has_value()) return true;
+            if (const auto* at = std::get_if<BattlefieldLocation>(&*u.location))
+                return at->id != there;
+            return true;
+        });
         const bool ready = ctx.state.objectExists(ctx.source) &&
                            !ctx.state.getObject(ctx.source).is_exhausted;
         const bool can_pay = ready && ctx.executor.canPayAnyPower(ctx.controller, 1);

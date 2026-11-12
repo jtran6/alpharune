@@ -22,7 +22,15 @@ public:
                                 const GameObject& dying) const override {
         if (!state.objectExists(self)) return 0;
         const auto& me = state.getObject(self);
-        if (!me.location.has_value()) return 0;
+        // A board wipe kills the amplifier in the same batch. Its location
+        // is the one it left from, not the empty field after it left.
+        std::optional<LocationId> mine;
+        if (me.location.has_value()) mine = *me.location;
+        else if (me.last_known.valid && me.last_known.location.has_value())
+            mine = me.last_known.location;
+        else if (me.last_location.has_value())
+            mine = me.last_location;
+        if (!mine.has_value()) return 0;
         std::optional<LocationId> where;
         if (dying.last_known.valid && dying.last_known.location.has_value())
             where = dying.last_known.location;
@@ -30,7 +38,7 @@ public:
             where = *dying.location;
         else
             where = dying.last_location;
-        if (!where.has_value() || *where != *me.location) return 0;
+        if (!where.has_value() || *where != *mine) return 0;
         return 1;
     }
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
@@ -42,7 +50,7 @@ public:
         int go = confirmOptional(ctx, "Detonation Amplifier: kill another friendly unit or gear to draw 1", [ok=!opts.empty()]{ return ok; });
         if (go < 0) return;
         if (go == 1) {
-            const GameObjectId id = pickTarget(ctx, "Detonation Amplifier: kill", opts);
+            const GameObjectId id = pickCostObject(ctx, "Detonation Amplifier: kill", opts);
             if (id == kInvalidId) return;
             if (costDueNow(ctx)) killAsCost(ctx, id);
         }

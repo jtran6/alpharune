@@ -77,8 +77,7 @@ public:
     }
     void applyPassiveAura(GameState& state, PlayerId controller) const override {
         if (controller == PlayerId::None) return;  // uncontrolled BF
-        auto legend = state.player(controller).legend_zone;
-        if (legend != kInvalidId && state.objectExists(legend))
+        for (auto legend : friendlyLegends(state, controller))
             state.getObject(legend).granted_abilities.push_back({cardDefId(), 0});
     }
 private:

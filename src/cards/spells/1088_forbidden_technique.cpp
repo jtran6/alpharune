@@ -26,11 +26,11 @@ public:
         auto units = chooseableUnits(ctx.state, ctx.controller, [](const GameObject&) { return true; });
         const GameObjectId t = pickTarget(ctx, "Forbidden Technique: ready a unit", units);
         if (finalizingChoices(ctx)) return;
-        if (t == kInvalidId) return;
-        ctx.executor.readyObject(t);
-        if (ctx.state.objectExists(ctx.source) &&
-            ctx.state.getObject(ctx.source).card_counters["__ft_banish"] != 0)
-            ctx.executor.banishObject(ctx.source);
+        const bool banish_after = ctx.state.objectExists(ctx.source) &&
+            ctx.state.getObject(ctx.source).card_counters["__ft_banish"] != 0;
+        if (t != kInvalidId) ctx.executor.readyObject(t);
+        // "Then banish this" still happens when the ready target is illegal.
+        if (banish_after) ctx.executor.banishObject(ctx.source);
     }
 
     bool triggersWhileInTrash(TriggerType t) const override {
@@ -64,10 +64,21 @@ public:
         }
         if (finalizingChoices(ctx)) return;
         if (go != 1 || costUnpaid(ctx)) return;
-        if (!ctx.executor.playIgnoringCost(ctx.controller, ctx.source, std::nullopt)) return;
+        // A response may have moved it. It is played only from the trash.
+        if (!ctx.state.objectExists(ctx.source) ||
+            ctx.state.getObject(ctx.source).zone != ZoneType::Trash)
+            return;
+        // A counter banishes it, the same way Flow does: the spell leaves
+        // the chain to banishment instead of the trash.
+        ctx.state.getObject(ctx.source).banish_on_leave_chain = true;
+        if (!ctx.executor.playIgnoringCost(ctx.controller, ctx.source, std::nullopt)) {
+            if (ctx.state.objectExists(ctx.source))
+                ctx.state.getObject(ctx.source).banish_on_leave_chain = false;
+            return;
+        }
         // playIgnoringCost forgets per-play stamps first. The banish belongs
-        // to this play, so it is stamped after that, and cleared once the
-        // spell resolves.
+        // to this play, so it is stamped after that. forgetPlayPayments
+        // clears it when the card is played again.
         if (ctx.state.objectExists(ctx.source))
             ctx.state.getObject(ctx.source).card_counters["__ft_banish"] = 1;
     }

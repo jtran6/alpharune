@@ -352,7 +352,7 @@ TEST(StrongIds, HistoryTokensAndSlotsArePinned) {
 // here until it has been paired too and the count is updated.
 TEST(StrongIds, EveryObjectIdReadFromAnIntegerSlotIsOnTheAuditedList) {
     const std::map<std::string, int> audited = {
-        {"src/cards/card.cpp", 9},   // +2: [Show Off] locks the shown object in its own resume slots
+        {"src/cards/card.cpp", 8},   // [Show Off] reads the shown object from its resume slot; instances are not excluded from each other
         {"src/cards/spells/1117_chronobreak.cpp", 4},  // the banished units, written in the chain item's resume slots
         {"src/cards/spells/1121_encore.cpp", 1},  // the looked-at cards, written as card_counters["__encore_topN"]
         {"src/engine/effect_executor.cpp", 1},  // Neeko's added legend, written as card_counters["__neeko_extra"]

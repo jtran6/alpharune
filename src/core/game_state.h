@@ -719,6 +719,10 @@ struct ChainItem {
     // them entirely.
     int resume_point = 0;
     std::vector<int32_t> resume_data;
+    // A note one execution keeps across a prompt that replaces resume_data
+    // (split damage) and that the next execution does not inherit. Repeat
+    // and "make new choices" reset it with the chain item. -1 means unset.
+    int32_t execution_memo = -1;
 
     // ── Choices made at finalization (CR 355, 383.3) ──
     // A card that opts in (Card::choicesAtFinalization) has its callback run
@@ -774,6 +778,9 @@ struct ChainItem {
         ChainItemId chosen_item = kInvalidId;
         int resume_point = 0;
         std::vector<int32_t> resume_data;
+        // See ChainItem::execution_memo. Kept with the choices so a Repeat
+        // execution does not inherit the previous execution's note.
+        int32_t execution_memo = -1;
         int8_t may_answer = -1;
         bool choices_finalized = false;
         bool finalize_costs_paid = false;

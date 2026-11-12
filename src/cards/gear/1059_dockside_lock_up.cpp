@@ -31,6 +31,7 @@ public:
             if (costUnpaid(ctx) || raw <= 0) return;
             const GameObjectId card = GameObjectId::fromRaw(raw);
             if (!ctx.state.objectExists(card) || ctx.state.getObject(card).isToken()) return;
+            if (ctx.state.getObject(card).zone != ZoneType::Banishment) return;
             std::vector<std::string> labels;
             std::vector<std::optional<LocationId>> places;
             const bool deploy = ctx.state.getObject(card).isGear() &&
@@ -46,9 +47,7 @@ public:
                 if (ctx.state.getObject(card).isUnit() &&
                     !ctx.executor.unitMayBePlayedTo(ctx.controller, loc))
                     continue;
-                labels.push_back(ctx.state.objectExists(bf.card_object_id)
-                    ? ctx.state.getObject(bf.card_object_id).name.get()
-                    : "Battlefield");
+                labels.push_back(battlefieldLabel(ctx.state, bf));
                 places.push_back(loc);
             }
             if (labels.empty()) return;

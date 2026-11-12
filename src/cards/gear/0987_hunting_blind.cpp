@@ -26,7 +26,17 @@ public:
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto enemies = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller != ctx.controller; });
+        BattlefieldId here = kInvalidId;
+        if (ctx.state.objectExists(ctx.source) && ctx.state.getObject(ctx.source).location.has_value())
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
+                here = bf->id;
+        auto enemies = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            if (u.controller == ctx.controller) return false;
+            if (!here.valid() || !u.location.has_value()) return true;
+            if (const auto* at = std::get_if<BattlefieldLocation>(&*u.location))
+                return at->id != here;
+            return true;
+        });
         int go = confirmOptional(ctx, "Hunting Blind: move an enemy unit here", [ok=!enemies.empty()]{ return ok; });
         if (go < 0) return;
         GameObjectId t = kInvalidId;
@@ -37,8 +47,12 @@ public:
         if (finalizingChoices(ctx)) return;
         if (go != 1 || t == kInvalidId || !ctx.state.objectExists(ctx.source) ||
             !ctx.state.getObject(ctx.source).location.has_value()) return;
-        if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
+        if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location)) {
+            if (ctx.state.getObject(t).location.has_value())
+                if (const auto* at = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(t).location))
+                    if (at->id == bf->id) return;
             ctx.executor.moveToBattlefield(t, bf->id);
+        }
     }
 
 private:

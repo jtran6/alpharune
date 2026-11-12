@@ -1675,6 +1675,7 @@ void GameEngine::chooseRepeatExecutions(ChainItemId this_id) {
         c.chosen_item = ci.chosen_item;
         c.resume_point = ci.resume_point;
         c.resume_data = ci.resume_data;
+        c.execution_memo = ci.execution_memo;
         c.may_answer = ci.may_answer;
         c.choices_finalized = ci.choices_finalized;
         c.finalize_costs_paid = ci.finalize_costs_paid;
@@ -1687,6 +1688,7 @@ void GameEngine::chooseRepeatExecutions(ChainItemId this_id) {
         ci.chosen_item = c.chosen_item;
         ci.resume_point = c.resume_point;
         ci.resume_data = c.resume_data;
+        ci.execution_memo = c.execution_memo;
         ci.may_answer = c.may_answer;
         ci.choices_finalized = c.choices_finalized;
         ci.finalize_costs_paid = c.finalize_costs_paid;
@@ -1725,6 +1727,7 @@ void GameEngine::adoptPrefinalizedChoices(ChainItem& item) {
         if (ci.id != item_id) continue;
         ci.resume_point = done.resume_point;
         ci.resume_data = std::move(done.resume_data);
+        ci.execution_memo = done.execution_memo;
         ci.chosen_objects = std::move(done.chosen_objects);
         ci.chosen_stamps = std::move(done.chosen_stamps);
         ci.chosen_item = done.chosen_item;
@@ -1970,6 +1973,10 @@ void GameEngine::makeNewChoicesFor(ChainItemId item_id) {
     ChainItem* item = nullptr;
     for (auto& ci : state_.chain.items) if (ci.id == item_id) { item = &ci; break; }
     if (!item || item->card_def_id == kInvalidId) return;
+    // A new set of choices is a new execution. A note the previous pass
+    // kept (Scorched Earth's battlefield, Battle Preparations' +2) must
+    // not skip the new one.
+    item->execution_memo = -1;
     const Card* card = card_registry_.get(item->card_def_id);
     if (!card) return;
     const PlayerId chooser = item->controller;
@@ -2546,6 +2553,7 @@ void GameEngine::runFinalizePass(ChainItem& item) {
         ci.remove_at_finalize = not_performed && !keep_unperformed_triggers_;
         ci.resume_point = done.resume_point;
         ci.resume_data = std::move(done.resume_data);
+        ci.execution_memo = done.execution_memo;
         ci.chosen_objects = std::move(done.chosen_objects);
         ci.chosen_stamps = std::move(done.chosen_stamps);
         ci.chosen_item = done.chosen_item;
@@ -5900,7 +5908,10 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         if (mark == card.card_counters.end() || mark->second != state_.turn.turn_number) continue;
         if (state_.turn.turn_player != player) continue;
         const Card* card_obj = card_registry_.get(card.card_def_id);
-        if (!card_obj || !canAfford(player, card_id)) continue;
+        // A spell can be short on its printed cost and still payable once its
+        // target is chosen (the hand path's canAffordChoosing). Rejecting it
+        // here drops that play. Units and gear have no such discount.
+        if (!card_obj || (!card.isSpell() && !canAfford(player, card_id))) continue;
         // Brynhir lockout covers a banished "play me until the next Ending
         // Phase" the same way it covers a card in hand.
         if (locked_out) continue;
@@ -5926,41 +5937,47 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
                 actions.push_back(at);
             }
         } else if (card.isSpell()) {
-            // The same offer gate as a spell from hand or the trash: a
-            // required target, a pair, or a finalize pass that cannot be paid
-            // for (a Deflect the spell cannot meet) is not a play.
+            // The same offer as a spell from hand: one intent per target set
+            // when the play names its targets, and a discount from the chosen
+            // target counts. A required target, a pair, or a finalize pass
+            // that cannot be paid for (a Deflect the spell cannot meet) is
+            // not a play.
             if (state_.player(player).cant_play_spells_this_turn) continue;
-            Card* spell_card = card_registry_.get(card.card_def_id);
-            if (!spell_card || !spell_card->hasLegalTargets(state_, player, card_db_)) continue;
+            if (!card_obj->hasLegalTargets(state_, player, card_db_)) continue;
             const bool afford_plain = canAfford(player, card_id);
-            auto legal_targets = spell_card->enumerateLegalTargets(state_, player);
-            auto req = spell_card->getTargetRequirements();
-            bool offer = false;
-            if ((req.count > 0 && spell_card->needsPlayTimeTarget()) ||
-                spell_card->needsPlayTimeTargetPair()) {
+            auto legal_targets = card_obj->enumerateLegalTargets(state_, player);
+            auto req = card_obj->getTargetRequirements();
+            auto emitSpell = [&](std::vector<GameObjectId> targets) {
+                Intent play = play_intent;
+                play.play_location = std::nullopt;
+                play.targets = std::move(targets);
+                actions.push_back(std::move(play));
+            };
+            if ((req.count > 0 && card_obj->needsPlayTimeTarget()) ||
+                card_obj->needsPlayTimeTargetPair()) {
                 bool payable = legal_targets.empty() &&
-                    (afford_plain || (spell_card->needsPlayTimeTargetPair() &&
-                                      (spell_card->choicesAtFinalization() & Card::kFinalizeResolve)));
+                    (afford_plain || (card_obj->needsPlayTimeTargetPair() &&
+                                      (card_obj->choicesAtFinalization() & Card::kFinalizeResolve)));
                 for (auto t : legal_targets)
                     if (!payable && canAffordChoosing(player, card_id, {t})) payable = true;
-                if (payable && spell_card->needsPlayTimeTargetPair() &&
-                    (spell_card->choicesAtFinalization() & Card::kFinalizeResolve) &&
+                if (payable && card_obj->needsPlayTimeTargetPair() &&
+                    (card_obj->choicesAtFinalization() & Card::kFinalizeResolve) &&
                     (!afford_plain || anyDeflectFor(player)))
                     payable = payableThroughAFinalizeChoice(player, card_id, nullptr, true);
-                offer = payable;
+                if (!payable) continue;
+                emitSpell({});
             } else if (req.count == 0 || (req.optional && legal_targets.empty())) {
-                offer = afford_plain || payableThroughAFinalizeChoice(player, card_id, nullptr);
+                bool offer = afford_plain || payableThroughAFinalizeChoice(player, card_id, nullptr);
                 if (offer && afford_plain &&
-                    (spell_card->choicesAtFinalization() & Card::kFinalizeResolve) &&
-                    !spell_card->needsPlayTimeTarget() && anyDeflectFor(player))
+                    (card_obj->choicesAtFinalization() & Card::kFinalizeResolve) &&
+                    !card_obj->needsPlayTimeTarget() && anyDeflectFor(player))
                     offer = payableThroughAFinalizeChoice(player, card_id, nullptr, true);
+                if (!offer) continue;
+                emitSpell({});
             } else {
-                for (auto& tset : spellTargetSets(spell_card, state_, player, req, legal_targets))
-                    if (canAffordChoosing(player, card_id, tset)) offer = true;
+                for (auto& tset : spellTargetSets(card_obj, state_, player, req, legal_targets))
+                    if (canAffordChoosing(player, card_id, tset)) emitSpell(std::move(tset));
             }
-            if (!offer) continue;
-            play_intent.play_location = std::nullopt;
-            actions.push_back(play_intent);
         } else {
             play_intent.play_location = BaseLocation{player};
             actions.push_back(play_intent);

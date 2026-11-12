@@ -1531,23 +1531,58 @@ namespace {
 constexpr int kShowOffBase = 40;
 constexpr int kShowOffStride = 6;
 
-int showOffInstances(const CardContext& ctx) {
-    int n = 1;
-    if (!ctx.state.objectExists(ctx.source)) return n;
-    const auto& src = ctx.state.getObject(ctx.source);
-    int counted = src.keywords.has(Keyword::ShowOff) ? 1 : 0;
+int showOffAuras(const GameObject& src) {
+    int n = 0;
     for (const auto& ae : src.aura_effects)
-        if (ae.keyword == Keyword::ShowOff) ++counted;
-    return std::max(1, counted);
+        if (ae.keyword == Keyword::ShowOff) ++n;
+    return n;
 }
 
-std::vector<GameObjectId> showOffOptions(CardContext& ctx, const Card& card) {
+// keyword_value 0 or 1 on a [Show Off] aura is "Show Off a Mighty unit"
+// (CR 832.2.a). The printed instance, when the card prints the keyword,
+// uses the card's own matcher instead.
+bool matchesShowOffInstance(CardContext& ctx, const Card& card, int instance,
+                            const GameObject& obj) {
+    const bool printed = card.def().keywords.has(Keyword::ShowOff);
+    if (printed && instance == 0) return card.matchesShowOff(ctx, obj);
+    int kind = 1;
+    if (ctx.state.objectExists(ctx.source)) {
+        int seen = 0;
+        const int aura_i = printed ? instance - 1 : instance;
+        for (const auto& ae : ctx.state.getObject(ctx.source).aura_effects) {
+            if (ae.keyword != Keyword::ShowOff) continue;
+            if (seen == aura_i) {
+                kind = ae.keyword_value <= 1 ? 1 : ae.keyword_value;
+                break;
+            }
+            ++seen;
+        }
+    }
+    if (kind == 1) return obj.isUnit() && isMighty(obj);
+    return false;
+}
+
+int showOffInstances(const CardContext& ctx, const Card& card) {
+    const bool printed = card.def().keywords.has(Keyword::ShowOff);
+    int auras = 0;
+    bool granted_keyword = false;
+    if (ctx.state.objectExists(ctx.source)) {
+        const auto& src = ctx.state.getObject(ctx.source);
+        auras = showOffAuras(src);
+        granted_keyword = !printed && (src.keywords.has(Keyword::ShowOff) || src.hasKeyword(Keyword::ShowOff));
+    }
+    int n = (printed ? 1 : 0) + auras;
+    if (n == 0 && granted_keyword) n = 1;
+    return std::max(1, n);
+}
+
+std::vector<GameObjectId> showOffOptions(CardContext& ctx, const Card& card, int instance) {
     std::vector<GameObjectId> options;
     auto consider = [&](GameObjectId id, const GameObject& obj) {
         if (id == ctx.source) return;
         if (obj.is_hidden || obj.zone == ZoneType::FacedownZone) return;
         if (obj.zone == ZoneType::LegendZone) return;
-        if (!card.matchesShowOff(ctx, obj)) return;
+        if (!matchesShowOffInstance(ctx, card, instance, obj)) return;
         options.push_back(id);
     };
     for (auto id : ctx.state.player(ctx.controller).hand) {
@@ -1595,7 +1630,7 @@ bool Card::settleShowOff(CardContext& ctx) {
     if (ri.shown_off.has_value()) return true;
     if (!showsOff(ctx.state, ctx.source)) return true;
 
-    const int instances = showOffInstances(ctx);
+    const int instances = showOffInstances(ctx, *this);
     while (static_cast<int>(ri.resume_data.size()) < kShowOffBase + instances * kShowOffStride)
         ri.resume_data.push_back(0);
 
@@ -1604,13 +1639,9 @@ bool Card::settleShowOff(CardContext& ctx) {
         int stage = ri.resume_data[slot];
         if (stage == 2 || stage == 4) continue;
 
-        auto options = showOffOptions(ctx, *this);
-        for (int j = 0; j < i; ++j) {
-            const int earlier = kShowOffBase + j * kShowOffStride;
-            if (ri.resume_data[earlier] != 4) continue;
-            const auto taken = GameObjectId::fromRaw(ri.resume_data[earlier + 1]);
-            options.erase(std::remove(options.begin(), options.end(), taken), options.end());
-        }
+        // Each instance may show off the same object (CR 832.2: no
+        // cross-instance uniqueness restriction).
+        auto options = showOffOptions(ctx, *this, i);
 
         auto publishPick = [&]() {
             std::vector<Intent> choices;
@@ -1688,25 +1719,23 @@ bool Card::settleShowOff(CardContext& ctx) {
 void Card::offerShowOffNow(CardContext& ctx) {
     if (!showsOff(ctx.state, ctx.source)) return;
     if (!ctx.state.objectExists(ctx.source)) return;
-    const int instances = showOffInstances(ctx);
+    const int instances = showOffInstances(ctx, *this);
     int might = 0, energy = 0, power = 0;
-    bool printed = false;
-    std::vector<GameObjectId> taken;
+    bool linked = false;
     for (int i = 0; i < instances; ++i) {
-        auto options = showOffOptions(ctx, *this);
-        for (auto id : taken)
-            options.erase(std::remove(options.begin(), options.end(), id), options.end());
+        auto options = showOffOptions(ctx, *this, i);
         if (options.empty()) continue;
         if (!ctx.executor.confirmNow(ctx.controller, "Show off?")) continue;
         const GameObjectId picked = ctx.executor.chooseObjectNow(
             ctx.controller, options, "Show off — choose a card or a friendly permanent");
         if (picked == kInvalidId || !ctx.state.objectExists(picked)) continue;
         const auto& obj = ctx.state.getObject(picked);
-        // The linked record is the first instance, the one this card
-        // printed. Later instances are still shown off; they do not add
-        // their Might to that record (CR 832.2.a).
+        // The linked record is the first instance. A granted instance after
+        // a printed one does not satisfy the printed "if you showed off"
+        // (CR 832.2.a). A card with no printed [Show Off] has the grant as
+        // that first instance.
         if (i == 0) {
-            printed = true;
+            linked = true;
             might = obj.current_might;
             if (ctx.registry && obj.card_def_id != kInvalidId) {
                 if (const Card* other = ctx.registry->get(obj.card_def_id)) {
@@ -1719,9 +1748,8 @@ void Card::offerShowOffNow(CardContext& ctx) {
             ctx.events.emit(CardRevealedEvent{picked, obj.card_def_id, obj.owner,
                                               true, ctx.controller, ZoneType::Hand});
         }
-        taken.push_back(picked);
     }
-    if (!printed || !ctx.state.objectExists(ctx.source)) return;
+    if (!linked || !ctx.state.objectExists(ctx.source)) return;
     auto& self = ctx.state.getObject(ctx.source);
     self.card_counters[kShowOffDid] = 1;
     self.card_counters[kShowOffMight] = might;

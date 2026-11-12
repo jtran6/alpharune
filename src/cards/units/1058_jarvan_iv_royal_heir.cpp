@@ -19,7 +19,17 @@ public:
     TriggerType triggerType() const override { return TriggerType::WhenIAttack; }
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
+        BattlefieldId here = kInvalidId;
+        if (ctx.state.objectExists(ctx.source) && ctx.state.getObject(ctx.source).location.has_value())
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
+                here = bf->id;
+        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            if (u.controller != ctx.controller) return false;
+            if (!here.valid() || !u.location.has_value()) return true;
+            if (const auto* at = std::get_if<BattlefieldLocation>(&*u.location))
+                return at->id != here;
+            return true;
+        });
         int go = confirmOptional(ctx, "Jarvan: move a unit you control to my battlefield", [ok=!units.empty()]{ return ok; });
         if (go < 0) return;
         GameObjectId t = kInvalidId;
@@ -32,6 +42,9 @@ public:
             !ctx.state.getObject(ctx.source).location.has_value()) return;
         auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location);
         if (!bf) return;
+        if (ctx.state.getObject(t).location.has_value())
+            if (const auto* at = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(t).location))
+                if (at->id == bf->id) return;
         ctx.executor.moveToBattlefield(t, bf->id);
     }
 

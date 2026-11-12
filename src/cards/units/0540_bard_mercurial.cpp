@@ -25,10 +25,11 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
 
-    static GameObjectId readyLegend(const GameState& state, PlayerId controller) {
-        const GameObjectId id = state.player(controller).legend_zone;
-        if (id == kInvalidId || !state.objectExists(id)) return kInvalidId;
-        return state.getObject(id).is_exhausted ? kInvalidId : id;
+    static std::vector<GameObjectId> readyLegends(const GameState& state, PlayerId controller) {
+        std::vector<GameObjectId> ready;
+        for (auto id : friendlyLegends(state, controller))
+            if (state.objectExists(id) && !state.getObject(id).is_exhausted) ready.push_back(id);
+        return ready;
     }
     // CR 170.11.c: an open battlefield is unoccupied and uncontrolled.
     static std::vector<BattlefieldId> openBattlefields(const GameState& state) {
@@ -52,7 +53,7 @@ public:
         (void)db; (void)self;
         AdditionalPlayCost c;
         c.exists = true;
-        c.payable = readyLegend(state, player) != kInvalidId;
+        c.payable = !readyLegends(state, player).empty();
         return c;
     }
     PlayCostAdjust payAdditionalPlayCost(
@@ -61,11 +62,17 @@ public:
         (void)affordable;
         auto& me = ctx.state.getObject(ctx.source);
         me.card_counters[kPaid] = 0;
-        const GameObjectId legend = readyLegend(ctx.state, ctx.controller);
-        if (legend == kInvalidId ||
+        auto ready = readyLegends(ctx.state, ctx.controller);
+        if (ready.empty() ||
             !ctx.executor.confirmNow(ctx.controller,
                 "Bard, Mercurial: exhaust your legend as an additional cost"))
             return {};
+        GameObjectId legend = ready.front();
+        if (ready.size() > 1) {
+            legend = ctx.executor.chooseObjectNow(
+                ctx.controller, ready, "Bard, Mercurial: which legend");
+            if (legend == kInvalidId) return {};
+        }
         ctx.executor.exhaustObject(legend);
         me.card_counters[kPaid] = 1;
         RIFT_TRACE(ctx.events, "BARD, MERCURIAL: exhausted the legend (additional cost)");

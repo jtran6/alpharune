@@ -38,13 +38,18 @@ public:
             auto& rd = ctx.state.chain.resuming->resume_data;
             while (rd.size() <= 20) rd.push_back(0);
             already = rd[20] != 0;
-            rd[20] = 1;
         }
+        // A destination other than where the unit already is (CR 355.4.a).
+        // The Bomb's location prompt re-enters this callback, so the move is
+        // stamped only after the destination is known.
         if (!already && t != kInvalidId && ctx.state.objectExists(t) &&
             ctx.state.getObject(t).location.has_value()) {
-            if (std::holds_alternative<BaseLocation>(*ctx.state.getObject(t).location)) {
-                if (!ctx.state.battlefields.empty()) ctx.executor.moveToBattlefield(t, ctx.state.battlefields[0].id);
-            } else ctx.executor.moveToBase(t);
+            const int dest = pickMoveDest(*this, ctx, "Satchel Charge: where",
+                                          ctx.state.getObject(t));
+            if (dest == -1) return;
+            if (dest >= 0) moveTo(ctx, t, dest);
+            if (ctx.state.chain.resuming.has_value())
+                ctx.state.chain.resuming->resume_data[20] = 1;
         }
         playBombToken(*this, ctx, "Satchel Charge: play a Bomb");
     }

@@ -569,6 +569,7 @@ void ChainManager::stepResolve(
             auto& ri = *state_.chain.resuming;
             ri.resume_point = 0;
             ri.resume_data.clear();
+            ri.execution_memo = -1;
             ri.may_answer = -1;
             ri.chosen_item = kInvalidId;
             ri.chosen_stamps.clear();
@@ -585,6 +586,7 @@ void ChainManager::stepResolve(
                 ri.chosen_item = chosen.chosen_item;
                 ri.resume_point = chosen.resume_point;
                 ri.resume_data = chosen.resume_data;
+                ri.execution_memo = chosen.execution_memo;
                 ri.may_answer = chosen.may_answer;
                 ri.choices_finalized = chosen.choices_finalized;
                 ri.finalize_costs_paid = chosen.finalize_costs_paid;

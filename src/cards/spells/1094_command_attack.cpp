@@ -6,6 +6,7 @@
 #include "engine/effect_executor.h"
 #include <algorithm>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -27,8 +28,14 @@ public:
         // Mode 0 needs a Deploy gear and a battlefield. With neither, only
         // the look is offered, so the spell is not played into a required
         // choice that has no option.
+        bool can_move = false;
+        for (auto g : gears) {
+            if (!ctx.state.objectExists(g) || !ctx.state.getObject(g).location.has_value()) continue;
+            const auto& gear_obj = ctx.state.getObject(g);
+            if (gear_obj.isAtBase() || ctx.state.battlefields.size() >= 2) can_move = true;
+        }
         uint32_t modes = 2u;
-        if (!gears.empty() && !ctx.state.battlefields.empty()) modes |= 1u;
+        if (!gears.empty() && can_move) modes |= 1u;
         int mode = pickMode(ctx, "Command: Attack", 2,
                             {"Move a friendly Deploy gear", "Look at the top 5"}, modes);
         if (mode < 0) return;
@@ -37,13 +44,26 @@ public:
         if (mode == 0) {
             gear = pickTarget(ctx, "Command: Attack: a Deploy gear", gears);
             if (gear == kInvalidId) return;
+            std::optional<BattlefieldId> here;
+            if (ctx.state.objectExists(gear) && ctx.state.getObject(gear).location.has_value())
+                if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(gear).location))
+                    here = bf->id;
             std::vector<std::string> labels;
-            for (const auto& bf : ctx.state.battlefields)
-                labels.push_back(battlefieldLabel(ctx.state, bf));
+            std::vector<int> where_idx;
+            for (int i = 0; i < static_cast<int>(ctx.state.battlefields.size()); ++i) {
+                if (here.has_value() && *here == ctx.state.battlefields[i].id) continue;
+                where_idx.push_back(i);
+                labels.push_back(battlefieldLabel(ctx.state, ctx.state.battlefields[i]));
+            }
+            if (labels.empty()) {
+                if (finalizingChoices(ctx)) return;
+                return;
+            }
             auto w = pickValueAs(ctx, ctx.controller, "Command: Attack: a battlefield",
                                  labels, PromptKind::Location, 16);
             if (!w) return;
-            where = *w;
+            if (*w < 0 || *w >= static_cast<int>(where_idx.size())) return;
+            where = where_idx[static_cast<std::size_t>(*w)];
         }
         if (finalizingChoices(ctx)) return;
         if (mode == 0) {

@@ -72,9 +72,14 @@ public:
 
         const int deals = (a == 0 ? 1 : 0) + (b == 0 ? 1 : 0);
         GameObjectId deal_a = kInvalidId, deal_b = kInvalidId;
+        // The list passed to the picker is filtered only while the choice is
+        // open. At resolution the stored unit is checked against this list,
+        // and a Deflect that spent the last Power would make `payable` empty
+        // and turn the paid target into a mistarget. `units` is the legal
+        // list; offerableChoices already limited what was asked.
         if (deals == 2) {
-            auto [x, y] = pickTargetPair(ctx, "Encore: deal 2", payable,
-                                         [&](GameObjectId) { return payable; });
+            auto [x, y] = pickTargetPair(ctx, "Encore: deal 2", units,
+                                         [&](GameObjectId) { return units; });
             const bool waiting = (x == kInvalidId || y == kInvalidId) &&
                                  ctx.state.chain.resuming.has_value() &&
                                  (ctx.state.chain.resuming->resume_point == 10 ||
@@ -83,7 +88,7 @@ public:
             deal_a = x;
             deal_b = y;
         } else if (deals == 1) {
-            auto t = pickTarget(ctx, "Encore: deal 2 to a unit", payable);
+            auto t = pickTarget(ctx, "Encore: deal 2 to a unit", units);
             if (t == kInvalidId && ctx.state.chain.resuming.has_value() &&
                 ctx.state.chain.resuming->resume_point == 7)
                 return;
