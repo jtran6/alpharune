@@ -21,15 +21,22 @@ public:
         c.exhaust = true;
         return c;
     }
+    unsigned choicesAtFinalization() const override { return kFinalizeActivate; }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, opponent(ctx.controller), [&](const GameObject& u) {
-            return u.controller == opponent(ctx.controller);
+        const PlayerId them = opponent(ctx.controller);
+        BattlefieldId here = kInvalidId;
+        if (ctx.state.objectExists(ctx.source) && ctx.state.getObject(ctx.source).location.has_value()) {
+            if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
+                here = bf->id;
+        }
+        auto units = chooseableUnits(ctx.state, them, [&](const GameObject& u) {
+            return u.controller == them;
         });
-        if (units.empty() || !ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value()) return;
-        auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location);
-        if (!bf) return;
-        auto t = pickTarget(ctx, "Angler Wyrm: they move a unit here", units);
-        if (t != kInvalidId) ctx.executor.moveToBattlefield(t, bf->id);
+        auto t = selectObjectAs(ctx, them, "Angler Wyrm: move a unit you control here", units, /*slot=*/7);
+        if (!t) return;
+        if (finalizingChoices(ctx)) return;
+        if (*t == kInvalidId || !here.valid()) return;
+        ctx.executor.moveToBattlefield(*t, here);
     }
 
 private:

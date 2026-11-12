@@ -20,7 +20,9 @@ public:
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (ctx.state.turn.turn_player == ctx.controller) return;
         if (!ctx.state.objectExists(ctx.source)) return;
-        ctx.state.getObject(ctx.source).granted_keywords.set(Keyword::Temporary);
+        auto& self = ctx.state.getObject(ctx.source);
+        self.keywords.set(Keyword::Temporary);
+        self.granted_keywords.set(Keyword::Temporary);
     }
 
 private:
@@ -43,7 +45,6 @@ private:
         d.might = 4;
         d.rarity = Rarity::Common;
         d.keywords.set(Keyword::Hidden);
-        d.keywords.set(Keyword::Temporary);
         d.ability_text = R"RB([Hidden] (Hide now for [A] to react with later for [0].)
 When you play me, if it's not your turn, give me [Temporary]. (Kill me at the start of my controller's Beginning Phase, before scoring.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/aea67209470e47ec876a11ae9b3eacda00df7be1-744x1039.png)RB";

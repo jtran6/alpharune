@@ -19,7 +19,9 @@ public:
     TriggerType triggerType() const override { return TriggerType::WhenIDie; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         KeywordSet kw; kw.set(Keyword::Deflect);
-        ctx.executor.createToken(ctx.controller, CardType::Unit, "Bird", 1, {"Bird"}, kw, BaseLocation{ctx.controller});
+        const GameObjectId bird = ctx.executor.createToken(
+            ctx.controller, CardType::Unit, "Bird", 1, {"Bird"}, kw, BaseLocation{ctx.controller});
+        if (ctx.state.objectExists(bird)) ctx.state.getObject(bird).deflect_value = 1;
     }
 
 private:
@@ -41,9 +43,7 @@ private:
         d.power_cost = 0;
         d.might = 3;
         d.rarity = Rarity::Common;
-        d.keywords.set(Keyword::Deflect);
         d.keywords.set(Keyword::Deathknell);
-        d.deflect_value = 1;
         d.ability_text = R"RB([Deathknell][>] Play a 1 [M] Bird unit token with [Deflect] to your base. (When I die, get the effect. Opponents must pay [A] to choose a [Deflect] unit with a spell or ability.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cefd575150527670879748a7212f80a1f4c1c4fc-744x1039.png)RB";
         return d;

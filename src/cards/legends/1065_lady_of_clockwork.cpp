@@ -22,26 +22,36 @@ public:
         auto gears = boardObjects(ctx.state, [&](const GameObject& o) { return o.isGear() && o.controller == ctx.controller; });
         int go = confirmOptional(ctx, "Lady of Clockwork: pay [1] to make a gear a unit", [ok=!gears.empty()]{ return ok; });
         if (go < 0) return;
-        if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        if (!ctx.executor.payResources(ctx.controller, 1, 0, resource::kAnyDomain, SpendFor::Other)) return;
-        auto t = pickTarget(ctx, "Lady of Clockwork: a friendly gear", gears);
-        if (t == kInvalidId) return;
-        if (ctx.state.objectExists(ctx.source)) {
-            int prev = ctx.state.getObject(ctx.source).card_counters["__clock_gear"];
-            if (prev > 0) {
-                GameObjectId old = GameObjectId::fromRaw(prev);
-                if (ctx.state.objectExists(old) && ctx.state.getObject(old).is_unit_gear) {
-                    ctx.state.getObject(old).is_unit_gear = false;
-                    if (old.raw() != kInvalidId.raw() && ctx.state.getObject(old).card_def_id != kInvalidId && ctx.registry &&
-                        ctx.registry->get(ctx.state.getObject(old).card_def_id))
-                        ctx.state.getObject(old).base_might = ctx.registry->get(ctx.state.getObject(old).card_def_id)->def().might;
-                    ctx.state.getObject(old).recomputeMight();
+        GameObjectId t = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Lady of Clockwork: a friendly gear", gears);
+            if (ctx.state.chain.resuming && ctx.state.chain.resuming->resume_point == 7) return;
+            if (costDueNow(ctx)) {
+                if (t == kInvalidId ||
+                    !ctx.executor.payResources(ctx.controller, 1, 0, resource::kAnyDomain, SpendFor::Other)) {
+                    markCostUnpaid(ctx);
+                } else if (ctx.state.objectExists(ctx.source)) {
+                    int prev = ctx.state.getObject(ctx.source).card_counters["__clock_gear"];
+                    if (prev > 0) {
+                        GameObjectId old = GameObjectId::fromRaw(prev);
+                        if (ctx.state.objectExists(old) && ctx.state.getObject(old).is_unit_gear) {
+                            auto& was = ctx.state.getObject(old);
+                            was.is_unit_gear = false;
+                            if (was.card_def_id != kInvalidId && ctx.registry &&
+                                ctx.registry->get(was.card_def_id))
+                                was.base_might = ctx.registry->get(was.card_def_id)->def().might;
+                            was.recomputeMight();
+                        }
+                    }
                 }
             }
-            ctx.state.getObject(ctx.source).card_counters["__clock_gear"] = t.raw();
         }
+        if (finalizingChoices(ctx)) return;
+        if (go != 1 || costUnpaid(ctx) || t == kInvalidId || !ctx.state.objectExists(t)) return;
+        if (ctx.state.objectExists(ctx.source))
+            ctx.state.getObject(ctx.source).card_counters["__clock_gear"] = t.raw();
         auto& gear = ctx.state.getObject(t);
+        if (gear.attached_to.has_value()) ctx.executor.unattachGear(t);
         int energy = 0;
         if (gear.card_def_id != kInvalidId && ctx.registry && ctx.registry->get(gear.card_def_id))
             energy = ctx.registry->get(gear.card_def_id)->def().energy_cost;

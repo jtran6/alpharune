@@ -52,7 +52,6 @@ private:
         d.power_cost = 1;
         d.might = 4;
         d.rarity = Rarity::Epic;
-        d.keywords.set(Keyword::Deploy);
         d.ability_text = R"RB(Your gear with [Deploy] have [Action]. (They can be played on your turn or in showdowns.)
 When I conquer, if there is a friendly gear with [Deploy] here, channel 1 rune exhausted.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/8edacba51db193506e13e1afb6a8509256cdf55c-744x1039.png)RB";

@@ -22,7 +22,18 @@ public:
         ctx.executor.giveTemporaryMight(ctx.source, 1);
     }
     bool hasActivatedAbility() const override { return true; }
-    ActivationCost getActivationCost() const override { ActivationCost c; return c; }
+    ActivationCost getActivationCost() const override {
+        ActivationCost c;
+        c.exhaust_friendly_unit = true;
+        return c;
+    }
+    std::vector<GameObjectId> activationExhaustTargets(const GameState& state, PlayerId player,
+                                                       GameObjectId) const override {
+        return chooseableUnits(state, player, [&](const GameObject& u) {
+            return u.controller == player && !u.is_exhausted;
+        });
+    }
+    unsigned choicesAtFinalization() const override { return kFinalizeActivate; }
     // The engine stamps __ability_used_turn_0 when the activation is paid.
     // "Exhaust a friendly unit" is the cost: with nobody ready the ability is
     // not legal, and a second activation the same turn is not offered.
@@ -38,24 +49,10 @@ public:
         }).empty();
     }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (ctx.state.objectExists(ctx.source) &&
-            ctx.state.getObject(ctx.source).card_counters["__riven_d"] == ctx.state.turn.turn_number) return;
-        auto friends = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
-            return u.controller == ctx.controller && !u.is_exhausted;
-        });
         auto any = chooseableUnits(ctx.state, ctx.controller, [](const GameObject&) { return true; });
-        auto [cost, t] = pickTargetPair(ctx, "Riven, Deserter", friends,
-                                        [&](GameObjectId) { return any; });
-        const bool waiting = (cost == kInvalidId || t == kInvalidId) &&
-                             ctx.state.chain.resuming.has_value() &&
-                             (ctx.state.chain.resuming->resume_point == 10 ||
-                              ctx.state.chain.resuming->resume_point == 12);
-        if (waiting) return;
-        if (cost == kInvalidId) return;
-        ctx.executor.exhaustObject(cost);
+        const GameObjectId t = pickTarget(ctx, "Riven, Deserter: ready a unit", any);
+        if (finalizingChoices(ctx)) return;
         if (t != kInvalidId) ctx.executor.readyObject(t);
-        if (ctx.state.objectExists(ctx.source))
-            ctx.state.getObject(ctx.source).card_counters["__riven_d"] = ctx.state.turn.turn_number;
     }
 
 private:

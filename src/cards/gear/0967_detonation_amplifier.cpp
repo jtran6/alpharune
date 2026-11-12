@@ -55,7 +55,6 @@ private:
         d.might = 0;
         d.rarity = Rarity::Rare;
         d.keywords.set(Keyword::Deploy);
-        d.keywords.set(Keyword::Deathknell);
         d.ability_text = R"RB([Deploy] (Play this only to a battlefield. When an opponent holds here, kill this.)
 When you play this, you may kill another friendly unit or gear to draw 1.
 Friendly [Deathknell] effects here trigger an additional time.)RB";

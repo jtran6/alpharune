@@ -329,6 +329,10 @@ struct ActivationCost {
     // "Kill this" as a cost (Gold, Divining Shells): the source is killed as
     // the ability is activated (CR 405.1), before anyone can respond.
     bool kill_self = false;
+    // "Exhaust a friendly unit" as a cost (Invigorating Bloom, Riven). The
+    // unit is Intent::targets[0], named from Card::activationExhaustTargets,
+    // and exhausted here with the rest of the cost — not inside onActivate.
+    bool exhaust_friendly_unit = false;
 };
 
 // ─── Complete effect script ─────────────────────────────────────────────────

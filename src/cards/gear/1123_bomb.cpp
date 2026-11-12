@@ -36,7 +36,9 @@ public:
         for (auto& [id, obj] : ctx.state.objects.onBoard()) {
             if (id == ctx.source || obj.controller != ctx.controller) continue;
             if (!obj.location.has_value() || *obj.location != there) continue;
-            if (obj.name == "Bomb") others.push_back(id);
+            if (obj.card_def_id.raw() == 1123 ||
+                std::find(obj.tags.begin(), obj.tags.end(), "Bomb") != obj.tags.end())
+                others.push_back(id);
         }
         for (auto id : others) ctx.executor.killObject(id);
     }
@@ -53,6 +55,7 @@ private:
         d.energy_cost = 0;
         d.might = 0;
         d.rarity = Rarity::Common;
+        d.tags = {"Bomb"};
         d.keywords.set(Keyword::Deploy);
         d.keywords.set(Keyword::Deathknell);
         d.ability_text = R"RB([Deploy] (Play this only to a battlefield. When an opponent holds here, kill this.)

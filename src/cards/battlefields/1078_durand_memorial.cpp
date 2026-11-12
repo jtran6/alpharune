@@ -44,7 +44,6 @@ private:
         d.power_cost = 0;
         d.might = 0;
         d.rarity = Rarity::Uncommon;
-        d.keywords.set(Keyword::Tank);
         d.ability_text = R"RB(When you defend here, choose a unit you control here. Give it [Tank] this combat. (It must be assigned combat damage first.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b565fec4e11308f5f01416a1c914d50a1d17ca19-1039x744.png)RB";
         return d;

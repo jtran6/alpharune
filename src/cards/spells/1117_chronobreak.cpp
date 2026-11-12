@@ -16,24 +16,69 @@ class Chronobreak_1117 : public SpellCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    unsigned choicesAtFinalization() const override { return kFinalizeResolve; }
-    FinalizeChoice mayChooseAtFinalization(const GameState&, PlayerId, GameObjectId) const override {
-        return FinalizeChoice::No;
+    AdditionalPlayCost additionalPlayCost(const GameState&, const CardDB&, PlayerId,
+                                          GameObjectId) const override {
+        return {.exists = true, .mandatory = true, .payable = true, .best = {}};
+    }
+    PlayCostAdjust payAdditionalPlayCost(
+        CardContext& ctx, const std::function<bool(const PlayCostAdjust&)>&) override {
+        const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 20, SpendFor::Spell);
+        std::vector<std::string> labels;
+        labels.reserve(static_cast<std::size_t>(cap) + 1);
+        for (int i = 0; i <= cap; ++i)
+            labels.push_back("Pay " + std::to_string(i) + " Power");
+        int x = ctx.executor.chooseValueNow(ctx.controller, labels,
+                                            "Chronobreak: pay any amount of Power",
+                                            PromptKind::XAmount);
+        if (x < 0 || x > cap) x = 0;
+        if (x > 0 && !ctx.executor.payResources(ctx.controller, 0, x, resource::kAnyDomain, SpendFor::Spell))
+            x = 0;
+        if (ctx.state.objectExists(ctx.source))
+            ctx.state.getObject(ctx.source).card_counters["__chrono_x"] = x;
+        return {};
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        int x = pickXAmount(ctx, "Chronobreak: pay any amount of Power", 0, 5);
-        if (x < 0) return;
-        if (finalizingChoices(ctx)) return;
-        if (!ctx.executor.payResources(ctx.controller, 0, x, resource::kAnyDomain, SpendFor::Spell)) return;
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
-        int n = std::min(x, static_cast<int>(units.size()));
-        std::vector<std::pair<GameObjectId, LocationId>> back;
-        for (int i = 0; i < n; ++i) {
-            LocationId loc = ctx.state.getObject(units[i]).location.value_or(LocationId{BaseLocation{ctx.controller}});
-            back.push_back({units[i], loc});
-            ctx.executor.banishObject(units[i]);
+        if (!ctx.state.objectExists(ctx.source)) return;
+        auto& self = ctx.state.getObject(ctx.source);
+        const int x = self.card_counters["__chrono_x"];
+        if (self.card_counters["__chrono_banished"] == 0) {
+            auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+                return u.controller == ctx.controller;
+            });
+            auto picked = selectSeveral(ctx, "Chronobreak: banish units you control",
+                                        units, std::max(0, x), /*first_slot=*/9);
+            if (!picked) return;
+            int n = 0;
+            for (auto id : *picked) {
+                if (!ctx.state.objectExists(id)) continue;
+                const auto& unit = ctx.state.getObject(id);
+                const LocationId from = unit.location.value_or(LocationId{BaseLocation{unit.owner}});
+                self.card_counters["__cu" + std::to_string(n)] = id.raw();
+                self.card_counters["__cl" + std::to_string(n)] = locationCode(from);
+                ++n;
+                ctx.executor.banishObject(id);
+            }
+            self.card_counters["__cn"] = n;
+            self.card_counters["__chrono_banished"] = 1;
         }
-        for (auto& [id, loc] : back) ctx.executor.playIgnoringCost(ctx.state.getObject(id).owner, id, loc);
+        const int n = self.card_counters["__cn"];
+        std::vector<PlayerId> order{ctx.state.turn.turn_player, opponent(ctx.state.turn.turn_player)};
+        for (PlayerId who : order) {
+            for (int i = 0; i < n; ++i) {
+                const GameObjectId id = GameObjectId::fromRaw(self.card_counters["__cu" + std::to_string(i)]);
+                if (!ctx.state.objectExists(id) || ctx.state.getObject(id).owner != who) continue;
+                const int code = self.card_counters["__cl" + std::to_string(i)];
+                LocationId same = code == 0
+                    ? LocationId{BaseLocation{who}}
+                    : LocationId{BattlefieldLocation{BattlefieldId::fromRaw(code - 1)}};
+                auto where = pickValueAs(ctx, who, "Chronobreak: play it to the same location or your base",
+                                         {"The same location", "Your base"},
+                                         PromptKind::Location, static_cast<std::size_t>(11 + 2 * i));
+                if (!where) return;
+                const LocationId dest = *where == 1 ? LocationId{BaseLocation{who}} : same;
+                ctx.executor.playIgnoringCost(who, id, dest);
+            }
+        }
     }
 
 private:

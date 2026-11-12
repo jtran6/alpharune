@@ -48,7 +48,6 @@ private:
         d.power_cost = 0;
         d.might = 2;
         d.rarity = Rarity::Common;
-        d.keywords.set(Keyword::Deploy);
         d.ability_text = R"RB(While there's a friendly gear with [Deploy] at my battlefield, I have +1 [M].)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6db2839d8702b15ab62413028c0321c75e87801c-744x1039.png)RB";
         return d;

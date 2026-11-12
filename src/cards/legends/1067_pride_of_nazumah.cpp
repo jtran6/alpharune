@@ -48,8 +48,6 @@ private:
         d.power_cost = 0;
         d.might = 0;
         d.rarity = Rarity::Rare;
-        d.keywords.set(Keyword::Shield);
-        d.shield_value = 1;
         d.ability_text = R"RB([1], [E]: Give a friendly unit "I have [Assault] equal to my [Shield]" this turn. (+1 [M] for each instance of Assault while it's an attacker.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/190a27bf844fa21105824efc19de4e71c3137df6-744x1039.png)RB";
         return d;

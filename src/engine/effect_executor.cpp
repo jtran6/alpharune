@@ -1121,6 +1121,17 @@ void EffectExecutor::leftBoard(GameObjectId object) {
     }
     auto& obj = state_.getObject(object);
     obj.attachments.clear();
+    // Neeko's added legend ceases to exist when Neeko leaves the board. The
+    // champion legend in PlayerState::legend_zone is a different object.
+    if (auto extra = obj.card_counters.find("__neeko_extra");
+        extra != obj.card_counters.end() && extra->second > 0) {
+        const GameObjectId legend = GameObjectId::fromRaw(extra->second);
+        if (state_.objectExists(legend) &&
+            state_.getObject(legend).zone == ZoneType::LegendZone &&
+            legend != state_.player(obj.owner).legend_zone &&
+            legend != state_.player(obj.controller).legend_zone)
+            state_.objects.erase(legend);
+    }
     const CardDef* def = nullptr;
     if (obj.card_def_id != kInvalidId && card_registry_)
         def = card_registry_->classDef(obj.card_def_id);
@@ -1504,6 +1515,10 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
     const auto& unit = state.getObject(unit_id);
     if (!unit.isUnit() || !unit.location.has_value()) return candidates;
     const PlayerId controller = unit.controller;
+    // Order among the controller's cards is what that player is shown, the
+    // same order action ids use (openspiel::sortObjectsAsSeen). An index into
+    // an object-id sort names a different card when the ids are relabelled
+    // (HiddenOrderLeak). The battlefield's own replacement stays first.
     // "The next time it would die this turn, heal it, exhaust it, and
     // recall it instead." (Tactical Retreat, Highlander)
     if (unit.death_replacement_recall_pending)
@@ -2071,6 +2086,9 @@ void EffectExecutor::exhaustObject(GameObjectId target) {
     auto& obj = state_.getObject(target);
     // Only something in play is ready or exhausted (as readyObject).
     if (!inPlay(obj)) return;
+    // CR 415.1.b-c: an object that is already exhausted is not exhausted again,
+    // and nothing that watches "becomes exhausted" is told that it did.
+    if (obj.is_exhausted) return;
     obj.is_exhausted = true;
     events_.emit(ObjectStateChangedEvent{target, "exhausted"});
 }
@@ -3293,6 +3311,20 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
     }
     obj.location = chosen_loc;
     obj.controller = player;
+
+    // [Show Off] on a permanent an effect plays (CR 832.1.c, 420.3.b). A
+    // hand play asks in the finalize pass; this path never has one. The
+    // answer is stamped before "I enter ready if you showed off" is read.
+    if (!obj.isSpell() && card_registry_ && obj.card_def_id != kInvalidId) {
+        if (Card* shown_card = card_registry_->get(obj.card_def_id)) {
+            if (shown_card->def().keywords.has(Keyword::ShowOff)) {
+                CardContext sctx{state_, events_, *this, player, card};
+                sctx.registry = card_registry_;
+                const ActingFor acting(*this, card);
+                shown_card->offerShowOffNow(sctx);
+            }
+        }
+    }
 
     if (obj.isUnit()) {
         // Units enter exhausted (CR 143.4) unless a continuous effect on the

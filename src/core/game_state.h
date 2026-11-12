@@ -851,6 +851,11 @@ struct ChainItem {
         bool from_hand = false;
     };
     std::optional<ShownOff> shown_off;
+    // One entry per [Show Off] instance (CR 832.2: each is handled on its
+    // own). `shown_off` is the first that was shown, with Might / Energy /
+    // Power summed across the instances that were, so a single linked
+    // effect still reads one record.
+    std::vector<ShownOff> shown_offs;
 
     // ── Simultaneous triggers (CR 383.3.d) ──
     // Triggered abilities that triggered at the same time share a batch

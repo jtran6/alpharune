@@ -586,6 +586,7 @@ void GameEngine::setupPlayer(PlayerId player, const DeckSubmission& deck) {
     // Champion zone has no board location — it's a non-board zone
     ps.champion_zone = champ_id;
     ps.chosen_champion = champ_id;
+    ps.neeko_legends = deck.neeko_legends;
 
     // Ids in a random order (setIdLabelSalt, batch 5b item T2). Created in
     // list order, an id said which line of the deck list a card came from,
@@ -1721,6 +1722,7 @@ void GameEngine::adoptPrefinalizedChoices(ChainItem& item) {
         ci.chosen_item = done.chosen_item;
         ci.may_answer = done.may_answer;
         ci.shown_off = done.shown_off;
+        ci.shown_offs = done.shown_offs;
         ci.finalize_costs_paid = done.finalize_costs_paid;
         ci.finalize_checked = 0;
         ci.choices_finalized = true;
@@ -2538,6 +2540,7 @@ void GameEngine::runFinalizePass(ChainItem& item) {
         ci.owed_power_mask = done.owed_power_mask;
         ci.may_answer = done.may_answer;
         ci.shown_off = done.shown_off;
+        ci.shown_offs = done.shown_offs;
         ci.finalize_costs_paid = done.finalize_costs_paid;
         ci.finalize_checked = 0;
         ci.choices_finalized = true;
@@ -2688,8 +2691,18 @@ bool GameEngine::payAndQueueAbility(const Intent& intent) {
     // of a card in a trash, a hand or a deck is refused, nothing is paid.
     {
         const auto& src = state_.getObject(intent.ability_source);
-        if (src.controller != intent.player) return false;
-        if (!src.location.has_value() && src.zone != ZoneType::LegendZone) return false;
+        // A battlefield has no location. Only one that says each player may
+        // activate it (Black Market) is an ability of the battlefield itself;
+        // refusing it here left the generator offering a free no-op forever.
+        Card* gate = card_registry_.get(src.card_def_id);
+        const bool shared_battlefield =
+            src.zone == ZoneType::BattlefieldZone && gate &&
+            gate->eachPlayerMayActivateOnTheirTurn() &&
+            state_.turn.turn_player == intent.player;
+        if (src.controller != intent.player && !shared_battlefield) return false;
+        if (!src.location.has_value() && src.zone != ZoneType::LegendZone &&
+            !shared_battlefield)
+            return false;
     }
     const PlayerId player = intent.player;
     const GameObjectId source_id = intent.ability_source;
@@ -2789,6 +2802,11 @@ bool GameEngine::payAndQueueAbility(const Intent& intent) {
         return false;
     if (act_cost.xp_cost > 0 && state_.player(player).xp < act_cost.xp_cost) return false;
     if (act_cost.kill_self && !state_.getObject(source_id).location.has_value()) return false;
+    if (act_cost.exhaust_friendly_unit &&
+        (intent.targets.empty() || !state_.objectExists(intent.targets[0]) ||
+         state_.getObject(intent.targets[0]).controller != player ||
+         state_.getObject(intent.targets[0]).is_exhausted))
+        return false;
 
     // 1. The pending item (CR 402.1). The cost is owed while the choices are
     //    made: a choice's Deflect is judged with it and paid from what it
@@ -2837,7 +2855,11 @@ bool GameEngine::payAndQueueAbility(const Intent& intent) {
     // of leaving the board in its pass ("Kill this", "Banish this") declares it
     // in its ActivationCost instead, paid here with the rest. One that did it
     // in its pass would have its [E] written on a card in the trash.
-    if (!source.location.has_value() && source.zone != ZoneType::LegendZone)
+    const bool shared_battlefield =
+        source.zone == ZoneType::BattlefieldZone && ability_card &&
+        ability_card->eachPlayerMayActivateOnTheirTurn();
+    if (!source.location.has_value() && source.zone != ZoneType::LegendZone &&
+        !shared_battlefield)
         throw std::logic_error("GameEngine::payAndQueueAbility: " + source.name.get() +
                                " left the board while its activation's choices were made"
                                " (a cost of leaving the board belongs in its ActivationCost)");
@@ -2852,6 +2874,8 @@ bool GameEngine::payAndQueueAbility(const Intent& intent) {
     if (act_cost.kill_friendly_unit && !intent.targets.empty() &&
         state_.objectExists(intent.targets[0]))
         killUnit(intent.targets[0]);
+    if (act_cost.exhaust_friendly_unit && !intent.targets.empty())
+        effect_executor_->exhaustObject(intent.targets[0]);
     // Energy (+ Power): the shared resource path (floating pool, runes, and
     // [Add] Reactions while paying, CR 430.3).
     if (act_cost.power > 0 || act_cost.energy > 0) {
@@ -5878,6 +5902,13 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
                 at.play_location = loc;
                 actions.push_back(at);
             }
+        } else if (card.isSpell()) {
+            // A banished spell is still a spell: no target, no play (Hard
+            // Bargain with an empty chain). The base-only branch below is
+            // what offered it.
+            if (!card_obj->hasLegalTargets(state_, player, card_db_)) continue;
+            play_intent.play_location = std::nullopt;
+            actions.push_back(play_intent);
         } else {
             play_intent.play_location = BaseLocation{player};
             actions.push_back(play_intent);
@@ -6761,6 +6792,13 @@ void GameEngine::generateTrashReplayActions(PlayerId player, bool action_ok,
                     make(IntentType::PlayCard, {}, loc);
                 continue;
             }
+            // [Deploy] gear from the trash is played only to a battlefield
+            // (CR 830.1.b), the same list a hand play uses.
+            if (card.isGear() && cc && cc->restrictsPlayLocations()) {
+                for (const auto& loc : cc->getPlayLocations(state_, player))
+                    make(IntentType::PlayCard, {}, loc);
+                continue;
+            }
             make(IntentType::PlayCard, {}, LocationId{BaseLocation{player}});
             if (!card.isUnit() || ps.units_play_base_only) continue;
             for (const auto& bf : state_.battlefields) {
@@ -6855,12 +6893,20 @@ void GameEngine::generateActivateAbilityActions(PlayerId player,
     // Single-ability cards use the default Card::activatedAbilities() impl
     // which wraps the legacy single-ability virtuals into a one-element
     // vector — semantics unchanged for them.
-    for (auto& [id, obj] : state_.objects.inPlay()) {
-        if (obj.controller != player) continue;
-        if (!obj.location.has_value() && obj.zone != ZoneType::LegendZone) continue;
-
+    for (auto& [id, obj] : state_.objects.offPiles()) {
         Card* card = card_registry_.get(obj.card_def_id);
         if (!card) continue;
+        const bool permanent = obj.location.has_value() || obj.zone == ZoneType::LegendZone;
+        // A battlefield card has no location, so it is not in inPlay(). Only a
+        // card that says each player may activate it (Black Market) is offered
+        // from the battlefield itself. Other battlefield abilities are granted
+        // to the legend that controls them (Forge of the Fluft).
+        const bool battlefield = obj.zone == ZoneType::BattlefieldZone && obj.isBattlefield() &&
+                                 card->eachPlayerMayActivateOnTheirTurn();
+        if (!permanent && !battlefield) continue;
+        const bool shared = card->eachPlayerMayActivateOnTheirTurn() &&
+                            state_.turn.turn_player == player;
+        if (obj.controller != player && !shared) continue;
         const auto& abilities = card->abilities();
         // Don't skip when the object carries no OWN abilities but has been
         // granted some by an aura (Forge/Gardens/Heimerdinger). (Asked before
@@ -6910,6 +6956,25 @@ void GameEngine::generateActivateAbilityActions(PlayerId player,
                 if (legal.empty()) continue;
             } else if (abilities.size() == 1 &&
                         !card->hasLegalTargets(state_, player, card_db_)) {
+                continue;
+            }
+
+            // "Exhaust a friendly unit" is the cost, chosen now and paid
+            // before the ability can be responded to. The effect's own
+            // target, if it has one, is still the card's finalize pass.
+            if (act_cost.exhaust_friendly_unit) {
+                for (auto cost_unit : card->activationExhaustTargets(state_, player, id)) {
+                    if (!state_.objectExists(cost_unit)) continue;
+                    const auto& payer = state_.getObject(cost_unit);
+                    if (payer.controller != player || payer.is_exhausted) continue;
+                    Intent activate;
+                    activate.type = intent_type;
+                    activate.player = player;
+                    activate.ability_source = id;
+                    activate.ability_index = static_cast<int>(ai);
+                    activate.targets = {cost_unit};
+                    actions.push_back(activate);
+                }
                 continue;
             }
 

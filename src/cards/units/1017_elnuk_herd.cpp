@@ -20,9 +20,9 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
-            return u.controller == ctx.controller && u.id != ctx.source;
+            return u.controller == ctx.controller;
         });
-        auto t = pickTarget(ctx, "Elnuk Herd: +3 [M] to another friendly unit", units);
+        auto t = pickTarget(ctx, "Elnuk Herd: +3 [M] to a friendly unit", units);
         if (finalizingChoices(ctx)) return;
         if (t != kInvalidId) ctx.executor.giveTemporaryMight(t, 3);
         if (playedFromFacedown(ctx.state, ctx.source)) ctx.executor.recycleCards(ctx.controller, {ctx.source});
@@ -49,7 +49,7 @@ private:
         d.rarity = Rarity::Uncommon;
         d.keywords.set(Keyword::Hidden);
         d.ability_text = R"RB([Hidden] (Hide now for [A] to react with later for [0].)
-When you play me, give another friendly unit +3 [M] this turn, then recycle me if I was played from face down.)RB";
+When you play me, give a friendly unit +3 [M] this turn, then recycle me if I was played from face down.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1799cd4c46fcf0243b4022de2d427b15e67a15ad-744x1039.png)RB";
         return d;
     }();

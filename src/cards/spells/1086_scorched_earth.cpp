@@ -31,26 +31,47 @@ public:
         return false;
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        std::vector<std::string> labels;
-        std::vector<int> idx;
-        for (int i = 0; i < static_cast<int>(ctx.state.battlefields.size()); ++i) {
-            bool any = false;
-            LocationId there{BattlefieldLocation{ctx.state.battlefields[i].id}};
-            for (const auto& [id, obj] : ctx.state.objects.atLocation(there))
-                if (obj.isUnit()) any = true;
-            if (!any) continue;
-            labels.push_back("Battlefield");
-            idx.push_back(i);
+        // splitDamageAmong resets resume_data when it starts, which wiped the
+        // battlefield mode and made the finalize pass ask it again until the
+        // 1024-choice bound. The chosen battlefield is kept on the spell.
+        int stored = -1;
+        if (ctx.state.objectExists(ctx.source)) {
+            auto it = ctx.state.getObject(ctx.source).card_counters.find("__scorched_bf");
+            if (it != ctx.state.getObject(ctx.source).card_counters.end()) stored = it->second;
         }
-        if (labels.empty()) {
-            pickMode(ctx, "Scorched Earth: a battlefield", 0);
-            if (finalizingChoices(ctx)) return;
-            return;
+        if (stored < 0) {
+            std::vector<std::string> labels;
+            std::vector<int> idx;
+            for (int i = 0; i < static_cast<int>(ctx.state.battlefields.size()); ++i) {
+                bool any = false;
+                LocationId there{BattlefieldLocation{ctx.state.battlefields[i].id}};
+                for (const auto& [id, obj] : ctx.state.objects.atLocation(there))
+                    if (obj.isUnit()) any = true;
+                if (!any) continue;
+                const auto bf_card = ctx.state.battlefields[i].card_object_id;
+                labels.push_back(ctx.state.objectExists(bf_card)
+                    ? ctx.state.getObject(bf_card).name.get()
+                    : "Battlefield #" + std::to_string(static_cast<int>(ctx.state.battlefields[i].id.raw())));
+                idx.push_back(i);
+            }
+            if (labels.empty()) {
+                std::vector<GameObjectId> damaged;
+                splitDamageAmong(ctx, "Scorched Earth", 5, ctx.source, {}, damaged);
+                return;
+            }
+            int mode = pickMode(ctx, "Scorched Earth: a battlefield", static_cast<int>(labels.size()), labels);
+            if (mode < 0) return;
+            if (mode >= static_cast<int>(idx.size())) {
+                if (finalizingChoices(ctx)) return;
+                return;
+            }
+            stored = idx[mode];
+            if (ctx.state.objectExists(ctx.source))
+                ctx.state.getObject(ctx.source).card_counters["__scorched_bf"] = stored;
         }
-        int mode = pickMode(ctx, "Scorched Earth: a battlefield", static_cast<int>(labels.size()), labels);
-        if (mode < 0 || mode >= static_cast<int>(idx.size())) return;
+        if (stored < 0 || stored >= static_cast<int>(ctx.state.battlefields.size())) return;
         std::vector<GameObjectId> units;
-        LocationId there{BattlefieldLocation{ctx.state.battlefields[idx[mode]].id}};
+        LocationId there{BattlefieldLocation{ctx.state.battlefields[stored].id}};
         for (auto& [id, obj] : ctx.state.objects.atLocation(there)) if (obj.isUnit()) units.push_back(id);
         std::vector<GameObjectId> damaged;
         splitDamageAmong(ctx, "Scorched Earth", 5, ctx.source, units, damaged);

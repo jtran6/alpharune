@@ -22,7 +22,9 @@ public:
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto bombs = boardObjects(ctx.state, [&](const GameObject& o) {
-            return o.name == "Bomb" && o.controller == ctx.controller;
+            return o.controller == ctx.controller &&
+                   (o.card_def_id.raw() == kBombGearCardDefId.raw() ||
+                    std::find(o.tags.begin(), o.tags.end(), "Bomb") != o.tags.end());
         });
         auto picked = selectSeveral(ctx, "Hexplosive Minefield: kill friendly Bombs", bombs, static_cast<int>(bombs.size()));
         if (!picked) return;
@@ -37,10 +39,8 @@ public:
         int n = 0;
         if (ctx.state.objectExists(ctx.source)) n = ctx.state.getObject(ctx.source).card_counters["__mines"];
         if (n <= 0 || ctx.state.battlefields.empty()) return;
-        std::vector<std::string> labels;
-        for (const auto& bf : ctx.state.battlefields) labels.push_back("Battlefield");
-        int mode = pickMode(ctx, "Hexplosive Minefield: a battlefield", static_cast<int>(labels.size()), labels);
-        if (mode < 0) return;
+        const int mode = pickBattlefield(*this, ctx, "Hexplosive Minefield: a battlefield");
+        if (mode < 0 || mode >= static_cast<int>(ctx.state.battlefields.size())) return;
         KeywordSet kw; kw.set(Keyword::Deploy); kw.set(Keyword::Deathknell);
         LocationId loc{BattlefieldLocation{ctx.state.battlefields[mode].id}};
         for (int i = 0; i < n; ++i)

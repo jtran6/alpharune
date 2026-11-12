@@ -29,14 +29,22 @@ public:
         auto units = chooseableUnits(ctx.state, ctx.controller, [](const GameObject&) { return true; });
         auto t = pickTarget(ctx, "Battle Preparations: +2 [M]", units);
         if (finalizingChoices(ctx)) return;
-        if (t != kInvalidId) ctx.executor.giveTemporaryMight(t, 2);
-        if (auto shown = spellShowOff(ctx)) {
-            int n = 0;
+        // The rune pick below re-enters this callback. The +2 is applied once.
+        if (t != kInvalidId && ctx.state.objectExists(ctx.source) &&
+            ctx.state.getObject(ctx.source).card_counters["__bp_might"] == 0) {
+            ctx.executor.giveTemporaryMight(t, 2);
+            ctx.state.getObject(ctx.source).card_counters["__bp_might"] = 1;
+        }
+        if (spellShowOff(ctx)) {
+            std::vector<GameObjectId> exhausted;
             for (auto id : ctx.state.runesInBase(ctx.controller)) {
-                if (n == 2) break;
-                ctx.executor.readyObject(id);
-                ++n;
+                if (!ctx.state.objectExists(id)) continue;
+                if (ctx.state.getObject(id).is_exhausted) exhausted.push_back(id);
             }
+            auto picked = selectSeveral(ctx, "Battle Preparations: ready up to 2 runes",
+                                        exhausted, 2, /*first_slot=*/9);
+            if (!picked) return;
+            for (auto id : *picked) ctx.executor.readyObject(id);
         }
     }
 

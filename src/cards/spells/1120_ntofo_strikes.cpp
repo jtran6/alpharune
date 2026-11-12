@@ -65,9 +65,7 @@ private:
         d.power_cost = 1;
         d.might = 0;
         d.rarity = Rarity::Epic;
-        d.keywords.set(Keyword::Shield);
         d.keywords.set(Keyword::Action);
-        d.shield_value = 2;
         d.ability_text = R"RB([Action] (Play on your turn or in showdowns.)
 Give a friendly unit [Shield 2] this turn, then deal damage equal to its [Shield] to an enemy unit. (A unit with Shield has +1 [M] for each instance of Shield while it's a defender.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ab5aa7d29bd49efe2c9da3b62a8065295c189991-744x1040.png)RB";

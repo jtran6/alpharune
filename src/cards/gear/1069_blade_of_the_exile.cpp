@@ -15,7 +15,49 @@ namespace {
 class BladeOfTheExile_1069 : public GearCard {
 public:
     const CardDef& def() const override { return def_; }
-    // Printed rules are keywords and reminder text.
+    bool hasEquipAbility() const override { return true; }
+    EquipCost equipCost(const GameState&, PlayerId, GameObjectId, GameObjectId) const override {
+        EquipCost c;
+        c.valid = true;
+        c.energy = 0;
+        c.power = 0;
+        return c;
+    }
+    bool canPayEquipExtraCost(const GameState& state, PlayerId controller,
+                              GameObjectId, GameObjectId) const override {
+        if (resource::canPayIn(state, controller, 0, 1, resource::kAnyDomain, SpendFor::Other))
+            return true;
+        return !chooseableUnits(state, controller, [&](const GameObject& u) {
+            return u.controller == controller && !u.is_exhausted;
+        }).empty();
+    }
+    bool payEquipExtraCost(CardContext& ctx, GameObjectId) override {
+        const bool power = resource::canPayIn(ctx.state, ctx.controller, 0, 1, resource::kAnyDomain,
+                                              SpendFor::Other);
+        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            return u.controller == ctx.controller && !u.is_exhausted;
+        });
+        if (power && units.empty())
+            return ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other);
+        if (!power && !units.empty()) {
+            const GameObjectId u = ctx.executor.chooseObjectNow(
+                ctx.controller, units, "Blade of the Exile: exhaust a friendly unit");
+            if (u == kInvalidId) return false;
+            ctx.executor.exhaustObject(u);
+            return true;
+        }
+        if (!power) return false;
+        const int which = ctx.executor.chooseValueNow(
+            ctx.controller, {"Pay [A]", "Exhaust a friendly unit"},
+            "Blade of the Exile: [A] or exhaust a friendly unit", PromptKind::Mode);
+        if (which == 0)
+            return ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other);
+        const GameObjectId u = ctx.executor.chooseObjectNow(
+            ctx.controller, units, "Blade of the Exile: exhaust a friendly unit");
+        if (u == kInvalidId) return false;
+        ctx.executor.exhaustObject(u);
+        return true;
+    }
 
 private:
     const CardDef def_ = [] {

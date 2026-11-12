@@ -51,9 +51,7 @@ private:
         d.power_cost = 0;
         d.might = 0;
         d.rarity = Rarity::Common;
-        d.keywords.set(Keyword::Shield);
         d.keywords.set(Keyword::Reaction);
-        d.shield_value = 2;
         d.ability_text = R"RB([Reaction] (Play any time, even before spells and abilities resolve.)
 Give a unit [Shield 2] this turn. (+2 [M] while it's a defender.)
 [Predict]. (Look at the top card of your Main Deck. You may recycle it.))RB";

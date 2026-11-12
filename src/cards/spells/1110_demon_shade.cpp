@@ -66,7 +66,6 @@ private:
         d.might = 0;
         d.rarity = Rarity::Uncommon;
         d.keywords.set(Keyword::Hidden);
-        d.keywords.set(Keyword::Ganking);
         d.ability_text = R"RB([Hidden] (Hide now for [A] to react with later for [0].)
 Choose a friendly unit, then choose one —
 Move it to an open battlefield.

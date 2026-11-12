@@ -16,7 +16,15 @@ class TheEmpyrean_998 : public UnitCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    bool matchesShowOff(const GameState&, const GameObject&) const override { return true; }
+    // "A card" is a Main Deck card (CR 052). Tokens are not cards (CR 185),
+    // and a rune is not one either. The Legend Zone stays out: a legend is
+    // not a card this instruction shows off.
+    bool matchesShowOff(const GameState&, const GameObject& obj) const override {
+        if (obj.isToken() || obj.isRune()) return false;
+        if (obj.zone == ZoneType::LegendZone) return false;
+        if (obj.card_def_id == kInvalidId) return false;
+        return true;
+    }
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (!ctx.state.objectExists(ctx.source) || !playedWithShowOff(ctx.state.getObject(ctx.source))) return;

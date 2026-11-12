@@ -81,7 +81,6 @@ private:
         d.power_cost = 1;
         d.might = 0;
         d.rarity = Rarity::Uncommon;
-        d.keywords.set(Keyword::Deploy);
         d.ability_text = R"RB(Choose one —
 Move a friendly gear with [Deploy] to a battlefield.
 Look at the top 5 cards of your Main Deck. You may reveal a gear from among them and draw it. Recycle the rest.)RB";

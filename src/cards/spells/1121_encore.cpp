@@ -22,16 +22,52 @@ public:
         return FinalizeChoice::No;
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        int a = pickMode(ctx, "Encore: first", 4, {"Deal 2 to a unit", "Play two Recruits", "Give up to two units +1", "Look at the top 2"});
-        if (a < 0) return;
-        int b = pickMode(ctx, "Encore: second", 4, {"Deal 2 to a unit", "Play two Recruits", "Give up to two units +1", "Look at the top 2"});
-        if (b < 0) return;
-        if (finalizingChoices(ctx)) return;
-        // Both modes are already chosen. Their targets are asked here, each
-        // with its own slot, and nothing is done until every one of them has
-        // an answer — a second pickTarget would share the first's slot, and a
-        // look that ran while a later mode was still asking would draw twice.
+        // pickMode keeps one answer per chain item, so a second call repeated
+        // the first mode. Each mode is its own prompt, and the stored value is
+        // the mode id, so the list can omit a mode that has no legal target
+        // (CR 355.8) without shifting a stored answer. Damage and buff targets
+        // are chosen before the marker; where a Recruit is played and which
+        // looked-at card is drawn are resolution choices.
         auto units = chooseableUnits(ctx.state, ctx.controller, [](const GameObject&) { return true; });
+        auto askMode = [&](const char* label, size_t slot, bool allow_deal) -> std::optional<int> {
+            if (!ctx.state.chain.resuming.has_value()) return allow_deal ? 0 : 1;
+            auto& ri = *ctx.state.chain.resuming;
+            while (ri.resume_data.size() < slot + 2) ri.resume_data.push_back(0);
+            if (ri.resume_data[slot] == 2) return ri.resume_data[slot + 1];
+            if (ri.resume_data[slot] == 1) {
+                auto picked = ctx.executor.takeChoice();
+                int v = (picked && picked->chosen_value) ? *picked->chosen_value : 1;
+                if (v < 0 || v > 3 || (v == 0 && !allow_deal)) v = 1;
+                ri.resume_data[slot] = 2;
+                ri.resume_data[slot + 1] = v;
+                return v;
+            }
+            std::vector<Intent> choices;
+            auto add = [&](int id, const char* text) {
+                Intent o;
+                o.type = IntentType::MakeChoice;
+                o.player = ctx.controller;
+                o.chosen_value = id;
+                o.choice_label = text;
+                choices.push_back(std::move(o));
+            };
+            if (allow_deal) add(0, "Deal 2 to a unit");
+            add(1, "Play two Recruits");
+            add(2, "Give up to two units +1");
+            add(3, "Look at the top 2");
+            ctx.executor.requestChoice(ctx.controller, std::move(choices), label, PromptKind::Mode);
+            ri.resume_data[slot] = 1;
+            return std::nullopt;
+        };
+        const bool deal_once = !units.empty();
+        auto first = askMode("Encore: first mode", 20, deal_once);
+        if (!first) return;
+        const bool deal_twice = deal_once && !(*first == 0 && units.size() < 2);
+        auto second = askMode("Encore: second mode", 22, deal_twice);
+        if (!second) return;
+        const int a = *first;
+        const int b = *second;
+
         const int deals = (a == 0 ? 1 : 0) + (b == 0 ? 1 : 0);
         GameObjectId deal_a = kInvalidId, deal_b = kInvalidId;
         if (deals == 2) {
@@ -45,7 +81,7 @@ public:
             deal_a = x;
             deal_b = y;
         } else if (deals == 1) {
-            auto t = pickTarget(ctx, "Encore: deal 2", units);
+            auto t = pickTarget(ctx, "Encore: deal 2 to a unit", units);
             if (t == kInvalidId && ctx.state.chain.resuming.has_value() &&
                 ctx.state.chain.resuming->resume_point == 7)
                 return;
@@ -53,40 +89,68 @@ public:
             else deal_b = t;
         }
         std::optional<std::vector<GameObjectId>> buff_a, buff_b;
-        auto takeBuffs = [&](size_t slot) -> std::optional<std::vector<GameObjectId>> {
-            return selectSeveralTargets(*this, ctx, "Encore: +1", units, 2, slot);
-        };
         if (a == 2) {
-            buff_a = takeBuffs(7);
+            buff_a = selectSeveralTargets(*this, ctx, "Encore: +1 [M] to up to two units",
+                                         units, 2, /*first_slot=*/24);
             if (!buff_a) return;
         }
         if (b == 2) {
-            buff_b = takeBuffs(13);
+            buff_b = selectSeveralTargets(*this, ctx, "Encore: +1 [M] to up to two units, again",
+                                         units, 2, /*first_slot=*/28);
             if (!buff_b) return;
         }
-        auto apply = [&](int mode, GameObjectId dealt,
-                         const std::optional<std::vector<GameObjectId>>& buffs) {
-            if (mode == 0) {
-                if (dealt != kInvalidId) ctx.executor.dealDamage(dealt, 2, ctx.source);
-            } else if (mode == 1) {
-                for (int i = 0; i < 2; ++i)
-                    ctx.executor.createToken(ctx.controller, CardType::Unit, "Recruit", 1,
-                                             {"Recruit"}, {}, BaseLocation{ctx.controller});
-            } else if (mode == 2) {
-                if (buffs) for (auto id : *buffs) ctx.executor.giveTemporaryMight(id, 1);
-            } else {
-                auto& deck = ctx.state.player(ctx.controller).main_deck;
-                int n = std::min(2, static_cast<int>(deck.size()));
-                if (n == 0) return;
-                std::vector<GameObjectId> top(deck.end() - n, deck.end());
-                for (auto id : top)
+        if (finalizingChoices(ctx)) return;
+
+        if (!ctx.state.objectExists(ctx.source)) return;
+        auto& self = ctx.state.getObject(ctx.source);
+        if (self.card_counters["__encore_applied"] == 0) {
+            if (a == 0 && deal_a != kInvalidId) ctx.executor.dealDamage(deal_a, 2, ctx.source);
+            if (b == 0 && deal_b != kInvalidId) ctx.executor.dealDamage(deal_b, 2, ctx.source);
+            if (buff_a) for (auto id : *buff_a) ctx.executor.giveTemporaryMight(id, 1);
+            if (buff_b) for (auto id : *buff_b) ctx.executor.giveTemporaryMight(id, 1);
+            self.card_counters["__encore_applied"] = 1;
+        }
+        const int recruits = (a == 1 ? 1 : 0) + (b == 1 ? 1 : 0);
+        if (recruits > 0) {
+            std::vector<GameObjectId> made;
+            if (!playTokensChoosingLocations(ctx, "Encore: play a Recruit", recruits * 2,
+                    [&](LocationId loc) {
+                        return ctx.executor.createToken(ctx.controller, CardType::Unit, "Recruit", 1,
+                                                       {"Recruit"}, {}, loc);
+                    }, made))
+                return;
+        }
+        const int looks = (a == 3 ? 1 : 0) + (b == 3 ? 1 : 0);
+        while (self.card_counters["__encore_looks"] < looks) {
+            auto& deck = ctx.state.player(ctx.controller).main_deck;
+            if (self.card_counters["__encore_topn"] == 0) {
+                const int n = std::min(2, static_cast<int>(deck.size()));
+                self.card_counters["__encore_topn"] = n;
+                for (int i = 0; i < n; ++i) {
+                    const GameObjectId id = deck[deck.size() - 1 - static_cast<std::size_t>(i)];
+                    self.card_counters["__encore_top" + std::to_string(i)] = id.raw();
                     knowledge::shown(ctx.state, id, knowledge::only(ctx.controller));
-                ctx.executor.drawHeldCard(ctx.controller, top.back(), false);
-                if (top.size() == 2) ctx.executor.recycleCards(ctx.controller, {top.front()});
+                }
             }
-        };
-        apply(a, deal_a, buff_a);
-        apply(b, deal_b, buff_b);
+            const int n = self.card_counters["__encore_topn"];
+            if (n <= 0) { self.card_counters["__encore_looks"] += 1; self.card_counters["__encore_topn"] = 0; break; }
+            std::vector<GameObjectId> top;
+            for (int i = 0; i < n; ++i) {
+                const GameObjectId id = GameObjectId::fromRaw(self.card_counters["__encore_top" + std::to_string(i)]);
+                if (ctx.state.objectExists(id)) top.push_back(id);
+            }
+            if (top.empty()) { self.card_counters["__encore_looks"] += 1; self.card_counters["__encore_topn"] = 0; break; }
+            auto drawn = selectObjectAs(ctx, ctx.controller, "Encore: draw one of the top cards",
+                                       top, /*slot=*/60);
+            if (!drawn) return;
+            const GameObjectId keep = *drawn == kInvalidId ? top.front() : *drawn;
+            ctx.executor.drawHeldCard(ctx.controller, keep, false);
+            std::vector<GameObjectId> rest;
+            for (auto id : top) if (id != keep) rest.push_back(id);
+            if (!rest.empty()) ctx.executor.recycleCards(ctx.controller, rest);
+            self.card_counters["__encore_looks"] += 1;
+            self.card_counters["__encore_topn"] = 0;
+        }
     }
 
 private:

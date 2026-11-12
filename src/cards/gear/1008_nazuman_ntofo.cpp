@@ -15,7 +15,14 @@ namespace {
 class NazumanNtofo_1008 : public GearCard {
 public:
     const CardDef& def() const override { return def_; }
-    // Printed rules are keywords and reminder text.
+    bool hasEquipAbility() const override { return true; }
+    EquipCost equipCost(const GameState&, PlayerId, GameObjectId, GameObjectId) const override {
+        EquipCost c;
+        c.valid = true;
+        c.energy = 1;
+        c.power = 0;
+        return c;
+    }
 
 private:
     const CardDef def_ = [] {
@@ -37,6 +44,7 @@ private:
         d.might = 0;
         d.rarity = Rarity::Common;
 
+        d.keywords.set(Keyword::Equip);
         d.ability_text = R"RB(Equip [1] ([1]: Attach this to a unit you control.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/9d518a6db3ae174096b09cf80cece2997f685ede-744x1039.png)RB";
         return d;

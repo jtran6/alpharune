@@ -1491,6 +1491,73 @@ bool Card::playedWithShowOff(const GameObject& obj) {
     return it != obj.card_counters.end() && it->second != 0;
 }
 
+namespace {
+
+// One [Show Off] instance occupies six resume_data slots, starting at 40.
+// pickTarget / pickUnseenCard use resume_data[2] and resume_point 7, and
+// confirmOptional uses may_answer. Sharing either of those is what made a
+// Show Off spell deal its damage to the card it revealed (Primordial Roar,
+// Battle Preparations).
+constexpr int kShowOffBase = 40;
+constexpr int kShowOffStride = 6;
+
+int showOffInstances(const CardContext& ctx) {
+    int n = 1;
+    if (!ctx.state.objectExists(ctx.source)) return n;
+    const auto& src = ctx.state.getObject(ctx.source);
+    int counted = src.keywords.has(Keyword::ShowOff) ? 1 : 0;
+    for (const auto& ae : src.aura_effects)
+        if (ae.keyword == Keyword::ShowOff) ++counted;
+    return std::max(1, counted);
+}
+
+std::vector<GameObjectId> showOffOptions(CardContext& ctx, const Card& card) {
+    std::vector<GameObjectId> options;
+    auto consider = [&](GameObjectId id, const GameObject& obj) {
+        if (id == ctx.source) return;
+        if (obj.is_hidden || obj.zone == ZoneType::FacedownZone) return;
+        if (obj.zone == ZoneType::LegendZone) return;
+        if (!card.matchesShowOff(ctx, obj)) return;
+        options.push_back(id);
+    };
+    for (auto id : ctx.state.player(ctx.controller).hand) {
+        if (!ctx.state.objectExists(id)) continue;
+        consider(id, ctx.state.getObject(id));
+    }
+    for (auto& [id, obj] : ctx.state.objects.onBoard()) {
+        if (obj.controller != ctx.controller || !obj.location.has_value()) continue;
+        consider(id, obj);
+    }
+    std::sort(options.begin(), options.end());
+    options.erase(std::unique(options.begin(), options.end()), options.end());
+    return options;
+}
+
+void lockShown(CardContext& ctx, ChainItem& ri, int slot, GameObjectId picked) {
+    ri.resume_data[slot] = 4;
+    ri.resume_data[slot + 1] = static_cast<int32_t>(picked.raw());
+    if (!ctx.state.objectExists(picked)) return;
+    const auto& obj = ctx.state.getObject(picked);
+    ri.resume_data[slot + 2] = obj.current_might;
+    ri.resume_data[slot + 5] = obj.zone == ZoneType::Hand ? 1 : 0;
+    if (ctx.registry && obj.card_def_id != kInvalidId) {
+        if (const Card* other = ctx.registry->get(obj.card_def_id)) {
+            ri.resume_data[slot + 3] = other->def().energy_cost;
+            ri.resume_data[slot + 4] = other->def().power_cost;
+        }
+    }
+    if (obj.zone == ZoneType::Hand) {
+        ctx.events.emit(CardRevealedEvent{picked, obj.card_def_id, obj.owner,
+                                          true, ctx.controller, ZoneType::Hand});
+    }
+    RIFT_TRACE(ctx.events, "SHOW OFF: " + obj.name +
+                     " (M=" + std::to_string(ri.resume_data[slot + 2]) +
+                     " E=" + std::to_string(ri.resume_data[slot + 3]) +
+                     " P=" + std::to_string(ri.resume_data[slot + 4]) + ")");
+}
+
+}  // namespace
+
 bool Card::settleShowOff(CardContext& ctx) {
     auto& ri_opt = ctx.state.chain.resuming;
     if (!ri_opt.has_value()) return true;
@@ -1498,66 +1565,138 @@ bool Card::settleShowOff(CardContext& ctx) {
     if (ri.shown_off.has_value()) return true;
     if (!def().keywords.has(Keyword::ShowOff)) return true;
 
-    std::vector<GameObjectId> options;
-    const auto& hand = ctx.state.player(ctx.controller).hand;
-    for (auto id : hand) {
-        if (!ctx.state.objectExists(id)) continue;
-        if (matchesShowOff(ctx, ctx.state.getObject(id))) options.push_back(id);
-    }
-    for (auto& [id, obj] : ctx.state.objects.onBoard()) {
-        if (id == ctx.source || obj.controller != ctx.controller) continue;
-        if (!obj.location.has_value()) continue;
-        if (matchesShowOff(ctx, obj)) options.push_back(id);
-    }
-    std::sort(options.begin(), options.end());
-    options.erase(std::unique(options.begin(), options.end()), options.end());
+    const int instances = showOffInstances(ctx);
+    while (static_cast<int>(ri.resume_data.size()) < kShowOffBase + instances * kShowOffStride)
+        ri.resume_data.push_back(0);
 
-    auto decline = [&]() {
-        ChainItem::ShownOff none;
-        ri.shown_off = none;
-    };
-    if (options.empty()) {
-        decline();
-        return true;
-    }
+    for (int i = 0; i < instances; ++i) {
+        const int slot = kShowOffBase + i * kShowOffStride;
+        int stage = ri.resume_data[slot];
+        if (stage == 2 || stage == 4) continue;
 
-    const int go = confirmOptional(ctx, "Show off?", [&] { return !options.empty(); });
-    if (go < 0) return false;
-    if (go == 0) {
-        decline();
-        return true;
-    }
-
-    const GameObjectId picked = pickUnseenCard(ctx, "Show off — choose a card or a friendly permanent",
-                                               options);
-    if (ri.resume_point == 7) return false;   // the pick is still pending
-    if (picked == kInvalidId || !ctx.state.objectExists(picked)) {
-        decline();
-        return true;
-    }
-
-    const auto& obj = ctx.state.getObject(picked);
-    ChainItem::ShownOff shown;
-    shown.did = true;
-    shown.object = picked;
-    shown.might = obj.current_might;
-    shown.from_hand = obj.zone == ZoneType::Hand;
-    if (ctx.registry && obj.card_def_id != kInvalidId) {
-        if (const Card* other = ctx.registry->get(obj.card_def_id)) {
-            shown.energy = other->def().energy_cost;
-            shown.power = other->def().power_cost;
+        auto options = showOffOptions(ctx, *this);
+        for (int j = 0; j < i; ++j) {
+            const int earlier = kShowOffBase + j * kShowOffStride;
+            if (ri.resume_data[earlier] != 4) continue;
+            const auto taken = GameObjectId::fromRaw(ri.resume_data[earlier + 1]);
+            options.erase(std::remove(options.begin(), options.end(), taken), options.end());
         }
+
+        auto publishPick = [&]() {
+            std::vector<Intent> choices;
+            for (auto id : options) {
+                Intent intent;
+                intent.type = IntentType::MakeChoice;
+                intent.player = ctx.controller;
+                intent.chosen_objects = {id};
+                intent.choice_label = ctx.state.objectExists(id)
+                    ? ctx.state.getObject(id).name.get() : std::string("a card");
+                choices.push_back(std::move(intent));
+            }
+            ctx.executor.requestChoice(ctx.controller, std::move(choices),
+                                       "Show off — choose a card or a friendly permanent",
+                                       PromptKind::ChooseObject);
+            ri.resume_data[slot] = 3;
+        };
+
+        if (stage == 0) {
+            if (options.empty()) { ri.resume_data[slot] = 2; continue; }
+            Intent no;
+            no.type = IntentType::MakeChoice;
+            no.player = ctx.controller;
+            no.chosen_value = 0;
+            no.declines = true;
+            no.choice_label = "No — Show off?";
+            Intent yes = no;
+            yes.declines = false;
+            yes.chosen_value = 1;
+            yes.choice_label = "Yes — Show off?";
+            ctx.executor.requestChoice(ctx.controller, {no, yes}, "may: Show off?",
+                                       PromptKind::May);
+            ri.resume_data[slot] = 1;
+            return false;
+        }
+        if (stage == 1) {
+            auto picked = ctx.executor.takeChoice();
+            const bool said_yes = picked.has_value() && picked->chosen_value.has_value() &&
+                                  *picked->chosen_value == 1;
+            if (!said_yes || options.empty()) { ri.resume_data[slot] = 2; continue; }
+            publishPick();
+            return false;
+        }
+        auto picked = ctx.executor.takeChoice();
+        GameObjectId id = kInvalidId;
+        if (picked.has_value() && !picked->chosen_objects.empty())
+            id = picked->chosen_objects.front();
+        if (std::find(options.begin(), options.end(), id) == options.end()) {
+            ri.resume_data[slot] = 2;
+            continue;
+        }
+        lockShown(ctx, ri, slot, id);
     }
-    if (shown.from_hand) {
-        ctx.events.emit(CardRevealedEvent{picked, obj.card_def_id, obj.owner,
-                                          true, ctx.controller, ZoneType::Hand});
+
+    ri.shown_offs.clear();
+    ChainItem::ShownOff combined;
+    for (int i = 0; i < instances; ++i) {
+        const int slot = kShowOffBase + i * kShowOffStride;
+        ChainItem::ShownOff one;
+        if (ri.resume_data[slot] == 4) {
+            one.did = true;
+            one.object = GameObjectId::fromRaw(ri.resume_data[slot + 1]);
+            one.might = ri.resume_data[slot + 2];
+            one.energy = ri.resume_data[slot + 3];
+            one.power = ri.resume_data[slot + 4];
+            one.from_hand = ri.resume_data[slot + 5] != 0;
+            if (!combined.did) combined = one;
+            else {
+                combined.might += one.might;
+                combined.energy += one.energy;
+                combined.power += one.power;
+            }
+        }
+        ri.shown_offs.push_back(one);
     }
-    ri.shown_off = shown;
-    RIFT_TRACE(ctx.events, "SHOW OFF: " + obj.name +
-                     " (M=" + std::to_string(shown.might) +
-                     " E=" + std::to_string(shown.energy) +
-                     " P=" + std::to_string(shown.power) + ")");
+    ri.shown_off = combined;
     return true;
+}
+
+void Card::offerShowOffNow(CardContext& ctx) {
+    if (!def().keywords.has(Keyword::ShowOff)) return;
+    if (!ctx.state.objectExists(ctx.source)) return;
+    const int instances = showOffInstances(ctx);
+    int might = 0, energy = 0, power = 0;
+    bool any = false;
+    std::vector<GameObjectId> taken;
+    for (int i = 0; i < instances; ++i) {
+        auto options = showOffOptions(ctx, *this);
+        for (auto id : taken)
+            options.erase(std::remove(options.begin(), options.end(), id), options.end());
+        if (options.empty()) continue;
+        if (!ctx.executor.confirmNow(ctx.controller, "Show off?")) continue;
+        const GameObjectId picked = ctx.executor.chooseObjectNow(
+            ctx.controller, options, "Show off — choose a card or a friendly permanent");
+        if (picked == kInvalidId || !ctx.state.objectExists(picked)) continue;
+        const auto& obj = ctx.state.getObject(picked);
+        any = true;
+        might += obj.current_might;
+        if (ctx.registry && obj.card_def_id != kInvalidId) {
+            if (const Card* other = ctx.registry->get(obj.card_def_id)) {
+                energy += other->def().energy_cost;
+                power += other->def().power_cost;
+            }
+        }
+        if (obj.zone == ZoneType::Hand) {
+            ctx.events.emit(CardRevealedEvent{picked, obj.card_def_id, obj.owner,
+                                              true, ctx.controller, ZoneType::Hand});
+        }
+        taken.push_back(picked);
+    }
+    if (!any || !ctx.state.objectExists(ctx.source)) return;
+    auto& self = ctx.state.getObject(ctx.source);
+    self.card_counters[kShowOffDid] = 1;
+    self.card_counters[kShowOffMight] = might;
+    self.card_counters[kShowOffEnergy] = energy;
+    self.card_counters[kShowOffPower] = power;
 }
 
 } // namespace riftbound

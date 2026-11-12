@@ -28,15 +28,16 @@ public:
     ActivationCost getActivationCost() const override {
         ActivationCost c;
         c.exhaust = true;
+        c.exhaust_friendly_unit = true;
         return c;
     }
-    void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
-            return u.controller == ctx.controller && u.current_might >= 5;
+    std::vector<GameObjectId> activationExhaustTargets(const GameState& state, PlayerId player,
+                                                       GameObjectId) const override {
+        return chooseableUnits(state, player, [&](const GameObject& u) {
+            return u.controller == player && !u.is_exhausted && u.current_might >= 5;
         });
-        auto t = pickTarget(ctx, "Invigorating Bloom: exhaust a Mighty unit", units);
-        if (t == kInvalidId) return;
-        ctx.executor.exhaustObject(t);
+    }
+    void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
         ctx.executor.drawCards(ctx.controller, 1);
     }
 

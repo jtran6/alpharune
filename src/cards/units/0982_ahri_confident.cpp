@@ -17,14 +17,17 @@ public:
     const CardDef& def() const override { return def_; }
 
     TriggerType triggerType() const override { return TriggerType::WhenYouReduceMight; }
+    bool triggerCondition(const GameState& state, GameObjectId source, PlayerId controller,
+                          TriggerType, GameObjectId subject) const override {
+        if (subject == kInvalidId || !state.objectExists(subject) || !state.objectExists(source))
+            return false;
+        const auto& enemy = state.getObject(subject);
+        const auto& self = state.getObject(source);
+        if (enemy.controller == controller) return false;
+        if (!self.location.has_value() || !enemy.location.has_value()) return false;
+        return *self.location == *enemy.location;
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (!ctx.state.chain.resuming) return;
-        auto sub = ctx.state.chain.resuming->triggering_subject;
-        if (sub == kInvalidId || !ctx.state.objectExists(sub)) return;
-        const auto& enemy = ctx.state.getObject(sub);
-        if (enemy.controller == ctx.controller) return;
-        if (!ctx.state.objectExists(ctx.source) || !ctx.state.getObject(ctx.source).location.has_value()) return;
-        if (!enemy.location.has_value() || *enemy.location != *ctx.state.getObject(ctx.source).location) return;
         ctx.executor.giveTemporaryMight(ctx.source, 1);
     }
 

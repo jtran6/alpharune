@@ -51,9 +51,7 @@ private:
         d.power_cost = 1;
         d.might = 0;
         d.rarity = Rarity::Common;
-        d.keywords.set(Keyword::Assault);
         d.keywords.set(Keyword::Action);
-        d.assault_value = 1;
         d.ability_text = R"RB([Action] (Play on your turn or in showdowns.)
 Give a unit [Assault] this turn equal to its Might. (+1 [M] for each instance of Assault while it's an attacker.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/38fd13c7522bb47dcc5ce1596aeb6a638087ee09-744x1039.png)RB";

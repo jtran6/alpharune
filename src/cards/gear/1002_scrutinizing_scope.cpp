@@ -21,14 +21,20 @@ public:
         c.energy = 1; c.exhaust = true;
         return c;
     }
+    unsigned choicesAtFinalization() const override { return kFinalizeActivate; }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        int guess = pickMode(ctx, "Scrutinizing Scope: they guess a type", 3, {"Unit", "Gear", "Spell"});
-        if (guess < 0) return;
+        auto guess = pickValueAs(ctx, opponent(ctx.controller),
+                                 "Scrutinizing Scope: guess a card type",
+                                 {"Unit", "Gear", "Spell"}, PromptKind::Mode, /*slot=*/7);
+        if (!guess) return;
+        if (finalizingChoices(ctx)) return;
+        const int said = *guess;
+        if (said < 0) return;
         auto& deck = ctx.state.player(ctx.controller).main_deck;
         if (deck.empty()) return;
         auto top = deck.back();
         ctx.events.emit(CardRevealedEvent{top, ctx.state.getObject(top).card_def_id, ctx.controller, true});
-        CardType want = guess == 0 ? CardType::Unit : guess == 1 ? CardType::Gear : CardType::Spell;
+        CardType want = said == 0 ? CardType::Unit : said == 1 ? CardType::Gear : CardType::Spell;
         if (ctx.state.getObject(top).card_type == want) ctx.executor.recycleCards(ctx.controller, {top});
         else ctx.executor.drawHeldCard(ctx.controller, top, true);
     }

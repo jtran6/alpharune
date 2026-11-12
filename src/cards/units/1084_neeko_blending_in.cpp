@@ -20,14 +20,46 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         const auto& legends = ctx.state.player(ctx.controller).neeko_legends;
-        if (legends.empty()) { if (finalizingChoices(ctx)) return; return; }
+        std::vector<CardDefId> choices;
         std::vector<std::string> labels;
-        for (auto id : legends) labels.push_back("Legend " + std::to_string(id.raw()));
-        int mode = pickMode(ctx, "Neeko: a legend while I'm on the board", static_cast<int>(labels.size()), labels);
+        const std::string champion = ctx.state.objectExists(ctx.state.player(ctx.controller).legend_zone)
+            ? ctx.state.getObject(ctx.state.player(ctx.controller).legend_zone).name.get() : std::string{};
+        for (CardDefId id : legends) {
+            if (!ctx.registry || !ctx.registry->get(id)) continue;
+            const CardDef& printed = ctx.registry->get(id)->def();
+            if (!champion.empty() && printed.name == champion) continue;
+            bool present = false;
+            for (auto& [oid, obj] : ctx.state.objects.inPlay()) {
+                if (obj.zone == ZoneType::LegendZone && obj.owner == ctx.controller &&
+                    (obj.card_def_id == id || obj.name.get() == printed.name))
+                    present = true;
+            }
+            if (present) continue;
+            choices.push_back(id);
+            labels.push_back(printed.name);
+        }
+        if (choices.empty()) { if (finalizingChoices(ctx)) return; return; }
+        int mode = pickMode(ctx, "Neeko: add a legend while I'm on the board", static_cast<int>(labels.size()), labels);
         if (mode < 0) return;
         if (finalizingChoices(ctx)) return;
-        if (ctx.state.objectExists(ctx.source))
-            ctx.state.getObject(ctx.source).card_counters["__neeko_legend"] = legends[mode].raw();
+        if (mode >= static_cast<int>(choices.size()) || !ctx.state.objectExists(ctx.source)) return;
+        const CardDef& printed = ctx.registry->get(choices[static_cast<std::size_t>(mode)])->def();
+        const GameObjectId added = ctx.state.createObject();
+        auto& legend = ctx.state.getObject(added);
+        legend.card_def_id = printed.id;
+        legend.name = printed.name;
+        legend.card_type = printed.card_type;
+        legend.owner = ctx.controller;
+        legend.controller = ctx.controller;
+        legend.zone = ZoneType::LegendZone;
+        legend.base_might = printed.might;
+        legend.keywords = printed.keywords;
+        legend.tags = printed.tags;
+        legend.domains = printed.domains;
+        legend.is_token = false;
+        legend.is_exhausted = false;
+        legend.recomputeMight();
+        ctx.state.getObject(ctx.source).card_counters["__neeko_extra"] = added.raw();
     }
 
 private:
@@ -51,7 +83,7 @@ private:
         d.rarity = Rarity::Epic;
 
         d.ability_text = R"RB((Neutral cards can go in decks of any Domain.)
-If Neeko is in your deck, choose 3 different legends in addition to your starting legend. (Different means none match names.)
+If Neeko is in your deck, choose up to 3 different legends in addition to your starting legend. (Different means none match names.)
 When you play me, choose one of those legends and add it to your Legend Zone while I'm on the board.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/607da6f534ce1b960ad02586ed4cd47c996e2c42-744x1039.png)RB";
         return d;

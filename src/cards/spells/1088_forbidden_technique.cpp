@@ -15,7 +15,6 @@ namespace {
 class ForbiddenTechnique_1088 : public SpellCard {
 public:
     const CardDef& def() const override { return def_; }
-    unsigned choicesAtFinalization() const override { return kFinalizeResolve; }
     FinalizeChoice mayChooseAtFinalization(const GameState& state, PlayerId player,
                                            GameObjectId object) const override {
         return friendlyUnitChoice(state, player, object);
@@ -29,16 +28,38 @@ public:
         if (finalizingChoices(ctx)) return;
         if (t == kInvalidId) return;
         ctx.executor.readyObject(t);
+        if (ctx.state.objectExists(ctx.source) &&
+            ctx.state.getObject(ctx.source).card_counters["__ft_banish"] != 0)
+            ctx.executor.banishObject(ctx.source);
     }
 
-    TrashPlayCost trashPlayCost(const GameState& state, PlayerId owner, GameObjectId) const override {
-        if (state.player(owner).high_energy_plays_this_turn < 1) return {};
-        return {.valid = true, .energy = 1, .power = 2, .power_domain = Domain::Fury};
+    bool triggersWhileInTrash(TriggerType t) const override {
+        return t == TriggerType::WhenYouPlayACard;
     }
-    TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
+    std::vector<TriggerType> triggerTypes() const override {
+        return {TriggerType::WhenYouPlayACard};
+    }
+    bool triggerConditionOn(const GameState& state, const TriggerEvent& event) const override {
+        if (event.trigger != TriggerType::WhenYouPlayACard) return false;
+        if (!event.subject_card || event.subject_card->energy_cost < 7) return false;
+        return state.objectExists(event.source) &&
+               state.getObject(event.source).zone == ZoneType::Trash;
+    }
+    unsigned choicesAtFinalization() const override { return kFinalizeResolve | kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (ctx.state.objectExists(ctx.source) && ctx.state.getObject(ctx.source).zone == ZoneType::Chain)
-            ctx.executor.banishObject(ctx.source);
+        int go = confirmOptional(ctx, "Forbidden Technique: play this from your trash for [1] and 2 Fury?",
+                                 [] { return true; });
+        if (go < 0) return;
+        if (go == 1 && costDueNow(ctx)) {
+            const bool paid = ctx.executor.payResources(
+                ctx.controller, 1, 2, resource::maskOf(Domain::Fury), SpendFor::Spell);
+            if (!paid) markCostUnpaid(ctx);
+            else if (ctx.state.objectExists(ctx.source))
+                ctx.state.getObject(ctx.source).card_counters["__ft_banish"] = 1;
+        }
+        if (finalizingChoices(ctx)) return;
+        if (go != 1 || costUnpaid(ctx)) return;
+        ctx.executor.playIgnoringCost(ctx.controller, ctx.source, std::nullopt);
     }
 
 private:
@@ -62,7 +83,7 @@ private:
         d.rarity = Rarity::Uncommon;
 
         d.ability_text = R"RB(Ready a unit.
-When you play a card with Energy cost [7] or more, you may play this from your trash for [1][R][R]. Banish this.)RB";
+When you play a card with Energy cost [7] or more, you may play this from your trash for [1][R][R]. Then banish this.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/293518dcf6c2f9e3f59a2e259826fd813436b3a5-744x1039.png)RB";
         return d;
     }();

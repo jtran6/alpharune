@@ -201,8 +201,13 @@ TEST_F(DeckFuzz, ASmallRunPlaysEveryGameToItsEnd) {
             << db_->get(d.legend).name;
     }
     // Nothing is counted for a card that was in no deck and is not a token.
+    // Neeko's extra legends are chosen outside the deck and do enter play.
+    std::vector<char> neeko_legend(fuzz::kCardSlots, 0);
+    for (const auto& d : decks)
+        for (CardDefId id : d.neeko_legends)
+            if (id.raw() < neeko_legend.size()) neeko_legend[id.raw()] = 1;
     for (std::size_t i = 1; i < fuzz::kCardSlots; ++i) {
-        if (coverage.games[fuzz::kInDeck][i] > 0) continue;
+        if (coverage.games[fuzz::kInDeck][i] > 0 || neeko_legend[i]) continue;
         const CardDefId id = CardDefId::fromRaw(static_cast<uint32_t>(i));
         const bool counted = coverage.games[fuzz::kInPlay][i] > 0 ||
                              coverage.games[fuzz::kTriggered][i] > 0 ||

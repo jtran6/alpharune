@@ -234,6 +234,32 @@ DeckSubmission RandomDeckBuilder::build(uint64_t seed) const {
             battlefields_[rng.pick(battlefields_.size(), w_battlefields_.cumulative)];
         if (names.insert(db_.get(id).name).second) deck.battlefields.push_back(id);
     }
+
+    // Neeko, Blending In: up to three legends, different from each other and
+    // from the champion legend. Drawn only when the deck actually contains
+    // her, and only after the 40 cards are chosen, so a deck that has no
+    // Neeko is the same list it was.
+    bool has_neeko = deck.chosen_champion.raw() == 1084;
+    for (CardDefId id : deck.main_deck)
+        if (id.raw() == 1084) has_neeko = true;
+    if (has_neeko) {
+        const std::string champion = db_.get(deck.legend).name;
+        std::vector<CardDefId> choices;
+        for (const auto& pool : legends_) {
+            if (pool.legend == deck.legend) continue;
+            const CardDef& legend = db_.get(pool.legend);
+            if (legend.name == champion) continue;
+            bool same = false;
+            for (CardDefId already : choices)
+                if (db_.get(already).name == legend.name) same = true;
+            if (!same) choices.push_back(pool.legend);
+        }
+        for (int i = 0; i < 3 && !choices.empty(); ++i) {
+            const std::size_t k = rng.below(choices.size());
+            deck.neeko_legends.push_back(choices[k]);
+            choices.erase(choices.begin() + static_cast<std::ptrdiff_t>(k));
+        }
+    }
     return deck;
 }
 

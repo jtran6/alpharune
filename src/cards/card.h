@@ -132,6 +132,22 @@ public:
     virtual bool canActivateAbility(const GameState& /*state*/,
                                     PlayerId /*controller*/) const { return true; }
 
+    /// Black Market: each player may activate this on their own turn even
+    /// when they do not control the object.
+    virtual bool eachPlayerMayActivateOnTheirTurn() const { return false; }
+
+    /// A triggered ability that works while this card is in its owner's trash
+    /// (Forbidden Technique). The trigger scan otherwise only walks objects
+    /// in play.
+    virtual bool triggersWhileInTrash(TriggerType) const { return false; }
+
+    /// Units a player may exhaust to pay this card's activation
+    /// (`ActivationCost::exhaust_friendly_unit`). The chosen unit is
+    /// `Intent::targets[0]` and is exhausted as the cost is paid, before the
+    /// ability is on the chain for anyone to respond to.
+    virtual std::vector<GameObjectId> activationExhaustTargets(
+        const GameState&, PlayerId, GameObjectId) const { return {}; }
+
     /// State-aware reduction to an activated ability's ENERGY cost (e.g.
     /// Bashful Bloom: "costs [1] less for each friendly [Temporary] unit").
     /// Consulted by the activation affordability check + payment, clamped so
@@ -1431,8 +1447,13 @@ public:
     virtual int takeOptionalSpellEnergyOff(CardContext& /*ctx*/) const { return 0; }
     /// Ask the show-off choice while this item is being finalized. True when
     /// the choice is settled (including "no" and "nothing matched"); false
-    /// while a prompt is pending. Writes ChainItem::shown_off.
+    /// while a prompt is pending. Writes ChainItem::shown_off. The prompts
+    /// use their own resume slots, so they do not consume the spell's target.
     bool settleShowOff(CardContext& ctx);
+    /// The same choice for a permanent an effect plays, which never takes a
+    /// finalize pass of its own (CR 420.3.b, 832.1.c). Synchronous: it stamps
+    /// the show-off counters on `card` before the permanent enters.
+    void offerShowOffNow(CardContext& ctx);
     /// The permanent was played after a successful show-off.
     static bool playedWithShowOff(const GameObject& obj);
 

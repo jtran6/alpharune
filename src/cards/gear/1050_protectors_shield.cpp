@@ -15,7 +15,14 @@ namespace {
 class ProtectorSShield_1050 : public GearCard {
 public:
     const CardDef& def() const override { return def_; }
-    // Printed rules are keywords and reminder text.
+    bool hasEquipAbility() const override { return true; }
+    EquipCost equipCost(const GameState&, PlayerId, GameObjectId, GameObjectId) const override {
+        EquipCost c;
+        c.valid = true;
+        c.energy = 1;
+        c.power = 0;
+        return c;
+    }
 
 private:
     const CardDef def_ = [] {

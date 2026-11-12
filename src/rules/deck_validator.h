@@ -35,6 +35,10 @@ struct DeckSubmission {
     std::vector<CardDefId> rune_deck;     // 12 runes
     std::vector<CardDefId> battlefields;  // 3 battlefields
     std::vector<CardDefId> sideboard;     // 0-10 cards
+    // Neeko, Blending In: up to three legends chosen at deckbuilding, besides
+    // the champion legend. Empty when the deck has no Neeko. Not part of the
+    // 40-card main deck.
+    std::vector<CardDefId> neeko_legends;
 };
 
 struct ValidationResult {

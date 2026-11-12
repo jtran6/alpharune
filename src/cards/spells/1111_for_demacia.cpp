@@ -25,7 +25,11 @@ public:
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
         std::vector<std::string> labels;
-        for (const auto& bf : ctx.state.battlefields) labels.push_back("Battlefield");
+        for (const auto& bf : ctx.state.battlefields) {
+            labels.push_back(ctx.state.objectExists(bf.card_object_id)
+                ? ctx.state.getObject(bf.card_object_id).name.get()
+                : "Battlefield #" + std::to_string(static_cast<int>(bf.id.raw())));
+        }
         if (labels.empty()) { if (finalizingChoices(ctx)) return; return; }
         int mode = pickMode(ctx, "For Demacia!: a battlefield", static_cast<int>(labels.size()), labels);
         if (mode < 0) return;
@@ -56,9 +60,7 @@ private:
         d.power_cost = 0;
         d.might = 0;
         d.rarity = Rarity::Common;
-        d.keywords.set(Keyword::Shield);
         d.keywords.set(Keyword::Reaction);
-        d.shield_value = 2;
         d.ability_text = R"RB([Reaction] (Play any time, even before spells and abilities resolve.)
 Choose a battlefield. Give friendly units there [Shield 2] this turn. (+2 [M] while they're defenders.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5d119653fcba423c150815de3a412922c4e481e8-744x1039.png)RB";

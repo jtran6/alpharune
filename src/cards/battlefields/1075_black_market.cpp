@@ -21,12 +21,21 @@ public:
         c.power = 2; c.power_any_domain = true;
         return c;
     }
+    bool eachPlayerMayActivateOnTheirTurn() const override { return true; }
+    bool canActivateAbilityAt(const GameState& state, PlayerId player, GameObjectId source,
+                              int ability_index) const override {
+        if (!BattlefieldCard::canActivateAbilityAt(state, player, source, ability_index)) return false;
+        if (state.turn.turn_player != player || !state.objectExists(source)) return false;
+        const char* key = player == PlayerId::Player1 ? "__market_p1" : "__market_p2";
+        auto it = state.getObject(source).card_counters.find(key);
+        return it == state.getObject(source).card_counters.end() ||
+               it->second != state.turn.turn_number + 1;
+    }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (ctx.state.objectExists(ctx.source) &&
-            ctx.state.getObject(ctx.source).card_counters["__market"] == ctx.state.turn.turn_number) return;
         ctx.executor.drawCards(ctx.controller, 1);
-        if (ctx.state.objectExists(ctx.source))
-            ctx.state.getObject(ctx.source).card_counters["__market"] = ctx.state.turn.turn_number;
+        if (!ctx.state.objectExists(ctx.source)) return;
+        const char* key = ctx.controller == PlayerId::Player1 ? "__market_p1" : "__market_p2";
+        ctx.state.getObject(ctx.source).card_counters[key] = ctx.state.turn.turn_number + 1;
     }
 
 private:

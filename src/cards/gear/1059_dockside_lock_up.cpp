@@ -20,14 +20,42 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (ctx.state.chain.resuming && ctx.state.chain.resuming->fired_trigger == TriggerType::WhenIHold) {
+            int raw = 0;
+            if (ctx.state.objectExists(ctx.source))
+                raw = ctx.state.getObject(ctx.source).card_counters["__locked"];
+            if (costDueNow(ctx)) {
+                const bool died = ctx.state.objectExists(ctx.source) && killAsCost(ctx, ctx.source);
+                if (!died) markCostUnpaid(ctx);
+            }
             if (finalizingChoices(ctx)) return;
-            if (!ctx.state.objectExists(ctx.source)) return;
-            int raw = ctx.state.getObject(ctx.source).card_counters["__locked"];
-            ctx.executor.killObject(ctx.source);
-            if (raw <= 0) return;
-            GameObjectId card = GameObjectId::fromRaw(raw);
-            if (ctx.state.objectExists(card) && !ctx.state.getObject(card).isToken())
-                ctx.executor.playIgnoringCost(ctx.state.getObject(card).owner, card, LocationId{BaseLocation{ctx.state.getObject(card).owner}});
+            if (costUnpaid(ctx) || raw <= 0) return;
+            const GameObjectId card = GameObjectId::fromRaw(raw);
+            if (!ctx.state.objectExists(card) || ctx.state.getObject(card).isToken()) return;
+            std::vector<std::string> labels;
+            std::vector<std::optional<LocationId>> places;
+            const bool deploy = ctx.state.getObject(card).isGear() &&
+                                ctx.state.getObject(card).hasKeyword(Keyword::Deploy);
+            if (!deploy) {
+                labels.push_back("Your base");
+                places.push_back(LocationId{BaseLocation{ctx.controller}});
+            }
+            for (const auto& bf : ctx.state.battlefields) {
+                LocationId loc{BattlefieldLocation{bf.id}};
+                if (ctx.state.getObject(card).isUnit() &&
+                    !ctx.executor.unitMayBePlayedTo(ctx.controller, loc))
+                    continue;
+                labels.push_back(ctx.state.objectExists(bf.card_object_id)
+                    ? ctx.state.getObject(bf.card_object_id).name.get()
+                    : "Battlefield");
+                places.push_back(loc);
+            }
+            if (labels.empty()) return;
+            auto where = pickValueAs(ctx, ctx.controller,
+                                     "Dockside Lock-Up: play the banished card",
+                                     labels, PromptKind::Location, /*slot=*/9);
+            if (!where) return;
+            if (*where < 0 || *where >= static_cast<int>(places.size())) return;
+            ctx.executor.playIgnoringCost(ctx.controller, card, places[static_cast<std::size_t>(*where)]);
             return;
         }
         LocationId here{BaseLocation{ctx.controller}};

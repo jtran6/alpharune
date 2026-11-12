@@ -414,8 +414,11 @@ struct GameObject {
     // ── Convenience ──
     bool isReady() const { return !is_exhausted; }
     // A gear an effect has also made a unit (Lady of Clockwork: "it becomes a
-    // unit gear"). It stays a gear. Cleared each aura pass and put back by
-    // the effect that grants it, and dropped when the object leaves the board.
+    // unit gear"). It stays a gear. The effect that granted it clears the
+    // previous one when a new gear is chosen and sets the new one when that
+    // ability resolves, so there is a gap between the two. Dropped when the
+    // object leaves the board (forgetBoardState). An aura pass does not
+    // clear it: the grant lasts until the effect says otherwise.
     bool is_unit_gear = false;
     bool isUnit() const { return card_type == CardType::Unit || is_unit_gear; }
     bool isGear() const { return card_type == CardType::Gear; }

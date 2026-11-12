@@ -21,11 +21,13 @@ public:
     }
     bool hasLegalTargets(const GameState& state, PlayerId player) const override {
         return !chooseableUnits(state, player, [&](const GameObject& u) {
-            return u.controller != player;
+            return u.controller != player && u.moves_this_turn > 0;
         }).empty();
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller != ctx.controller; });
+        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            return u.controller != ctx.controller && u.moves_this_turn > 0;
+        });
         const GameObjectId t = pickTarget(ctx, "Siren's Song: an enemy that moved this turn", units);
         if (finalizingChoices(ctx)) return;
         if (t == kInvalidId) return;

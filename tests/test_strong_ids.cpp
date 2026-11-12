@@ -352,7 +352,10 @@ TEST(StrongIds, HistoryTokensAndSlotsArePinned) {
 // here until it has been paired too and the count is updated.
 TEST(StrongIds, EveryObjectIdReadFromAnIntegerSlotIsOnTheAuditedList) {
     const std::map<std::string, int> audited = {
-        {"src/cards/card.cpp", 7},
+        {"src/cards/card.cpp", 9},   // +2: [Show Off] locks the shown object in its own resume slots
+        {"src/cards/spells/1117_chronobreak.cpp", 1},  // the banished units, written as card_counters["__cuN"]
+        {"src/cards/spells/1121_encore.cpp", 1},  // the looked-at cards, written as card_counters["__encore_topN"]
+        {"src/engine/effect_executor.cpp", 1},  // Neeko's added legend, written as card_counters["__neeko_extra"]
         {"src/cards/card_helpers.h", 12},   // +1: chooseFittingSubset's members, written plain by its record (batch M1)
         {"src/cards/gear/0160_dazzling_aurora.cpp", 1},   // the revealed rest, written plain (batch 6 R6)
         {"src/cards/gear/1059_dockside_lock_up.cpp", 1},  // the banished unit, written as card_counters["__locked"]

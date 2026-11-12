@@ -22,20 +22,31 @@ public:
         if (!ctx.state.chain.resuming) { if (finalizingChoices(ctx)) return; return; }
         auto sub = ctx.state.chain.resuming->triggering_subject;
         if (sub == kInvalidId || !ctx.state.objectExists(sub) || !ctx.state.getObject(sub).hasKeyword(Keyword::Deploy)) {
-            if (finalizingChoices(ctx)) return; return;
+            if (finalizingChoices(ctx)) return;
+            return;
         }
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
         int go = confirmOptional(ctx, "Exemplar of Demacia: exhaust me and pay [A] to move a unit there", [ok=!units.empty()]{ return ok; });
         if (go < 0) return;
+        GameObjectId t = kInvalidId;
+        BattlefieldId dest = kInvalidId;
+        if (go == 1) {
+            t = pickTarget(ctx, "Exemplar: move a friendly unit", units);
+            if (ctx.state.chain.resuming && ctx.state.chain.resuming->resume_point == 7) return;
+            if (ctx.state.objectExists(sub) && ctx.state.getObject(sub).location.has_value()) {
+                if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(sub).location))
+                    dest = bf->id;
+            }
+            if (costDueNow(ctx)) {
+                const bool paid = t != kInvalidId && dest.valid() &&
+                    ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other);
+                if (!paid) markCostUnpaid(ctx);
+                else ctx.executor.exhaustObject(ctx.source);
+            }
+        }
         if (finalizingChoices(ctx)) return;
-        if (go != 1) return;
-        if (!ctx.executor.payResources(ctx.controller, 0, 1, resource::kAnyDomain, SpendFor::Other)) return;
-        ctx.executor.exhaustObject(ctx.source);
-        if (!ctx.state.getObject(sub).location.has_value()) return;
-        auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(sub).location);
-        if (!bf) return;
-        auto t = pickTarget(ctx, "Exemplar: move a friendly unit", units);
-        if (t != kInvalidId) ctx.executor.moveToBattlefield(t, bf->id);
+        if (go != 1 || costUnpaid(ctx) || t == kInvalidId || !dest.valid()) return;
+        ctx.executor.moveToBattlefield(t, dest);
     }
 
 private:
@@ -57,7 +68,6 @@ private:
         d.power_cost = 0;
         d.might = 0;
         d.rarity = Rarity::Rare;
-        d.keywords.set(Keyword::Deploy);
         d.ability_text = R"RB(When you play a gear with [Deploy], you may exhaust me and pay [A] to move a friendly unit to that battlefield.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e85c005f938e44655f926bb406a47359ae51ecc1-744x1039.png)RB";
         return d;
