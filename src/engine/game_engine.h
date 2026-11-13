@@ -279,6 +279,9 @@ public:
         scoreConquer(p, bf, from);
     }
     void testHook_scoreHold(PlayerId p, BattlefieldId bf) { scoreHold(p, bf); }
+    std::vector<Intent> testHook_mainPhaseActions(PlayerId player) const {
+        return generateMainPhaseActions(player);
+    }
     void testHook_drawCards(PlayerId p, int n) { drawCards(p, n); }
     void testHook_processLethalDamage() { processLethalDamage(); }
     /// The pre-play probe (payableThroughAFinalizeChoice): runs of the last

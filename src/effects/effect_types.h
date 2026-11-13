@@ -219,6 +219,15 @@ enum class TriggerType : uint8_t {
                                  // settles (StateSettledEvent)
     WhenAnOpponentHidesACard,    // delayed abilities only: the other player hid a card;
                                  // triggering_subject = the hidden card
+    WhenYouReduceMight,          // "When you reduce the Might of an enemy unit" (Ahri, Confident);
+                                 // triggering_subject = the unit that was given -[M]
+    WhenIBecomeExhausted,        // "When I become exhausted,"
+    WhenAFriendlyUnitBecomesExhausted, // "When another friendly unit becomes exhausted,";
+                                 // triggering_subject = the unit
+    WhenYouExhaustThreeOrMore,   // "when you exhaust three or more friendly units at the same time"
+    WhenAFriendlyGearDies,       // "When a friendly gear dies," (Battlefield Armorer);
+                                 // triggering_subject = the gear
+    WhenFriendlyUnitsAttackHere, // "When one or more friendly units attack here," (Demacian Standard)
 };
 
 // ─── Conditions ─────────────────────────────────────────────────────────────
@@ -320,6 +329,10 @@ struct ActivationCost {
     // "Kill this" as a cost (Gold, Divining Shells): the source is killed as
     // the ability is activated (CR 405.1), before anyone can respond.
     bool kill_self = false;
+    // "Exhaust a friendly unit" as a cost (Invigorating Bloom, Riven). The
+    // unit is Intent::targets[0], named from Card::activationExhaustTargets,
+    // and exhausted here with the rest of the cost — not inside onActivate.
+    bool exhaust_friendly_unit = false;
 };
 
 // ─── Complete effect script ─────────────────────────────────────────────────

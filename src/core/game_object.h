@@ -185,6 +185,7 @@ struct GameObject {
     int temp_buff_count = 0;     // temporary buffs applied "this turn" (expire at expiration step)
     int temp_assault_value = 0;  // temporary assault applied "this turn"
     int temp_shield_value = 0;   // temporary shield applied "this turn"
+    int temp_disarm_value = 0;   // [Disarm N] given "this turn"; added into disarm_value
     int temp_deflect_value = 0;  // [Deflect N] given "this turn" (EffectExecutor::
                                  // giveTemporaryKeyword); added to deflect_value by
                                  // deflectCostFor, zeroed at the expiration step
@@ -238,6 +239,7 @@ struct GameObject {
     int assault_value = 0;
     int shield_value = 0;
     int deflect_value = 0;
+    int disarm_value = 0;    // printed + temporary [Disarm]; aura grants stay on aura_effects
 
     // ── Attachment ──
     std::optional<GameObjectId> attached_to;          // card I'm attached to
@@ -411,7 +413,14 @@ struct GameObject {
 
     // ── Convenience ──
     bool isReady() const { return !is_exhausted; }
-    bool isUnit() const { return card_type == CardType::Unit; }
+    // A gear an effect has also made a unit (Lady of Clockwork: "it becomes a
+    // unit gear"). It stays a gear. The effect that granted it clears the
+    // previous one when a new gear is chosen and sets the new one when that
+    // ability resolves, so there is a gap between the two. Dropped when the
+    // object leaves the board (forgetBoardState). An aura pass does not
+    // clear it: the grant lasts until the effect says otherwise.
+    bool is_unit_gear = false;
+    bool isUnit() const { return card_type == CardType::Unit || is_unit_gear; }
     bool isGear() const { return card_type == CardType::Gear; }
     bool isSpell() const { return card_type == CardType::Spell; }
     bool isRune() const { return card_type == CardType::Rune; }

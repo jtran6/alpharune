@@ -352,9 +352,14 @@ TEST(StrongIds, HistoryTokensAndSlotsArePinned) {
 // here until it has been paired too and the count is updated.
 TEST(StrongIds, EveryObjectIdReadFromAnIntegerSlotIsOnTheAuditedList) {
     const std::map<std::string, int> audited = {
-        {"src/cards/card.cpp", 7},
+        {"src/cards/card.cpp", 8},   // [Show Off] reads the shown object from its resume slot; instances are not excluded from each other
+        {"src/cards/spells/1117_chronobreak.cpp", 4},  // the banished units, written in the chain item's resume slots
+        {"src/cards/spells/1121_encore.cpp", 1},  // the looked-at cards, written as card_counters["__encore_topN"]
+        {"src/engine/effect_executor.cpp", 1},  // Neeko's added legend, written as card_counters["__neeko_extra"]
         {"src/cards/card_helpers.h", 12},   // +1: chooseFittingSubset's members, written plain by its record (batch M1)
         {"src/cards/gear/0160_dazzling_aurora.cpp", 1},   // the revealed rest, written plain (batch 6 R6)
+        {"src/cards/gear/1059_dockside_lock_up.cpp", 1},  // the banished unit, written as card_counters["__locked"]
+        {"src/cards/legends/1065_lady_of_clockwork.cpp", 1},  // the gear made a unit, written as card_counters["__clock_gear"]
         {"src/cards/gear/0412_the_zero_drive.cpp", 1},
         {"src/cards/gear/0698_scryer_s_bloom.cpp", 1},
         {"src/cards/gear/0924_shady_spectacles.cpp", 1},

@@ -24,6 +24,7 @@ namespace riftbound {
 
 // The engine-known Gold gear token's card_def_id.
 constexpr CardDefId kGoldGearCardDefId = 326;
+constexpr CardDefId kBombGearCardDefId = 1123;
 
 // ── Paying one Power from a card effect ──
 // One Power of `domain` (any domain if nullopt), the way CR 164.2 lets it be
@@ -428,6 +429,73 @@ inline void createGoldToken(CardContext& ctx) {
     (void)tid;
 }
 
+/// [Show Off] on a resolving spell (CR 832). Null when the player declined
+/// this spell's own instance. A granted extra instance is its own show-off:
+/// showing off only that one does not satisfy the spell's own "if you did"
+/// (CR 832.2.a). The first record is the printed instance.
+inline const ChainItem::ShownOff* spellShowOff(const CardContext& ctx) {
+    if (!ctx.state.chain.resuming.has_value()) return nullptr;
+    const auto& ri = *ctx.state.chain.resuming;
+    if (!ri.shown_offs.empty()) {
+        if (!ri.shown_offs.front().did) return nullptr;
+        return &ri.shown_offs.front();
+    }
+    const auto& shown = ri.shown_off;
+    if (!shown.has_value() || !shown->did) return nullptr;
+    return &*shown;
+}
+
+/// Play a Bomb gear token to a battlefield the controller chooses (CR 830:
+/// [Deploy] gear is not played to a base). `token_card` is the Bomb card.
+/// Banish the top of the controller's Main Deck and let them play it,
+/// paying its cost, until their next Ending Phase.
+inline GameObjectId banishTopUntilEnding(CardContext& ctx) {
+    auto& deck = ctx.state.player(ctx.controller).main_deck;
+    if (deck.empty()) return kInvalidId;
+    const GameObjectId top = deck.back();
+    ctx.executor.banishObject(top);
+    if (!ctx.state.objectExists(top) || ctx.state.getObject(top).zone != ZoneType::Banishment)
+        return kInvalidId;
+    int through = ctx.state.turn.turn_number;
+    if (ctx.state.turn.turn_player != ctx.controller ||
+        ctx.state.turn.phase == TurnPhase::EndingStep ||
+        ctx.state.turn.phase == TurnPhase::ExpirationStep)
+        ++through;
+    ctx.state.getObject(top).card_counters["__playable_through_turn"] = through;
+    return top;
+}
+
+inline std::string battlefieldLabel(const GameState& state, const BattlefieldState& bf) {
+    if (state.objectExists(bf.card_object_id))
+        return state.getObject(bf.card_object_id).name.get();
+    return "Battlefield #" + std::to_string(static_cast<int>(bf.id.raw()));
+}
+
+inline GameObjectId playBombToken(Card& card, CardContext& ctx, const std::string& label) {
+    const int n = static_cast<int>(ctx.state.battlefields.size());
+    if (n <= 0) return kInvalidId;
+    std::vector<std::string> labels;
+    labels.reserve(n);
+    for (const auto& bf : ctx.state.battlefields) {
+        labels.push_back(ctx.state.objectExists(bf.card_object_id)
+                             ? ctx.state.getObject(bf.card_object_id).name.get()
+                             : "a battlefield");
+    }
+    const int which = card.pickMode(ctx, label, n, labels, 0xFFFFFFFFu,
+                                    std::source_location::current(), PromptKind::Location);
+    if (which < 0) return kInvalidId;
+    // The battlefield is chosen as the ability is finalized; the token is
+    // played as it resolves (CR 420.3.b.2).
+    if (ctx.state.chain.resuming.has_value() && ctx.state.chain.resuming->finalizing)
+        return kInvalidId;
+    KeywordSet kw;
+    kw.set(Keyword::Deploy);
+    kw.set(Keyword::Deathknell);
+    return ctx.executor.createToken(ctx.controller, CardType::Gear, "Bomb", 0, {"Bomb"}, kw,
+                                    LocationId{BattlefieldLocation{ctx.state.battlefields[which].id}},
+                                    /*enter_ready=*/false, {}, kBombGearCardDefId);
+}
+
 inline GameObjectId createGoldExhausted(CardContext& ctx) {
     LocationId loc{BaseLocation{ctx.controller}};
     auto tok = ctx.executor.createToken(ctx.controller, CardType::Gear, "Gold",
@@ -460,6 +528,20 @@ inline void moveToLocation(EffectExecutor& exec, GameObjectId obj,
 }
 
 inline bool isMighty(const GameObject& obj) { return obj.current_might >= 5; }
+
+/// Every legend that player controls: the starting legend and any legend
+/// Neeko added. "Your legend" is one of these, chosen as the effect resolves.
+inline std::vector<GameObjectId> friendlyLegends(const GameState& state, PlayerId player) {
+    std::vector<GameObjectId> legends;
+    const GameObjectId primary = state.player(player).legend_zone;
+    if (primary != kInvalidId && state.objectExists(primary)) legends.push_back(primary);
+    for (const auto& [id, obj] : state.objects.inPlay()) {
+        if (obj.zone.get() != ZoneType::LegendZone || obj.controller != player) continue;
+        if (std::find(legends.begin(), legends.end(), id) == legends.end())
+            legends.push_back(id);
+    }
+    return legends;
+}
 
 /// For the triggerCondition of a "Once each turn, when ..." ability
 /// (CR 383.3.e.1: "If its trigger condition would be fulfilled and it has

@@ -97,16 +97,19 @@ inline void forgetBoardState(GameObject& obj, const CardDef* def) {
         obj.assault_value = def->assault_value;
         obj.shield_value = def->shield_value;
         obj.deflect_value = def->deflect_value;
+        obj.disarm_value = def->disarm_value;
     } else {
         obj.keywords.bits &= ~(obj.temp_keywords.bits | obj.granted_keywords.bits);
         obj.assault_value = std::max(0, obj.assault_value - obj.temp_assault_value);
         obj.shield_value = std::max(0, obj.shield_value - obj.temp_shield_value);
+        obj.disarm_value = std::max(0, obj.disarm_value - obj.temp_disarm_value);
     }
     obj.temp_keywords.reset();
     obj.granted_keywords.reset();
     obj.temp_assault_value = 0;
     obj.temp_shield_value = 0;
     obj.temp_deflect_value = 0;
+    obj.temp_disarm_value = 0;
     // Other "this turn" and "next time" modifications.
     obj.untargetable_by_enemy = false;
     obj.untargetable_by_enemy_this_turn = false;
@@ -132,6 +135,10 @@ inline void forgetBoardState(GameObject& obj, const CardDef* def) {
     // Attachments were shed by the caller; what they added goes with them.
     obj.attachment_might_bonus = 0;
     // Off the board a unit has its printed Might (CR 711).
+    if (obj.is_unit_gear) {
+        obj.is_unit_gear = false;
+        if (def) obj.base_might = def->might;
+    }
     obj.current_might = obj.base_might;
 }
 
@@ -149,9 +156,11 @@ inline bool carriesBoardState(const GameObject& obj) {
            obj.base_might_this_turn >= 0 ||
            obj.temp_keywords.bits != 0 || obj.granted_keywords.bits != 0 ||
            obj.temp_assault_value != 0 || obj.temp_shield_value != 0 ||
-           obj.temp_deflect_value != 0 || obj.control_reverts_eot ||
+           obj.temp_deflect_value != 0 || obj.temp_disarm_value != 0 ||
+           obj.control_reverts_eot ||
            obj.control_reverts_on_source_leave || obj.attached_to.has_value() ||
            !obj.attachments.empty() || obj.cant_move_this_turn ||
+           obj.is_unit_gear ||
            obj.death_replacement_recall_pending || obj.banish_if_would_die_this_turn ||
            !obj.pending_death_replacements.empty() || !obj.temp_granted_abilities.empty();
 }

@@ -91,6 +91,7 @@ void becomeCard(GameObject& obj, const CardDef& def) {
     fresh.assault_value = def.assault_value;
     fresh.shield_value = def.shield_value;
     fresh.deflect_value = def.deflect_value;
+    fresh.disarm_value = def.disarm_value;
     fresh.might_bonus = def.might_bonus;
     obj = fresh;   // keeps reporting to the table it is in (tracked_field.h)
 }

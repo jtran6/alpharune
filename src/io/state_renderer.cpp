@@ -54,6 +54,9 @@ std::string StateRenderer::keywordAbbrev(const GameObject& obj) const {
     add(Keyword::Deathknell, "Dkn");
     add(Keyword::Action, "Act");
     add(Keyword::Reaction, "Rxn");
+    add(Keyword::Deploy, "Dpl");
+    add(Keyword::Disarm, "Dsr", obj.disarm_value);
+    add(Keyword::ShowOff, "Sof");
     return kws;
 }
 

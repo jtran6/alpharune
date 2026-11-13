@@ -1,5 +1,7 @@
 #include "engine/keyword_abilities.h"
 
+#include <algorithm>
+
 #include "cards/card_helpers.h"
 #include "cards/units/weaponmaster_base.h"
 #include "core/game_state.h"
@@ -95,6 +97,55 @@ private:
     const CardDef def_ = keywordDef("Quick-Draw");
 };
 
+/// [Disarm N] — CR 831. "When I attack, give an enemy unit here -N [M] this
+/// turn." One ability, N the sum of every instance, locked on the chain item
+/// as it was queued. The enemy is chosen as the ability is finalized; with
+/// none here the ability is removed (CR 403.4).
+class DisarmAbility : public Card {
+public:
+    const CardDef& def() const override { return def_; }
+    TriggerType triggerType() const override { return TriggerType::WhenIAttack; }
+    unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
+    void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
+        const int amount = ctx.state.chain.resuming
+            ? ctx.state.chain.resuming->keyword_amount : 1;
+        BattlefieldId here = kInvalidId;
+        if (ctx.state.objectExists(ctx.source)) {
+            if (auto bf = ctx.state.getObject(ctx.source).battlefieldId()) here = *bf;
+        }
+        const auto enemies = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            if (u.controller == ctx.controller || !u.isAtBattlefield()) return false;
+            auto bf = u.battlefieldId();
+            return bf && *bf == here;
+        });
+        const GameObjectId unit = pickTarget(ctx, "Disarm: give an enemy unit here -" +
+                                             std::to_string(amount) + " [M] this turn", enemies);
+        if (finalizingChoices(ctx)) return;
+        if (unit == kInvalidId) return;
+        ctx.executor.giveTemporaryMight(unit, -amount);
+    }
+private:
+    const CardDef def_ = keywordDef("Disarm");
+};
+
+/// [Deploy] hold — CR 830.1.b: "When an opponent holds here, kill this."
+/// One trigger however many instances the gear has.
+class DeployHoldAbility : public Card {
+public:
+    const CardDef& def() const override { return def_; }
+    TriggerType triggerType() const override { return TriggerType::WhenIHold; }
+    void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
+        if (!ctx.state.objectExists(ctx.source)) return;
+        const auto& self = ctx.state.getObject(ctx.source);
+        if (!self.location.has_value() || !self.hasKeyword(Keyword::Deploy)) return;
+        if (ctx.state.chain.resuming.has_value() && ctx.state.chain.resuming->source_left_board)
+            return;
+        ctx.executor.killObject(ctx.source);
+    }
+private:
+    const CardDef def_ = keywordDef("Deploy");
+};
+
 }  // namespace
 
 Card* keywordAbilityCard(Keyword keyword) {
@@ -102,13 +153,27 @@ Card* keywordAbilityCard(Keyword keyword) {
     static WeaponmasterAbility weaponmaster;
     static TemporaryAbility temporary;
     static QuickDrawAbility quick_draw;
+    static DisarmAbility disarm;
+    static DeployHoldAbility deploy;
     switch (keyword) {
         case Keyword::Vision:       return &vision;
         case Keyword::Weaponmaster: return &weaponmaster;
         case Keyword::Temporary:    return &temporary;
         case Keyword::QuickDraw:    return &quick_draw;
+        case Keyword::Disarm:       return &disarm;
+        case Keyword::Deploy:       return &deploy;
         default:                    return nullptr;
     }
+}
+
+int disarmTotal(const GameObject& object) {
+    int n = 0;
+    if (object.keywords.has(Keyword::Disarm))
+        n += std::max(1, object.disarm_value);
+    for (const auto& ae : object.aura_effects)
+        if (ae.keyword == Keyword::Disarm)
+            n += std::max(1, ae.keyword_value);
+    return n;
 }
 
 int keywordAbilityInstances(const GameObject& object, Keyword keyword, bool own_card_fires) {

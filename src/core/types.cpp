@@ -152,6 +152,9 @@ const char* toString(Keyword k) {
         case Keyword::Weaponmaster: return "Weaponmaster";
         case Keyword::Empower:      return "Empower";
         case Keyword::Flow:         return "Flow";
+        case Keyword::Deploy:       return "Deploy";
+        case Keyword::Disarm:       return "Disarm";
+        case Keyword::ShowOff:      return "Show Off";
         case Keyword::Count:        return "Count";
     }
     return "Unknown";

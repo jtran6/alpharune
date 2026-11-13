@@ -36,15 +36,17 @@ public:
         // says so publishes the amount on itself, in
         // card_counters["__gold_add_bonus_energy"], from its applyPassiveAura
         // (0 or absent = no bonus). As Gold 326, which this reprints.
-        const GameObjectId legend = ctx.state.player(ctx.controller).legend_zone;
-        if (legend != kInvalidId && ctx.state.objectExists(legend)) {
+        int bonus = 0;
+        for (auto legend : friendlyLegends(ctx.state, ctx.controller)) {
             const auto& counters = ctx.state.getObject(legend).card_counters;
             if (auto it = counters.find("__gold_add_bonus_energy");
-                it != counters.end() && it->second > 0) {
-                ctx.executor.addFloatingEnergy(ctx.controller, it->second);
-                RIFT_TRACE(ctx.events, "GOLD: +" + std::to_string(it->second) +
-                                    " Energy (legend bonus)");
-            }
+                it != counters.end() && it->second > 0)
+                bonus += it->second;
+        }
+        if (bonus > 0) {
+            ctx.executor.addFloatingEnergy(ctx.controller, bonus);
+            RIFT_TRACE(ctx.events, "GOLD: +" + std::to_string(bonus) +
+                                " Energy (legend bonus)");
         }
     }
 private:

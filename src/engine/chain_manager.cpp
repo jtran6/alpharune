@@ -300,7 +300,13 @@ void ChainManager::stepFinalize(
     // Choices made at finalization (targets, "may", costs; see
     // setFinalizeChoices). The callback may put triggered abilities on the
     // chain, so the item is found again afterwards.
-    if (finalize_choices_ && !state_.chain.items[i].is_permanent)
+    // Permanents skip the finalize pass except [Show Off], which is decided
+    // while the item is still on the chain (CR 832.1.c.2). resolvePermanent
+    // erases the item before the permanent's own callbacks run.
+    bool show_off = false;
+    if (state_.chain.items[i].is_permanent && state_.objectExists(state_.chain.items[i].source))
+        show_off = state_.getObject(state_.chain.items[i].source).hasKeyword(Keyword::ShowOff);
+    if (finalize_choices_ && (!state_.chain.items[i].is_permanent || show_off))
         finalize_choices_(state_.chain.items[i]);
     bool found = false;
     for (size_t k = 0; k < state_.chain.items.size(); ++k)
@@ -563,6 +569,7 @@ void ChainManager::stepResolve(
             auto& ri = *state_.chain.resuming;
             ri.resume_point = 0;
             ri.resume_data.clear();
+            ri.execution_memo = -1;
             ri.may_answer = -1;
             ri.chosen_item = kInvalidId;
             ri.chosen_stamps.clear();
@@ -579,6 +586,7 @@ void ChainManager::stepResolve(
                 ri.chosen_item = chosen.chosen_item;
                 ri.resume_point = chosen.resume_point;
                 ri.resume_data = chosen.resume_data;
+                ri.execution_memo = chosen.execution_memo;
                 ri.may_answer = chosen.may_answer;
                 ri.choices_finalized = chosen.choices_finalized;
                 ri.finalize_costs_paid = chosen.finalize_costs_paid;

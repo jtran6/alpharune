@@ -132,6 +132,22 @@ public:
     virtual bool canActivateAbility(const GameState& /*state*/,
                                     PlayerId /*controller*/) const { return true; }
 
+    /// Black Market: each player may activate this on their own turn even
+    /// when they do not control the object.
+    virtual bool eachPlayerMayActivateOnTheirTurn() const { return false; }
+
+    /// A triggered ability that works while this card is in its owner's trash
+    /// (Forbidden Technique). The trigger scan otherwise only walks objects
+    /// in play.
+    virtual bool triggersWhileInTrash(TriggerType) const { return false; }
+
+    /// Units a player may exhaust to pay this card's activation
+    /// (`ActivationCost::exhaust_friendly_unit`). The chosen unit is
+    /// `Intent::targets[0]` and is exhausted as the cost is paid, before the
+    /// ability is on the chain for anyone to respond to.
+    virtual std::vector<GameObjectId> activationExhaustTargets(
+        const GameState&, PlayerId, GameObjectId) const { return {}; }
+
     /// State-aware reduction to an activated ability's ENERGY cost (e.g.
     /// Bashful Bloom: "costs [1] less for each friendly [Temporary] unit").
     /// Consulted by the activation affordability check + payment, clamped so
@@ -421,6 +437,9 @@ public:
     static void markCostUnpaid(CardContext& ctx);
     /// Whether an earlier run of this callback recorded that.
     static bool costUnpaid(const CardContext& ctx);
+    /// The same bit on a chain item the finalize pass has already copied off
+    /// the resume slot (CR 405.2: an unpaid triggered ability is not performed).
+    static bool itemCostUnpaid(const ChainItem& item);
 
     /// Variable-X cost helper (CR principle: "pay any amount of [X]").
     ///
@@ -956,6 +975,18 @@ public:
         int power_discount = 0;         // Weaponmaster: "for [A] less" (CR 821.1.c)
         bool even_if_attached = false;  // Weaponmaster: "even if it's already attached"
     };
+    /// The extra cost after Equip discounts. The default ignores the
+    /// discount and calls the form that does not take terms, so a card
+    /// whose extra cost is not Power keeps working.
+    virtual bool canPayEquipExtraCost(const GameState& state, PlayerId controller,
+                                      GameObjectId gear, GameObjectId unit,
+                                      const EquipTerms& /*terms*/) const {
+        return canPayEquipExtraCost(state, controller, gear, unit);
+    }
+    virtual bool payEquipExtraCost(CardContext& ctx, GameObjectId unit,
+                                   const EquipTerms& /*terms*/) {
+        return payEquipExtraCost(ctx, unit);
+    }
     /// This gear's Equip cost for `unit` after `terms`' discounts.
     EquipCost netEquipCost(const GameState& state, PlayerId controller, GameObjectId gear,
                            GameObjectId unit, const EquipTerms& terms) const;
@@ -1143,6 +1174,12 @@ public:
     /// triggers (CR 420.4.a; TriggerManager::onSpellResolved). A countered
     /// spell triggers nothing (420.4.a.1).
     static constexpr const char* kPlayedNotFromHand = "__played_not_from_hand";
+    /// [Show Off] succeeded for this play (CR 832). Written as the permanent
+    /// enters, from the chain item's locked facts. A spell reads the item.
+    static constexpr const char* kShowOffDid = "__showoff";
+    static constexpr const char* kShowOffMight = "__showoff_might";
+    static constexpr const char* kShowOffEnergy = "__showoff_energy";
+    static constexpr const char* kShowOffPower = "__showoff_power";
     /// Forget what was paid for an earlier play of `object`: kAdditionalCostPaid
     /// and the paid_flag of its optionalAdditionalCost(). The engine calls
     /// this as every play of a card begins — whatever the play path and
@@ -1239,6 +1276,15 @@ public:
     virtual int extraScoreTriggers(const GameState& /*state*/, GameObjectId /*self*/,
                                    PlayerId /*scorer*/, BattlefieldId /*bf*/,
                                    bool /*hold*/) const { return 0; }
+
+    /// "Friendly [Deathknell] effects here trigger an additional time."
+    /// Asked of every card the dying object's controller has on the board
+    /// when that object's Deathknell is queued. `dying` has already left;
+    /// its last-known location is where "here" was. Each +1 queues that
+    /// Deathknell once more. A global "your Deathknell effects" (Karthus)
+    /// stays on `PlayerState::deathknell_double_count`.
+    virtual int extraDeathknellTriggers(const GameState& /*state*/, GameObjectId /*self*/,
+                                        const GameObject& /*dying*/) const { return 0; }
 
     /// "When ONE OR MORE enemy units die, ..." (Battle Mistress): true makes
     /// `trigger` fire once for a set of events that happen together instead of
@@ -1398,6 +1444,44 @@ public:
         return entersReadyOnPlay(state, controller);
     }
 
+    /// [Show Off] (CR 832): whether `obj` is something this card may show off.
+    /// Default false — a card with the keyword overrides it. The engine asks
+    /// the controller's hand and the friendly permanents on the board.
+    virtual bool matchesShowOff(const GameState& /*state*/, const GameObject& /*obj*/) const {
+        return false;
+    }
+    /// Same test with the resolving context, so a cost ("Energy cost 7 or
+    /// more") can be read off the card. Default: the state-only test.
+    virtual bool matchesShowOff(const CardContext& ctx, const GameObject& obj) const {
+        return matchesShowOff(ctx.state, obj);
+    }
+    /// Heimerdinger, Academy Instructor: a unit token another effect would
+    /// play may be a 3 [M] Mech instead. True replaces `name` / `might` / `tags`.
+    virtual bool replacePlayedUnitToken(CardContext& /*ctx*/, std::string& /*name*/,
+                                        int& /*might*/,
+                                        std::vector<std::string>& /*tags*/) const {
+        return false;
+    }
+    /// Starry-Eyed Songstress: energy a spell may cost less if this permanent
+    /// can pay its optional cost right now. The play gate offers the spell
+    /// when that discount would pay for it.
+    virtual int optionalSpellEnergyOff(const GameState& /*state*/,
+                                       GameObjectId /*self*/) const { return 0; }
+    /// Pay that discount (exhaust what it names). 0 if declined or unpaid.
+    virtual int takeOptionalSpellEnergyOff(CardContext& /*ctx*/) const { return 0; }
+    /// Ask the show-off choice while this item is being finalized. True when
+    /// the choice is settled (including "no" and "nothing matched"); false
+    /// while a prompt is pending. Writes ChainItem::shown_off. The prompts
+    /// use their own resume slots, so they do not consume the spell's target.
+    bool settleShowOff(CardContext& ctx);
+    /// Printed [Show Off], or [Show Off] an aura has granted this object.
+    bool showsOff(const GameState& state, GameObjectId source) const;
+    /// The same choice for a permanent an effect plays, which never takes a
+    /// finalize pass of its own (CR 420.3.b, 832.1.c). Synchronous: it stamps
+    /// the show-off counters on `card` before the permanent enters.
+    void offerShowOffNow(CardContext& ctx);
+    /// The permanent was played after a successful show-off.
+    static bool playedWithShowOff(const GameObject& obj);
 
 private:
     // Facts about the card class that need no game state, asked very often.
@@ -1419,7 +1503,13 @@ class UnitCard : public Card {};
 
 class SpellCard : public Card {};
 
-class GearCard : public Card {};
+class GearCard : public Card {
+public:
+    /// [Deploy] gear is played only to a battlefield (CR 830.1.b). A gear
+    /// that overrides these replaces that permission.
+    bool restrictsPlayLocations() const override;
+    std::vector<LocationId> getPlayLocations(const GameState& state, PlayerId player) const override;
+};
 
 class LegendCard : public Card {};
 

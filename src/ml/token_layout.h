@@ -31,7 +31,7 @@
 
 namespace riftbound::ml {
 
-inline constexpr int kLayoutVersion = 3;   // 2: card ids 1..1150 (was 1..1100); 3: 1..2048
+inline constexpr int kLayoutVersion = 4;   // 3: card ids 1..2048; 4: Deploy, Disarm, Show Off widen the keyword multi-hot
 
 /// Size of the card embedding table: index 0 is "none / unknown", 1..2048 are
 /// card ids (must equal feature_extractor.h's kCardVocabSize + 1).
@@ -43,7 +43,7 @@ inline constexpr int kMaxBattlefieldTokens = 6;
 inline constexpr int kMaxEntityTokens = 192;
 inline constexpr int kMaxOwnDeckTokens = 48;
 inline constexpr int kNumDomains = static_cast<int>(Domain::Count);      // 6
-inline constexpr int kNumKeywords = static_cast<int>(Keyword::Count);    // 25
+inline constexpr int kNumKeywords = static_cast<int>(Keyword::Count);    // 28: +Deploy, Disarm, Show Off
 inline constexpr int kNumCardTypes = 6;                                  // CardType
 
 enum class TokenKind : uint8_t { Global, Battlefield, Entity, OwnDeck, Count };

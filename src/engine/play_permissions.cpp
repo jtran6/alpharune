@@ -39,6 +39,7 @@ bool unitPlayableAt(const GameState& state, const Card* card_obj, PlayerId playe
     const bool enemy_occupied = bf.controller.has_value() && *bf.controller != player &&
                                 bf.hasUnitsFrom(opponent(player), state.objects);
     if (controlled) return true;  // default: controlled BFs
+    if (ps.next_unit_any_battlefield > 0) return true;   // Last Caress
     if (open && ((extra & Card::kPlayToOpenBattlefield) ||
                  ps.grant_friendly_units_open_bf)) return true;   // Miss Fortune, Buccaneer
     if (enemy_occupied && (extra & Card::kPlayToOccupiedEnemyBattlefield)) return true;

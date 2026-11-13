@@ -86,7 +86,7 @@ inline constexpr int kPerUnitExtFieldsT2  = 8;   // T2/3 per-unit: assault, shie
                                                  // buff_count, temp_buff_count, tank, backline, ganking
 // Card-def id space: every card-keyed block and range is sized by it. A power
 // of two (user decision, plans/09 item 9.UU1), laid out as
-//      1 ..  955   registered, through Vendetta
+//      1 .. 1123   registered, through Radiance (Bomb token)
 //    956 .. 1165   reserved for Radiance (210 ids; it needs 169 to 174 by the
 //                  gallery data of 2026-10, plans/09 item 9.SS2)
 //   1166 .. 1565   reserved for Legacy (announced with about 400 cards)
@@ -95,7 +95,7 @@ inline constexpr int kPerUnitExtFieldsT2  = 8;   // T2/3 per-unit: assault, shie
 // again. It was 1100, then 1150 (9.SS2). The derivation of the Radiance count
 // is in docs/checkpoint-breaking-2026-10.md, section 0.
 inline constexpr int kCardVocabSize       = 2048;
-inline constexpr int kLastRegisteredCardId = 955;    // through Vendetta
+inline constexpr int kLastRegisteredCardId = 1123;   // Radiance, including the Bomb token
 inline constexpr int kRadianceFirstCardId  = 956;
 inline constexpr int kRadianceLastCardId   = 1165;
 inline constexpr int kLegacyFirstCardId    = 1166;
