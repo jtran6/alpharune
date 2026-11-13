@@ -235,10 +235,10 @@ DeckSubmission RandomDeckBuilder::build(uint64_t seed) const {
         if (names.insert(db_.get(id).name).second) deck.battlefields.push_back(id);
     }
 
-    // Neeko, Blending In: up to three legends, different from each other and
-    // from the champion legend. Drawn only when the deck actually contains
-    // her, and only after the 40 cards are chosen, so a deck that has no
-    // Neeko is the same list it was.
+    // Neeko, Blending In: exactly three legends (16 Oct 2026 patch note),
+    // different from each other and from the champion legend. Drawn only when
+    // the deck actually contains her, and only after the 40 cards are chosen,
+    // so a deck that has no Neeko is the same list it was.
     bool has_neeko = deck.chosen_champion.raw() == 1084;
     for (CardDefId id : deck.main_deck)
         if (id.raw() == 1084) has_neeko = true;

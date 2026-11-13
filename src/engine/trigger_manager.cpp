@@ -1359,11 +1359,20 @@ void TriggerManager::queueOwnDeathTrigger(GameObjectId object, PlayerId controll
     // global extra is the counter above; a card that names a place answers
     // extraDeathknellTriggers for the object that died.
     if (obj.hasKeyword(Keyword::Deathknell)) {
-        for (const auto& [id, other] : state_.objects.onBoard()) {
-            if (other.controller != controller || other.card_def_id == kInvalidId) continue;
+        auto add = [&](GameObjectId id, const GameObject& other) {
+            if (other.controller != controller || other.card_def_id == kInvalidId) return;
             const Card* card = card_registry_.get(other.card_def_id);
             if (card)
                 extra += std::max(0, card->extraDeathknellTriggers(state_, id, obj));
+        };
+        for (const auto& [id, other] : state_.objects.onBoard()) add(id, other);
+        // Killed earlier in this same batch, so it is no longer on the board.
+        // last_known.batch_pending is set when the batch begins and cleared
+        // when it ends, so a gear that died in an earlier cleanup is not here.
+        for (const auto& [id, other] : state_.objects) {
+            if (other.location.has_value()) continue;
+            if (!other.last_known.batch_pending || !other.last_known.valid) continue;
+            add(id, other);
         }
     }
     for (int i = 0; i < extra; ++i)

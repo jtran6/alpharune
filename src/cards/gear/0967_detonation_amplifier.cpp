@@ -24,12 +24,14 @@ public:
         const auto& me = state.getObject(self);
         // A board wipe kills the amplifier in the same batch. Its location
         // is the one it left from, not the empty field after it left.
+        // Only a location it has now, or the one taken when this death batch
+        // began. A gear that died in an earlier cleanup still has last_location,
+        // and that must not double a later Deathknell.
         std::optional<LocationId> mine;
         if (me.location.has_value()) mine = *me.location;
-        else if (me.last_known.valid && me.last_known.location.has_value())
+        else if (me.last_known.batch_pending && me.last_known.valid &&
+                 me.last_known.location.has_value())
             mine = me.last_known.location;
-        else if (me.last_location.has_value())
-            mine = me.last_location;
         if (!mine.has_value()) return 0;
         std::optional<LocationId> where;
         if (dying.last_known.valid && dying.last_known.location.has_value())
@@ -49,7 +51,10 @@ public:
         });
         int go = confirmOptional(ctx, "Detonation Amplifier: kill another friendly unit or gear to draw 1", [ok=!opts.empty()]{ return ok; });
         if (go < 0) return;
-        if (go == 1) {
+        // The kill is a cost, paid as this is finalized. At resolution the
+        // object is already dead, so it is not on the board: asking again
+        // treats the paid cost as a mistarget and the draw never happens.
+        if (go == 1 && !costAlreadyPaid(ctx)) {
             const GameObjectId id = pickCostObject(ctx, "Detonation Amplifier: kill", opts);
             if (id == kInvalidId) return;
             if (costDueNow(ctx)) killAsCost(ctx, id);

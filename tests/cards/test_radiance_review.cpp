@@ -942,5 +942,252 @@ TEST_F(RadianceReview, GrantedShowOffDoesNotSatisfyThePrintedShowOff) {
     EXPECT_FALSE(any_ready);
 }
 
+TEST_F(RadianceReview, SatchelChargeAsksWhereBeforeTheBombBattlefield) {
+    auto unit = addUnit(P1, kInvalidId, 2, -1);
+    auto spell = addToHand(P1, 1106);
+    bool where_at_finalize = false;
+    bool bomb_at_resolve = false;
+    struct Ask : AgentInterface {
+        GameObjectId unit = kInvalidId;
+        bool* where_at_finalize = nullptr;
+        bool* bomb_at_resolve = nullptr;
+        Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+            if (legal.empty()) return Intent{};
+            const bool choice = std::all_of(legal.begin(), legal.end(),
+                [](const Intent& i) { return i.type == IntentType::MakeChoice; });
+            if (!choice) {
+                for (const auto& i : legal)
+                    if (i.type == IntentType::PassPriority || i.type == IntentType::PassFocus) return i;
+                return legal.front();
+            }
+            bool where = false;
+            bool bomb = true;
+            for (const auto& i : legal) {
+                if (i.choice_label.rfind("Battlefield #", 0) == 0) where = true;
+                if (i.choice_label != "a battlefield") bomb = false;
+            }
+            const bool finalizing = state.chain.resuming.has_value() && state.chain.resuming->finalizing;
+            if (where && where_at_finalize) *where_at_finalize = finalizing;
+            if (!where && bomb && !legal.empty() && bomb_at_resolve)
+                *bomb_at_resolve = !finalizing;
+            for (const auto& i : legal)
+                if (!i.chosen_objects.empty() && i.chosen_objects.front() == unit) return i;
+            for (const auto& i : legal)
+                if (i.choice_label == "Battlefield #0") return i;
+            return legal.front();
+        }
+    } agent;
+    agent.unit = unit;
+    agent.where_at_finalize = &where_at_finalize;
+    agent.bomb_at_resolve = &bomb_at_resolve;
+    playThroughEngine(spell, &agent);
+    EXPECT_TRUE(where_at_finalize);
+    EXPECT_TRUE(bomb_at_resolve);
+    EXPECT_TRUE(state.getObject(unit).location.has_value());
+    if (const auto* bf = std::get_if<BattlefieldLocation>(&*state.getObject(unit).location)) {
+        EXPECT_EQ(bf->id.raw(), 0);
+    }
+    GameObjectId bomb = kInvalidId;
+    for (const auto& [id, obj] : state.objects.onBoard())
+        if (obj.card_def_id.raw() == 1123) bomb = id;
+    ASSERT_NE(bomb, kInvalidId);
+    ASSERT_TRUE(state.getObject(bomb).location.has_value());
+    if (const auto* bf = std::get_if<BattlefieldLocation>(&*state.getObject(bomb).location)) {
+        EXPECT_EQ(bf->id.raw(), 0);
+    }
+}
+
+TEST_F(RadianceReview, DetonationAmplifierDrawsAfterTheCostDies) {
+    auto amp = place(P1, 967, 0);
+    auto fodder = addUnit(P1, kInvalidId, 2, 0);
+    addToDeck(P1, 956);
+    EnginePathAgent agent(EnginePathAgent::script({
+        1, static_cast<int>(fodder.raw()), EnginePathAgent::kRest}));
+    fireTriggerThroughEngine(amp, TriggerType::WhenYouPlayMe, &agent);
+    EXPECT_EQ(state.getObject(fodder).zone, ZoneType::Trash);
+    EXPECT_EQ(state.player(P1).hand.size(), 1u);
+}
+
+TEST_F(RadianceReview, DetonationAmplifierDoublesADeathknellAfterItDiesInTheBatch) {
+    auto amp = place(P1, 967, 0);
+    auto sentry = addUnit(P1, 96, 1, 0);
+    addToDeck(P1, 956);
+    addToDeck(P1, 957);
+    withEngine([&](GameEngine& engine) {
+        {
+            DeathBatch batch(engine.testHook_executor(), {amp, sentry});
+            engine.testHook_executor().killObject(amp);
+            engine.testHook_executor().killObject(sentry);
+        }
+        engine.testHook_runChain();
+    });
+    EXPECT_EQ(state.player(P1).hand.size(), 2u);
+}
+
+TEST_F(RadianceReview, CommandAttackKeepsTheBattlefieldIfTheGearMoves) {
+    auto gear = place(P1, 967, 0);
+    auto spell = addToHand(P1, 1094);
+    ResponseThenChoose agent;
+    agent.during_priority = [&](GameState& st) {
+        st.getObject(gear).zone = ZoneType::Base;
+        st.getObject(gear).location = BaseLocation{P1};
+    };
+    agent.pick = EnginePathAgent::script({
+        0, static_cast<int>(gear.raw()), 0, EnginePathAgent::kRest});
+    playThroughEngine(spell, &agent);
+    ASSERT_TRUE(state.getObject(gear).location.has_value());
+    const auto* bf = std::get_if<BattlefieldLocation>(&*state.getObject(gear).location);
+    ASSERT_NE(bf, nullptr);
+    EXPECT_EQ(bf->id.raw(), 1);
+}
+
+TEST_F(RadianceReview, CommandAttackDoesNotOfferAGearWithNowhereToMove) {
+    state.battlefields.pop_back();
+    auto stuck = place(P1, 967, 0);
+    auto free = place(P1, 1059, -1);
+    state.getObject(free).keywords.set(Keyword::Deploy);
+    auto spell = addToHand(P1, 1094);
+    bool offered_stuck = false;
+    auto answers = EnginePathAgent::script({
+        0, static_cast<int>(free.raw()), 0, EnginePathAgent::kRest});
+    EnginePathAgent agent(answers);
+    agent.pick = [&, answers](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == stuck) offered_stuck = true;
+        return answers(legal);
+    };
+    playThroughEngine(spell, &agent);
+    EXPECT_FALSE(offered_stuck);
+    ASSERT_TRUE(state.getObject(free).location.has_value());
+    const auto* bf = std::get_if<BattlefieldLocation>(&*state.getObject(free).location);
+    ASSERT_NE(bf, nullptr);
+    EXPECT_EQ(bf->id.raw(), 0);
+}
+
+TEST_F(RadianceReview, ExemplarMovesToTheLockedBattlefieldIfTheGearMoves) {
+    auto legend = legendInZone(state, card_db, P1, 1072, true);
+    state.getObject(legend).is_exhausted = false;
+    state.player(P1).rune_pool.universal_power = 1;
+    auto gear = place(P1, 967, 0);
+    auto unit = addUnit(P1, kInvalidId, 2, 1);
+    ResponseThenChoose agent;
+    agent.during_priority = [&](GameState& st) {
+        st.getObject(gear).zone = ZoneType::BattlefieldZone;
+        st.getObject(gear).location = BattlefieldLocation{BattlefieldId::fromRaw(1)};
+    };
+    agent.pick = EnginePathAgent::script({
+        1, static_cast<int>(unit.raw()), EnginePathAgent::kRest});
+    fireTriggerThroughEngine(legend, TriggerType::WhenYouPlayAGear, &agent, gear);
+    EXPECT_TRUE(state.getObject(legend).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
+    ASSERT_TRUE(state.getObject(unit).location.has_value());
+    const auto* bf = std::get_if<BattlefieldLocation>(&*state.getObject(unit).location);
+    ASSERT_NE(bf, nullptr);
+    EXPECT_EQ(bf->id.raw(), 0);
+}
+
+TEST_F(RadianceReview, HearteningSoulGrantsTheLegendAnExhaustAbility) {
+    auto legend = legendInZone(state, card_db, P1, 1072, true);
+    state.getObject(legend).is_exhausted = false;
+    auto soul = place(P1, 984, -1);
+    auto unit = addUnit(P1, kInvalidId, 2, -1);
+    const int before = state.getObject(unit).current_might;
+    EnginePathAgent agent(EnginePathAgent::script({
+        static_cast<int>(unit.raw()), EnginePathAgent::kRest}));
+    withEngine([&](GameEngine& engine) {
+        engine.testHook_recalculateAuras();
+        bool on_soul = false;
+        bool on_legend = false;
+        Intent act;
+        for (const auto& i : engine.testHook_mainPhaseActions(P1)) {
+            if (i.type != IntentType::ActivateAbility) continue;
+            if (i.ability_source == soul) on_soul = true;
+            if (i.ability_source == legend && i.granted_ability_def.raw() == 984) {
+                on_legend = true;
+                act = i;
+            }
+        }
+        EXPECT_FALSE(on_soul);
+        ASSERT_TRUE(on_legend);
+        engine.testHook_executeIntent(act);
+    }, &agent);
+    EXPECT_TRUE(state.getObject(legend).is_exhausted);
+    EXPECT_EQ(state.getObject(unit).current_might, before + 3);
+}
+
+TEST_F(RadianceReview, HearteningSoulReadiesTheChosenLegendAtFinalization) {
+    auto starting = legendInZone(state, card_db, P1, 1072, true);
+    auto extra = legendInZone(state, card_db, P1, 1065, false);
+    auto soul = addToHand(P1, 984);
+    bool at_finalize = false;
+    struct Ask : AgentInterface {
+        GameObjectId extra = kInvalidId;
+        bool* at_finalize = nullptr;
+        Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+            if (legal.empty()) return Intent{};
+            const bool choice = std::all_of(legal.begin(), legal.end(),
+                [](const Intent& i) { return i.type == IntentType::MakeChoice; });
+            if (choice) {
+                for (const auto& i : legal)
+                    if (!i.chosen_objects.empty() && i.chosen_objects.front() == extra &&
+                        state.chain.resuming.has_value() && state.chain.resuming->finalizing &&
+                        at_finalize)
+                        *at_finalize = true;
+                for (const auto& i : legal)
+                    if (!i.chosen_objects.empty() && i.chosen_objects.front() == extra) return i;
+                return legal.front();
+            }
+            for (const auto& i : legal)
+                if (i.type == IntentType::PassPriority || i.type == IntentType::PassFocus) return i;
+            return legal.front();
+        }
+    } agent;
+    agent.extra = extra;
+    agent.at_finalize = &at_finalize;
+    playThroughEngine(soul, &agent);
+    EXPECT_TRUE(at_finalize);
+    EXPECT_TRUE(state.getObject(starting).is_exhausted);
+    EXPECT_FALSE(state.getObject(extra).is_exhausted);
+}
+
+TEST_F(RadianceReview, ChronobreakDoesNotSubstituteTheOwnersBase) {
+    state.battlefields[0].blocks_unit_play = true;
+    auto unit = addUnit(P1, kInvalidId, 2, 0);
+    state.player(P1).rune_pool.universal_power = 1;
+    auto spell = addToHand(P1, 1117);
+    bool offered_same = false;
+    // One unit is taken without a prompt. Paying 1, then the only place
+    // left ("Your base", value 0). On the old card that place is value 1
+    // and value 0 is "The same location".
+    auto answers = EnginePathAgent::script({1, 0, EnginePathAgent::kRest});
+    EnginePathAgent agent(answers);
+    agent.pick = [&, answers](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (i.choice_label == "The same location") offered_same = true;
+        return answers(legal);
+    };
+    playThroughEngine(spell, &agent);
+    EXPECT_FALSE(offered_same);
+    ASSERT_TRUE(state.getObject(unit).location.has_value());
+    EXPECT_TRUE(std::holds_alternative<BaseLocation>(*state.getObject(unit).location));
+}
+
+TEST_F(RadianceReview, AnglerWyrmIsNotActivatedFromBase) {
+    auto wyrm = place(P1, 1042, -1);
+    addUnit(P2, kInvalidId, 2, 0);
+    withEngine([&](GameEngine& engine) {
+        for (const auto& i : engine.testHook_mainPhaseActions(P1))
+            EXPECT_NE(i.ability_source, wyrm);
+    });
+    state.getObject(wyrm).zone = ZoneType::BattlefieldZone;
+    state.getObject(wyrm).location = BattlefieldLocation{BattlefieldId::fromRaw(0)};
+    bool offered = false;
+    withEngine([&](GameEngine& engine) {
+        for (const auto& i : engine.testHook_mainPhaseActions(P1))
+            if (i.type == IntentType::ActivateAbility && i.ability_source == wyrm) offered = true;
+    });
+    EXPECT_TRUE(offered);
+}
+
 }  // namespace test_radiance_review
 }  // namespace riftbound::test

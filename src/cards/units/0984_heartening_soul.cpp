@@ -17,21 +17,52 @@ public:
     const CardDef& def() const override { return def_; }
 
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
+    // "Ready a friendly legend" targets that legend and is chosen as the
+    // trigger is finalized. "Ready your legend" does not, and is Hall of
+    // Legends. The [E] is granted to legends, so its unit is chosen as that
+    // ability is finalized.
+    unsigned choicesAtFinalization() const override { return kFinalizeTrigger | kFinalizeActivate; }
+    std::vector<ActivatedAbility> activatedAbilities() const override {
+        ActivatedAbility a;
+        a.cost.exhaust = true;
+        return {a};
+    }
+    // The ability is the legends', not this unit's. The generator offers a
+    // card's own abilities on the unit and the granted copy on each legend.
+    bool canActivateAbilityAt(const GameState& state, PlayerId controller,
+                              GameObjectId source, int ability_index) const override {
+        if (!UnitCard::canActivateAbilityAt(state, controller, source, ability_index)) return false;
+        return state.objectExists(source) && state.getObject(source).zone == ZoneType::LegendZone;
+    }
+    bool hasLegalTargets(const GameState& state, PlayerId player) const override {
+        return !chooseableUnits(state, player, [&](const GameObject& u) {
+            return u.controller == player && u.isUnit();
+        }).empty();
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto legends = friendlyLegends(ctx.state, ctx.controller);
-        if (legends.empty()) return;
-        GameObjectId which = legends.front();
-        if (legends.size() > 1) {
-            auto picked = selectObject(ctx, "Heartening Soul: ready a friendly legend", legends, 8);
-            if (!picked) return;
-            which = *picked;
-        }
+        auto which = pickTarget(ctx, "Heartening Soul: ready a friendly legend", legends);
+        if (ctx.state.chain.resuming.has_value() &&
+            ctx.state.chain.resuming->resume_point == 7)
+            return;
+        if (finalizingChoices(ctx)) return;
         if (which != kInvalidId) ctx.executor.readyObject(which);
     }
+    void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
+        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            return u.controller == ctx.controller && u.isUnit();
+        });
+        auto t = pickTarget(ctx, "Heartening Soul: +3 [M] this turn", units);
+        if (ctx.state.chain.resuming.has_value() &&
+            ctx.state.chain.resuming->resume_point == 7)
+            return;
+        if (finalizingChoices(ctx)) return;
+        if (t != kInvalidId) ctx.executor.giveTemporaryMight(t, 3);
+    }
     void applyPassiveAura(GameState& state, PlayerId controller) const override {
-        forEachSelfOnce(*this, state, controller, [&](GameObjectId self, GameObject&) {
+        forEachSelfOnce(*this, state, controller, [&](GameObjectId, GameObject&) {
             for (auto legend : friendlyLegends(state, controller))
-                state.getObject(legend).card_counters["__heartening"] = self.raw();
+                state.getObject(legend).granted_abilities.push_back({cardDefId(), 0});
         });
     }
 

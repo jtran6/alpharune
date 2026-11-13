@@ -25,8 +25,15 @@ public:
             if (finalizingChoices(ctx)) return;
             return;
         }
+        // The destination is locked when the cost is paid. Filtering by where
+        // the gear is NOW drops the unit if a response moved the gear onto
+        // it, and the paid move is then a mistarget.
+        int locked = 0;
+        if (ctx.state.chain.resuming && ctx.state.chain.resuming->resume_data.size() > 16)
+            locked = ctx.state.chain.resuming->resume_data[16];
         BattlefieldId there = kInvalidId;
-        if (ctx.state.objectExists(sub) && ctx.state.getObject(sub).location.has_value())
+        if (locked > 0) there = BattlefieldId::fromRaw(locked - 1);
+        else if (ctx.state.objectExists(sub) && ctx.state.getObject(sub).location.has_value())
             if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(sub).location))
                 there = bf->id;
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
@@ -64,7 +71,6 @@ public:
             }
         }
         if (finalizingChoices(ctx)) return;
-        int locked = 0;
         if (ctx.state.chain.resuming && ctx.state.chain.resuming->resume_data.size() > 16)
             locked = ctx.state.chain.resuming->resume_data[16];
         if (go != 1 || costUnpaid(ctx) || t == kInvalidId || locked <= 0) return;

@@ -25,51 +25,77 @@ public:
         auto gears = boardObjects(ctx.state, [&](const GameObject& o) {
             return o.isGear() && o.controller == ctx.controller && o.hasKeyword(Keyword::Deploy);
         });
-        // Mode 0 needs a Deploy gear and a battlefield. With neither, only
-        // the look is offered, so the spell is not played into a required
-        // choice that has no option.
-        bool can_move = false;
-        for (auto g : gears) {
-            if (!ctx.state.objectExists(g) || !ctx.state.getObject(g).location.has_value()) continue;
-            const auto& gear_obj = ctx.state.getObject(g);
-            if (gear_obj.isAtBase() || ctx.state.battlefields.size() >= 2) can_move = true;
-        }
+        // A gear is offered only when some battlefield is not the one it is
+        // on. "Some gear can move" is not enough: the chosen gear needs its
+        // own destination (CR 355.8).
+        auto destinations = [&](GameObjectId g) {
+            std::vector<BattlefieldId> out;
+            if (!ctx.state.objectExists(g) || !ctx.state.getObject(g).location.has_value()) return out;
+            std::optional<BattlefieldId> here;
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(g).location))
+                here = bf->id;
+            for (const auto& slot : ctx.state.battlefields) {
+                if (here.has_value() && *here == slot.id) continue;
+                out.push_back(slot.id);
+            }
+            return out;
+        };
+        std::vector<GameObjectId> movable;
+        for (auto g : gears)
+            if (!destinations(g).empty()) movable.push_back(g);
         uint32_t modes = 2u;
-        if (!gears.empty() && can_move) modes |= 1u;
+        if (!movable.empty()) modes |= 1u;
         int mode = pickMode(ctx, "Command: Attack", 2,
                             {"Move a friendly Deploy gear", "Look at the top 5"}, modes);
         if (mode < 0) return;
         GameObjectId gear = kInvalidId;
-        int where = -1;
+        int locked = 0;
+        if (ctx.state.chain.resuming.has_value() &&
+            ctx.state.chain.resuming->resume_data.size() > 18)
+            locked = ctx.state.chain.resuming->resume_data[18];
         if (mode == 0) {
-            gear = pickTarget(ctx, "Command: Attack: a Deploy gear", gears);
+            gear = pickTarget(ctx, "Command: Attack: a Deploy gear", movable);
             if (gear == kInvalidId) return;
-            std::optional<BattlefieldId> here;
-            if (ctx.state.objectExists(gear) && ctx.state.getObject(gear).location.has_value())
-                if (const auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(gear).location))
-                    here = bf->id;
-            std::vector<std::string> labels;
-            std::vector<int> where_idx;
-            for (int i = 0; i < static_cast<int>(ctx.state.battlefields.size()); ++i) {
-                if (here.has_value() && *here == ctx.state.battlefields[i].id) continue;
-                where_idx.push_back(i);
-                labels.push_back(battlefieldLabel(ctx.state, ctx.state.battlefields[i]));
+            // The answer is the battlefield's id, not its place in the list
+            // built from where the gear is now. A response can move the gear,
+            // and that list is then a different battlefield.
+            if (locked == 0) {
+                const auto dests = destinations(gear);
+                std::vector<std::string> labels;
+                for (auto id : dests) {
+                    const BattlefieldState* slot = nullptr;
+                    for (const auto& bf : ctx.state.battlefields)
+                        if (bf.id == id) slot = &bf;
+                    labels.push_back(slot ? battlefieldLabel(ctx.state, *slot)
+                                          : "a battlefield");
+                }
+                if (labels.empty()) {
+                    if (finalizingChoices(ctx)) return;
+                    return;
+                }
+                auto w = pickValueAs(ctx, ctx.controller, "Command: Attack: a battlefield",
+                                     labels, PromptKind::Location, 16);
+                if (!w) return;
+                if (*w < 0 || *w >= static_cast<int>(dests.size())) return;
+                locked = dests[static_cast<std::size_t>(*w)].raw() + 1;
+                if (ctx.state.chain.resuming.has_value()) {
+                    auto& rd = ctx.state.chain.resuming->resume_data;
+                    while (rd.size() <= 18) rd.push_back(0);
+                    rd[18] = locked;
+                }
             }
-            if (labels.empty()) {
-                if (finalizingChoices(ctx)) return;
-                return;
-            }
-            auto w = pickValueAs(ctx, ctx.controller, "Command: Attack: a battlefield",
-                                 labels, PromptKind::Location, 16);
-            if (!w) return;
-            if (*w < 0 || *w >= static_cast<int>(where_idx.size())) return;
-            where = where_idx[static_cast<std::size_t>(*w)];
         }
         if (finalizingChoices(ctx)) return;
         if (mode == 0) {
-            if (gear != kInvalidId && where >= 0 &&
-                where < static_cast<int>(ctx.state.battlefields.size()))
-                ctx.executor.moveToBattlefield(gear, ctx.state.battlefields[where].id);
+            if (gear != kInvalidId && locked > 0 && ctx.state.objectExists(gear)) {
+                const BattlefieldId dest = BattlefieldId::fromRaw(locked - 1);
+                bool already = false;
+                if (ctx.state.getObject(gear).location.has_value())
+                    if (const auto* bf = std::get_if<BattlefieldLocation>(
+                            &*ctx.state.getObject(gear).location))
+                        already = bf->id == dest;
+                if (!already) ctx.executor.moveToBattlefield(gear, dest);
+            }
         } else {
             auto& deck = ctx.state.player(ctx.controller).main_deck;
             int n = std::min(5, static_cast<int>(deck.size()));

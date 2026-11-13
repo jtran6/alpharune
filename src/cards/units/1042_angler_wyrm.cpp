@@ -16,6 +16,14 @@ class AnglerWyrm_1042 : public UnitCard {
 public:
     const CardDef& def() const override { return def_; }
     bool hasActivatedAbility() const override { return true; }
+    // "My battlefield" does not exist while this is at a base. Offering the
+    // exhaust there spends it on a choice that cannot move anything.
+    bool canActivateAbilityAt(const GameState& state, PlayerId controller,
+                              GameObjectId source, int ability_index) const override {
+        if (!UnitCard::canActivateAbilityAt(state, controller, source, ability_index)) return false;
+        if (!state.objectExists(source) || !state.getObject(source).location.has_value()) return false;
+        return std::holds_alternative<BattlefieldLocation>(*state.getObject(source).location);
+    }
     ActivationCost getActivationCost() const override {
         ActivationCost c;
         c.exhaust = true;

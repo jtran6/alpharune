@@ -29,25 +29,53 @@ public:
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
         auto t = pickTarget(ctx, "Satchel Charge: move a friendly unit", units);
-        if (finalizingChoices(ctx)) return;
-        // The Bomb's battlefield is chosen as that token is played, after
-        // this marker (CR 420.3.b.2). That prompt re-enters this callback,
-        // so the move is stamped the first time and not run again.
-        bool already = false;
+        if (ctx.state.chain.resuming.has_value() &&
+            ctx.state.chain.resuming->resume_point == 7)
+            return;
+        // Where the unit moves is chosen as the spell is finalized (CR 355.4).
+        // The code is stored here, not in pickMode: the Bomb's battlefield is
+        // that helper's one mode, asked as the token is played (CR 420.3.b.2).
+        int dest = -1;
+        bool have_dest = false;
         if (ctx.state.chain.resuming.has_value()) {
             auto& rd = ctx.state.chain.resuming->resume_data;
-            while (rd.size() <= 20) rd.push_back(0);
-            already = rd[20] != 0;
+            while (rd.size() <= 25) rd.push_back(0);
+            have_dest = rd[24] != 0;
+            dest = rd[25];
         }
-        // A destination other than where the unit already is (CR 355.4.a).
-        // The Bomb's location prompt re-enters this callback, so the move is
-        // stamped only after the destination is known.
-        if (!already && t != kInvalidId && ctx.state.objectExists(t) &&
+        if (!have_dest && t != kInvalidId && ctx.state.objectExists(t) &&
             ctx.state.getObject(t).location.has_value()) {
-            const int dest = pickMoveDest(*this, ctx, "Satchel Charge: where",
-                                          ctx.state.getObject(t));
-            if (dest == -1) return;
-            if (dest >= 0) moveTo(ctx, t, dest);
+            const auto codes = moveDests(ctx.state, ctx.state.getObject(t));
+            std::vector<std::string> labels;
+            labels.reserve(codes.size());
+            for (int code : codes) labels.push_back(destLabel(code));
+            if (!codes.empty()) {
+                auto which = pickValueAs(ctx, ctx.controller, "Satchel Charge: where",
+                                         labels, PromptKind::Location, 18);
+                if (!which) return;
+                if (*which >= 0 && *which < static_cast<int>(codes.size()))
+                    dest = codes[static_cast<std::size_t>(*which)];
+            }
+            if (ctx.state.chain.resuming.has_value()) {
+                auto& rd = ctx.state.chain.resuming->resume_data;
+                while (rd.size() <= 25) rd.push_back(0);
+                rd[24] = 1;
+                rd[25] = dest;
+                have_dest = true;
+            }
+        }
+        if (finalizingChoices(ctx)) return;
+        bool already = false;
+        if (ctx.state.chain.resuming.has_value())
+            already = ctx.state.chain.resuming->resume_data[20] != 0;
+        if (!already && have_dest && dest >= 0 && t != kInvalidId &&
+            ctx.state.objectExists(t) && ctx.state.getObject(t).location.has_value()) {
+            const auto& unit = ctx.state.getObject(t);
+            bool same = false;
+            if (dest <= 0) same = unit.isAtBase();
+            else if (const auto* bf = std::get_if<BattlefieldLocation>(&*unit.location))
+                same = static_cast<int>(bf->id.raw()) == dest - 1;
+            if (!same) moveTo(ctx, t, dest);
             if (ctx.state.chain.resuming.has_value())
                 ctx.state.chain.resuming->resume_data[20] = 1;
         }

@@ -135,9 +135,11 @@ public:
             if (chosen < 0) break;
             const GameObjectId id = GameObjectId::fromRaw(ri.resume_data[80 + 2 * chosen]);
             const int code = ri.resume_data[81 + 2 * chosen];
-            // "The same location" is not offered when that location is
-            // another player's base: the owner cannot play a unit there.
-            const bool same_ok = chronoSameLocationPlayable(code, who);
+            // "The same location" only when the owner can play a unit there.
+            // Another player's base, a battlefield units can't be played to,
+            // and "units only to base" are not that choice. A failed play is
+            // not rewritten as the owner's base.
+            const bool same_ok = chronoSameLocationPlayable(ctx, code, who);
             std::vector<std::string> places;
             if (same_ok) places.push_back("The same location");
             places.push_back("Your base");
@@ -150,11 +152,8 @@ public:
                 ? decodeChronoLocation(code, who)
                 : LocationId{BaseLocation{who}};
             bool played = false;
-            if (ctx.state.objectExists(id) && !ctx.state.getObject(id).isToken()) {
+            if (ctx.state.objectExists(id) && !ctx.state.getObject(id).isToken())
                 played = ctx.executor.playIgnoringCost(who, id, dest);
-                if (!played && picked_same)
-                    played = ctx.executor.playIgnoringCost(who, id, LocationId{BaseLocation{who}});
-            }
             (void)played;
             ri.resume_data[200 + chosen] = 1;
             ri.resume_data[11] = step + 1;
@@ -169,10 +168,8 @@ private:
             return bf->id.raw() + 1;
         return -2;
     }
-    static bool chronoSameLocationPlayable(int code, PlayerId owner) {
-        if (code > 0) return true;
-        const int p = code <= -2 ? -code - 2 : static_cast<int>(owner);
-        return static_cast<PlayerId>(p < 0 ? 0 : p) == owner;
+    static bool chronoSameLocationPlayable(CardContext& ctx, int code, PlayerId owner) {
+        return ctx.executor.unitMayBePlayedTo(owner, decodeChronoLocation(code, owner));
     }
     static LocationId decodeChronoLocation(int code, PlayerId owner) {
         if (code > 0)
