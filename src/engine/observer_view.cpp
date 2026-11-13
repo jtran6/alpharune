@@ -257,6 +257,7 @@ std::vector<int64_t> ObserverView::fingerprint() const {
         put(out, r.pool.energy); put(out, r.pool.unit_energy); put(out, r.pool.spell_energy);
         put(out, r.pool.showdown_energy); put(out, r.pool.universal_power);
         put(out, r.pool.spell_power); put(out, r.pool.gear_power);
+        put(out, r.pool.unit_gear_power);
         for (int d = 0; d < static_cast<int>(Domain::Count); ++d) put(out, r.pool.power[d]);
         put(out, r.ready_runes); put(out, r.exhausted_runes);
         for (int k = 0; k < 4; ++k) { put(out, r.energy[k]); put(out, r.power_any[k]); }

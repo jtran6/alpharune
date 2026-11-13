@@ -36,13 +36,21 @@ public:
             if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
                 here = bf->id;
         }
+        // The opponent performs the move (CR 412). A unit they cannot move
+        // is not a legal choice while any unit can; if none can, the
+        // instruction does nothing.
         auto units = chooseableUnits(ctx.state, them, [&](const GameObject& u) {
             if (u.controller != them) return false;
+            // The opponent performs the move (CR 412), so "can't be moved by
+            // enemy spells and abilities" does not stop them. A unit they
+            // simply cannot move this turn is not a choice.
+            if (u.cant_move_this_turn) return false;
             if (!here.valid() || !u.location.has_value()) return true;
             if (const auto* bf = std::get_if<BattlefieldLocation>(&*u.location))
                 return bf->id != here;
             return true;
         });
+        if (units.empty()) return;
         auto t = selectObjectAs(ctx, them, "Angler Wyrm: move a unit you control here", units, /*slot=*/7);
         if (!t) return;
         // "My battlefield" is where I am as this resolves. A unit that died
@@ -57,7 +65,11 @@ public:
             return;
         if (const auto* at = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(*t).location))
             if (at->id == here) return;
-        ctx.executor.moveToBattlefield(*t, here);
+        const auto& moving = ctx.state.getObject(*t);
+        if (moving.cant_move_this_turn) return;
+        // They pay the arrival cost, or the unit stays. The prompt names the
+        // cost that is actually owed, and a Reaction [Add] can cover it.
+        ctx.executor.moveToBattlefield(*t, here, them);
     }
 
 private:

@@ -17,8 +17,8 @@ public:
     const CardDef& def() const override { return def_; }
     // "Each player looks at the top 5 cards of their Main Deck, banishes one of
     // them, then recycles the rest. Starting with the next player, each player
-    // plays those cards [the banished card], ignoring Energy costs."
-    // (Power cost approximated as free.)
+    // plays those cards, ignoring Energy costs." Power is still owed
+    // (playPayingCost with ignore_energy): unpaid, the card stays banished.
     //
     // Resumable: rp0 prompt controller to banish one of their top 5; rp1 apply
     // controller's banish + recycle rest, prompt opponent; rp2 apply opponent's

@@ -33,7 +33,9 @@ public:
         auto t = pickUnseenCard(ctx, "Iron Revenant: banish a unit or gear from your trash", opts);
         if (t == kInvalidId) return;
         ctx.executor.banishObject(t);
-        ctx.state.player(ctx.controller).rune_pool.gear_power += 1;
+        // Units or gear, not gear alone. gear_power would leave a unit play
+        // unpaid (Meticulous Restorationist's [Y] is a unit's alternate cost).
+        ctx.state.player(ctx.controller).rune_pool.unit_gear_power += 1;
     }
 
 private:

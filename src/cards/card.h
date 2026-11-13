@@ -432,7 +432,10 @@ public:
     /// wherever the object ends up (a banished token and a dead token are in
     /// the same place; this tells them apart). On false the failure is
     /// recorded (costUnpaid).
-    bool killAsCost(CardContext& ctx, GameObjectId object) const;
+    /// `record_failure`: on false, stamp the resolving item unpaid. A play whose
+    /// discount is charged back instead (Atakhan) passes false so a parent item
+    /// is not marked.
+    bool killAsCost(CardContext& ctx, GameObjectId object, bool record_failure = true) const;
     /// Record on the resolving chain item that its cost could not be paid.
     static void markCostUnpaid(CardContext& ctx);
     /// Whether an earlier run of this callback recorded that.

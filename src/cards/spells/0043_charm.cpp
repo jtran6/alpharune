@@ -46,7 +46,7 @@ public:
         if (picked == kInvalidId || dest < 0) return;
         const auto& unit = ctx.state.getObject(picked);
         if (!unit.isUnit() || !unit.location.has_value()) return;
-        moveTo(ctx, picked, dest);
+        if (!moveTo(ctx, picked, dest)) return;
         RIFT_TRACE(ctx.events, "CHARM: moved enemy " + ctx.state.getObject(picked).name +
                             " to " + destLabel(dest));
     }

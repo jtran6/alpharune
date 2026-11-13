@@ -103,10 +103,15 @@ inline PlayerId controllerWhenItLeft(const CardContext& ctx, GameObjectId id) {
     return controllerWhenItLeft(ctx.state, id);
 }
 inline bool payOnePower(CardContext& ctx, PlayerId player,
-                        std::optional<Domain> domain) {
+                        std::optional<Domain> domain,
+                        SpendFor purpose = SpendFor::Other) {
     // The engine's own payment (engine/resource_payment.h): floating Power,
     // then a recycled rune from the player's base, an exhausted one first.
-    return ctx.executor.payResources(player, 0, 1, resource::maskOf(domain.value_or(Domain::Count)));
+    // `purpose` is what the Power is spent to do, so a restricted pool
+    // ("only to play units or gear") can pay a unit's alternate cost.
+    return ctx.executor.payResources(player, 0, 1,
+                                     resource::maskOf(domain.value_or(Domain::Count)),
+                                     purpose);
 }
 
 // ── Paying Energy inside an effect ("you may pay [N] to ...") ───────────────
@@ -448,14 +453,20 @@ inline const ChainItem::ShownOff* spellShowOff(const CardContext& ctx) {
 /// Play a Bomb gear token to a battlefield the controller chooses (CR 830:
 /// [Deploy] gear is not played to a base). `token_card` is the Bomb card.
 /// Banish the top of the controller's Main Deck and let them play it,
-/// paying its cost, until their next Ending Phase.
-inline GameObjectId banishTopUntilEnding(CardContext& ctx) {
+/// paying its cost. `until_ending` is the "until your next Ending Phase"
+/// permission (Runeblade Anvil, Akali, Brash). Clocktower Guardian names no
+/// Ending Phase, so its card stays playable after that phase begins.
+inline GameObjectId banishTopUntilEnding(CardContext& ctx, bool until_ending = true) {
     auto& deck = ctx.state.player(ctx.controller).main_deck;
     if (deck.empty()) return kInvalidId;
     const GameObjectId top = deck.back();
     ctx.executor.banishObject(top);
     if (!ctx.state.objectExists(top) || ctx.state.getObject(top).zone != ZoneType::Banishment)
         return kInvalidId;
+    if (!until_ending) {
+        ctx.state.getObject(top).card_counters["__playable_unbounded"] = 1;
+        return top;
+    }
     int through = ctx.state.turn.turn_number;
     if (ctx.state.turn.turn_player != ctx.controller ||
         ctx.state.turn.phase == TurnPhase::EndingStep ||
@@ -1613,10 +1624,25 @@ inline std::vector<int> moveDests(const GameState& state, const GameObject& u) {
 inline std::string destLabel(int d) {
     return d <= 0 ? std::string("Base") : "Battlefield #" + std::to_string(d - 1);
 }
-/// Move `u` to a moveDests destination.
-inline void moveTo(CardContext& ctx, GameObjectId u, int dest) {
-    if (dest <= 0) ctx.executor.moveToBase(u);
-    else ctx.executor.moveToBattlefield(u, BattlefieldId::fromRaw(dest - 1));
+/// Move `u` to a moveDests destination. The card's controller performs the
+/// move, so they pay an arrival cost once for this destination (Gravity
+/// Field) or the unit stays. False when the move does not happen.
+inline bool moveTo(CardContext& ctx, GameObjectId u, int dest) {
+    if (!ctx.state.objectExists(u)) return false;
+    const auto& obj = ctx.state.getObject(u);
+    if (dest <= 0) {
+        ctx.executor.moveToBase(u);
+        return true;
+    }
+    const auto bf = BattlefieldId::fromRaw(dest - 1);
+    if (obj.battlefieldId() && *obj.battlefieldId() == bf) return true;
+    // The same refusals moveToBattlefield applies, judged before the cost so
+    // a move that cannot happen is not paid for.
+    if (obj.cant_be_moved_by_enemy && ctx.controller != obj.controller) return false;
+    if (obj.cant_move_this_turn && ctx.controller == obj.controller) return false;
+    if (!ctx.executor.moveToBattlefield(u, bf, ctx.controller)) return false;
+    return ctx.state.objectExists(u) && ctx.state.getObject(u).battlefieldId() &&
+           *ctx.state.getObject(u).battlefieldId() == bf;
 }
 /// Where `player` may put a unit token an effect plays ("They can be played
 /// to your base or to battlefields you control"), as moveDests codes: 0 =

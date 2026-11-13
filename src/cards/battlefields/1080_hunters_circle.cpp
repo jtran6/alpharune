@@ -17,12 +17,39 @@ public:
     const CardDef& def() const override { return def_; }
 
     void applyPassiveAura(GameState& state, PlayerId controller) const override {
-        forEachSelfOnce(*this, state, controller, [&](GameObjectId self, GameObject&) {
-            PlayerState::CostModifier unit; unit.source = self; unit.energy_reduction = 1; unit.units_only = true; unit.next_unit_only = true; unit.from_aura = true;
-            PlayerState::CostModifier gear; gear.source = self; gear.energy_reduction = 1; gear.gear_only = true; gear.first_gear_per_turn = true; gear.from_aura = true;
+        // A battlefield card has no location, so it is not in inPlay() and
+        // forEachSelfOnce never sees it. The engine calls this once per slot.
+        if (controller == PlayerId::None) return;
+        for (const auto& bf : state.battlefields) {
+            if (bf.controller != controller || !state.objectExists(bf.card_object_id)) continue;
+            auto& self = state.getObject(bf.card_object_id);
+            if (self.card_def_id != cardDefId()) continue;
+            bool seen = false;
+            for (const auto& ae : self.aura_effects)
+                if (ae.source == bf.card_object_id && ae.keyword == Keyword::Count &&
+                    ae.keyword_value == kAuraOnceMarker) { seen = true; break; }
+            if (seen) continue;
+            GameObject::AuraEffect marker;
+            marker.source = bf.card_object_id;
+            marker.keyword = Keyword::Count;
+            marker.keyword_value = kAuraOnceMarker;
+            self.aura_effects.push_back(marker);
+            const int slot = static_cast<int>(bf.id.raw());
+            PlayerState::CostModifier unit;
+            unit.source = bf.card_object_id;
+            unit.energy_reduction = 1;
+            unit.units_only = true;
+            unit.next_unit_only = true;
+            unit.from_aura = true;
+            unit.only_at_battlefield = slot;
+            PlayerState::CostModifier gear = unit;
+            gear.units_only = false;
+            gear.next_unit_only = false;
+            gear.gear_only = true;
+            gear.first_gear_per_turn = true;
             state.player(controller).cost_modifiers.push_back(unit);
             state.player(controller).cost_modifiers.push_back(gear);
-        });
+        }
     }
 
 private:

@@ -22,7 +22,7 @@ public:
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (!ctx.state.chain.resuming) return;
         if (ctx.state.chain.resuming->fired_trigger == TriggerType::WhenIDie) {
-            const GameObjectId top = banishTopUntilEnding(ctx);
+            const GameObjectId top = banishTopUntilEnding(ctx, /*until_ending=*/false);
             if (top != kInvalidId)
                 ctx.state.getObject(top).card_counters["__ignore_energy"] = 1;
             return;

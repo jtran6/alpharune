@@ -169,6 +169,7 @@ uint64_t Card::costStateFingerprint(const GameState& state) {
         mix(static_cast<uint64_t>(pool.showdown_energy));
         mix(static_cast<uint64_t>(pool.spell_power));
         mix(static_cast<uint64_t>(pool.gear_power));
+        mix(static_cast<uint64_t>(pool.unit_gear_power));
     }
     for (const auto& bf : state.battlefields) {
         mix(static_cast<uint64_t>(bf.id.raw()));
@@ -281,7 +282,7 @@ bool Card::itemCostUnpaid(const ChainItem& item) {
     return (choiceState(item) & kCostUnpaid) != 0;
 }
 
-bool Card::killAsCost(CardContext& ctx, GameObjectId object) const {
+bool Card::killAsCost(CardContext& ctx, GameObjectId object, bool record_failure) const {
     bool died = false;
     if (ctx.state.objectExists(object) && ctx.state.getObject(object).location.has_value()) {
         // The death itself is what counts, not where the object is afterwards:
@@ -294,7 +295,7 @@ bool Card::killAsCost(CardContext& ctx, GameObjectId object) const {
             });
         ctx.executor.killObject(object);
     }
-    if (!died) markCostUnpaid(ctx);
+    if (!died && record_failure) markCostUnpaid(ctx);
     return died;
 }
 

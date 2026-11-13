@@ -19,6 +19,7 @@
 #include <optional>
 #include <set>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace riftbound {
@@ -29,9 +30,13 @@ namespace riftbound {
 /// can pay only for the matching purpose.
 enum class SpendFor : uint8_t {
     Other,   // anything else (a legend's or battlefield's ability, a Hide cost, ...)
-    Unit,    // playing a unit, or an activated ability of a unit
+    Unit,    // an activated ability of a unit (not playing one)
     Spell,   // playing a spell
-    Gear,    // playing a gear, or an activated ability of a gear
+    Gear,    // an activated ability of a gear, or Equip (not playing a gear)
+    // Playing a card. Iron Revenant's Power pays these and not the ability
+    // purposes above ("Spend this Power only to play units or gear.").
+    PlayUnit,
+    PlayGear,
 };
 
 struct RunePool {
@@ -49,6 +54,11 @@ struct RunePool {
     int universal_power = 0;  // [A] — any domain
     int spell_power = 0;       // [A], "Use only to play spells." (Daughter of the Void)
     int gear_power = 0;        // [A], "Use only to play gear or use gear abilities."
+    // [A], "Spend this Power only to play units or gear." (Mordekaiser, Iron
+    // Revenant). SpendFor::PlayUnit and PlayGear spend it. A unit's or a
+    // gear's activated ability, and Equip, do not. gear_power stays gear-only
+    // (Fire Below the Mountain), including those abilities.
+    int unit_gear_power = 0;
 
     void clear() {
         energy = 0;
@@ -58,12 +68,13 @@ struct RunePool {
         universal_power = 0;
         spell_power = 0;
         gear_power = 0;
+        unit_gear_power = 0;
         for (int i = 0; i < static_cast<int>(Domain::Count); ++i)
             power[i] = 0;
     }
 
     int totalPower() const {
-        int sum = universal_power + spell_power + gear_power;
+        int sum = universal_power + spell_power + gear_power + unit_gear_power;
         for (int i = 0; i < static_cast<int>(Domain::Count); ++i)
             sum += power[i];
         return sum;
@@ -71,14 +82,15 @@ struct RunePool {
 
     /// Restricted Energy usable for a payment of kind `f` right now.
     int restrictedEnergy(SpendFor f, bool in_showdown) const {
-        return (f == SpendFor::Unit ? unit_energy : 0) +
+        return ((f == SpendFor::Unit || f == SpendFor::PlayUnit) ? unit_energy : 0) +
                (f == SpendFor::Spell ? spell_energy : 0) +
                (in_showdown ? showdown_energy : 0);
     }
     /// Restricted [A] usable for a payment of kind `f`.
     int restrictedPower(SpendFor f) const {
         return (f == SpendFor::Spell ? spell_power : 0) +
-               (f == SpendFor::Gear ? gear_power : 0);
+               ((f == SpendFor::Gear || f == SpendFor::PlayGear) ? gear_power : 0) +
+               ((f == SpendFor::PlayUnit || f == SpendFor::PlayGear) ? unit_gear_power : 0);
     }
     /// Spend up to `need` restricted Energy / Power usable for `f`; `need` is
     /// reduced by what was spent.
@@ -88,7 +100,7 @@ struct RunePool {
             from -= n;
             need -= n;
         };
-        if (f == SpendFor::Unit) take(unit_energy);
+        if (f == SpendFor::Unit || f == SpendFor::PlayUnit) take(unit_energy);
         if (f == SpendFor::Spell) take(spell_energy);
         if (in_showdown) take(showdown_energy);
     }
@@ -99,7 +111,8 @@ struct RunePool {
             need -= n;
         };
         if (f == SpendFor::Spell) take(spell_power);
-        if (f == SpendFor::Gear) take(gear_power);
+        if (f == SpendFor::Gear || f == SpendFor::PlayGear) take(gear_power);
+        if (f == SpendFor::PlayUnit || f == SpendFor::PlayGear) take(unit_gear_power);
     }
 };
 
@@ -235,6 +248,10 @@ struct PlayerState {
     int transient_power_discount = 0;   // staged power discount for the card being played (Sandswept Tomb)
     bool transient_ignore_energy = false;
     bool transient_ignore_power = false;
+    // "Play me for [Cost]" (CR 356.1.a): replaces the printed base, and every
+    // increase and discount still applies. -1 leaves the printed cost.
+    int transient_replace_energy = -1;
+    int transient_replace_power = -1;
     int transient_play_discount = 0;           // Irelia, Graceful (462): energy discount staged just before paying a specific spell (set+consumed in executePlaySpell)
     // Phase 6q+ engine-audit follow-on: reset last_spell_energy_spent
     // at turn start. Pre-fix, a Virtuoso/Forgotten Library trigger that
@@ -294,6 +311,10 @@ struct PlayerState {
         // or by an effect from anywhere else, and such a play does not use a
         // one-shot modifier up.
         bool from_hand_only = false;
+        // "The first unit or gear they play HERE" (Hunters' Circle). -1 applies
+        // at any location; otherwise only a play whose chosen location is this
+        // battlefield, judged when the cost is paid (before an onPlay rewrite).
+        int only_at_battlefield = -1;
     };
     std::vector<CostModifier> cost_modifiers;
 
@@ -431,6 +452,10 @@ struct PlayerState {
         next_spell_bonus_damage = 0;
         grant_repeat_base_to_next_spell = false;
         transient_play_discount = 0;
+        transient_ignore_energy = false;
+        transient_ignore_power = false;
+        transient_replace_energy = -1;
+        transient_replace_power = -1;
         power_spent_this_turn = 0;
         xp_gained_this_turn = 0;
         hold_points_this_turn = 0;
@@ -676,6 +701,10 @@ struct ChainItem {
     // An [Equip] activation (CR 818): `targets` holds the unit; it attaches
     // the source gear as it resolves.
     bool is_equip = false;
+    // Arrival costs already paid during this resolution, as (player, battlefield)
+    // raw values. One effect that moves several units to one battlefield pays
+    // once ("one or more units" — Gravity Field).
+    std::vector<std::pair<int, int>> arrival_paid;
 
     // Classification
     bool is_spell = false;        // true for spells (go to trash on resolve)
