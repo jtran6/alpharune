@@ -61,10 +61,12 @@ RandomDeckBuilder::RandomDeckBuilder(const CardDB& db) : db_(db) {
 
     std::map<CardDefId, std::string> why_not;   // provisional reasons
     std::set<CardDefId> used;
+    // One clock for the whole pool. A test sets it before constructing this.
+    const int as_of = legalityDate();
 
     std::set<std::string> battlefield_names;
     for (const CardDef* d : defs) {
-        if (d->banned) { why_not[d->id] = "banned"; continue; }
+        if (d->bannedOn(as_of)) { why_not[d->id] = "banned"; continue; }
         if (d->isTokenCard()) { why_not[d->id] = "token card"; continue; }
         if (d->card_type == CardType::Battlefield) {
             battlefields_.push_back(d->id);
@@ -77,7 +79,7 @@ RandomDeckBuilder::RandomDeckBuilder(const CardDB& db) : db_(db) {
 
     for (const CardDef* legend : defs) {
         if (legend->card_type != CardType::Legend) continue;
-        if (legend->banned || legend->isTokenCard()) continue;
+        if (legend->bannedOn(as_of) || legend->isTokenCard()) continue;
         const std::string& tag = legend->legendChampionTag();
         if (tag.empty()) { why_not[legend->id] = "legend without a single champion tag"; continue; }
 
@@ -87,7 +89,7 @@ RandomDeckBuilder::RandomDeckBuilder(const CardDB& db) : db_(db) {
         std::set<std::string> main_names;
         int unlimited = 0;
         for (const CardDef* d : defs) {
-            if (d->banned || d->isTokenCard()) continue;
+            if (d->bannedOn(as_of) || d->isTokenCard()) continue;
             if (!withinIdentity(*d, *legend)) continue;
             if (d->card_type == CardType::Rune) {
                 if (d->domains.empty()) {

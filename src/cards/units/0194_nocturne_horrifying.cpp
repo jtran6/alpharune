@@ -77,6 +77,7 @@ private:
         d.ability_text = R"RB([Ganking] (I can move from battlefield to battlefield.)
 As you look at or reveal me from the top of your deck, you may banish me. If you do, you may play me for [A].)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/19a751364bc6eb5297596e8733d0d30a1111ac78-744x1039.png)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

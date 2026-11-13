@@ -166,6 +166,7 @@ void dumpRegistry(const CardDB& db, const std::string& path) {
             {"effect_text", d.effect_text},
             {"image_url", d.image_url},
             {"banned", d.banned},
+            {"banned_from", d.banned_from},
             {"features", {
                 {"assault_value", d.assault_value},
                 {"shield_value", d.shield_value},
@@ -622,7 +623,7 @@ int main(int argc, char* argv[]) {
             auto line = [&](const char* zone, CardDefId id) {
                 const auto& c = card_db.get(id);
                 std::cout << "    " << zone << "  [" << c.def_id << "] " << c.name
-                          << (c.banned ? "  (BANNED)" : "") << "\n";
+                          << (c.bannedOn(legalityDate()) ? "  (BANNED)" : "") << "\n";
             };
             line("legend  ", d.legend);
             line("champion", d.chosen_champion);

@@ -41,6 +41,7 @@ private:
         d.rarity = Rarity::Rare;
         d.ability_text = R"RB(When you play me, opponents can't play cards this turn.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/44e805aa0f2928acf1156eef692403df319b333a-744x1039.png?accountingTag=RB)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

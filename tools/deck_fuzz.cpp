@@ -908,7 +908,7 @@ int main(int argc, char* argv[]) {
             const std::size_t i = id.raw();
             json row = cardRow(def);
             row["super_type"] = toString(def.super_type);
-            row["banned"] = def.banned;
+            row["banned"] = def.bannedOn(legalityDate());
             row["token_card"] = def.isTokenCard();
             // TriggerType::Activated marks an activated ability, not a trigger.
             bool triggers = card && (card->equippedTriggerType() != TriggerType::None ||

@@ -2,7 +2,9 @@
 #include "core/card_db.h"
 #include "cards/card_registry.h"
 #include "rules/deck_validator.h"
+#include "rules/random_deck.h"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 
@@ -453,4 +455,152 @@ TEST_F(DeckValidatorTest, BannedCardRejectedViaCsv) {
         << "--wild should let the banned-card deck pass";
 
     std::filesystem::remove(csv);
+}
+
+// Radiance ban list, effective 2026-11-23 (playriftbound.com announcement).
+// A test pins the clock with setLegalityDate(YYYYMMDD) and restores the UTC
+// calendar date with setLegalityDate(0). The builder reads the clock when it
+// is constructed, the validator when it is asked.
+TEST_F(DeckValidatorTest, RadianceBansAreLegalOnNovember22AndIllegalOnNovember23) {
+    struct Pin {
+        explicit Pin(int yyyymmdd) { setLegalityDate(yyyymmdd); }
+        ~Pin() { setLegalityDate(0); }
+    };
+    auto namesBan = [](const ValidationResult& result, const char* name) {
+        for (const auto& e : result.errors)
+            if (e.find("Banned") != std::string::npos && e.find(name) != std::string::npos)
+                return true;
+        return false;
+    };
+
+    const char* names[] = {
+        "Riven, Broken Blade",
+        "Zhonya's Hourglass",
+        "Stellacorn Herder",
+        "Nocturne, Horrifying",
+        "Rhasa the Sunderer",
+        "Brynhir Thundersong",
+        "Dazzling Aurora",
+        "Baited Hook",
+        "Emperor's Dais",
+        "Star Spring",
+    };
+    for (const char* name : names) {
+        const CardDef* card = db.findByName(name);
+        ASSERT_NE(card, nullptr) << name;
+        EXPECT_FALSE(card->banned) << name;
+        EXPECT_EQ(card->banned_from, CardDef::kRadianceBanListDate) << name;
+        EXPECT_EQ(db.findAllByName(name).size(), 1u) << name;
+        {
+            Pin day(20261122);
+            EXPECT_FALSE(DeckValidator(db).isBanned(card->id))
+                << name << " is legal on 2026-11-22";
+        }
+        {
+            Pin day(20261123);
+            EXPECT_TRUE(DeckValidator(db).isBanned(card->id))
+                << name << " is banned on 2026-11-23";
+        }
+        {
+            Pin day(20261124);
+            EXPECT_TRUE(DeckValidator(db).isBanned(card->id))
+                << name << " stays banned after 2026-11-23";
+        }
+    }
+
+    // A ban already in effect does not wait for this date.
+    {
+        Pin day(20261122);
+        const CardDef* ekko = db.findByName("Ekko, Recurrent");
+        ASSERT_NE(ekko, nullptr);
+        EXPECT_TRUE(ekko->banned);
+        EXPECT_TRUE(DeckValidator(db).isBanned(ekko->id));
+    }
+
+    // Order gear in the Mind/Order fixture deck.
+    const CardDef* hook = db.findByName("Baited Hook");
+    ASSERT_NE(hook, nullptr);
+    {
+        auto deck = makeValidDeck();
+        deck.main_deck.back() = hook->id;
+        Pin day(20261122);
+        const ValidationResult early = DeckValidator(db).validate(deck);
+        EXPECT_TRUE(early.is_legal) << (early.errors.empty() ? "" : early.errors.front());
+        EXPECT_FALSE(namesBan(early, "Baited Hook"));
+        setLegalityDate(20261123);
+        const ValidationResult late = DeckValidator(db).validate(deck);
+        EXPECT_FALSE(late.is_legal);
+        EXPECT_TRUE(namesBan(late, "Baited Hook"));
+    }
+    {
+        auto deck = makeValidDeck();
+        deck.sideboard.push_back(hook->id);
+        Pin day(20261122);
+        EXPECT_TRUE(DeckValidator(db).validate(deck).is_legal);
+        setLegalityDate(20261123);
+        const ValidationResult late = DeckValidator(db).validate(deck);
+        EXPECT_FALSE(late.is_legal);
+        EXPECT_TRUE(namesBan(late, "Baited Hook"));
+    }
+
+    for (const char* bf_name : {"Emperor's Dais", "Star Spring"}) {
+        auto deck = makeValidDeck();
+        const CardDef* bf = db.findByName(bf_name);
+        ASSERT_NE(bf, nullptr);
+        deck.battlefields.back() = bf->id;
+        {
+            Pin day(20261122);
+            const ValidationResult early = DeckValidator(db).validate(deck);
+            EXPECT_TRUE(early.is_legal) << bf_name
+                                        << (early.errors.empty() ? "" : early.errors.front());
+        }
+        {
+            Pin day(20261123);
+            const ValidationResult late = DeckValidator(db).validate(deck);
+            EXPECT_FALSE(late.is_legal) << bf_name;
+            EXPECT_TRUE(namesBan(late, bf_name)) << bf_name;
+        }
+    }
+
+    // Calm champion in a Mind/Order deck is a domain error either day, and a
+    // ban error only once the list is in effect.
+    {
+        auto deck = makeValidDeck();
+        deck.main_deck.back() = db.findByName("Riven, Broken Blade")->id;
+        Pin day(20261122);
+        EXPECT_FALSE(namesBan(DeckValidator(db).validate(deck), "Riven, Broken Blade"));
+        setLegalityDate(20261123);
+        EXPECT_TRUE(namesBan(DeckValidator(db).validate(deck), "Riven, Broken Blade"));
+    }
+
+    // --wild still allows the card on the effective date.
+    {
+        auto deck = makeValidDeck();
+        deck.main_deck.back() = hook->id;
+        Pin day(20261123);
+        DeckValidator wild(db);
+        wild.setWild(true);
+        EXPECT_FALSE(wild.isBanned(hook->id));
+        EXPECT_TRUE(wild.validate(deck).is_legal);
+    }
+
+    // The deck generator reads the same clock, at construction.
+    {
+        Pin day(20261122);
+        const RandomDeckBuilder early(db);
+        EXPECT_NE(std::find(early.reachable().begin(), early.reachable().end(), hook->id),
+                  early.reachable().end());
+        setLegalityDate(20261123);
+        const RandomDeckBuilder late(db);
+        bool banned = false;
+        for (const auto& [id, why] : late.unreachable())
+            if (id == hook->id && why == "banned") banned = true;
+        EXPECT_TRUE(banned);
+        const CardDef* dais = db.findByName("Emperor's Dais");
+        ASSERT_NE(dais, nullptr);
+        bool dais_banned = false;
+        for (const auto& [id, why] : late.unreachable())
+            if (id == dais->id && why == "banned") dais_banned = true;
+        EXPECT_TRUE(dais_banned);
+    }
 }

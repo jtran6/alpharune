@@ -38,6 +38,7 @@ private:
         d.rarity = Rarity::Rare;
         d.ability_text = R"RB(I cost [1] less for each card in your trash.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e34fe8a9ee533dee99f96b4e6677d1edbd6a262d-744x1039.png)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

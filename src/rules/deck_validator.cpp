@@ -1,7 +1,9 @@
 #include "deck_validator.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cctype>
+#include <chrono>
 #include <optional>
 #include <fstream>
 #include <set>
@@ -11,6 +13,32 @@
 #include <unordered_set>
 
 namespace riftbound {
+
+namespace {
+
+std::atomic<int>& legalityDateOverride() {
+    static std::atomic<int> pinned{0};
+    return pinned;
+}
+
+int utcCalendarDate() {
+    using namespace std::chrono;
+    const year_month_day ymd{floor<days>(system_clock::now())};
+    return static_cast<int>(ymd.year()) * 10000 +
+           static_cast<int>(static_cast<unsigned>(ymd.month())) * 100 +
+           static_cast<int>(static_cast<unsigned>(ymd.day()));
+}
+
+}  // namespace
+
+void setLegalityDate(int yyyymmdd) {
+    legalityDateOverride().store(yyyymmdd, std::memory_order_relaxed);
+}
+
+int legalityDate() {
+    const int pinned = legalityDateOverride().load(std::memory_order_relaxed);
+    return pinned != 0 ? pinned : utcCalendarDate();
+}
 
 ValidationResult DeckValidator::validate(const DeckSubmission& deck) const {
     ValidationResult result;
@@ -452,9 +480,8 @@ void DeckValidator::loadBanList(const std::string& csv_path) {
 void DeckValidator::checkBanList(const DeckSubmission& deck,
                                   ValidationResult& result) const {
     if (wild_) return;  // --wild: banned cards are allowed
-    // No early-out on an empty CSV ban list: a card may still be banned via its
-    // own CardDef::banned flag (class-owned, post-refactor). isBanned() honors
-    // both sources.
+    // No early-out on an empty CSV ban list: a card may still be banned via
+    // CardDef::banned or CardDef::banned_from. isBanned() honors every source.
     auto checkCard = [&](CardDefId id, const std::string& zone) {
         if (id != kInvalidId && isBanned(id)) {
             auto& def = db_.get(id);

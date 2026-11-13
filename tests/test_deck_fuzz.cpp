@@ -22,6 +22,9 @@ namespace riftbound::test::deck_fuzz {
 class DeckFuzz : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
+        // Seed 1 is pinned to the constructed pool on the day before the
+        // Radiance bans. The builder reads the clock once, here.
+        setLegalityDate(20261122);
         registry_ = new CardRegistry();
         registry_->loadAll();
         db_ = new CardDB();
@@ -32,6 +35,7 @@ protected:
         delete builder_;
         delete db_;
         delete registry_;
+        setLegalityDate(0);
     }
     static CardRegistry* registry_;
     static CardDB* db_;
@@ -126,7 +130,7 @@ TEST_F(DeckFuzz, EveryLegalCardIsInSomeSeedsDeck) {
     EXPECT_EQ(builder_->reachable().size() + builder_->unreachable().size(), db_->size());
     for (const auto& [id, why] : builder_->unreachable()) {
         const CardDef& def = db_->get(id);
-        EXPECT_TRUE(def.banned || def.isTokenCard())
+        EXPECT_TRUE(def.bannedOn(legalityDate()) || def.isTokenCard())
             << def.name << " (" << id.raw() << ") is legal and in no deck: " << why;
         EXPECT_FALSE(seen.count(id)) << def.name;
     }

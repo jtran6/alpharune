@@ -56,9 +56,11 @@ TEST_F(CardDataTest, NonBannedCardIsNotBanned) {
 TEST_F(CardDataTest, BannedCountMatchesList) {
     int n = 0;
     for (const auto& [id, def] : db.all()) if (def.banned) ++n;
-    // Exactly the 12 Standard ban-list names: a card banned by mistake is as
-    // wrong as a missed ban. (Master Yi, Wuju Bladesman is 2v2-only; this
-    // engine is 1v1, so he stays legal.)
+    // Exactly the 12 Standard bans already in effect (CardDef::banned). The
+    // Radiance bans are CardDef::banned_from, not this flag: they are legal
+    // before 2026-11-23. (Master Yi, Wuju Bladesman is 2v2-only; this engine
+    // is 1v1, so he stays legal. The Radiance announcement adds no further
+    // 2v2-only ban.)
     EXPECT_EQ(n, 12) << "banned-card count must match the Standard ban list";
 }
 
