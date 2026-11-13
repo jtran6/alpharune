@@ -41,7 +41,10 @@ public:
         // instruction does nothing.
         auto units = chooseableUnits(ctx.state, them, [&](const GameObject& u) {
             if (u.controller != them) return false;
-            if (u.cant_move_this_turn || u.cant_be_moved_by_enemy) return false;
+            // The opponent performs the move (CR 412), so "can't be moved by
+            // enemy spells and abilities" does not stop them. A unit they
+            // simply cannot move this turn is not a choice.
+            if (u.cant_move_this_turn) return false;
             if (!here.valid() || !u.location.has_value()) return true;
             if (const auto* bf = std::get_if<BattlefieldLocation>(&*u.location))
                 return bf->id != here;
@@ -63,25 +66,10 @@ public:
         if (const auto* at = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(*t).location))
             if (at->id == here) return;
         const auto& moving = ctx.state.getObject(*t);
-        if (moving.cant_move_this_turn || moving.cant_be_moved_by_enemy) return;
-        // They pay an arrival cost at my battlefield, or the unit stays.
-        // Declining is allowed (CR 204.4.c).
-        const auto raw = static_cast<size_t>(here.raw());
-        if (raw < ctx.state.battlefields.size()) {
-            const auto& slot = ctx.state.battlefields[static_cast<size_t>(raw)];
-            const bool owed = (slot.arrival_energy > 0 || slot.arrival_power > 0) &&
-                              static_cast<int>(them) != slot.arrival_exempt;
-            if (owed) {
-                if (!resource::canPayIn(ctx.state, them, slot.arrival_energy, slot.arrival_power,
-                                        resource::kAnyDomain))
-                    return;
-                if (!ctx.executor.confirmNow(them,
-                        "Angler Wyrm: pay [1][A] to move that unit here?"))
-                    return;
-            }
-        }
-        if (!payArrival(ctx, them, here)) return;
-        ctx.executor.moveToBattlefield(*t, here);
+        if (moving.cant_move_this_turn) return;
+        // They pay the arrival cost, or the unit stays. The prompt names the
+        // cost that is actually owed, and a Reaction [Add] can cover it.
+        ctx.executor.moveToBattlefield(*t, here, them);
     }
 
 private:

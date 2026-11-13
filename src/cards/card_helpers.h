@@ -453,14 +453,20 @@ inline const ChainItem::ShownOff* spellShowOff(const CardContext& ctx) {
 /// Play a Bomb gear token to a battlefield the controller chooses (CR 830:
 /// [Deploy] gear is not played to a base). `token_card` is the Bomb card.
 /// Banish the top of the controller's Main Deck and let them play it,
-/// paying its cost, until their next Ending Phase.
-inline GameObjectId banishTopUntilEnding(CardContext& ctx) {
+/// paying its cost. `until_ending` is the "until your next Ending Phase"
+/// permission (Runeblade Anvil, Akali, Brash). Clocktower Guardian names no
+/// Ending Phase, so its card stays playable after that phase begins.
+inline GameObjectId banishTopUntilEnding(CardContext& ctx, bool until_ending = true) {
     auto& deck = ctx.state.player(ctx.controller).main_deck;
     if (deck.empty()) return kInvalidId;
     const GameObjectId top = deck.back();
     ctx.executor.banishObject(top);
     if (!ctx.state.objectExists(top) || ctx.state.getObject(top).zone != ZoneType::Banishment)
         return kInvalidId;
+    if (!until_ending) {
+        ctx.state.getObject(top).card_counters["__playable_unbounded"] = 1;
+        return top;
+    }
     int through = ctx.state.turn.turn_number;
     if (ctx.state.turn.turn_player != ctx.controller ||
         ctx.state.turn.phase == TurnPhase::EndingStep ||
@@ -1618,26 +1624,9 @@ inline std::vector<int> moveDests(const GameState& state, const GameObject& u) {
 inline std::string destLabel(int d) {
     return d <= 0 ? std::string("Base") : "Battlefield #" + std::to_string(d - 1);
 }
-/// A battlefield's arrival cost (Gravity Field), owed by the player who
-/// performs the move (CR 204.4, 412). The gear's controller is exempt.
-/// True when nothing is owed or the payment was made. False when the mover
-/// cannot pay: the move is not performed.
-inline bool payArrival(CardContext& ctx, PlayerId mover, BattlefieldId bf) {
-    if (!bf.valid()) return true;
-    const auto raw = static_cast<size_t>(bf.raw());
-    if (raw >= ctx.state.battlefields.size()) return true;
-    const auto& slot = ctx.state.battlefields[static_cast<size_t>(raw)];
-    if (slot.arrival_energy <= 0 && slot.arrival_power <= 0) return true;
-    if (static_cast<int>(mover) == slot.arrival_exempt) return true;
-    if (!resource::canPayIn(ctx.state, mover, slot.arrival_energy, slot.arrival_power,
-                            resource::kAnyDomain))
-        return false;
-    return ctx.executor.payResources(mover, slot.arrival_energy, slot.arrival_power,
-                                     resource::kAnyDomain);
-}
-/// Move `u` to a moveDests destination. The card's controller is the player
-/// performing the move, so they pay an arrival cost or the unit stays.
-/// False when the move does not happen.
+/// Move `u` to a moveDests destination. The card's controller performs the
+/// move, so they pay an arrival cost once for this destination (Gravity
+/// Field) or the unit stays. False when the move does not happen.
 inline bool moveTo(CardContext& ctx, GameObjectId u, int dest) {
     if (!ctx.state.objectExists(u)) return false;
     const auto& obj = ctx.state.getObject(u);
@@ -1651,8 +1640,7 @@ inline bool moveTo(CardContext& ctx, GameObjectId u, int dest) {
     // a move that cannot happen is not paid for.
     if (obj.cant_be_moved_by_enemy && ctx.controller != obj.controller) return false;
     if (obj.cant_move_this_turn && ctx.controller == obj.controller) return false;
-    if (!payArrival(ctx, ctx.controller, bf)) return false;
-    ctx.executor.moveToBattlefield(u, bf);
+    if (!ctx.executor.moveToBattlefield(u, bf, ctx.controller)) return false;
     return ctx.state.objectExists(u) && ctx.state.getObject(u).battlefieldId() &&
            *ctx.state.getObject(u).battlefieldId() == bf;
 }

@@ -240,5 +240,63 @@ TEST_F(RemainingCards, SongstressDeclinedLeavesEveryoneReady) {
     EXPECT_EQ(state.player(P1).rune_pool.energy, 0);
 }
 
+TEST_F(RemainingCards, SongstressDeclineIsNotOfferedWhenTheSpellCannotBePaid) {
+    auto legend = state.createObject();
+    auto& L = state.getObject(legend);
+    L.card_def_id = 1070;
+    L.name = card_db.get(1070).name;
+    L.card_type = CardType::Legend;
+    L.owner = P1;
+    L.controller = P1;
+    L.zone = ZoneType::LegendZone;
+    state.player(P1).legend_zone = legend;
+    auto a = addUnit(P1, 13);
+    auto b = addUnit(P1, 13);
+    auto c = addUnit(P1, 13);
+    auto spell = addToHand(P1, 114);   // Progress Day, Energy 6, no choices
+    state.player(P1).rune_pool.energy = 4;
+    EnginePathAgent agent(EnginePathAgent::script({EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent, std::nullopt, nullptr, /*fund=*/false);
+    EXPECT_TRUE(state.getObject(legend).is_exhausted);
+    EXPECT_TRUE(state.getObject(a).is_exhausted);
+    EXPECT_TRUE(state.getObject(b).is_exhausted);
+    EXPECT_TRUE(state.getObject(c).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 0);
+    EXPECT_FALSE(inHand(P1, spell));
+}
+
+TEST_F(RemainingCards, SongstressStacksWithASpellsOwnEnergyReduction) {
+    auto legend = state.createObject();
+    auto& L = state.getObject(legend);
+    L.card_def_id = 1070;
+    L.name = card_db.get(1070).name;
+    L.card_type = CardType::Legend;
+    L.owner = P1;
+    L.controller = P1;
+    L.zone = ZoneType::LegendZone;
+    state.player(P1).legend_zone = legend;
+    auto poro = addToHand(P1, 13);
+    auto& hand = state.player(P1).hand;
+    hand.erase(std::remove(hand.begin(), hand.end(), poro), hand.end());
+    state.getObject(poro).zone = ZoneType::Trash;
+    state.getObject(poro).location.reset();
+    state.player(P1).trash.push_back(poro);
+    auto a = addUnit(P1, 13);
+    auto b = addUnit(P1, 13);
+    auto c = addUnit(P1, 13);
+    auto spell = addToHand(P1, 730);   // Undying Loyalty: [2], [2] less for a Poro
+    EnginePathAgent agent(EnginePathAgent::script({
+        static_cast<int>(poro.raw()), 1,
+        static_cast<int>(a.raw()), static_cast<int>(b.raw()), static_cast<int>(c.raw()),
+        EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent);
+    EXPECT_TRUE(state.getObject(legend).is_exhausted);
+    EXPECT_TRUE(state.getObject(a).is_exhausted);
+    EXPECT_TRUE(state.getObject(b).is_exhausted);
+    EXPECT_TRUE(state.getObject(c).is_exhausted);
+    // Both reductions cover the printed [2], so the funded Energy is untouched.
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 2);
+}
+
 }  // namespace test_remaining_cards
 }  // namespace riftbound::test

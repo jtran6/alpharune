@@ -1728,25 +1728,64 @@ void EffectExecutor::drawHeldCard(PlayerId player, GameObjectId card, bool seen_
     events_.emit(CardsDrawnEvent{player, 1});
 }
 
-void EffectExecutor::moveToBattlefield(GameObjectId target, BattlefieldId bf) {
-    if (!state_.objectExists(target)) return;
+namespace {
+// Gravity Field: the player who performs the move pays once per destination
+// during this resolution, may decline, and may activate Reaction [Add]
+// abilities to cover it. True when nothing is owed or the payment was made.
+bool payArrivalCost(EffectExecutor& ex, GameState& state, PlayerId mover, BattlefieldId bf) {
+    if (!bf.valid() || mover == PlayerId::None) return true;
+    const auto raw = static_cast<size_t>(bf.raw());
+    if (raw >= state.battlefields.size()) return true;
+    const auto& slot = state.battlefields[raw];
+    if (slot.arrival_energy <= 0 && slot.arrival_power <= 0) return true;
+    if (static_cast<int>(mover) == slot.arrival_exempt) return true;
+    if (state.chain.resuming.has_value()) {
+        for (const auto& paid : state.chain.resuming->arrival_paid)
+            if (paid.first == static_cast<int>(mover) && paid.second == static_cast<int>(bf.raw()))
+                return true;
+    }
+    const std::string label =
+        "pay [" + std::to_string(slot.arrival_energy) + "] Energy and [" +
+        std::to_string(slot.arrival_power) + "] Power to move to this battlefield";
+    if (!ex.confirmNow(mover, label)) return false;
+    // payResources offers Reaction [Add] abilities when the pool is short
+    // (CR 204.4.b.1). A pre-check that ignores them would refuse a payable move.
+    if (!ex.payResources(mover, slot.arrival_energy, slot.arrival_power, resource::kAnyDomain))
+        return false;
+    if (state.chain.resuming.has_value())
+        state.chain.resuming->arrival_paid.emplace_back(static_cast<int>(mover),
+                                                        static_cast<int>(bf.raw()));
+    return true;
+}
+}  // namespace
+
+bool EffectExecutor::moveToBattlefield(GameObjectId target, BattlefieldId bf,
+                                      PlayerId performed_by, bool arrival_already_paid) {
+    if (!state_.objectExists(target)) return false;
     auto& obj = state_.getObject(target);
     // CR 421.1, as in moveToBase.
-    if (!onBoard(obj)) return;
-    if (*obj.location == LocationId{BattlefieldLocation{bf}}) return;
-    // Jagged Cutlass: "can't be moved by enemy spells and abilities."
-    if (obj.cant_be_moved_by_enemy && state_.chain.resuming.has_value() &&
-        state_.chain.resuming->controller != obj.controller) {
+    if (!onBoard(obj)) return false;
+    if (*obj.location == LocationId{BattlefieldLocation{bf}}) return true;
+    const PlayerId performer = performed_by != PlayerId::None ? performed_by
+        : (state_.chain.resuming.has_value() ? state_.chain.resuming->controller
+                                             : PlayerId::None);
+    // Jagged Cutlass: "can't be moved by enemy spells and abilities." The
+    // player performing the move is the chain's controller unless the effect
+    // says the opponent moves their own unit (Angler Wyrm, CR 412).
+    if (performer != PlayerId::None && obj.cant_be_moved_by_enemy &&
+        performer != obj.controller) {
         RIFT_TRACE(events_, "MOVE_BLOCKED: " + obj.name + " can't be moved by enemy effects");
-        return;
+        return false;
     }
     // "They can't move it this turn" (GameObject::cant_move_this_turn): its
-    // controller's spells and abilities don't move it either.
-    if (obj.cant_move_this_turn && state_.chain.resuming.has_value() &&
-        state_.chain.resuming->controller == obj.controller) {
+    // controller's own move doesn't happen either.
+    if (performer != PlayerId::None && obj.cant_move_this_turn &&
+        performer == obj.controller) {
         RIFT_TRACE(events_, "MOVE_BLOCKED: " + obj.name + " can't be moved this turn");
-        return;
+        return false;
     }
+    const PlayerId payer = performer != PlayerId::None ? performer : obj.controller;
+    if (!arrival_already_paid && !payArrivalCost(*this, state_, payer, bf)) return false;
     auto old_loc = obj.location;
 
     LocationId dest = BattlefieldLocation{bf};
@@ -1757,6 +1796,7 @@ void EffectExecutor::moveToBattlefield(GameObjectId target, BattlefieldId bf) {
 
     events_.emit(UnitMovedEvent{target, obj.controller,
         old_loc.value_or(BaseLocation{obj.controller}), dest, false});
+    return true;
 }
 
 void EffectExecutor::stunUnit(GameObjectId target) {
@@ -3035,6 +3075,8 @@ struct StagedEffectCost {
         : ps(p), source_(p.current_play_source) {
         ps.transient_ignore_energy = c.ignore_energy;
         ps.transient_ignore_power = c.ignore_power;
+        ps.transient_replace_energy = c.replace_energy;
+        ps.transient_replace_power = c.replace_power;
         ps.transient_play_discount += c.energy_reduction;
         reduction_ = c.energy_reduction;
         // The zone it is really played from (every reader today only asks
@@ -3052,6 +3094,8 @@ struct StagedEffectCost {
     ~StagedEffectCost() {
         ps.transient_ignore_energy = false;
         ps.transient_ignore_power = false;
+        ps.transient_replace_energy = -1;
+        ps.transient_replace_power = -1;
         ps.transient_play_discount -= reduction_;
         ps.current_play_source = source_;
     }
@@ -3075,10 +3119,14 @@ PlainCost plainCostOf(const GameState& state, const CardDB& db, PlayerId player,
     const auto& def = db.get(obj.card_def_id);
     const auto& ps = state.player(player);
     c.domains = def.domains;
+    const int base_energy = ps.transient_replace_energy >= 0 ? ps.transient_replace_energy
+                                                             : def.energy_cost;
+    const int base_power = ps.transient_replace_power >= 0 ? ps.transient_replace_power
+                                                           : def.power_cost;
     c.energy = ps.transient_ignore_energy ? 0
-        : std::max(0, def.energy_cost - ps.transient_play_discount);
+        : std::max(0, base_energy - ps.transient_play_discount);
     c.power = ps.transient_ignore_power ? 0
-        : std::max(0, def.power_cost - ps.transient_power_discount);
+        : std::max(0, base_power - ps.transient_power_discount);
     return c;
 }
 
@@ -3201,7 +3249,12 @@ bool EffectExecutor::playPayingCost(PlayerId player, GameObjectId card,
             return false;
     } else {
         StagedEffectCost staged(state_.player(player), cost, state_.getObject(card).zone);
-        if (!can_afford_(player, card)) return false;
+        // A replaced base cost paid while a spell or ability is resolving
+        // (Meticulous Restorationist's [Y]) can be covered by a Reaction
+        // [Add]. pay_cost_ offers those; a printed play that is simply
+        // unaffordable is still refused here.
+        const bool replaced = cost.replace_energy >= 0 || cost.replace_power >= 0;
+        if (!replaced && !can_afford_(player, card)) return false;
         if (!pay_cost_(player, card)) return false;
     }
     // [Accelerate] was decided with the cost (GameEngine::decideAccelerate).
@@ -3334,18 +3387,6 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
         // decides it for a unit played from hand.
         bool ready = accelerated || state_.player(player).otherUnitsEnterReady(card) ||
                      state_.player(player).units_enter_ready_this_turn;
-        // Judged here, before onPlay can move the unit (Baron's Pit). The
-        // hand-play path stamps the same fact in executePlayCard.
-        if (state_.player(player).units_enter_ready_at_your_bf) {
-            if (const auto* bf = std::get_if<BattlefieldLocation>(&chosen_loc)) {
-                const auto raw = static_cast<size_t>(bf->id.raw());
-                if (raw < state_.battlefields.size()) {
-                    const auto& slot = state_.battlefields[static_cast<size_t>(raw)];
-                    if (slot.controller.has_value() && *slot.controller == player)
-                        ready = true;
-                }
-            }
-        }
         if (const Card* self_card = cardFor(obj.card_def_id))
             ready = ready || self_card->entersReadyOnPlay(state_, player, obj);
         obj.is_exhausted = !ready;
@@ -3372,6 +3413,20 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
             CardContext ctx{state_, events_, *this, player, card};
             const ActingFor acting(*this, card);
             card_obj->onPlay(ctx);
+        }
+    }
+    // "Units you play to battlefields you control enter ready" (The Exile).
+    // Judged where the unit is after onPlay: Baron Nashor's Pit is
+    // uncontrolled, so he enters it exhausted.
+    if (obj.isUnit() && state_.player(player).units_enter_ready_at_your_bf &&
+        obj.location.has_value()) {
+        if (const auto* bf = std::get_if<BattlefieldLocation>(&*obj.location)) {
+            const auto raw = static_cast<size_t>(bf->id.raw());
+            if (raw < state_.battlefields.size()) {
+                const auto& slot = state_.battlefields[raw];
+                if (slot.controller.has_value() && *slot.controller == player)
+                    obj.is_exhausted = false;
+            }
         }
     }
 

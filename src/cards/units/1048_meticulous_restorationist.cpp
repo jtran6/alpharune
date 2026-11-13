@@ -19,9 +19,8 @@ public:
     // "When you play a card with Energy cost [7] or more, you may play me
     // from your trash for [Y]." A triggered ability from the trash (the same
     // shape as Forbidden Technique), not a play that stays legal for the rest
-    // of the turn. [Y] is an alternate cost of playing this unit (CR 356.1.a):
-    // it replaces the printed [2], and Power that can be spent only to play
-    // units or gear pays it.
+    // of the turn. [Y] replaces the printed base cost (CR 356.1.a). Further
+    // cost increases still apply, and a Reaction [Add] can pay it.
     bool triggersWhileInTrash(TriggerType t) const override {
         return t == TriggerType::WhenYouPlayACard;
     }
@@ -41,23 +40,29 @@ public:
             const auto& trash = ctx.state.player(ctx.state.getObject(ctx.source).owner).trash;
             return std::find(trash.begin(), trash.end(), ctx.source) != trash.end();
         };
+        EffectPlayCost alt;
+        alt.replace_energy = 0;
+        alt.replace_power = 1;
         auto can_pay = [&] {
-            return in_trash() &&
-                   resource::canPay(ctx.state, ctx.controller, 0, 1, Domain::Order,
-                                    SpendFor::Unit);
+            if (!in_trash()) return false;
+            if (ctx.executor.canPlayPayingCost(ctx.controller, ctx.source, alt)) return true;
+            // [Add] abilities cover a short pool (the play is during a
+            // resolution, so there is no priority window first).
+            return ctx.executor.canPayWithAdds(ctx.controller, 0, 1,
+                                               resource::maskOf(Domain::Order),
+                                               SpendFor::PlayUnit);
         };
         const int go = confirmOptional(ctx,
             "Meticulous Restorationist: pay [Y] to play from trash?", can_pay);
         if (go < 1) return;
-        if (costDueNow(ctx) &&
-            !payOnePower(ctx, ctx.controller, Domain::Order, SpendFor::Unit)) return;
         if (finalizingChoices(ctx)) return;
         if (!in_trash()) return;
         const int where = pickEffectPlayLocation(*this, ctx,
             "Meticulous Restorationist: play me to", ctx.source);
-        if (where == -1) return;
-        ctx.executor.playIgnoringCost(ctx.controller, ctx.source,
-            effectPlayLocation(ctx.state, ctx.controller, where));
+        if (where == -1) return;   // nothing was paid
+        if (!ctx.executor.playPayingCost(ctx.controller, ctx.source,
+                effectPlayLocation(ctx.state, ctx.controller, where), alt))
+            return;
         RIFT_TRACE(ctx.events, "METICULOUS RESTORATIONIST: paid [Y] -> played from trash");
     }
 

@@ -52,6 +52,12 @@ GameEngine::GameEngine(const CardDB& card_db, EventBus& event_bus,
     initSubsystems();
 }
 
+GameEngine::CostingAt::CostingAt(const GameEngine& e, std::optional<LocationId> loc)
+    : engine(e), saved(e.costing_play_location_) {
+    e.costing_play_location_ = std::move(loc);
+}
+GameEngine::CostingAt::~CostingAt() { engine.costing_play_location_ = saved; }
+
 void GameEngine::initSubsystems() {
     // The trigger manager holds a reference to the chain manager and is
     // subscribed to the event bus: drop it first so nothing dangles.
@@ -180,6 +186,15 @@ void GameEngine::initSubsystems() {
                 };
                 paid = payTranchePartsAhead(p, plan.cost, base_mask, &rest);
                 if (plan.cost.discards > 0) effect_executor_->discardCards(p, plan.cost.discards);
+            }
+            if (paid && !canAffordWith(p, card, 0, adj)) {
+                // A cost paid during a resolution, not from a priority window:
+                // Reaction [Add] abilities may cover the shortfall (CR 430.3).
+                const auto net = netCardCost(p, card, adj);
+                const SpendFor purpose = state_.objectExists(card)
+                    ? spendForPlay(state_.getObject(card)) : SpendFor::Other;
+                effect_executor_->addForPayment(p, net.first, net.second, base_mask, purpose);
+                if (!canAffordWith(p, card, 0, adj)) paid = false;
             }
             if (paid) {
                 cost_step_tranches_ = plan.accepted.empty() ? nullptr : &plan.cost;
@@ -3314,7 +3329,11 @@ void GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
     // A different permanent's optional discount for this spell (Starry-Eyed
     // Songstress). A hand-played spell pays in finishPlaySpell, which does
     // not go through payAdditionalPlayCosts; both paths call this.
-    if (!card.isSpell() || adj.energy_reduction != 0 || adj.ignore_cost) return;
+    // A spell that already reduced its own Energy (Undying Loyalty) still gets
+    // this discount: it is an additional cost of playing a spell, not a
+    // discount that yields to another energy reduction. A cost that is already
+    // ignored has nothing left to reduce.
+    if (!card.isSpell() || adj.ignore_cost) return;
     for (auto& [id, obj] : state_.objects.inPlay()) {
         if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
         Card* other = card_registry_.get(obj.card_def_id);
@@ -3322,7 +3341,13 @@ void GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
         CardContext octx{state_, events_, *effect_executor_, player, id};
         octx.registry = &card_registry_;
         const EffectExecutor::ActingFor acting(*effect_executor_, id);
+        // Declining is legal only while the spell is affordable without the
+        // discount. Otherwise the discount is how this play is paid, and
+        // declining would cast it unpaid.
+        const bool may_decline = canAffordWith(player, spell, 0, adj);
+        effect_executor_->setOptionalDiscountDeclinable(may_decline);
         const int got = other->takeOptionalSpellEnergyOff(octx);
+        effect_executor_->setOptionalDiscountDeclinable(true);
         if (got > 0) {
             adj.energy_reduction += got;
             break;
@@ -3738,6 +3763,9 @@ bool GameEngine::prePlayProbe(PlayerId player, GameObjectId card_id,
 }
 
 void GameEngine::executePlayCard(const Intent& intent) {
+    // Hunters' Circle: the discount is the location this play chose, judged
+    // while the cost is paid, before onPlay can move the unit.
+    CostingAt costing(*this, intent.play_location);
     auto& ps = state_.player(intent.player);
     auto& card = state_.getObject(intent.card);
     forgetPlayPayments(intent.player, intent.card);   // a new play: nothing is paid yet
@@ -3770,6 +3798,7 @@ void GameEngine::executePlayCard(const Intent& intent) {
         auto it = std::find(pile.begin(), pile.end(), intent.card);
         if (it != pile.end()) pile.erase(it);
         card.card_counters.erase("__playable_through_turn");
+        card.card_counters.erase("__playable_unbounded");
     } else if (intent.play_source == Intent::PlaySource::Trash &&
                card.zone == ZoneType::Trash) {
         // Played from the trash (a play-from-trash permission).
@@ -3812,7 +3841,7 @@ void GameEngine::executePlayCard(const Intent& intent) {
                                   : Card::AltPlayCost{};
         // [A] is any Domain, and several [A] need not share one.
         const Domain d = alt.any_domain ? Domain::Count : alt.power_domain;
-        payAdditionalCost(intent.player, alt.energy, alt.power, d, spendForObject(card));
+        payAdditionalCost(intent.player, alt.energy, alt.power, d, spendForPlay(card));
         RIFT_TRACE(events_, "ALT_COST: " + card.name + " played for its alternative cost");
     } else if (!paid_via_grant) {
         // Choices before costs (CR 355.1.a): whether to pay [Accelerate] and
@@ -3863,21 +3892,6 @@ void GameEngine::executePlayCard(const Intent& intent) {
     // the play is announced, so "when you play a unit here" abilities can
     // tell where it is being played.
     card.location = intent.play_location.value_or(BaseLocation{intent.player});
-    // "Units you play at a battlefield you control enter ready" is judged
-    // from the battlefield chosen for the play, before an "as you play me"
-    // replacement rewrites the location (Baron Nashor enters the Pit he
-    // creates). resolvePermanent reads the stamp.
-    if (card.isUnit() && state_.player(intent.player).units_enter_ready_at_your_bf &&
-        card.location.has_value()) {
-        if (const auto* chosen = std::get_if<BattlefieldLocation>(&*card.location)) {
-            const auto raw = static_cast<size_t>(chosen->id.raw());
-            if (raw < state_.battlefields.size()) {
-                const auto& slot = state_.battlefields[static_cast<size_t>(raw)];
-                if (slot.controller.has_value() && *slot.controller == intent.player)
-                    card.card_counters["__enter_ready_from_chosen_bf"] = 1;
-            }
-        }
-    }
 
     // CR 383.4.a.2: play effects "are put on the Chain as Pending Items after
     // the Permanent these effects correspond to is finalized and enters the
@@ -4242,6 +4256,7 @@ void GameEngine::executePlaySpell(const Intent& intent) {
         auto it = std::find(pile.begin(), pile.end(), intent.card);
         if (it != pile.end()) pile.erase(it);
         card.card_counters.erase("__playable_through_turn");
+        card.card_counters.erase("__playable_unbounded");
     } else if (intent.play_source == Intent::PlaySource::Trash &&
                card.zone == ZoneType::Trash) {
         // Trash-replay (Death from Below): play the spell straight out of trash.
@@ -4267,6 +4282,7 @@ void GameEngine::executePlaySpell(const Intent& intent) {
 void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId> play_targets,
                                  bool target_chosen_at_play,
                                  std::vector<GameObjectId> cost_targets) {
+    CostingAt costing(*this, intent.play_location);
     auto& ps = state_.player(intent.player);
     auto& card = state_.getObject(intent.card);
     const std::vector<GameObjectId> deflect_targets = play_targets;
@@ -4370,8 +4386,8 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
                 }
             }
         }
-        // A permanent's optional spell discount (Starry-Eyed Songstress). The
-        // spell's own additional cost, when it already reduced Energy, stands.
+        // A permanent's optional spell discount (Starry-Eyed Songstress). It
+        // stacks with a reduction the spell's own additional cost already took.
         takeOptionalSpellEnergyOff(intent.player, intent.card, prepay);
         // "[1] or [A] less": the player picks the half when both would do
         // something and both leave the spell payable.
@@ -5060,18 +5076,19 @@ void GameEngine::resolvePermanent(const ChainItem& item) {
         // A continuous effect of another unit on the board ("Other friendly
         // units enter ready." — its applyPassiveAura lists it as a source).
         if (state_.player(card.controller).otherUnitsEnterReady(card.id)) enters_ready = true;
+        // "Units you play to battlefields you control enter ready" (The
+        // Exile). The location after onPlay: Baron Nashor's Pit is not a
+        // battlefield he controls, so he enters it exhausted.
         if (state_.player(card.controller).units_enter_ready_at_your_bf &&
             card.location.has_value()) {
             if (const auto* bf = std::get_if<BattlefieldLocation>(&*card.location)) {
-                const auto& slot = state_.battlefields[bf->id.raw()];
-                if (slot.controller.has_value() && *slot.controller == card.controller)
-                    enters_ready = true;
+                const auto raw = static_cast<size_t>(bf->id.raw());
+                if (raw < state_.battlefields.size()) {
+                    const auto& slot = state_.battlefields[raw];
+                    if (slot.controller.has_value() && *slot.controller == card.controller)
+                        enters_ready = true;
+                }
             }
-        }
-        // Stamped from the chosen battlefield before onPlay rewrote it.
-        if (card.card_counters.count("__enter_ready_from_chosen_bf")) {
-            enters_ready = true;
-            card.card_counters.erase("__enter_ready_from_chosen_bf");
         }
         if (state_.player(card.controller).next_unit_accelerate > 0)
             state_.player(card.controller).next_unit_accelerate = 0;
@@ -5868,10 +5885,20 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
             }
         }
         const bool printed_ok = canAfford(player, card_id);
-        if (!printed_ok && !alt_ok) continue;
+        // A discount that applies only at one battlefield (Hunters' Circle)
+        // is invisible to the location-blind check above. A unit that is
+        // payable only there is still offered there.
+        bool affordable_at_some_bf = false;
+        if (!printed_ok) {
+            for (const auto& bf : state_.battlefields) {
+                CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+                if (canAfford(player, card_id)) { affordable_at_some_bf = true; break; }
+            }
+        }
+        if (!printed_ok && !alt_ok && !affordable_at_some_bf) continue;
 
         for (int alt = 0; alt < 2; ++alt) {
-            if (alt == 0 && !printed_ok) continue;
+            if (alt == 0 && !printed_ok && !affordable_at_some_bf) continue;
             if (alt == 1 && !alt_ok) continue;
             Intent play_intent;
             play_intent.type = IntentType::PlayCard;
@@ -5890,9 +5917,12 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
                 continue;  // no default base/BF plays for this card
             }
 
-            // Can always play to base (CR 355.2.a)
-            play_intent.play_location = BaseLocation{player};
-            actions.push_back(play_intent);
+            // Base is not "here" for a battlefield discount, so it needs the
+            // cost without that discount (or an alternative cost).
+            if (alt == 1 || printed_ok) {
+                play_intent.play_location = BaseLocation{player};
+                actions.push_back(play_intent);
+            }
 
             // Mageseeker Warden: while it restricts this player, units may be
             // played ONLY to base — skip all battlefield plays.
@@ -5902,7 +5932,12 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
                 if (bf.blocks_unit_play) continue;  // Rockfall Path
                 const bool can_play_here = unitPlayableAt(card_obj, player, bf, &card);
 
-                if (can_play_here) {
+                bool affordable_here = alt == 1 || printed_ok;
+                if (alt == 0 && !affordable_here) {
+                    CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+                    affordable_here = canAfford(player, card_id);
+                }
+                if (can_play_here && affordable_here) {
                     Intent bf_play = play_intent;
                     bf_play.play_location = BattlefieldLocation{bf.id};
                     actions.push_back(bf_play);
@@ -5930,9 +5965,16 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isGear()) continue;
-        if (!canAfford(player, card_id)) continue;
         const Card* gear = card.card_def_id != kInvalidId
             ? card_registry_.get(card.card_def_id) : nullptr;
+        bool gear_ok = canAfford(player, card_id);
+        if (!gear_ok && gear && gear->restrictsPlayLocations()) {
+            for (const auto& loc : gear->getPlayLocations(state_, player)) {
+                CostingAt at(*this, loc);
+                if (canAfford(player, card_id)) { gear_ok = true; break; }
+            }
+        }
+        if (!gear_ok) continue;
 
         Intent play_intent;
         play_intent.type = IntentType::PlayCard;
@@ -5940,6 +5982,8 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         play_intent.card = card_id;
         if (gear && gear->restrictsPlayLocations()) {
             for (const auto& loc : gear->getPlayLocations(state_, player)) {
+                CostingAt at(*this, loc);
+                if (!canAfford(player, card_id)) continue;
                 Intent restricted = play_intent;
                 restricted.play_location = loc;
                 actions.push_back(restricted);
@@ -5955,9 +5999,14 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
     for (GameObjectId card_id : ps.banishment) {
         if (!state_.objectExists(card_id)) continue;
         auto& card = state_.getObject(card_id);
+        // Clocktower Guardian banishes a card with no Ending Phase on the
+        // permission. Runeblade Anvil and Akali, Brash stamp a window.
+        const bool unbounded =
+            card.card_counters.find("__playable_unbounded") != card.card_counters.end();
         auto mark = card.card_counters.find("__playable_through_turn");
-        if (mark == card.card_counters.end() ||
-            !banishedUntilEndingOpen(state_, player, mark->second)) continue;
+        if (!unbounded && (mark == card.card_counters.end() ||
+                           !banishedUntilEndingOpen(state_, player, mark->second)))
+            continue;
         const Card* card_obj = card_registry_.get(card.card_def_id);
         // A spell can be short on its printed cost and still payable once its
         // target is chosen (the hand path's canAffordChoosing). Rejecting it
@@ -6737,7 +6786,8 @@ void GameEngine::generateSpellActions(PlayerId player, bool action_ok,
 static int extraAnyPowerCost(const GameState& state, PlayerId player, const GameObject& card);
 static bool costModifierApplies(const GameState& state, const PlayerState::CostModifier& mod,
                                 bool own, PlayerId payer, const GameObject& card,
-                                bool combat_active, int printed_energy_cost = -1);
+                                bool combat_active, int printed_energy_cost = -1,
+                                const std::optional<LocationId>* play_at = nullptr);
 static bool anyCombatInProgress(const GameState& state);
 
 // What a play-from-trash grant charges for `card`: the grant replaces the
@@ -6828,7 +6878,7 @@ bool GameEngine::canPayTrashGrant(PlayerId player, GameObjectId card_id,
                                                     : nullptr;
     if (!cc || !cc->ignoresDeflect())
         for (auto t : unpaid_deflect) deflect += deflectCostFor(state_, player, t);
-    const SpendFor f = spendForObject(card);
+    const SpendFor f = spendForPlay(card);
     bool has_choice = false;
     (void)targetCostDiscount(player, targets, false, &has_choice);
     for (int prefer_power = 0; prefer_power < (has_choice ? 2 : 1); ++prefer_power) {
@@ -9613,7 +9663,7 @@ void GameEngine::maybePayOptionalAdditionalCost(PlayerId player, GameObjectId ca
     // [A] is any Domain, and several [A] need not share one.
     const resource::DomainMask domains =
         resource::maskOf(cost.any_domain ? Domain::Count : cost.power_domain);
-    const SpendFor spend_for = spendForObject(card);
+    const SpendFor spend_for = spendForPlay(card);
     // can't afford -> not offered (CR: choice only when payable)
     if (!canPayOptionalCost(player, cost.energy, cost.power, domains, spend_for)) return;
     // ... and only if the card itself can still be paid for afterwards: the
@@ -9707,7 +9757,8 @@ static int extraAnyPowerCost(const GameState& state, PlayerId player, const Game
 // the caller: a modifier limited by printed cost then does not apply).
 static bool costModifierApplies(const GameState& state, const PlayerState::CostModifier& mod,
                                 bool own, PlayerId payer, const GameObject& card,
-                                bool combat_active, int printed_energy_cost) {
+                                bool combat_active, int printed_energy_cost,
+                                const std::optional<LocationId>* play_at) {
     if (mod.affects_enemy_only == own) return false;
     if (mod.max_printed_energy_cost >= 0 &&
         (printed_energy_cost < 0 || printed_energy_cost > mod.max_printed_energy_cost))
@@ -9724,6 +9775,13 @@ static bool costModifierApplies(const GameState& state, const PlayerState::CostM
         (card.zone != ZoneType::Hand ||
          state.player(payer).current_play_source != Intent::PlaySource::Hand))
         return false;
+    // "Play here": the location chosen for this play, at cost time. No
+    // location yet (a gate that has not picked one) does not take the discount.
+    if (mod.only_at_battlefield >= 0) {
+        if (!play_at || !play_at->has_value()) return false;
+        const auto* bf = std::get_if<BattlefieldLocation>(&**play_at);
+        if (!bf || static_cast<int>(bf->id.raw()) != mod.only_at_battlefield) return false;
+    }
     if (mod.affects_non_token_only && card.super_type == SuperType::Token) return false;
     if (mod.combat_active_only && !combat_active) return false;
     if (!mod.required_tag.empty() &&
@@ -9739,7 +9797,7 @@ static bool anyCombatInProgress(const GameState& state) {
 }
 
 static int powerCostDelta(const GameState& state, PlayerId player, const GameObject& card,
-                          const Card* card_class) {
+                          const Card* card_class, const std::optional<LocationId>* play_at) {
     const auto& ps = state.player(player);
     int delta = 0;
     if (card.isSpell()) delta -= ps.spell_discount_power;
@@ -9749,13 +9807,13 @@ static int powerCostDelta(const GameState& state, PlayerId player, const GameObj
     for (const auto& mod : ps.cost_modifiers) {
         if (mod.power_reduction == 0) continue;
         if (!costModifierApplies(state, mod, /*own=*/true, player, card, combat_active,
-                                 printed_energy)) continue;
+                                 printed_energy, play_at)) continue;
         delta -= mod.power_reduction;
     }
     for (const auto& mod : state.player(opponent(player)).cost_modifiers) {
         if (mod.power_reduction == 0) continue;
         if (!costModifierApplies(state, mod, /*own=*/false, player, card, combat_active,
-                                 printed_energy)) continue;
+                                 printed_energy, play_at)) continue;
         delta -= mod.power_reduction;
     }
     if (card_class) delta -= card_class->selfPowerCostReduction(state, player);
@@ -9779,7 +9837,8 @@ EffectiveCardCost effectiveCardCost(const GameState& state, const CardDef& def,
                                     const Card* card_class, PlayerId player,
                                     const GameObject& card,
                                     const Card::PlayCostAdjust& adj = {},
-                                    const EffectiveCardCost* base = nullptr) {
+                                    const EffectiveCardCost* base = nullptr,
+                                    const std::optional<LocationId>* play_at = nullptr) {
     const auto& ps = state.player(player);
     // "Ignoring" a cost sets that Base Cost to zero; cost increases can still
     // raise the total above zero (CR 356.1.b, 356.1.b.3).
@@ -9788,8 +9847,12 @@ EffectiveCardCost effectiveCardCost(const GameState& state, const CardDef& def,
     const bool ignore_energy = ps.transient_ignore_energy || adj.ignore_cost ||
         card.card_counters.find("__ignore_energy") != card.card_counters.end();
     const bool ignore_power = ps.transient_ignore_power || adj.ignore_cost;
-    const int base_energy = ignore_energy ? 0 : (base ? base->energy : def.energy_cost);
-    const int base_power = ignore_power ? 0 : (base ? base->power : def.power_cost);
+    const int printed_energy = ps.transient_replace_energy >= 0 ? ps.transient_replace_energy
+                                                                : def.energy_cost;
+    const int printed_power = ps.transient_replace_power >= 0 ? ps.transient_replace_power
+                                                              : def.power_cost;
+    const int base_energy = ignore_energy ? 0 : (base ? base->energy : printed_energy);
+    const int base_power = ignore_power ? 0 : (base ? base->power : printed_power);
     int increases = 0;        // "costs [N] more" (CR 356.3, before discounts)
     int free_reduction = 0;   // discounts with no minimum
     // Discounts that carry "to a minimum of [N]": the minimum applies only to
@@ -9807,7 +9870,7 @@ EffectiveCardCost effectiveCardCost(const GameState& state, const CardDef& def,
                                : state.player(opponent(player)).cost_modifiers;
         for (const auto& mod : mods) {
             if (!costModifierApplies(state, mod, own, player, card, combat_active,
-                                     def.energy_cost)) continue;
+                                     def.energy_cost, play_at)) continue;
             increases += mod.energy_increase;
             if (mod.energy_reduction <= 0) continue;
             if (mod.min_cost > 0) limited.emplace_back(mod.energy_reduction, mod.min_cost);
@@ -9834,7 +9897,7 @@ EffectiveCardCost effectiveCardCost(const GameState& state, const CardDef& def,
         energy_needed = std::min(energy_needed, std::max(minimum, energy_needed - reduction));
     energy_needed = std::max(0, energy_needed - free_reduction);   // CR 356.6
     const int power_needed =
-        std::max(0, base_power + powerCostDelta(state, player, card, card_class) -
+        std::max(0, base_power + powerCostDelta(state, player, card, card_class, play_at) -
                         adj.power_reduction);
     return {energy_needed, power_needed};
 }
@@ -9850,7 +9913,8 @@ std::pair<int, int> GameEngine::netCardCost(PlayerId player, GameObjectId card_o
     const auto& def = card_db_.get(card.card_def_id);
     const EffectiveCardCost base{base_energy, base_power};
     const auto cost = effectiveCardCost(state_, def, card_registry_.get(card.card_def_id),
-                                        player, card, adj, base_energy >= 0 ? &base : nullptr);
+                                        player, card, adj, base_energy >= 0 ? &base : nullptr,
+                                        &costing_play_location_);
     return {cost.energy, cost.power};
 }
 
@@ -9911,7 +9975,7 @@ bool GameEngine::canAffordWith(PlayerId player, GameObjectId card_obj, int extra
     const auto& def = card_db_.get(card.card_def_id);
 
     const auto cost = effectiveCardCost(state_, def, card_registry_.get(card.card_def_id),
-                                        player, card, adj);
+                                        player, card, adj, nullptr, &costing_play_location_);
     const int energy_needed = cost.energy;
     const int power_needed = cost.power;
 
@@ -9947,7 +10011,7 @@ bool GameEngine::canAffordWith(PlayerId player, GameObjectId card_obj, int extra
     }
 
     const auto& pool = state_.player(player).rune_pool;
-    const SpendFor spend_for = spendForObject(card);
+    const SpendFor spend_for = spendForPlay(card);
 
     // Energy can come from the pool's existing energy (restricted Energy this
     // kind of card may use included) AND from exhausting ready runes.
@@ -10042,7 +10106,7 @@ GameEngine::CostPaymentAdvance GameEngine::beginCostPayment(
 
     auto& ps = state_.player(player);
     const auto cost = effectiveCardCost(state_, def, card_registry_.get(card.card_def_id),
-                                        player, card, adj);
+                                        player, card, adj, nullptr, &costing_play_location_);
     int energy_needed = cost.energy;
     int power_needed = cost.power;
 
@@ -10065,7 +10129,7 @@ GameEngine::CostPaymentAdvance GameEngine::beginCostPayment(
                         if (!m.next_spell_only && !m.next_unit_only && !m.next_card_only)
                             return false;
                         return costModifierApplies(state_, m, own, player, card, combat_active,
-                                                   def.energy_cost);
+                                                   def.energy_cost, &costing_play_location_);
                     }),
                 mods.end());
         }
@@ -10090,7 +10154,7 @@ GameEngine::CostPaymentAdvance GameEngine::beginPaymentOf(PlayerId player, GameO
     const auto& card = state_.getObject(card_obj);
     // Spend pool energy first (no agent decision needed): Energy restricted to
     // this kind of card before unrestricted Energy.
-    const SpendFor spend_for = spendForObject(card);
+    const SpendFor spend_for = spendForPlay(card);
     ps.rune_pool.takeRestrictedEnergy(spend_for, showdownUnderway(state_), energy_needed);
     if (energy_needed > 0) {
         int from_pool = std::min(ps.rune_pool.energy, energy_needed);
@@ -10315,7 +10379,7 @@ bool GameEngine::payTrashReplayGrant(PlayerId player, GameObjectId card_id,
     if (ok) {
         // With an "or" discount from a target ([1] or [A] less), the Energy
         // half is taken when that leaves the cost payable, else the Power half.
-        const SpendFor f = spendForObject(state_.getObject(card_id));
+        const SpendFor f = spendForPlay(state_.getObject(card_id));
         auto cost = trashGrantCost(player, card_id, grant, targets, false);
         const int t_e = cost_step_tranches_ ? cost_step_tranches_->energy : 0;
         const int t_p = cost_step_tranches_ ? cost_step_tranches_->base_power : 0;
@@ -10370,7 +10434,7 @@ bool GameEngine::payCardCost(PlayerId player, GameObjectId card_obj,
     askRunesFor(player, card_obj, beginCostPayment(player, card_obj, adj));
     if (extra_any > 0)
         effect_executor_->payAnyPower(player, extra_any,
-            state_.objectExists(card_obj) ? spendForObject(state_.getObject(card_obj))
+            state_.objectExists(card_obj) ? spendForPlay(state_.getObject(card_obj))
                                           : SpendFor::Other);
     return true;
 }
@@ -10405,7 +10469,7 @@ void GameEngine::askRunesFor(PlayerId player, GameObjectId card_obj, CostPayment
 bool GameEngine::payLikeACardCost(PlayerId player, GameObjectId card_obj, int energy, int power,
                                   const std::vector<Domain>& domains) {
     if (!resource::canPayIn(state_, player, energy, power, resource::maskOf(domains),
-                            state_.objectExists(card_obj) ? spendForObject(state_.getObject(card_obj))
+                            state_.objectExists(card_obj) ? spendForPlay(state_.getObject(card_obj))
                                                           : SpendFor::Other))
         return false;
     RIFT_TRACE(events_, "PAY_COST: " +
@@ -10917,7 +10981,7 @@ bool GameEngine::payCardCostQuietly(PlayerId player, GameObjectId card_obj,
     if (!state_.objectExists(card_obj)) return false;
     const auto& card = state_.getObject(card_obj);
     if (card.card_def_id == kInvalidId) return false;
-    const SpendFor f = spendForObject(card);
+    const SpendFor f = spendForPlay(card);
     {
         auto net = adj.ignore_cost ? std::pair<int, int>{0, 0} : netCardCost(player, card_obj, adj);
         net.first += extra_energy;

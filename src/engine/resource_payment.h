@@ -23,11 +23,20 @@
 
 namespace riftbound {
 
-/// What paying for (or with an ability of) `obj` counts as.
+/// What paying for (or with an ability of) `obj` counts as. An activated
+/// ability or Equip: not a play, so Iron Revenant's Power does not pay it.
 inline SpendFor spendForObject(const GameObject& obj) {
     if (obj.isUnit()) return SpendFor::Unit;
     if (obj.isSpell()) return SpendFor::Spell;
     if (obj.isGear()) return SpendFor::Gear;
+    return SpendFor::Other;
+}
+
+/// What playing `obj` counts as. Unit and gear plays spend unit_gear_power.
+inline SpendFor spendForPlay(const GameObject& obj) {
+    if (obj.isUnit()) return SpendFor::PlayUnit;
+    if (obj.isGear()) return SpendFor::PlayGear;
+    if (obj.isSpell()) return SpendFor::Spell;
     return SpendFor::Other;
 }
 

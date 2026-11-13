@@ -25,7 +25,10 @@ public:
     }
     int takeOptionalSpellEnergyOff(CardContext& ctx) const override {
         if (optionalSpellEnergyOff(ctx.state, ctx.source) < 2) return 0;
-        if (!ctx.executor.confirmNow(ctx.controller,
+        // Optional only while the spell can be paid without the discount.
+        // Declining an unaffordable spell would still cast it.
+        if (ctx.executor.optionalDiscountDeclinable() &&
+            !ctx.executor.confirmNow(ctx.controller,
                 "Starry-Eyed Songstress: exhaust her and three units to reduce a spell by [2]"))
             return 0;
         // Which three is the player's: more than three ready units is a choice,

@@ -81,6 +81,10 @@ struct EffectPlayCost {
     bool ignore_energy = false;   // "ignoring its Energy cost"
     bool ignore_power = false;
     int energy_reduction = 0;     // "reducing its Energy cost by [N]"
+    // "Play for [Cost]" (CR 356.1.a): replaces the printed base. -1 keeps it.
+    // Increases and discounts still apply to the replacement.
+    int replace_energy = -1;
+    int replace_power = -1;
 };
 
 // State-only queries shared by the executor, the action generators and
@@ -201,6 +205,11 @@ public:
     bool confirmNow(PlayerId player, const std::string& label,
                     PromptKind kind = PromptKind::May,
                     std::source_location where = std::source_location::current());
+    /// An optional discount may be declined only while the card is affordable
+    /// without it. The engine clears this when declining would cast a spell
+    /// the player cannot pay (Starry-Eyed Songstress).
+    void setOptionalDiscountDeclinable(bool v) { optional_discount_declinable_ = v; }
+    bool optionalDiscountDeclinable() const { return optional_discount_declinable_; }
     /// Ask `player` to pick one of `labels` right now (a choice made as a card
     /// is played, CR 355.1). Returns the index; 0 when there is no agent.
     int chooseValueNow(PlayerId player, const std::vector<std::string>& labels,
@@ -390,7 +399,16 @@ public:
     /// 719.3) and emits UnitMovedEvent. No-op if it is already there. Caller is responsible for any contested-status
     /// re-evaluation downstream (cleanup recomputes BF contested flags).
     /// `from_play` is false: this is a card-effect-driven move, not a play.
-    void moveToBattlefield(GameObjectId target, BattlefieldId bf);
+    /// Move a unit to `bf`. The player performing the move pays an arrival
+    /// cost once per destination for this resolution (Gravity Field: "one or
+    /// more units"), may decline (CR 204.4.c), and may use Reaction [Add]
+    /// abilities (CR 204.4.b.1). `performed_by` is that player; None means the
+    /// resolving item's controller. `arrival_already_paid` is a move whose
+    /// cost was paid by the caller (a standard move pays for the group first).
+    /// False when the unit does not arrive.
+    bool moveToBattlefield(GameObjectId target, BattlefieldId bf,
+                           PlayerId performed_by = PlayerId::None,
+                           bool arrival_already_paid = false);
     void stunUnit(GameObjectId target);
     /// Stun + attribute to the controller of `stunner_source`. Use this from
     /// card effects so the resulting UnitStunnedEvent identifies the stunner
@@ -893,6 +911,7 @@ private:
     std::optional<OwedCost> owed_;
     std::vector<GameObjectId> hypothetical_unpaid_;
     bool adding_for_payment_ = false;   // an [Add] paid for inside addForPayment
+    bool optional_discount_declinable_ = true;
     std::function<bool(const GameState&)> payment_goal_;   // set inside addForPayment
 public:
     /// While addForPayment activates [Add] abilities: whether the payment it

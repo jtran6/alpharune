@@ -77,9 +77,12 @@ public:
         if (unit == kInvalidId) return {};
         const PlayCostAdjust adj = worth(ctx.state, ctx.executor.cardDB(), unit);
         // Killed in onPlay, after Energy and Power (CR 357.2). raw()+1 so a
-        // missing mark is 0, not a live object.
-        ctx.state.getObject(ctx.source).card_counters["__atakhan_fodder"] =
-            static_cast<int>(unit.raw()) + 1;
+        // missing mark is 0, not a live object. The reductions are charged
+        // back if that kill does not happen.
+        auto& self = ctx.state.getObject(ctx.source);
+        self.card_counters["__atakhan_fodder"] = static_cast<int>(unit.raw()) + 1;
+        self.card_counters["__atakhan_energy"] = adj.energy_reduction;
+        self.card_counters["__atakhan_power"] = adj.power_reduction;
         RIFT_TRACE(ctx.events, "ATAKHAN: a friendly unit will be killed -> costs [" +
                             std::to_string(adj.energy_reduction) + "] and " +
                             std::to_string(adj.power_reduction) + " Power less");
@@ -92,16 +95,32 @@ public:
         auto it = self.card_counters.find("__atakhan_fodder");
         if (it == self.card_counters.end()) return;
         const int stored = it->second;
+        const int energy_off = self.card_counters["__atakhan_energy"];
+        const int power_off = self.card_counters["__atakhan_power"];
         self.card_counters.erase(it);
+        self.card_counters.erase("__atakhan_energy");
+        self.card_counters.erase("__atakhan_power");
         if (stored <= 0) return;
         const GameObjectId unit = GameObjectId::fromRaw(stored - 1);
-        if (!ctx.state.objectExists(unit)) return;
-        const auto& victim = ctx.state.getObject(unit);
-        if (!victim.isUnit() || !victim.location.has_value() ||
-            victim.controller != ctx.controller)
+        bool died = false;
+        if (ctx.state.objectExists(unit)) {
+            const auto& victim = ctx.state.getObject(unit);
+            if (victim.isUnit() && victim.location.has_value() &&
+                victim.controller == ctx.controller)
+                died = killAsCost(ctx, unit, /*record_failure=*/false);
+        }
+        if (died) {
+            RIFT_TRACE(ctx.events, "ATAKHAN: killed the friendly unit after paying");
             return;
-        ctx.executor.killObject(unit);
-        RIFT_TRACE(ctx.events, "ATAKHAN: killed the friendly unit after paying");
+        }
+        // The discount was the kill. A unit that left during payment, or whose
+        // death was replaced, did not die: the waived Energy and Power are
+        // still owed.
+        if (energy_off <= 0 && power_off <= 0) return;
+        const auto& def = ctx.executor.cardDB().get(self.card_def_id);
+        ctx.executor.payResources(ctx.controller, energy_off, power_off,
+                                  resource::maskOf(def.domains), SpendFor::PlayUnit);
+        RIFT_TRACE(ctx.events, "ATAKHAN: the unit did not die, so the discount is paid");
     }
     //
     // "When I attack, the defender must kill one of their units here." The

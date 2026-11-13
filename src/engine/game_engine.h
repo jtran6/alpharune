@@ -397,6 +397,17 @@ private:
     const CardDB& card_db_;
     EventBus& events_;
     GameState state_;
+    // The location a play is being costed for (Hunters' Circle). Set around
+    // canAfford and payCardCost; empty means a location-scoped discount does
+    // not apply. Mutable so a const generator can scope one check.
+    mutable std::optional<LocationId> costing_play_location_;
+    struct CostingAt {
+        const GameEngine& engine;
+        std::optional<LocationId> saved;
+        CostingAt(const GameEngine& e, std::optional<LocationId> loc);
+        ~CostingAt();
+        CostingAt(const CostingAt&) = delete;
+    };
     std::mt19937_64 rng_;
     uint64_t id_label_salt_ = 0;   // see setIdLabelSalt
     MatchFormat match_format_ = MatchFormat::BestOf1;   // see setMatchFormat
