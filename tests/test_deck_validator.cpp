@@ -29,6 +29,12 @@ std::string deckPath(const char* name) {
 
 class DeckValidatorTest : public ::testing::Test {
 protected:
+    // yi_rebuild.txt plays Zhonya's Hourglass, Emperor's Dais, and Star Spring.
+    // The quoted list is the pool on the day before the Radiance bans. The
+    // builder and the validator both read this clock.
+    static void SetUpTestSuite() { setLegalityDate(20261122); }
+    static void TearDownTestSuite() { setLegalityDate(0); }
+
     void SetUp() override {
         registry.loadAll();
         db.buildFromClasses(registry);
@@ -458,13 +464,14 @@ TEST_F(DeckValidatorTest, BannedCardRejectedViaCsv) {
 }
 
 // Radiance ban list, effective 2026-11-23 (playriftbound.com announcement).
-// A test pins the clock with setLegalityDate(YYYYMMDD) and restores the UTC
-// calendar date with setLegalityDate(0). The builder reads the clock when it
-// is constructed, the validator when it is asked.
+// The suite pins 20261122. This test moves the clock and puts that date back,
+// so a later test in the suite still sees the day before the bans.
+// TearDownTestSuite restores the UTC calendar date.
 TEST_F(DeckValidatorTest, RadianceBansAreLegalOnNovember22AndIllegalOnNovember23) {
     struct Pin {
-        explicit Pin(int yyyymmdd) { setLegalityDate(yyyymmdd); }
-        ~Pin() { setLegalityDate(0); }
+        explicit Pin(int yyyymmdd) : previous_(legalityDate()) { setLegalityDate(yyyymmdd); }
+        ~Pin() { setLegalityDate(previous_); }
+        int previous_;
     };
     auto namesBan = [](const ValidationResult& result, const char* name) {
         for (const auto& e : result.errors)
