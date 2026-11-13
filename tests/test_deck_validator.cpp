@@ -238,6 +238,43 @@ TEST_F(DeckValidatorTest, DomainViolation) {
     }
 }
 
+// Printed Runeblade Anvil is Fury. The gallery tag says Chaos, and that tag
+// made Mordekaiser's Fury/Order legend reject the gear.
+TEST_F(DeckValidatorTest, RunebladeAnvilIsFuryAndLegalInAFuryLegend) {
+    auto* anvil = db.findByName("Runeblade Anvil");
+    ASSERT_NE(anvil, nullptr);
+    ASSERT_EQ(anvil->domains.size(), 1u);
+    EXPECT_EQ(anvil->domains[0], Domain::Fury);
+
+    auto* legend = db.findByName("Iron Revenant");
+    ASSERT_NE(legend, nullptr);
+    bool legend_is_fury = false;
+    for (auto d : legend->domains)
+        if (d == Domain::Fury) legend_is_fury = true;
+    ASSERT_TRUE(legend_is_fury);
+
+    DeckValidator validator(db);
+
+    auto fury_deck = makeValidDeck();
+    fury_deck.legend = legend->id;
+    fury_deck.main_deck.back() = anvil->id;
+    for (const auto& e : validator.validate(fury_deck).errors) {
+        EXPECT_EQ(e.find("Runeblade Anvil"), std::string::npos) << e;
+    }
+
+    // Deceiver is Mind/Order, so a real Fury gear is illegal there. An empty
+    // domain would have been allowed and this error would not appear.
+    auto mind_deck = makeValidDeck();
+    mind_deck.main_deck.back() = anvil->id;
+    bool fury_error = false;
+    for (const auto& e : validator.validate(mind_deck).errors) {
+        if (e.find("Runeblade Anvil") != std::string::npos &&
+            e.find("Fury") != std::string::npos)
+            fury_error = true;
+    }
+    EXPECT_TRUE(fury_error);
+}
+
 TEST_F(DeckValidatorTest, WrongRuneDomain) {
     auto deck = makeValidDeck();
     // Replace an Order Rune with a Fury Rune

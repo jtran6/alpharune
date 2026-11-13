@@ -47,7 +47,7 @@ private:
         d.artist = R"RB(Kudos Productions)RB";
         d.card_type = CardType::Spell;
         d.super_type = SuperType::None;
-        d.domains = {Domain::Order};
+        d.domains = {Domain::Mind};
         d.tags = {};
         d.energy_cost = 9;
         d.power_cost = 1;

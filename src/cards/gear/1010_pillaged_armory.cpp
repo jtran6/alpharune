@@ -40,7 +40,7 @@ private:
         d.artist = R"RB()RB";
         d.card_type = CardType::Gear;
         d.super_type = SuperType::None;
-        d.domains = {Domain::Calm};
+        d.domains = {Domain::Body};
         d.tags = {R"RB(Device)RB"};
         d.energy_cost = 1;
         d.power_cost = 0;

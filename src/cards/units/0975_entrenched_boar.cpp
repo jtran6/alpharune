@@ -40,7 +40,7 @@ private:
         d.artist = R"RB(Kudos Productions)RB";
         d.card_type = CardType::Unit;
         d.super_type = SuperType::None;
-        d.domains = {};
+        d.domains = {Domain::Calm};
         d.tags = {};
         d.energy_cost = 2;
         d.power_cost = 0;

@@ -37,7 +37,7 @@ private:
         d.artist = R"RB(Six More Vodka)RB";
         d.card_type = CardType::Unit;
         d.super_type = SuperType::None;
-        d.domains = {};
+        d.domains = {Domain::Mind};
         d.tags = {};
         d.energy_cost = 4;
         d.power_cost = 0;

@@ -37,7 +37,7 @@ private:
         d.artist = R"RB()RB";
         d.card_type = CardType::Gear;
         d.super_type = SuperType::None;
-        d.domains = {Domain::Order};
+        d.domains = {Domain::Body};
         d.tags = {};
         d.energy_cost = 1;
         d.power_cost = 0;
