@@ -3863,6 +3863,21 @@ void GameEngine::executePlayCard(const Intent& intent) {
     // the play is announced, so "when you play a unit here" abilities can
     // tell where it is being played.
     card.location = intent.play_location.value_or(BaseLocation{intent.player});
+    // "Units you play at a battlefield you control enter ready" is judged
+    // from the battlefield chosen for the play, before an "as you play me"
+    // replacement rewrites the location (Baron Nashor enters the Pit he
+    // creates). resolvePermanent reads the stamp.
+    if (card.isUnit() && state_.player(intent.player).units_enter_ready_at_your_bf &&
+        card.location.has_value()) {
+        if (const auto* chosen = std::get_if<BattlefieldLocation>(&*card.location)) {
+            const auto raw = static_cast<size_t>(chosen->id.raw());
+            if (raw < state_.battlefields.size()) {
+                const auto& slot = state_.battlefields[static_cast<size_t>(raw)];
+                if (slot.controller.has_value() && *slot.controller == intent.player)
+                    card.card_counters["__enter_ready_from_chosen_bf"] = 1;
+            }
+        }
+    }
 
     // CR 383.4.a.2: play effects "are put on the Chain as Pending Items after
     // the Permanent these effects correspond to is finalized and enters the
@@ -5053,6 +5068,11 @@ void GameEngine::resolvePermanent(const ChainItem& item) {
                     enters_ready = true;
             }
         }
+        // Stamped from the chosen battlefield before onPlay rewrote it.
+        if (card.card_counters.count("__enter_ready_from_chosen_bf")) {
+            enters_ready = true;
+            card.card_counters.erase("__enter_ready_from_chosen_bf");
+        }
         if (state_.player(card.controller).next_unit_accelerate > 0)
             state_.player(card.controller).next_unit_accelerate = 0;
         if (state_.player(card.controller).next_unit_any_battlefield > 0)
@@ -5768,6 +5788,22 @@ namespace {
 std::vector<std::vector<GameObjectId>> spellTargetSets(
     const Card* card, const GameState& state, PlayerId player,
     const TargetRequirements& req, const std::vector<GameObjectId>& legal);
+
+// A card banished "until the next Ending Phase" (Runeblade Anvil, Akali).
+// `through` is the stamp banishTopUntilEnding writes: this turn's number
+// while that Ending Phase has not begun, or the next turn's number once
+// the current turn is already in its Ending Phase or is not this player's.
+// Legal on your turn during that window, and not once the named Ending
+// Phase has begun.
+bool banishedUntilEndingOpen(const GameState& state, PlayerId player, int through) {
+    if (state.turn.turn_player != player) return false;
+    const bool ending = state.turn.phase == TurnPhase::EndingStep ||
+                        state.turn.phase == TurnPhase::ExpirationStep;
+    const int turn = state.turn.turn_number;
+    if (!ending && through == turn) return true;
+    if (ending && through == turn + 1) return true;
+    return false;
+}
 }
 
 std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const {
@@ -5920,8 +5956,8 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         if (!state_.objectExists(card_id)) continue;
         auto& card = state_.getObject(card_id);
         auto mark = card.card_counters.find("__playable_through_turn");
-        if (mark == card.card_counters.end() || mark->second != state_.turn.turn_number) continue;
-        if (state_.turn.turn_player != player) continue;
+        if (mark == card.card_counters.end() ||
+            !banishedUntilEndingOpen(state_, player, mark->second)) continue;
         const Card* card_obj = card_registry_.get(card.card_def_id);
         // A spell can be short on its printed cost and still payable once its
         // target is chosen (the hand path's canAffordChoosing). Rejecting it

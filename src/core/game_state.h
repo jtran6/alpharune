@@ -49,6 +49,10 @@ struct RunePool {
     int universal_power = 0;  // [A] — any domain
     int spell_power = 0;       // [A], "Use only to play spells." (Daughter of the Void)
     int gear_power = 0;        // [A], "Use only to play gear or use gear abilities."
+    // [A], "Spend this Power only to play units or gear." (Mordekaiser, Iron
+    // Revenant). A unit play and a gear play both spend it; a spell does not.
+    // gear_power stays gear-only (Fire Below the Mountain).
+    int unit_gear_power = 0;
 
     void clear() {
         energy = 0;
@@ -58,12 +62,13 @@ struct RunePool {
         universal_power = 0;
         spell_power = 0;
         gear_power = 0;
+        unit_gear_power = 0;
         for (int i = 0; i < static_cast<int>(Domain::Count); ++i)
             power[i] = 0;
     }
 
     int totalPower() const {
-        int sum = universal_power + spell_power + gear_power;
+        int sum = universal_power + spell_power + gear_power + unit_gear_power;
         for (int i = 0; i < static_cast<int>(Domain::Count); ++i)
             sum += power[i];
         return sum;
@@ -78,7 +83,8 @@ struct RunePool {
     /// Restricted [A] usable for a payment of kind `f`.
     int restrictedPower(SpendFor f) const {
         return (f == SpendFor::Spell ? spell_power : 0) +
-               (f == SpendFor::Gear ? gear_power : 0);
+               (f == SpendFor::Gear ? gear_power : 0) +
+               ((f == SpendFor::Unit || f == SpendFor::Gear) ? unit_gear_power : 0);
     }
     /// Spend up to `need` restricted Energy / Power usable for `f`; `need` is
     /// reduced by what was spent.
@@ -99,7 +105,8 @@ struct RunePool {
             need -= n;
         };
         if (f == SpendFor::Spell) take(spell_power);
-        if (f == SpendFor::Gear) take(gear_power);
+        if (f == SpendFor::Gear) take(gear_power);   // gear-only, before the shared pool
+        if (f == SpendFor::Unit || f == SpendFor::Gear) take(unit_gear_power);
     }
 };
 

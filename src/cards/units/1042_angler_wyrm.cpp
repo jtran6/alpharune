@@ -36,13 +36,18 @@ public:
             if (auto* bf = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(ctx.source).location))
                 here = bf->id;
         }
+        // The opponent performs the move (CR 412). A unit they cannot move
+        // is not a legal choice while any unit can; if none can, the
+        // instruction does nothing.
         auto units = chooseableUnits(ctx.state, them, [&](const GameObject& u) {
             if (u.controller != them) return false;
+            if (u.cant_move_this_turn || u.cant_be_moved_by_enemy) return false;
             if (!here.valid() || !u.location.has_value()) return true;
             if (const auto* bf = std::get_if<BattlefieldLocation>(&*u.location))
                 return bf->id != here;
             return true;
         });
+        if (units.empty()) return;
         auto t = selectObjectAs(ctx, them, "Angler Wyrm: move a unit you control here", units, /*slot=*/7);
         if (!t) return;
         // "My battlefield" is where I am as this resolves. A unit that died
@@ -57,6 +62,25 @@ public:
             return;
         if (const auto* at = std::get_if<BattlefieldLocation>(&*ctx.state.getObject(*t).location))
             if (at->id == here) return;
+        const auto& moving = ctx.state.getObject(*t);
+        if (moving.cant_move_this_turn || moving.cant_be_moved_by_enemy) return;
+        // They pay an arrival cost at my battlefield, or the unit stays.
+        // Declining is allowed (CR 204.4.c).
+        const auto raw = static_cast<size_t>(here.raw());
+        if (raw < ctx.state.battlefields.size()) {
+            const auto& slot = ctx.state.battlefields[static_cast<size_t>(raw)];
+            const bool owed = (slot.arrival_energy > 0 || slot.arrival_power > 0) &&
+                              static_cast<int>(them) != slot.arrival_exempt;
+            if (owed) {
+                if (!resource::canPayIn(ctx.state, them, slot.arrival_energy, slot.arrival_power,
+                                        resource::kAnyDomain))
+                    return;
+                if (!ctx.executor.confirmNow(them,
+                        "Angler Wyrm: pay [1][A] to move that unit here?"))
+                    return;
+            }
+        }
+        if (!payArrival(ctx, them, here)) return;
         ctx.executor.moveToBattlefield(*t, here);
     }
 

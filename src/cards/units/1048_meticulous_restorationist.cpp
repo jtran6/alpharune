@@ -19,7 +19,9 @@ public:
     // "When you play a card with Energy cost [7] or more, you may play me
     // from your trash for [Y]." A triggered ability from the trash (the same
     // shape as Forbidden Technique), not a play that stays legal for the rest
-    // of the turn. [Y] replaces the printed cost.
+    // of the turn. [Y] is an alternate cost of playing this unit (CR 356.1.a):
+    // it replaces the printed [2], and Power that can be spent only to play
+    // units or gear pays it.
     bool triggersWhileInTrash(TriggerType t) const override {
         return t == TriggerType::WhenYouPlayACard;
     }
@@ -40,12 +42,15 @@ public:
             return std::find(trash.begin(), trash.end(), ctx.source) != trash.end();
         };
         auto can_pay = [&] {
-            return in_trash() && payableOnePower(ctx.state, ctx.controller, Domain::Order);
+            return in_trash() &&
+                   resource::canPay(ctx.state, ctx.controller, 0, 1, Domain::Order,
+                                    SpendFor::Unit);
         };
         const int go = confirmOptional(ctx,
             "Meticulous Restorationist: pay [Y] to play from trash?", can_pay);
         if (go < 1) return;
-        if (costDueNow(ctx) && !payOnePower(ctx, ctx.controller, Domain::Order)) return;
+        if (costDueNow(ctx) &&
+            !payOnePower(ctx, ctx.controller, Domain::Order, SpendFor::Unit)) return;
         if (finalizingChoices(ctx)) return;
         if (!in_trash()) return;
         const int where = pickEffectPlayLocation(*this, ctx,

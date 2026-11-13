@@ -19,8 +19,10 @@ public:
     //
     // "You may kill a friendly unit as an additional cost to play me. If you
     //  do, I cost [1] less for each Energy it costs and [Y] less for each Power
-    //  it costs." An additional cost chosen before payment (CR 356.2.b); the
-    //  killed unit's printed cost comes from the CardDB (a token costs nothing).
+    //  it costs." The unit is chosen before payment (CR 356.2.b). Energy and
+    //  Power are paid first and the kill is the non-standard cost after them
+    //  (CR 357.1, 357.2), so the unit is not in the trash while that Power is
+    //  paid. The printed cost comes from the CardDB (a token costs nothing).
     static std::vector<GameObjectId> friendlyUnits(const GameState& state, PlayerId player) {
         std::vector<GameObjectId> out;
         for (const auto& [id, obj] : state.objects.onBoard())
@@ -59,6 +61,8 @@ public:
         const std::function<bool(const PlayCostAdjust&)>& affordable) override {
         // Only units whose cost leaves me payable can be chosen when the
         // full cost is out of reach.
+        if (ctx.state.objectExists(ctx.source))
+            ctx.state.getObject(ctx.source).card_counters.erase("__atakhan_fodder");
         const bool may_decline = affordable(PlayCostAdjust{});
         std::vector<GameObjectId> units;
         for (auto id : friendlyUnits(ctx.state, ctx.controller))
@@ -72,11 +76,32 @@ public:
         const GameObjectId unit = ctx.executor.chooseObjectNow(ctx.controller, units);
         if (unit == kInvalidId) return {};
         const PlayCostAdjust adj = worth(ctx.state, ctx.executor.cardDB(), unit);
-        ctx.executor.killObject(unit);
-        RIFT_TRACE(ctx.events, "ATAKHAN: killed a friendly unit -> costs [" +
+        // Killed in onPlay, after Energy and Power (CR 357.2). raw()+1 so a
+        // missing mark is 0, not a live object.
+        ctx.state.getObject(ctx.source).card_counters["__atakhan_fodder"] =
+            static_cast<int>(unit.raw()) + 1;
+        RIFT_TRACE(ctx.events, "ATAKHAN: a friendly unit will be killed -> costs [" +
                             std::to_string(adj.energy_reduction) + "] and " +
                             std::to_string(adj.power_reduction) + " Power less");
         return adj;
+    }
+    // After the resource step (executePlayCard pays, then calls onPlay).
+    void onPlay(CardContext& ctx) override {
+        if (!ctx.state.objectExists(ctx.source)) return;
+        auto& self = ctx.state.getObject(ctx.source);
+        auto it = self.card_counters.find("__atakhan_fodder");
+        if (it == self.card_counters.end()) return;
+        const int stored = it->second;
+        self.card_counters.erase(it);
+        if (stored <= 0) return;
+        const GameObjectId unit = GameObjectId::fromRaw(stored - 1);
+        if (!ctx.state.objectExists(unit)) return;
+        const auto& victim = ctx.state.getObject(unit);
+        if (!victim.isUnit() || !victim.location.has_value() ||
+            victim.controller != ctx.controller)
+            return;
+        ctx.executor.killObject(unit);
+        RIFT_TRACE(ctx.events, "ATAKHAN: killed the friendly unit after paying");
     }
     //
     // "When I attack, the defender must kill one of their units here." The

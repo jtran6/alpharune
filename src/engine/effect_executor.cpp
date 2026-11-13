@@ -3334,6 +3334,18 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
         // decides it for a unit played from hand.
         bool ready = accelerated || state_.player(player).otherUnitsEnterReady(card) ||
                      state_.player(player).units_enter_ready_this_turn;
+        // Judged here, before onPlay can move the unit (Baron's Pit). The
+        // hand-play path stamps the same fact in executePlayCard.
+        if (state_.player(player).units_enter_ready_at_your_bf) {
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&chosen_loc)) {
+                const auto raw = static_cast<size_t>(bf->id.raw());
+                if (raw < state_.battlefields.size()) {
+                    const auto& slot = state_.battlefields[static_cast<size_t>(raw)];
+                    if (slot.controller.has_value() && *slot.controller == player)
+                        ready = true;
+                }
+            }
+        }
         if (const Card* self_card = cardFor(obj.card_def_id))
             ready = ready || self_card->entersReadyOnPlay(state_, player, obj);
         obj.is_exhausted = !ready;

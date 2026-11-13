@@ -392,6 +392,7 @@ TEST(StrongIds, EveryObjectIdReadFromAnIntegerSlotIsOnTheAuditedList) {
         {"src/cards/units/0449_overzealous_fan.cpp", 1},
         {"src/cards/units/0491_rek_sai_swarm_queen.cpp", 2},
         {"src/cards/units/0643_keeper_of_masks.cpp", 1},
+        {"src/cards/units/0732_atakhan.cpp", 1},   // fodder, stored raw()+1, killed in onPlay after Energy and Power
         {"src/core/game_state.h", 2},
         {"src/io/play_server.cpp", 3},
     };

@@ -103,10 +103,15 @@ inline PlayerId controllerWhenItLeft(const CardContext& ctx, GameObjectId id) {
     return controllerWhenItLeft(ctx.state, id);
 }
 inline bool payOnePower(CardContext& ctx, PlayerId player,
-                        std::optional<Domain> domain) {
+                        std::optional<Domain> domain,
+                        SpendFor purpose = SpendFor::Other) {
     // The engine's own payment (engine/resource_payment.h): floating Power,
     // then a recycled rune from the player's base, an exhausted one first.
-    return ctx.executor.payResources(player, 0, 1, resource::maskOf(domain.value_or(Domain::Count)));
+    // `purpose` is what the Power is spent to do, so a restricted pool
+    // ("only to play units or gear") can pay a unit's alternate cost.
+    return ctx.executor.payResources(player, 0, 1,
+                                     resource::maskOf(domain.value_or(Domain::Count)),
+                                     purpose);
 }
 
 // ── Paying Energy inside an effect ("you may pay [N] to ...") ───────────────
@@ -1613,10 +1618,43 @@ inline std::vector<int> moveDests(const GameState& state, const GameObject& u) {
 inline std::string destLabel(int d) {
     return d <= 0 ? std::string("Base") : "Battlefield #" + std::to_string(d - 1);
 }
-/// Move `u` to a moveDests destination.
-inline void moveTo(CardContext& ctx, GameObjectId u, int dest) {
-    if (dest <= 0) ctx.executor.moveToBase(u);
-    else ctx.executor.moveToBattlefield(u, BattlefieldId::fromRaw(dest - 1));
+/// A battlefield's arrival cost (Gravity Field), owed by the player who
+/// performs the move (CR 204.4, 412). The gear's controller is exempt.
+/// True when nothing is owed or the payment was made. False when the mover
+/// cannot pay: the move is not performed.
+inline bool payArrival(CardContext& ctx, PlayerId mover, BattlefieldId bf) {
+    if (!bf.valid()) return true;
+    const auto raw = static_cast<size_t>(bf.raw());
+    if (raw >= ctx.state.battlefields.size()) return true;
+    const auto& slot = ctx.state.battlefields[static_cast<size_t>(raw)];
+    if (slot.arrival_energy <= 0 && slot.arrival_power <= 0) return true;
+    if (static_cast<int>(mover) == slot.arrival_exempt) return true;
+    if (!resource::canPayIn(ctx.state, mover, slot.arrival_energy, slot.arrival_power,
+                            resource::kAnyDomain))
+        return false;
+    return ctx.executor.payResources(mover, slot.arrival_energy, slot.arrival_power,
+                                     resource::kAnyDomain);
+}
+/// Move `u` to a moveDests destination. The card's controller is the player
+/// performing the move, so they pay an arrival cost or the unit stays.
+/// False when the move does not happen.
+inline bool moveTo(CardContext& ctx, GameObjectId u, int dest) {
+    if (!ctx.state.objectExists(u)) return false;
+    const auto& obj = ctx.state.getObject(u);
+    if (dest <= 0) {
+        ctx.executor.moveToBase(u);
+        return true;
+    }
+    const auto bf = BattlefieldId::fromRaw(dest - 1);
+    if (obj.battlefieldId() && *obj.battlefieldId() == bf) return true;
+    // The same refusals moveToBattlefield applies, judged before the cost so
+    // a move that cannot happen is not paid for.
+    if (obj.cant_be_moved_by_enemy && ctx.controller != obj.controller) return false;
+    if (obj.cant_move_this_turn && ctx.controller == obj.controller) return false;
+    if (!payArrival(ctx, ctx.controller, bf)) return false;
+    ctx.executor.moveToBattlefield(u, bf);
+    return ctx.state.objectExists(u) && ctx.state.getObject(u).battlefieldId() &&
+           *ctx.state.getObject(u).battlefieldId() == bf;
 }
 /// Where `player` may put a unit token an effect plays ("They can be played
 /// to your base or to battlefields you control"), as moveDests codes: 0 =
