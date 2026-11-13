@@ -16,10 +16,9 @@ class HeishoShellOfTheWorld : public BattlefieldCard {
 public:
     const CardDef& def() const override { return def_; }
     // "Players ignore [Deflect] while paying for spells and abilities choosing
-    // something here."
-    // The flag is asserted for the cost path. Note the engine does not yet
-    // charge [Deflect] costs at all (deflect_value is tracked but unpaid), so
-    // this has no observable effect until Deflect payment exists.
+    // something here." deflectCostFor (effect_executor.cpp) reads
+    // BattlefieldState::ignore_deflect_here and charges nothing for an object
+    // at that battlefield. Choosing one anywhere else still costs its Deflect.
     void applyPassiveAura(GameState& state, PlayerId /*controller*/) const override {
         for (auto& bf : state.battlefields) {
             if (!state.objectExists(bf.card_object_id)) continue;

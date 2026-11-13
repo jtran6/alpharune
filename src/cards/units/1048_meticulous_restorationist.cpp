@@ -16,9 +16,44 @@ class MeticulousRestorationist_1048 : public UnitCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    TrashPlayCost trashPlayCost(const GameState& state, PlayerId owner, GameObjectId) const override {
-        if (state.player(owner).high_energy_plays_this_turn < 1) return {};
-        return {.valid = true, .energy = 0, .power = 1, .power_domain = Domain::Order};
+    // "When you play a card with Energy cost [7] or more, you may play me
+    // from your trash for [Y]." A triggered ability from the trash (the same
+    // shape as Forbidden Technique), not a play that stays legal for the rest
+    // of the turn. [Y] replaces the printed cost.
+    bool triggersWhileInTrash(TriggerType t) const override {
+        return t == TriggerType::WhenYouPlayACard;
+    }
+    std::vector<TriggerType> triggerTypes() const override {
+        return {TriggerType::WhenYouPlayACard};
+    }
+    bool triggerConditionOn(const GameState& state, const TriggerEvent& event) const override {
+        if (event.trigger != TriggerType::WhenYouPlayACard) return false;
+        if (!event.subject_card || event.subject_card->energy_cost < 7) return false;
+        return state.objectExists(event.source) &&
+               state.getObject(event.source).zone == ZoneType::Trash;
+    }
+    unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
+    void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
+        auto in_trash = [&] {
+            if (!ctx.state.objectExists(ctx.source)) return false;
+            const auto& trash = ctx.state.player(ctx.state.getObject(ctx.source).owner).trash;
+            return std::find(trash.begin(), trash.end(), ctx.source) != trash.end();
+        };
+        auto can_pay = [&] {
+            return in_trash() && payableOnePower(ctx.state, ctx.controller, Domain::Order);
+        };
+        const int go = confirmOptional(ctx,
+            "Meticulous Restorationist: pay [Y] to play from trash?", can_pay);
+        if (go < 1) return;
+        if (costDueNow(ctx) && !payOnePower(ctx, ctx.controller, Domain::Order)) return;
+        if (finalizingChoices(ctx)) return;
+        if (!in_trash()) return;
+        const int where = pickEffectPlayLocation(*this, ctx,
+            "Meticulous Restorationist: play me to", ctx.source);
+        if (where == -1) return;
+        ctx.executor.playIgnoringCost(ctx.controller, ctx.source,
+            effectPlayLocation(ctx.state, ctx.controller, where));
+        RIFT_TRACE(ctx.events, "METICULOUS RESTORATIONIST: paid [Y] -> played from trash");
     }
 
 private:

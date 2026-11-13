@@ -25,12 +25,30 @@ public:
     }
     int takeOptionalSpellEnergyOff(CardContext& ctx) const override {
         if (optionalSpellEnergyOff(ctx.state, ctx.source) < 2) return 0;
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return !u.is_exhausted; });
-        if (units.size() < 3) return 0;
-        if (!ctx.executor.confirmNow(ctx.controller, "Starry-Eyed Songstress: exhaust her and three units to reduce a spell by [2]"))
+        if (!ctx.executor.confirmNow(ctx.controller,
+                "Starry-Eyed Songstress: exhaust her and three units to reduce a spell by [2]"))
             return 0;
+        // Which three is the player's: more than three ready units is a choice,
+        // not the three with the lowest ids.
+        std::vector<GameObjectId> picked;
+        for (int n = 0; n < 3; ++n) {
+            auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+                return u.controller == ctx.controller && !u.is_exhausted &&
+                       std::find(picked.begin(), picked.end(), u.id) == picked.end();
+            });
+            if (static_cast<int>(units.size()) < 3 - n) return 0;
+            static constexpr const char* kWhich[3] = {
+                "Starry-Eyed Songstress: exhaust the first unit",
+                "Starry-Eyed Songstress: exhaust the second unit",
+                "Starry-Eyed Songstress: exhaust the third unit",
+            };
+            const GameObjectId id = ctx.executor.chooseObjectNow(
+                ctx.controller, units, kWhich[n]);
+            if (id == kInvalidId) return 0;
+            picked.push_back(id);
+        }
         ctx.executor.exhaustObject(ctx.source);
-        for (int i = 0; i < 3 && i < static_cast<int>(units.size()); ++i) ctx.executor.exhaustObject(units[i]);
+        for (auto id : picked) ctx.executor.exhaustObject(id);
         return 2;
     }
 

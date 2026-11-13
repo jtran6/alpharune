@@ -883,6 +883,11 @@ private:
     void forgetPlayPayments(PlayerId player, GameObjectId card_id);
     Card::PlayCostAdjust payAdditionalPlayCosts(PlayerId player, GameObjectId card_id,
                                                 int extra_any_power);
+    /// Starry-Eyed Songstress: a spell's optional energy discount from another
+    /// permanent, when this spell's own additional cost did not already reduce
+    /// its Energy. Adds what the player accepts to `adj`.
+    void takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
+                                   Card::PlayCostAdjust& adj);
     /// What a spell's chosen targets take off its cost.
     Card::PlayCostAdjust targetCostDiscount(PlayerId player,
                                             const std::vector<GameObjectId>& targets,

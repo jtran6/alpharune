@@ -3,6 +3,7 @@
 #include "cards/card_registry.h"
 #include "core/game_state.h"
 #include "core/events.h"
+#include "engine/deck_ops.h"
 #include "engine/effect_executor.h"
 #include <algorithm>
 #include <memory>
@@ -16,7 +17,44 @@ class BattlefieldArmorer_1055 : public UnitCard {
 public:
     const CardDef& def() const override { return def_; }
 
+    // "When a friendly gear at a battlefield dies, you may pay [1] to return
+    // it to its owner's hand." The gear has already left the board when this
+    // is judged (LeftBoardEvent): "at a battlefield" is where it died
+    // (last_known), and the return is from its owner's trash. A token ceased
+    // to exist and is not in a trash, so it is not offered.
     TriggerType triggerType() const override { return TriggerType::WhenAFriendlyGearDies; }
+    unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
+    static bool inOwnerTrash(const GameState& state, GameObjectId gear) {
+        if (gear == kInvalidId || !state.objectExists(gear)) return false;
+        const auto& trash = state.player(state.getObject(gear).owner).trash;
+        return std::find(trash.begin(), trash.end(), gear) != trash.end();
+    }
+    bool triggerCondition(const GameState& state, GameObjectId /*source*/, PlayerId /*controller*/,
+                          TriggerType /*trigger*/, GameObjectId subject) const override {
+        if (!inOwnerTrash(state, subject)) return false;
+        const auto& gear = state.getObject(subject);
+        if (!gear.last_known.valid || !gear.last_known.died || !gear.last_known.location.has_value())
+            return false;
+        return std::holds_alternative<BattlefieldLocation>(*gear.last_known.location);
+    }
+    void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
+        const GameObjectId gear = ctx.state.chain.resuming
+            ? ctx.state.chain.resuming->triggering_subject : kInvalidId;
+        auto still = [&] {
+            return inOwnerTrash(ctx.state, gear) && canPayEnergy(ctx, ctx.controller, 1);
+        };
+        const int pay = confirmOptional(ctx,
+            "Battlefield Armorer: pay [1] to return the gear to its owner's hand?", still);
+        if (pay < 1) return;
+        if (costDueNow(ctx) && !payEnergy(ctx, ctx.controller, 1)) return;
+        if (finalizingChoices(ctx)) return;
+        if (!inOwnerTrash(ctx.state, gear)) return;
+        auto& trash = ctx.state.player(ctx.state.getObject(gear).owner).trash;
+        trash.erase(std::remove(trash.begin(), trash.end(), gear), trash.end());
+        deck::putInHand(ctx.state, gear);
+        RIFT_TRACE(ctx.events, "BATTLEFIELD ARMORER: paid [1], returned " +
+                             ctx.state.getObject(gear).name + " to its owner's hand");
+    }
 
 private:
     const CardDef def_ = [] {

@@ -3286,36 +3286,48 @@ Card::PlayCostAdjust GameEngine::payAdditionalPlayCosts(PlayerId player, GameObj
     // a card and pays for it): the play starts here for them.
     Card::forgetPlayPayments(state_, cc, player, card_id);
     const auto addl = cc->additionalPlayCost(state_, card_db_, player, card_id);
-    if (!addl.exists || !addl.payable) return {};
-    CardContext ctx{state_, events_, *effect_executor_, player, card_id};
-    const EffectExecutor::ActingFor acting(*effect_executor_, card_id);
-    ctx.registry = &card_registry_;
-    auto adj = cc->payAdditionalPlayCost(ctx, [&](const Card::PlayCostAdjust& a) {
-        return canAffordWith(player, card_id, extra_any_power, a);
-    });
-    // A different permanent's optional discount for this spell (Starry-Eyed
-    // Songstress). Taken when the spell needs it, or when the player accepts.
-    if (card.isSpell() && adj.energy_reduction == 0 && !adj.ignore_cost) {
-        for (auto& [id, obj] : state_.objects.inPlay()) {
-            if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
-            Card* other = card_registry_.get(obj.card_def_id);
-            if (!other || other->optionalSpellEnergyOff(state_, id) <= 0) continue;
-            CardContext octx{state_, events_, *effect_executor_, player, id};
-            octx.registry = &card_registry_;
-            const EffectExecutor::ActingFor acting(*effect_executor_, id);
-            const int got = other->takeOptionalSpellEnergyOff(octx);
-            if (got > 0) {
-                adj.energy_reduction += got;
-                break;
-            }
-        }
+    Card::PlayCostAdjust adj;
+    // A spell with no additional cost of its own still reaches the permanent
+    // discount below (Starry-Eyed Songstress).
+    if (addl.exists && addl.payable) {
+        CardContext ctx{state_, events_, *effect_executor_, player, card_id};
+        const EffectExecutor::ActingFor acting(*effect_executor_, card_id);
+        ctx.registry = &card_registry_;
+        adj = cc->payAdditionalPlayCost(ctx, [&](const Card::PlayCostAdjust& a) {
+            return canAffordWith(player, card_id, extra_any_power, a);
+        });
     }
+    // Starry-Eyed Songstress, including a spell that prints no additional cost.
+    takeOptionalSpellEnergyOff(player, card_id, adj);
     if (adj.ignore_cost || adj.energy_reduction > 0 || adj.power_reduction > 0)
         RIFT_TRACE(events_, "ADDITIONAL_COST: " + state_.getObject(card_id).name +
                          (adj.ignore_cost ? " ignores its cost"
                               : " costs [" + std::to_string(adj.energy_reduction) + "] and " +
                                 std::to_string(adj.power_reduction) + " Power less"));
     return adj;
+}
+
+void GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
+                                           Card::PlayCostAdjust& adj) {
+    if (!state_.objectExists(spell)) return;
+    const auto& card = state_.getObject(spell);
+    // A different permanent's optional discount for this spell (Starry-Eyed
+    // Songstress). A hand-played spell pays in finishPlaySpell, which does
+    // not go through payAdditionalPlayCosts; both paths call this.
+    if (!card.isSpell() || adj.energy_reduction != 0 || adj.ignore_cost) return;
+    for (auto& [id, obj] : state_.objects.inPlay()) {
+        if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
+        Card* other = card_registry_.get(obj.card_def_id);
+        if (!other || other->optionalSpellEnergyOff(state_, id) <= 0) continue;
+        CardContext octx{state_, events_, *effect_executor_, player, id};
+        octx.registry = &card_registry_;
+        const EffectExecutor::ActingFor acting(*effect_executor_, id);
+        const int got = other->takeOptionalSpellEnergyOff(octx);
+        if (got > 0) {
+            adj.energy_reduction += got;
+            break;
+        }
+    }
 }
 
 // What the targets a spell chose take off its cost: "your spells that choose
@@ -4343,6 +4355,9 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
                 }
             }
         }
+        // A permanent's optional spell discount (Starry-Eyed Songstress). The
+        // spell's own additional cost, when it already reduced Energy, stands.
+        takeOptionalSpellEnergyOff(intent.player, intent.card, prepay);
         // "[1] or [A] less": the player picks the half when both would do
         // something and both leave the spell payable.
         Card::PlayCostAdjust total = plus(prepay, disc_energy);
