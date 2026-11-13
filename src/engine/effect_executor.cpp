@@ -3206,6 +3206,17 @@ bool plainPay(GameState& state, EventBus& events, PlayerId player, const PlainCo
 }
 }  // namespace
 
+std::pair<int, int> EffectExecutor::stagedNetCost(PlayerId player, GameObjectId card,
+                                                   const EffectPlayCost& cost) const {
+    const int replaced_energy = std::max(0, cost.replace_energy);
+    const int replaced_power = std::max(0, cost.replace_power);
+    if (!state_.objectExists(card) || !net_play_cost_)
+        return {cost.replace_energy >= 0 ? replaced_energy : 0,
+                cost.replace_power >= 0 ? replaced_power : 0};
+    StagedEffectCost staged(state_.player(player), cost, state_.getObject(card).zone);
+    return net_play_cost_(player, card);
+}
+
 bool EffectExecutor::canPlayPayingCost(PlayerId player, GameObjectId card,
                                        EffectPlayCost cost) const {
     if (!state_.objectExists(card)) return false;

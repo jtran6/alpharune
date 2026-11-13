@@ -534,6 +534,31 @@ TEST_F(RadianceFaq, GravityFieldArrivalCanBePaidWithAnAdd) {
     EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
 }
 
+TEST_F(RadianceFaq, SpellPowerIsNotDroppedWhenNoRuneCanPayIt) {
+    auto spell = addToHand(P1, 1115);   // Raucous Anthem: [7] and 1 Power, no choices
+    state.player(P1).rune_pool.energy = 7;
+    EnginePathAgent agent(EnginePathAgent::script({EnginePathAgent::kRest}));
+    playThroughEngine(spell, &agent, std::nullopt, nullptr, /*fund=*/false);
+    EXPECT_TRUE(inHand(P1, spell));
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 7);
+}
+
+TEST_F(RadianceFaq, RestorationistTaxIsNotOfferedWhenTheAddCannotPayIt) {
+    auto rest = addToHand(P1, 1048);
+    toTrash(P1, rest);
+    auto fruit = readyGearAtBase(P1, 611, card_db, state);
+    PlayerState::CostModifier tax;
+    tax.energy_increase = 1;
+    tax.units_only = true;
+    tax.this_turn_only = true;
+    state.player(P1).cost_modifiers.push_back(tax);
+    auto big = addToHand(P1, 1115);
+    EnginePathAgent agent(EnginePathAgent::script({1, EnginePathAgent::kRest}));
+    playThroughEngine(big, &agent);
+    EXPECT_TRUE(inTrash(P1, rest));
+    EXPECT_FALSE(state.getObject(fruit).is_exhausted);
+}
+
 TEST_F(RadianceFaq, RestorationistAlternateCostCanBePaidWithAnAdd) {
     auto rest = addToHand(P1, 1048);
     toTrash(P1, rest);

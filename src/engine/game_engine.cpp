@@ -123,6 +123,8 @@ void GameEngine::initSubsystems() {
                 break;
             }
     });
+    effect_executor_->setNetPlayCost(
+        [this](PlayerId p, GameObjectId card) { return netCardCost(p, card, {}); });
     effect_executor_->setPlayCostFns(
         [this](PlayerId p, GameObjectId card) { return effectPlayAffordable(p, card); },
         [this](PlayerId p, GameObjectId card) {
@@ -145,7 +147,14 @@ void GameEngine::initSubsystems() {
             }
             // [Accelerate] is decided with the play's other choices, before the
             // cost, and paid with it (CR 355.1.a; testing phase D58).
+            cost_payment_refused_ = false;
             auto adj = payAdditionalPlayCosts(p, card, 0);
+            if (cost_payment_refused_) {
+                cost_payment_refused_ = false;
+                effect_played_spell_.reset();
+                prefinalized_spell_.reset();
+                return false;
+            }
             adj = decideAccelerate(p, card, adj, 0);
             // What the chosen targets take off the cost (CR 356.4): the "[1]
             // or [A] less" half is the [A] when the effect waives the Energy.
@@ -3313,7 +3322,10 @@ Card::PlayCostAdjust GameEngine::payAdditionalPlayCosts(PlayerId player, GameObj
         });
     }
     // Starry-Eyed Songstress, including a spell that prints no additional cost.
-    takeOptionalSpellEnergyOff(player, card_id, adj);
+    // False: the spell and the Power still owed cannot be paid even with the
+    // discount. The caller must not resolve the play.
+    if (!takeOptionalSpellEnergyOff(player, card_id, adj, extra_any_power))
+        cost_payment_refused_ = true;
     if (adj.ignore_cost || adj.energy_reduction > 0 || adj.power_reduction > 0)
         RIFT_TRACE(events_, "ADDITIONAL_COST: " + state_.getObject(card_id).name +
                          (adj.ignore_cost ? " ignores its cost"
@@ -3322,9 +3334,10 @@ Card::PlayCostAdjust GameEngine::payAdditionalPlayCosts(PlayerId player, GameObj
     return adj;
 }
 
-void GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
-                                           Card::PlayCostAdjust& adj) {
-    if (!state_.objectExists(spell)) return;
+bool GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
+                                           Card::PlayCostAdjust& adj,
+                                           int extra_any_power) {
+    if (!state_.objectExists(spell)) return true;
     const auto& card = state_.getObject(spell);
     // A different permanent's optional discount for this spell (Starry-Eyed
     // Songstress). A hand-played spell pays in finishPlaySpell, which does
@@ -3333,18 +3346,24 @@ void GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
     // this discount: it is an additional cost of playing a spell, not a
     // discount that yields to another energy reduction. A cost that is already
     // ignored has nothing left to reduce.
-    if (!card.isSpell() || adj.ignore_cost) return;
+    if (!card.isSpell() || adj.ignore_cost) return true;
     for (auto& [id, obj] : state_.objects.inPlay()) {
         if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
         Card* other = card_registry_.get(obj.card_def_id);
         if (!other || other->optionalSpellEnergyOff(state_, id) <= 0) continue;
+        // Declining is legal only while the spell AND the Power still owed
+        // (a chosen unit's Deflect, a pay-to-play cost) can be paid without
+        // the discount. A spell that is short only because of that Power is
+        // not declined into an unpaid resolution. When the discount cannot
+        // cover it either, nothing is exhausted and the play is refused.
+        const bool may_decline = canAffordWith(player, spell, extra_any_power, adj);
+        Card::PlayCostAdjust boosted = adj;
+        boosted.energy_reduction += other->optionalSpellEnergyOff(state_, id);
+        if (!may_decline && !canAffordWith(player, spell, extra_any_power, boosted))
+            return false;
         CardContext octx{state_, events_, *effect_executor_, player, id};
         octx.registry = &card_registry_;
         const EffectExecutor::ActingFor acting(*effect_executor_, id);
-        // Declining is legal only while the spell is affordable without the
-        // discount. Otherwise the discount is how this play is paid, and
-        // declining would cast it unpaid.
-        const bool may_decline = canAffordWith(player, spell, 0, adj);
         effect_executor_->setOptionalDiscountDeclinable(may_decline);
         const int got = other->takeOptionalSpellEnergyOff(octx);
         effect_executor_->setOptionalDiscountDeclinable(true);
@@ -3353,6 +3372,7 @@ void GameEngine::takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
             break;
         }
     }
+    return true;
 }
 
 // What the targets a spell chose take off its cost: "your spells that choose
@@ -3849,7 +3869,13 @@ void GameEngine::executePlayCard(const Intent& intent) {
         // now, each only if everything stays payable; then one payment.
         prepay = decideAccelerate(intent.player, intent.card, prepay, location_power);
         maybePayOptionalAdditionalCost(intent.player, intent.card, location_power, prepay);
-        payCardCost(intent.player, intent.card, prepay);
+        // location_power is owed with the cost and paid just after it. A
+        // finished payment that leaves it unpaid does not play the card.
+        if (!payCardCost(intent.player, intent.card, prepay, location_power)) {
+            restoreRemovedFromZone(intent.card);
+            ps.current_play_source = Intent::PlaySource::Hand;
+            return;
+        }
     }
     ps.current_play_source = Intent::PlaySource::Hand;
 
@@ -4388,7 +4414,13 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
         }
         // A permanent's optional spell discount (Starry-Eyed Songstress). It
         // stacks with a reduction the spell's own additional cost already took.
-        takeOptionalSpellEnergyOff(intent.player, intent.card, prepay);
+        // The Deflect of the chosen units is Power owed after this check.
+        if (!takeOptionalSpellEnergyOff(intent.player, intent.card, prepay, deflect)) {
+            restoreRemovedFromZone(intent.card);
+            ps.current_play_source = Intent::PlaySource::Hand;
+            prefinalized_spell_.reset();
+            return;
+        }
         // "[1] or [A] less": the player picks the half when both would do
         // something and both leave the spell payable.
         Card::PlayCostAdjust total = plus(prepay, disc_energy);
@@ -4444,8 +4476,16 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
         // The card's own cost, with the tranches' Energy and Power of its
         // Domains in the same payment (beginCostPayment reads them).
         cost_step_tranches_ = accepted_repeats.empty() ? nullptr : &plan.cost;
-        payCardCost(intent.player, intent.card, total);
+        // Deflect is paid as the spell goes on the chain. It has to be payable
+        // with this cost; a shortfall does not put the spell on the chain.
+        const bool paid_cost = payCardCost(intent.player, intent.card, total, deflect);
         cost_step_tranches_ = nullptr;
+        if (!paid_cost) {
+            restoreRemovedFromZone(intent.card);
+            ps.current_play_source = Intent::PlaySource::Hand;
+            prefinalized_spell_.reset();
+            return;
+        }
         repeat_energy_spent = plan.energy;
         ps.current_play_source = Intent::PlaySource::Hand;
     }
@@ -10234,10 +10274,13 @@ GameEngine::CostPaymentAdvance GameEngine::advanceCostPayment() {
     }
 
     if (candidates.empty()) {
-        // Can't continue — but the contract is canAfford() was checked
-        // upstream, so we should never hit this. Defensively close out.
+        // A finished rune list is not a payment when Power is still owed.
+        // Energy left unpaid stays the old close-out: the offer gate is what
+        // refuses a spell that cannot pay its Energy.
+        const bool power_owed = cur.power_remaining > 0;
         state_.cost_cursor.reset();
-        adv.kind = CostPaymentAdvance::Kind::Done;
+        adv.kind = power_owed ? CostPaymentAdvance::Kind::Unpaid
+                              : CostPaymentAdvance::Kind::Done;
         return adv;
     }
 
@@ -10423,23 +10466,51 @@ bool GameEngine::payTrashReplayGrant(PlayerId player, GameObjectId card_id,
     return ok;
 }
 
+void GameEngine::restoreRemovedFromZone(GameObjectId card) {
+    if (!state_.objectExists(card)) return;
+    auto& obj = state_.getObject(card);
+    auto& owner = state_.player(obj.owner);
+    auto put = [&](std::vector<GameObjectId>& pile) {
+        if (std::find(pile.begin(), pile.end(), card) == pile.end())
+            pile.push_back(card);
+    };
+    const auto zone = obj.zone.get();
+    if (zone == ZoneType::Trash) put(owner.trash);
+    else if (zone == ZoneType::Banishment) put(owner.banishment);
+    else if (zone == ZoneType::ChampionZone) owner.champion_zone = card;
+    else put(owner.hand);
+}
+
 bool GameEngine::payCardCost(PlayerId player, GameObjectId card_obj,
-                             const Card::PlayCostAdjust& adj) {
+                             const Card::PlayCostAdjust& adj,
+                             int extra_any_power) {
     // Bridge: legacy threaded path. Drives the cursor + queryAgent in
     // a loop. Same shape as the other commit-7 bridges
     // (runShowdownLoop, combatDamageStep). Step-machine dispatch
     // (commit 9) will use begin/advance/resolve directly.
-    const int extra_any = state_.objectExists(card_obj)
+    const int printed_extra = state_.objectExists(card_obj)
         ? extraAnyPowerCost(state_, player, state_.getObject(card_obj)) : 0;
-    askRunesFor(player, card_obj, beginCostPayment(player, card_obj, adj));
-    if (extra_any > 0)
-        effect_executor_->payAnyPower(player, extra_any,
+    // Power the caller pays after this cursor (Deflect, a pay-to-play cost)
+    // has to be payable together with the card. Nothing is spent otherwise.
+    // canAffordWith already adds the card's own "[A] more" (a spell tax), so
+    // that is not passed again. An Energy shortfall is left to the cursor:
+    // the offer gate refuses a spell that cannot pay its Energy, and a
+    // finished rune list still closes that payment.
+    Card::PlayCostAdjust energy_aside = adj;
+    energy_aside.energy_reduction += 1000;
+    if (!canAffordWith(player, card_obj, std::max(0, extra_any_power), energy_aside))
+        return false;
+    if (!askRunesFor(player, card_obj, beginCostPayment(player, card_obj, adj)))
+        return false;
+    if (printed_extra > 0 &&
+        !effect_executor_->payAnyPower(player, printed_extra,
             state_.objectExists(card_obj) ? spendForPlay(state_.getObject(card_obj))
-                                          : SpendFor::Other);
+                                          : SpendFor::Other))
+        return false;
     return true;
 }
 
-void GameEngine::askRunesFor(PlayerId player, GameObjectId card_obj, CostPaymentAdvance adv) {
+bool GameEngine::askRunesFor(PlayerId player, GameObjectId card_obj, CostPaymentAdvance adv) {
     while (adv.kind == CostPaymentAdvance::Kind::NeedDecision) {
         if (events_.quiet()) {   // a probe: the engine's order, nobody asked
             adv = resolveCostPaymentDecision(adv.legal.front());
@@ -10464,6 +10535,7 @@ void GameEngine::askRunesFor(PlayerId player, GameObjectId card_obj, CostPayment
         if (on_decision) on_decision(state_, adv.legal, chosen);
         adv = resolveCostPaymentDecision(chosen);
     }
+    return adv.kind != CostPaymentAdvance::Kind::Unpaid;
 }
 
 bool GameEngine::payLikeACardCost(PlayerId player, GameObjectId card_obj, int energy, int power,
@@ -10476,8 +10548,7 @@ bool GameEngine::payLikeACardCost(PlayerId player, GameObjectId card_obj, int en
                          (state_.objectExists(card_obj) ? state_.getObject(card_obj).name
                                                         : std::string("?")) +
                          " E=" + std::to_string(energy) + " P=" + std::to_string(power));
-    askRunesFor(player, card_obj, beginPaymentOf(player, card_obj, energy, power, domains));
-    return true;
+    return askRunesFor(player, card_obj, beginPaymentOf(player, card_obj, energy, power, domains));
 }
 
 void GameEngine::moveUnit(GameObjectId unit_id, LocationId destination) {

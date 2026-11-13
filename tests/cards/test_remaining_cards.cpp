@@ -253,8 +253,11 @@ TEST_F(RemainingCards, SongstressDeclineIsNotOfferedWhenTheSpellCannotBePaid) {
     auto a = addUnit(P1, 13);
     auto b = addUnit(P1, 13);
     auto c = addUnit(P1, 13);
-    auto spell = addToHand(P1, 114);   // Progress Day, Energy 6, no choices
+    auto spell = addToHand(P1, 114);   // Progress Day, [6] and 1 Power, no choices
+    // Energy is short of the printed cost and the discount covers it. The
+    // Power is there, so the discount is how this spell is paid.
     state.player(P1).rune_pool.energy = 4;
+    state.player(P1).rune_pool.universal_power = 1;
     EnginePathAgent agent(EnginePathAgent::script({EnginePathAgent::kRest}));
     playThroughEngine(spell, &agent, std::nullopt, nullptr, /*fund=*/false);
     EXPECT_TRUE(state.getObject(legend).is_exhausted);
@@ -262,6 +265,7 @@ TEST_F(RemainingCards, SongstressDeclineIsNotOfferedWhenTheSpellCannotBePaid) {
     EXPECT_TRUE(state.getObject(b).is_exhausted);
     EXPECT_TRUE(state.getObject(c).is_exhausted);
     EXPECT_EQ(state.player(P1).rune_pool.energy, 0);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
     EXPECT_FALSE(inHand(P1, spell));
 }
 
@@ -296,6 +300,46 @@ TEST_F(RemainingCards, SongstressStacksWithASpellsOwnEnergyReduction) {
     EXPECT_TRUE(state.getObject(c).is_exhausted);
     // Both reductions cover the printed [2], so the funded Energy is untouched.
     EXPECT_EQ(state.player(P1).rune_pool.energy, 2);
+}
+
+TEST_F(RemainingCards, SongstressDoesNotDeclineASpellShortOnlyOnDeflect) {
+    auto legend = state.createObject();
+    auto& L = state.getObject(legend);
+    L.card_def_id = 1070;
+    L.name = card_db.get(1070).name;
+    L.card_type = CardType::Legend;
+    L.owner = P1;
+    L.controller = P1;
+    L.zone = ZoneType::LegendZone;
+    state.player(P1).legend_zone = legend;
+    auto a = addUnit(P1, 13);
+    auto b = addUnit(P1, 13);
+    auto c = addUnit(P1, 13);
+    // Smite is [2] and 1 Power, and its target's Deflect is another [A].
+    // The pool pays Smite and nothing more. Declining would cast it and
+    // drop the target.
+    auto poro = addUnit(P2, 13, 3, 0);
+    auto spell = addToHand(P1, 568);
+    state.player(P1).rune_pool.energy = 2;
+    state.player(P1).rune_pool.universal_power = 1;
+    EnginePathAgent agent(EnginePathAgent::script({EnginePathAgent::kRest}));
+    withEngine([&](GameEngine& e) {
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = spell;
+        play.targets = {poro};
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+    }, &agent);
+    EXPECT_TRUE(inHand(P1, spell));
+    EXPECT_FALSE(state.getObject(a).is_exhausted);
+    EXPECT_FALSE(state.getObject(b).is_exhausted);
+    EXPECT_FALSE(state.getObject(c).is_exhausted);
+    EXPECT_FALSE(state.getObject(legend).is_exhausted);
+    EXPECT_EQ(state.getObject(poro).damage_marked, 0);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 2);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 1);
 }
 
 }  // namespace test_remaining_cards

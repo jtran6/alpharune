@@ -788,6 +788,13 @@ public:
         can_afford_ = std::move(can);
         pay_cost_ = std::move(pay);
     }
+    /// What `card` costs to play while `cost` replaces or ignores its base
+    /// (increases included). The engine injects the real cost; without that,
+    /// the replacement itself is the answer.
+    using NetPlayCostFn = std::function<std::pair<int, int>(PlayerId, GameObjectId)>;
+    void setNetPlayCost(NetPlayCostFn fn) { net_play_cost_ = std::move(fn); }
+    std::pair<int, int> stagedNetCost(PlayerId player, GameObjectId card,
+                                     const EffectPlayCost& cost) const;
 
     /// Predict N: look at top N cards, agent chooses which to recycle (put back on bottom).
     void predict(PlayerId player, int count);
@@ -931,6 +938,7 @@ private:
     QueueReflexiveFn queue_reflexive_;
     RechooseFn rechoose_;
     PayCostFn pay_cost_;
+    NetPlayCostFn net_play_cost_;
     const CardRegistry* card_registry_ = nullptr;  // optional; needed for playIgnoringCost onPlay dispatch
     OfferAccelerateFn offer_accelerate_;
     OfferOptionalCostFn offer_optional_cost_;

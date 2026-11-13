@@ -47,8 +47,11 @@ public:
             if (!in_trash()) return false;
             if (ctx.executor.canPlayPayingCost(ctx.controller, ctx.source, alt)) return true;
             // [Add] abilities cover a short pool (the play is during a
-            // resolution, so there is no priority window first).
-            return ctx.executor.canPayWithAdds(ctx.controller, 0, 1,
+            // resolution, so there is no priority window first). The probe
+            // is the cost after increases, not the bare [Y]: a tax that only
+            // an [Add] could pay is not offered when none of them can.
+            const auto net = ctx.executor.stagedNetCost(ctx.controller, ctx.source, alt);
+            return ctx.executor.canPayWithAdds(ctx.controller, net.first, net.second,
                                                resource::maskOf(Domain::Order),
                                                SpendFor::PlayUnit);
         };

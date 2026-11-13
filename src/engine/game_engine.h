@@ -401,6 +401,9 @@ private:
     // canAfford and payCardCost; empty means a location-scoped discount does
     // not apply. Mutable so a const generator can scope one check.
     mutable std::optional<LocationId> costing_play_location_;
+    /// takeOptionalSpellEnergyOff refused the play: the spell and the Power
+    /// still owed cannot be paid even with the discount.
+    bool cost_payment_refused_ = false;
     struct CostingAt {
         const GameEngine& engine;
         std::optional<LocationId> saved;
@@ -656,7 +659,7 @@ private:
     // it wraps begin / advance / resolve in a loop that asks the paying
     // player for each rune pick.
     struct CostPaymentAdvance {
-        enum class Kind : uint8_t { NeedDecision, Done };
+        enum class Kind : uint8_t { NeedDecision, Done, Unpaid };
         Kind kind = Kind::Done;
         PlayerId deciding = PlayerId::None;
         std::vector<Intent> legal;   // populated when kind==NeedDecision
@@ -679,8 +682,9 @@ private:
     bool payLikeACardCost(PlayerId player, GameObjectId card_obj, int energy, int power,
                           const std::vector<Domain>& domains);
     /// The rune decisions of a payment cursor, each asked of the payer (one
-    /// call site for every card-cost payment: PromptCensus).
-    void askRunesFor(PlayerId player, GameObjectId card_obj, CostPaymentAdvance adv);
+    /// call site for every card-cost payment: PromptCensus). False when the
+    /// cursor closed with Power still owed.
+    bool askRunesFor(PlayerId player, GameObjectId card_obj, CostPaymentAdvance adv);
     CostPaymentAdvance beginCostPayment(PlayerId player, GameObjectId card_obj,
                                         const Card::PlayCostAdjust& adj = {});
     /// Inspect the cursor and produce the next NeedDecision (or Done
@@ -886,19 +890,31 @@ private:
     static constexpr size_t kOptionsReserved = 16;
 
     /// Auto-pay a card's cost by exhausting/recycling runes.
-    /// Returns false if payment failed (shouldn't happen if canAfford was checked).
+    /// Returns false if payment failed. `extra_any_power` is Power owed with
+    /// the cost but paid by the caller afterwards (a chosen unit's Deflect,
+    /// a battlefield's pay-to-play cost): the cursor must not start unless
+    /// that Power can be paid too, and a finished rune list is not a payment
+    /// when Power is still owed.
     bool payCardCost(PlayerId player, GameObjectId card_obj,
-                     const Card::PlayCostAdjust& adj = {});
+                     const Card::PlayCostAdjust& adj = {},
+                     int extra_any_power = 0);
+    /// Put a card back into the zone a play removed it from, when that play's
+    /// cost could not be paid.
+    void restoreRemovedFromZone(GameObjectId card);
     /// Choose and pay the additional cost `card_id` prints, before its cost.
     /// Card::forgetPlayPayments for `card_id`, as a play of it begins.
     void forgetPlayPayments(PlayerId player, GameObjectId card_id);
     Card::PlayCostAdjust payAdditionalPlayCosts(PlayerId player, GameObjectId card_id,
                                                 int extra_any_power);
     /// Starry-Eyed Songstress: a spell's optional energy discount from another
-    /// permanent, when this spell's own additional cost did not already reduce
-    /// its Energy. Adds what the player accepts to `adj`.
-    void takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
-                                   Card::PlayCostAdjust& adj);
+    /// permanent. It stacks with a reduction the spell already took. Adds what
+    /// the player accepts to `adj`. `extra_any_power` is Power the play still
+    /// owes after this check (Deflect, a pay-to-play cost): declining is legal
+    /// only while the spell and that Power can both be paid without the
+    /// discount. False when they cannot be paid even with it — nothing is
+    /// exhausted, and the play must not resolve.
+    bool takeOptionalSpellEnergyOff(PlayerId player, GameObjectId spell,
+                                   Card::PlayCostAdjust& adj, int extra_any_power = 0);
     /// What a spell's chosen targets take off its cost.
     Card::PlayCostAdjust targetCostDiscount(PlayerId player,
                                             const std::vector<GameObjectId>& targets,
