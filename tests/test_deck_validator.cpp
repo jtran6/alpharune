@@ -275,6 +275,63 @@ TEST_F(DeckValidatorTest, RunebladeAnvilIsFuryAndLegalInAFuryLegend) {
     EXPECT_TRUE(fury_error);
 }
 
+// Printed Bushwhack Trap is Chaos and printed Gravity Field is Mind. The
+// gallery tags say Fury and Calm. Neither card spends a domain rune: the trap
+// costs Energy only, and the field's move tax is [1][A].
+TEST_F(DeckValidatorTest, BushwhackTrapIsChaosAndGravityFieldIsMind) {
+    auto* trap = db.findByName("Bushwhack Trap");
+    auto* field = db.findByName("Gravity Field");
+    ASSERT_NE(trap, nullptr);
+    ASSERT_NE(field, nullptr);
+    ASSERT_EQ(trap->domains.size(), 1u);
+    ASSERT_EQ(field->domains.size(), 1u);
+    EXPECT_EQ(trap->domains[0], Domain::Chaos);
+    EXPECT_EQ(field->domains[0], Domain::Mind);
+
+    auto namesCard = [](const ValidationResult& result, const char* card) {
+        for (const auto& e : result.errors)
+            if (e.find(card) != std::string::npos) return true;
+        return false;
+    };
+    auto namesDomain = [](const ValidationResult& result, const char* card, const char* domain) {
+        for (const auto& e : result.errors)
+            if (e.find(card) != std::string::npos && e.find(domain) != std::string::npos)
+                return true;
+        return false;
+    };
+
+    DeckValidator validator(db);
+
+    // Battle Mistress is Body/Chaos.
+    auto* chaos = db.findByName("Battle Mistress");
+    ASSERT_NE(chaos, nullptr);
+    auto chaos_deck = makeValidDeck();
+    chaos_deck.legend = chaos->id;
+    chaos_deck.main_deck.back() = trap->id;
+    EXPECT_FALSE(namesCard(validator.validate(chaos_deck), "Bushwhack Trap"));
+
+    // Iron Revenant is Fury/Order, so a printed Chaos gear is illegal there.
+    auto* fury = db.findByName("Iron Revenant");
+    ASSERT_NE(fury, nullptr);
+    auto fury_deck = makeValidDeck();
+    fury_deck.legend = fury->id;
+    fury_deck.main_deck.back() = trap->id;
+    EXPECT_TRUE(namesDomain(validator.validate(fury_deck), "Bushwhack Trap", "Chaos"));
+
+    // Deceiver, the fixture legend, is Mind/Order.
+    auto mind_deck = makeValidDeck();
+    mind_deck.main_deck.back() = field->id;
+    EXPECT_FALSE(namesCard(validator.validate(mind_deck), "Gravity Field"));
+
+    // Green Father is Calm/Order, so a printed Mind gear is illegal there.
+    auto* calm = db.findByName("Green Father");
+    ASSERT_NE(calm, nullptr);
+    auto calm_deck = makeValidDeck();
+    calm_deck.legend = calm->id;
+    calm_deck.main_deck.back() = field->id;
+    EXPECT_TRUE(namesDomain(validator.validate(calm_deck), "Gravity Field", "Mind"));
+}
+
 TEST_F(DeckValidatorTest, WrongRuneDomain) {
     auto deck = makeValidDeck();
     // Replace an Order Rune with a Fury Rune
