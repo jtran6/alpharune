@@ -43,7 +43,7 @@ private:
         d.artist = R"RB(Polar Engine Studio)RB";
         d.card_type = CardType::Unit;
         d.super_type = SuperType::None;
-        d.domains = {Domain::Fury};
+        d.domains = {Domain::Mind};
         d.tags = {R"RB(Mech)RB"};
         d.energy_cost = 8;
         d.power_cost = 2;

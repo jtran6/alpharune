@@ -37,7 +37,7 @@ private:
         d.artist = R"RB(Caravan Studio)RB";
         d.card_type = CardType::Unit;
         d.super_type = SuperType::None;
-        d.domains = {};
+        d.domains = {Domain::Fury};
         d.tags = {};
         d.energy_cost = 6;
         d.power_cost = 1;

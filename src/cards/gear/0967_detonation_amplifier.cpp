@@ -77,7 +77,7 @@ private:
         d.artist = R"RB(Fish Art Studio)RB";
         d.card_type = CardType::Gear;
         d.super_type = SuperType::None;
-        d.domains = {Domain::Chaos};
+        d.domains = {Domain::Fury};
         d.tags = {R"RB(Device)RB"};
         d.energy_cost = 4;
         d.power_cost = 1;

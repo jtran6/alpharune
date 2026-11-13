@@ -24,7 +24,7 @@ public:
     }
     bool hasActivatedAbility() const override { return true; }
     ActivationCost getActivationCost() const override {
-        ActivationCost c; c.energy = 2; c.power = 1; c.power_domain = Domain::Chaos; c.exhaust = true;
+        ActivationCost c; c.energy = 2; c.power = 1; c.power_domain = Domain::Fury; c.exhaust = true;
         return c;
     }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
@@ -44,7 +44,7 @@ private:
         d.artist = R"RB(Kudos Productions)RB";
         d.card_type = CardType::Gear;
         d.super_type = SuperType::None;
-        d.domains = {Domain::Chaos};
+        d.domains = {Domain::Fury};
         d.tags = {};
         d.energy_cost = 1;
         d.power_cost = 0;
@@ -52,7 +52,7 @@ private:
         d.rarity = Rarity::Uncommon;
 
         d.ability_text = R"RB(When you play this or when this leaves the board, banish the top card of your Main Deck. Until your next Ending Phase, you may play that card. (You still pay its costs.)
-[2][P], [E]: Kill this.)RB";
+[2][R], [E]: Kill this.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/11e2ddea70ec4dd8e562681a1ab1dfbc2b2dca0f-744x1039.png)RB";
         return d;
     }();
