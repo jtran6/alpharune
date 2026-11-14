@@ -496,8 +496,8 @@ const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
 }
 
 /// Action ids from `legal` that searchCandidates keeps. The engine's list is
-/// not changed. An empty result falls back to `legal` so a node still has a
-/// move.
+/// not changed. When every option was an empty friendly harm, the result is
+/// empty: those lines are not put back.
 std::vector<::open_spiel::Action> actionsWorthSearching(
     const openspiel::RiftboundState& world,
     const std::vector<::open_spiel::Action>& legal) {
@@ -505,6 +505,7 @@ std::vector<::open_spiel::Action> actionsWorthSearching(
     if (!reg) return legal;
     const auto& intents = world.legalIntents();
     const std::vector<Intent> kept = searchCandidates(world.engineState(), intents, *reg);
+    if (kept.empty()) return {};
     if (kept.size() == intents.size()) return legal;
     const std::vector<int> ids = openspiel::actionIds(intents, world.engineState());
     std::vector<::open_spiel::Action> allow;
@@ -518,7 +519,7 @@ std::vector<::open_spiel::Action> actionsWorthSearching(
     for (auto action : legal)
         if (std::find(allow.begin(), allow.end(), action) != allow.end())
             out.push_back(action);
-    return out.empty() ? legal : out;
+    return out;
 }
 
 class IsMctsSearch {
@@ -570,7 +571,9 @@ public:
             else if (child.visits == best) tied.push_back(index);
         }
         if (tied.empty()) {
-            out.chosen = 0;
+            // Nothing worth searching was visited. Do not default to a
+            // dropped friendly-harm line.
+            out.chosen = -1;
         } else {
             std::uniform_int_distribution<size_t> dist(0, tied.size() - 1);
             out.chosen = tied[tied.size() == 1 ? 0 : dist(rng_)];
@@ -629,8 +632,12 @@ private:
             }
             return out;
         };
+        bool any_worth = false;
+        for (char w : worth) any_worth = any_worth || w;
         std::map<int, ::open_spiel::Action> offered = offer(true);
-        if (offered.empty()) offered = offer(false);
+        // The world may not offer a kept live option. A list that was emptied
+        // because every option is empty friendly harm is not searched.
+        if (offered.empty() && any_worth) offered = offer(false);
         if (offered.empty()) return;
 
         int chosen = -1;
@@ -683,6 +690,9 @@ private:
             node.total_visits = 0;              // stepped out of the tree: expand
             return evaluator_->Evaluate(state);
         }
+        // Every legal action here was an empty friendly harm. Score the
+        // position instead of playing one.
+        if (legal.empty()) return evaluator_->Evaluate(state);
 
         ::open_spiel::Action chosen = ::open_spiel::kInvalidAction;
         // An action not tried yet, in a shuffled order so the move order does
@@ -856,6 +866,17 @@ Intent IsMctsAgent::selectAction(const GameState& state,
     const PlayerId observer = decidingPlayer(state, legal_actions);
     impl_->last = impl_->search->step(
         [&]() { return impl_->makeWorld(*os_state, observer); }, legal_actions);
+    if (impl_->last.chosen < 0 ||
+        impl_->last.chosen >= static_cast<int>(legal_actions.size())) {
+        for (const auto& it : legal_actions) {
+            if (it.type == IntentType::EndTurn || it.type == IntentType::PassPriority ||
+                it.type == IntentType::PassFocus || it.declines)
+                return it;
+        }
+        // A required prompt whose every option was dropped still has to be
+        // answered with one of the engine's options. Search did not choose it.
+        return legal_actions.front();
+    }
     return legal_actions[impl_->last.chosen];
 }
 

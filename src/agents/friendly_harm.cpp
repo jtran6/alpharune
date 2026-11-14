@@ -23,6 +23,13 @@ struct SpellShape {
     bool wants_friendly = false;
     bool additional_cost = false;
     bool at_battlefield = false;
+    // "3 [M] or less": a unit above this is not a legal target.
+    int max_might = -1;
+    // The spell still does something when the friendly harm does not kill
+    // (Stupefy's draw, Eclipse's Predict).
+    bool rider = false;
+    // "Banish a unit, then its owner plays it": the replay is the line.
+    bool replays = false;
 
     bool harms() const {
         return damage > 0 || might_delta < 0 || bounce || banishes || kills;
@@ -112,6 +119,25 @@ SpellShape shapeOf(const Card& card) {
     }
     if (card.getTargetRequirements().must_be_friendly) s.wants_friendly = true;
     if (card.getTargetRequirements().must_be_at_battlefield) s.at_battlefield = true;
+    s.rider = hasWord(text, "draw") || hasWord(text, "predict");
+    s.replays = s.banishes && text.find("plays it") != std::string::npos;
+    for (size_t p = 0; (p = text.find(" or less", p)) != std::string::npos; p += 8) {
+        size_t j = p;
+        while (j > 0 && text[j - 1] == ' ') --j;
+        bool might = false;
+        if (j >= 3 && text.compare(j - 3, 3, "[m]") == 0) {
+            might = true;
+            j -= 3;
+        } else if (j >= 5 && text.compare(j - 5, 5, "might") == 0 && atWord(text, j - 5)) {
+            might = true;
+            j -= 5;
+        }
+        if (!might) continue;
+        while (j > 0 && text[j - 1] == ' ') --j;
+        size_t end = j;
+        while (j > 0 && std::isdigit(static_cast<unsigned char>(text[j - 1]))) --j;
+        if (j < end) s.max_might = numberAt(text, j);
+    }
     return s;
 }
 
@@ -181,6 +207,9 @@ bool siblingNamesEnemy(const GameState& state, const Intent& intent,
 bool harmKills(const GameObject& unit, const SpellShape& shape) {
     if (!unit.isUnit() || !unit.isAlive()) return false;
     if (shape.kills) return true;
+    // A bounce does not kill. A banish does not kill either; one that plays
+    // the unit again is kept in dropFriendly (shape.replays) instead of
+    // being scored as an empty removal.
     if (shape.bounce || shape.banishes) return false;
     int damage = shape.damage;
     if (unit.immune_to_damage || unit.prevent_next_damage_this_turn) damage = 0;
@@ -207,6 +236,7 @@ bool deathTrigger(const GameState& state, const GameObject& unit, const CardRegi
 bool passesLocation(const GameObject& unit, const SpellShape& shape) {
     if (!unit.isUnit() || !unit.location.has_value() || !unit.isAlive()) return false;
     if (shape.at_battlefield && !unit.isAtBattlefield()) return false;
+    if (shape.max_might >= 0 && unit.current_might > shape.max_might) return false;
     return true;
 }
 
@@ -225,11 +255,15 @@ bool enemyCouldBeChosen(const GameState& state, PlayerId player, const SpellShap
 bool dropFriendly(const GameState& state, const GameObject& unit, PlayerId player,
                   const SpellShape& shape, bool enemy_legal, const CardRegistry& cards) {
     if (unit.controller != player) return false;
-    if (!shape.harms() || shape.wants_friendly) return false;
+    if (!shape.harms() || shape.wants_friendly || shape.replays) return false;
     const bool killed = harmKills(unit, shape);
     if (killed && deathTrigger(state, unit, cards)) return false;
     if (killed && shape.additional_cost && shape.kills) return false;
-    if (!killed) return true;
+    if (!killed) {
+        // The draw or Predict is why the spell is cast when no enemy is legal.
+        if (shape.rider && !enemy_legal) return false;
+        return true;
+    }
     return enemy_legal;
 }
 
@@ -272,6 +306,12 @@ bool dropIntent(const GameState& state, const Intent& intent,
     if (!shape.harms()) return false;
     const auto units = namedUnits(state, intent);
     if (units.empty()) {
+        // Playing a unit is the line. Its text may ping, and that ping may
+        // be optional (Bilgewater Tracker) or may name only enemies (Leona,
+        // Zealot; Thousand-Tailed Watcher). The choice, if one is asked, is
+        // filtered on its own.
+        if (isPlay(intent.type) && card->def().card_type != CardType::Spell)
+            return false;
         if (isPlay(intent.type) || isActivation(intent.type))
             return dropUntargetedPlay(state, intent.player, shape, cards);
         return false;
@@ -298,8 +338,9 @@ std::vector<Intent> searchCandidates(const GameState& state,
     for (const auto& intent : legal) {
         if (isPass(intent)) kept.push_back(intent);
     }
-    if (!kept.empty()) return kept;
-    return legal;
+    // Every option was an empty friendly harm and none is a pass (Gust's
+    // target prompt). Do not hand that list back.
+    return kept;
 }
 
 }  // namespace riftbound

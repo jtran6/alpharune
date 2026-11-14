@@ -193,8 +193,142 @@ TEST_F(FriendlyHarmTest, GrimFriendlyBounceStays) {
     bounce.type = IntentType::MakeChoice;
     bounce.player = P1;
     bounce.chosen_objects = {friendly};
-    const auto kept = searchCandidates(state, {bounce}, card_registry);
+    // End Turn stays either way. If the bounce were dropped, the old
+    // empty-result fallback would have put it back and a one-option
+    // assertion would still have passed.
+    const std::vector<Intent> legal = {bounce, Intent::endTurn(P1)};
+    const auto kept = searchCandidates(state, legal, card_registry);
     EXPECT_TRUE(chooses(kept, friendly));
+    EXPECT_EQ(kept.size(), legal.size());
+}
+
+// The unit is the line. A healthy friendly already on the board must not
+// remove the play: Tracker's ping is optional, and Leona / the Watcher
+// never harm a friendly.
+TEST_F(FriendlyHarmTest, UnitPlayStaysBesideAHealthyFriendly) {
+    addUnit(P1, 87, 2);
+    fund(P1);
+    const auto tracker = addToHand(P1, 958);
+    const auto leona = addToHand(P1, 79);
+    const auto watcher = addToHand(P1, 116);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(plays(legal, tracker));
+        EXPECT_TRUE(plays(legal, leona));
+        EXPECT_TRUE(plays(legal, watcher));
+        const auto kept = searchCandidates(engine.state(), legal, card_registry);
+        EXPECT_TRUE(plays(kept, tracker));
+        EXPECT_TRUE(plays(kept, leona));
+        EXPECT_TRUE(plays(kept, watcher));
+    });
+}
+
+// Stupefy's −1 Might still draws. With only Noxus Hopeful on the board the
+// draw is the reason to cast it.
+TEST_F(FriendlyHarmTest, StupefyOnTheOnlyFriendlyStillDraws) {
+    const auto hopeful = addUnit(P1, 12);
+    ASSERT_EQ(state.getObject(hopeful).current_might, 4);
+    const auto spell = addToHand(P1, 95);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, spell, hopeful));
+        EXPECT_TRUE(playsAt(searchCandidates(engine.state(), legal, card_registry), spell, hopeful));
+    });
+}
+
+// The draw happens on an enemy target too, so the friendly debuff is the
+// empty line once an enemy is legal.
+TEST_F(FriendlyHarmTest, StupefyPrefersTheEnemy) {
+    const auto hopeful = addUnit(P1, 12);
+    const auto enemy = addUnit(P2, 371, 3);
+    const auto spell = addToHand(P1, 95);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, spell, hopeful));
+        EXPECT_TRUE(playsAt(legal, spell, enemy));
+        const auto kept = searchCandidates(engine.state(), legal, card_registry);
+        EXPECT_FALSE(playsAt(kept, spell, hopeful));
+        EXPECT_TRUE(playsAt(kept, spell, enemy));
+    });
+}
+
+// Eclipse's Predict happens even when the −4 Might does not kill.
+TEST_F(FriendlyHarmTest, EclipsePredictOnTheOnlyFriendlyStays) {
+    const auto friendly = addUnit(P1, 87, 5);
+    const auto spell = addToHand(P1, 625);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, spell, friendly));
+        EXPECT_TRUE(playsAt(searchCandidates(engine.state(), legal, card_registry), spell, friendly));
+    });
+}
+
+// Temporal Breach banishes the unit and its owner plays it again. That
+// replay is a real line on your own unit.
+TEST_F(FriendlyHarmTest, TemporalBreachReplayOnOwnUnitStays) {
+    const auto own = addUnit(P1, 958, 3);
+    const auto spell = addToHand(P1, 853);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(plays(legal, spell));
+        EXPECT_TRUE(plays(searchCandidates(engine.state(), legal, card_registry), spell));
+    });
+
+    const auto source = state.createObject();
+    auto& obj = state.getObject(source);
+    obj.card_def_id = 853;
+    obj.card_type = CardType::Spell;
+    obj.owner = P1;
+    obj.controller = P1;
+    obj.zone = ZoneType::Chain;
+    ChainItem item;
+    item.source = source;
+    item.is_spell = true;
+    state.chain.resuming = item;
+    Intent choice;
+    choice.type = IntentType::MakeChoice;
+    choice.player = P1;
+    choice.chosen_objects = {own};
+    const auto kept = searchCandidates(state, {choice, Intent::endTurn(P1)}, card_registry);
+    EXPECT_TRUE(chooses(kept, own));
+}
+
+// Gust cannot target a 4-Might enemy. The only legal unit is a friendly the
+// bounce does not kill, so the play leaves the search. The choice list is
+// not handed back when every option was dropped.
+TEST_F(FriendlyHarmTest, GustEmptyFriendlyIsNotRestored) {
+    const auto friendly = addUnit(P1, 87, 2, 0);
+    addUnit(P2, 12, 4, 1);
+    const auto spell = addToHand(P1, 169);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(plays(legal, spell));
+        EXPECT_FALSE(plays(searchCandidates(engine.state(), legal, card_registry), spell));
+    });
+
+    const auto source = state.createObject();
+    auto& obj = state.getObject(source);
+    obj.card_def_id = 169;
+    obj.card_type = CardType::Spell;
+    obj.owner = P1;
+    obj.controller = P1;
+    obj.zone = ZoneType::Chain;
+    ChainItem item;
+    item.source = source;
+    item.is_spell = true;
+    state.chain.resuming = item;
+    Intent choice;
+    choice.type = IntentType::MakeChoice;
+    choice.player = P1;
+    choice.chosen_objects = {friendly};
+    const auto kept = searchCandidates(state, {choice}, card_registry);
+    EXPECT_FALSE(chooses(kept, friendly));
+    EXPECT_TRUE(kept.empty());
 }
 
 // +Might on a friendly unit is a buff, not harm.
