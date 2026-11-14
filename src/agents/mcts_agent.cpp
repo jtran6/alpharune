@@ -5,6 +5,7 @@
 #include "core/game_object.h"
 #include "engine/game_engine.h"  // StepResult / StepKind
 
+#include "agents/board_score.h"
 #include "agents/determinizer.h"
 #include "agents/friendly_harm.h"
 #include "openspiel/action_vocab.h"
@@ -46,14 +47,22 @@ namespace {
 // at low sims can actually beat random.
 //
 // Heuristic (from P1's perspective):
-//   • Primary: score difference, normalised to [-1, +1] by victory_score.
-//   • Secondary: total on-board might (small weight) — proxies for
-//     near-term scoring threat / combat advantage.
-//   • Tertiary: hand size advantage (very small weight).
+//   • MCTS: the score difference only, normalised by the victory score.
+//     A wider board term misled MCTS at very small simulation counts.
+//   • ISMCTS: boardScore — the same points, plus who controls each
+//     battlefield and the Might of the units that would fight there.
+//     One scored point outweighs that whole board picture.
 class RiftboundHeuristicEvaluator : public ::open_spiel::algorithms::Evaluator {
 public:
+    /// `board_value`: ISMCTS scores a leaf with boardScore (points toward
+    /// the victory score, battlefield control, and the Might of a fight).
+    /// MCTS keeps the score difference alone; a wider board term misled it
+    /// at very small simulation counts.
+    explicit RiftboundHeuristicEvaluator(bool board_value = false)
+        : board_value_(board_value) {}
+
     std::vector<double> Evaluate(const ::open_spiel::State& state) override {
-        // Terminal: use the canonical Returns directly so MCTS sees
+        // Terminal: use the canonical Returns directly so the search sees
         // unambiguous win/loss signals at known game-ends.
         if (state.IsTerminal()) {
             return state.Returns();
@@ -62,21 +71,17 @@ public:
         if (!rb) return {0.0, 0.0};
         const auto& s = rb->engineState();
 
-        const auto& p1 = s.player(PlayerId::Player1);
-        const auto& p2 = s.player(PlayerId::Player2);
-        const double victory = std::max(1, s.mode.victory_score);
-
-        // Score-only heuristic. A previous version added might / units /
-        // hand-size signals; they appeared to mislead MCTS at low sim
-        // budgets (sims=5 dropped from 37% to 20% vs random). The
-        // game-winning signal is score, period — that's what the bot
-        // should chase, and noisy proxies for "position strength" only
-        // pollute the value estimate when the search budget is too small
-        // to disentangle them via tree expansion. With more sims this
-        // could be reintroduced as a tunable; today, keep it minimal.
-        double val = static_cast<double>(p1.score - p2.score) / victory;
-        if (val >  1.0) val =  1.0;
-        if (val < -1.0) val = -1.0;
+        double val = 0.0;
+        if (board_value_) {
+            val = boardScore(s);
+        } else {
+            const auto& p1 = s.player(PlayerId::Player1);
+            const auto& p2 = s.player(PlayerId::Player2);
+            const double victory = std::max(1, s.effectiveVictoryScore());
+            val = static_cast<double>(p1.score - p2.score) / victory;
+            if (val >  1.0) val =  1.0;
+            if (val < -1.0) val = -1.0;
+        }
         return {val, -val};
     }
 
@@ -219,6 +224,9 @@ public:
         }
         return out;
     }
+
+private:
+    bool board_value_ = false;
 };
 
 } // namespace
@@ -782,7 +790,7 @@ struct IsMctsAgent::Impl {
                                               mcts_seed ^ 0xC3C3C3C3u);
         search = std::make_unique<IsMctsSearch>(
             /*seed=*/mcts_seed ^ 0x3C3C3C3Cu,
-            std::make_shared<RiftboundHeuristicEvaluator>(),
+            std::make_shared<RiftboundHeuristicEvaluator>(/*board_value=*/true),
             /*uct_c=*/2.0,
             /*max_simulations=*/sims,
             /*root_player_keys=*/model == WorldModel::Sampled);
