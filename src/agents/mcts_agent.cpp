@@ -6,6 +6,7 @@
 #include "engine/game_engine.h"  // StepResult / StepKind
 
 #include "agents/determinizer.h"
+#include "agents/friendly_harm.h"
 #include "openspiel/action_vocab.h"
 #include "openspiel/riftbound_game.h"
 #include "openspiel/riftbound_state.h"
@@ -161,12 +162,26 @@ public:
         // One id per distinct Intent (openspiel::actionIds), in ascending
         // order as RiftboundState::LegalActions gives them. An Intent the
         // engine listed twice has one id: it is counted once.
+        //
+        // MCTSBot's children come only from this prior, so an intent left
+        // out here is never expanded. Empty friendly-harm lines are left
+        // out; the engine's legal list is unchanged.
         const auto& intents = rb->legalIntents();
         const auto& engine_state = rb->engineState();
         const std::vector<int> ids = openspiel::actionIds(intents, engine_state);
+        const CardRegistry* reg = nullptr;
+        if (const auto game = rb->GetGame())
+            if (const auto* rg = dynamic_cast<const openspiel::RiftboundGame*>(game.get()))
+                reg = &rg->cardRegistry();
+        const std::vector<Intent> kept =
+            reg ? searchCandidates(engine_state, intents, *reg) : intents;
+        const bool pruned = kept.size() != intents.size();
         std::vector<std::pair<::open_spiel::Action, double>> weighted;
         weighted.reserve(intents.size());
         for (size_t i = 0; i < intents.size(); ++i) {
+            if (pruned &&
+                std::find(kept.begin(), kept.end(), intents[i]) == kept.end())
+                continue;
             weighted.emplace_back(static_cast<::open_spiel::Action>(ids[i]),
                                   intentWeight(intents[i]));
         }
@@ -473,6 +488,39 @@ namespace {
 /// * The move played is the most visited root option (ties by the RNG), not
 ///   a draw in proportion to the visits; the visits are reported
 ///   (SearchSummary) for a recorder.
+const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
+    const auto game = world.GetGame();
+    if (!game) return nullptr;
+    const auto* rg = dynamic_cast<const openspiel::RiftboundGame*>(game.get());
+    return rg ? &rg->cardRegistry() : nullptr;
+}
+
+/// Action ids from `legal` that searchCandidates keeps. The engine's list is
+/// not changed. An empty result falls back to `legal` so a node still has a
+/// move.
+std::vector<::open_spiel::Action> actionsWorthSearching(
+    const openspiel::RiftboundState& world,
+    const std::vector<::open_spiel::Action>& legal) {
+    const CardRegistry* reg = registryOf(world);
+    if (!reg) return legal;
+    const auto& intents = world.legalIntents();
+    const std::vector<Intent> kept = searchCandidates(world.engineState(), intents, *reg);
+    if (kept.size() == intents.size()) return legal;
+    const std::vector<int> ids = openspiel::actionIds(intents, world.engineState());
+    std::vector<::open_spiel::Action> allow;
+    allow.reserve(kept.size());
+    for (size_t i = 0; i < intents.size() && i < ids.size(); ++i) {
+        if (std::find(kept.begin(), kept.end(), intents[i]) != kept.end())
+            allow.push_back(static_cast<::open_spiel::Action>(ids[i]));
+    }
+    std::vector<::open_spiel::Action> out;
+    out.reserve(allow.size());
+    for (auto action : legal)
+        if (std::find(allow.begin(), allow.end(), action) != allow.end())
+            out.push_back(action);
+    return out.empty() ? legal : out;
+}
+
 class IsMctsSearch {
 public:
     /// Makes the world of one simulation, at the root's decision.
@@ -556,16 +604,33 @@ private:
         root_player_ = player;
         const std::vector<Intent> intents = world.legalIntents();   // a copy: valid past ApplyAction
         const std::vector<int> ids = openspiel::actionIds(intents, world.engineState());
-        // The world's action id of each live option it offers.
-        std::map<int, ::open_spiel::Action> offered;
-        for (size_t i = 0; i < live_legal.size(); ++i) {
-            for (size_t j = 0; j < intents.size(); ++j) {
-                if (intents[j] == live_legal[i]) {
-                    offered[static_cast<int>(i)] = ids[j];
-                    break;
-                }
+        // Empty friendly-harm lines stay in the engine's legal list and are
+        // not searched. The index is into the original live list, so a line
+        // that was dropped keeps 0 visits and is never chosen.
+        std::vector<char> worth(live_legal.size(), 1);
+        if (const CardRegistry* reg = registryOf(world)) {
+            const std::vector<Intent> kept =
+                searchCandidates(world.engineState(), live_legal, *reg);
+            if (kept.size() != live_legal.size()) {
+                for (size_t i = 0; i < live_legal.size(); ++i)
+                    worth[i] = std::find(kept.begin(), kept.end(), live_legal[i]) != kept.end();
             }
         }
+        auto offer = [&](bool use_filter) {
+            std::map<int, ::open_spiel::Action> out;
+            for (size_t i = 0; i < live_legal.size(); ++i) {
+                if (use_filter && !worth[i]) continue;
+                for (size_t j = 0; j < intents.size(); ++j) {
+                    if (intents[j] == live_legal[i]) {
+                        out[static_cast<int>(i)] = ids[j];
+                        break;
+                    }
+                }
+            }
+            return out;
+        };
+        std::map<int, ::open_spiel::Action> offered = offer(true);
+        if (offered.empty()) offered = offer(false);
         if (offered.empty()) return;
 
         int chosen = -1;
@@ -607,7 +672,9 @@ private:
     std::vector<double> simulate(::open_spiel::State& state) {
         if (state.IsTerminal()) return state.Returns();
 
-        const std::vector<::open_spiel::Action> legal = state.LegalActions();
+        std::vector<::open_spiel::Action> legal = state.LegalActions();
+        if (auto* rb = dynamic_cast<openspiel::RiftboundState*>(&state))
+            legal = actionsWorthSearching(*rb, legal);
         const ::open_spiel::Player player = state.CurrentPlayer();
         // std::map nodes: a reference stays valid while deeper simulations
         // insert more.
