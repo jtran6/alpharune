@@ -30,16 +30,18 @@ DeckModel::DeckModel(const CardDB& db) : db_(db), builder_(db) {
     std::sort(defs.begin(), defs.end(),
               [](const CardDef* a, const CardDef* b) { return a->id < b->id; });
 
+    const int as_of = legalityDate();
     auto fillHidden = [&](LegendPool& pool) {
         for (CardDefId id : pool.cards)
             if (db_.get(id).keywords.has(Keyword::Hidden)) pool.hidden.push_back(id);
     };
     for (const CardDef* d : defs) {
-        if (!d->banned && !d->isTokenCard() && isMainDeckType(*d)) any_.cards.push_back(d->id);
+        if (!d->bannedOn(as_of) && !d->isTokenCard() && isMainDeckType(*d))
+            any_.cards.push_back(d->id);
     }
     std::vector<CardDefId> all_runes;
     for (const CardDef* d : defs) {
-        if (!d->banned && !d->isTokenCard() && d->card_type == CardType::Rune)
+        if (!d->bannedOn(as_of) && !d->isTokenCard() && d->card_type == CardType::Rune)
             all_runes.push_back(d->id);
     }
     if (!all_runes.empty()) any_.runes.push_back(all_runes);

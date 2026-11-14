@@ -58,6 +58,7 @@ private:
         d.ability_text = R"RB([Hidden] (Hide now for [A] to react with later for [0].)
 If a friendly unit would die, kill this instead. Heal that unit, exhaust it, and recall it. (Send it to base. This isn't a move.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dc38172c56f838b407fc9f170ba973da32d7cd4d-744x1039.png)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

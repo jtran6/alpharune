@@ -78,6 +78,11 @@ public:
 
 class Batch8Test : public CardTestFixture {
 protected:
+    // yasuo_546.txt plays Stellacorn Herder. The coverage lists are legal on
+    // the day before the Radiance bans. TearDownTestSuite restores the UTC date.
+    static void SetUpTestSuite() { riftbound::setLegalityDate(20261122); }
+    static void TearDownTestSuite() { riftbound::setLegalityDate(0); }
+
     GameObject& o(GameObjectId id) { return state.getObject(id); }
     GameObjectId addGear(PlayerId owner, CardDefId def_id, int at_bf = -1) {
         auto id = state.createObject();

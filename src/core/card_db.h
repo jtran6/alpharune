@@ -54,9 +54,28 @@ struct CardDef {
     // Official Riot CDN art URL. Class-owned (baked into each card).
     std::string image_url;
 
-    // Tournament legality — class-owned. Banned cards set this in their own
-    // CardDef; DeckValidator rejects them unless --wild is set.
+    // Tournament legality — class-owned. DeckValidator rejects a banned card
+    // unless --wild is set.
+    //
+    // `banned` is illegal on every date (a ban already in effect).
+    // `banned_from` is a YYYYMMDD on which a ban begins, inclusive, and 0
+    // when the card has no scheduled ban. The card is legal before that date.
+    // The Radiance list (Standard and Constructed 2v2) begins on
+    // kRadianceBanListDate. The clock is legalityDate() (rules/deck_validator.h):
+    // a test calls setLegalityDate(20261122) and restores it with
+    // setLegalityDate(0).
     bool banned = false;
+    int banned_from = 0;
+
+    /// Radiance Standard and Constructed 2v2 bans. Inclusive: legal on
+    /// 2026-11-22, illegal on 2026-11-23.
+    static constexpr int kRadianceBanListDate = 20261123;
+
+    /// Illegal in Constructed on `yyyymmdd`. A ban already in effect
+    /// (`banned`) does not wait for `banned_from`.
+    bool bannedOn(int yyyymmdd) const {
+        return banned || (banned_from != 0 && yyyymmdd >= banned_from);
+    }
 
     // Deck construction: exempt from the 3-copies-per-name cap ("Your deck can
     // have any number of cards named Spiderling").

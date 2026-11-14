@@ -63,6 +63,7 @@ private:
         d.ability_text = R"RB(When I become exhausted, choose one that hasn't been chosen this turn —
 [Buff] me. (Give me a +1 [M] buff if I don't have one.)Spend my buff to [Stun] an enemy unit. (It doesn't deal combat damage this turn.)Spend my buff to ready me.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0c9ac0da1c144f46a1e0c5423f51f9b8f6ba295b-744x1039.png)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

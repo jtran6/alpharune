@@ -96,6 +96,7 @@ private:
         d.rarity = Rarity::Epic;
         d.ability_text = R"RB(At the end of your turn, reveal cards from the top of your Main Deck until you reveal a unit and banish it. Play it, ignoring its cost, and recycle the rest.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c023856a50c75058465f283d181277ce265ba108-744x1039.png?accountingTag=RB)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

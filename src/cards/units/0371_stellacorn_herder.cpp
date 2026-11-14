@@ -39,6 +39,7 @@ private:
         d.rarity = Rarity::Uncommon;
         d.ability_text = R"RB(When I move, draw 1.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1e7960a35d45dd55e934260ea23307853aa5afd4-744x1039.png)RB";
+        d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;
     }();
 };

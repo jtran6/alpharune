@@ -13,7 +13,7 @@
 ///   - Main deck + sideboard hold only units, gear and spells; no token cards
 ///   - Max 3 total signature cards, all carrying the legend's champion tag
 ///   - Chosen champion must be a champion unit carrying the legend's champion tag
-///   - No banned cards (future: ban list support)
+///   - No banned cards (CardDef::banned, CardDef::banned_from, or a CSV list)
 
 #include "core/card_db.h"
 #include "core/types.h"
@@ -23,6 +23,19 @@
 #include <vector>
 
 namespace riftbound {
+
+/// Date Constructed legality is judged on, as YYYYMMDD.
+///
+/// The default, and setLegalityDate(0), is the UTC calendar date, so a
+/// scheduled ban (CardDef::banned_from) starts rejecting decks on that date
+/// with no further flag. A test pins the clock before it builds a deck or a
+/// RandomDeckBuilder (that pool is taken once, at construction):
+///
+///     setLegalityDate(20261122);   // the day before the Radiance bans
+///     setLegalityDate(20261123);   // the day they take effect
+///     setLegalityDate(0);          // back to the UTC calendar date
+void setLegalityDate(int yyyymmdd);
+int legalityDate();
 
 /// A deck submission to be validated before a game.
 /// Constructed sideboard limit (Tournament Rules 601.1.c.1).
@@ -64,12 +77,13 @@ public:
     void setWild(bool wild) { wild_ = wild; }
     bool isWild() const { return wild_; }
 
-    /// Check if a card_def_id is banned. Honors BOTH the CSV-loaded ban list
-    /// AND the card's own CardDef::banned flag (which, post-refactor, the card
-    /// class owns) — either source bans the card.
+    /// Check if a card_def_id is banned. Honors the CSV-loaded ban list, the
+    /// card's CardDef::banned flag (in effect on every date), and
+    /// CardDef::banned_from (in effect on and after that date, read from
+    /// legalityDate()).
     bool isBanned(CardDefId id) const {
         if (wild_) return false;  // wild format: nothing is banned
-        return banned_ids_.count(id) > 0 || db_.get(id).banned;
+        return banned_ids_.count(id) > 0 || db_.get(id).bannedOn(legalityDate());
     }
 
     ValidationResult validate(const DeckSubmission& deck) const;
