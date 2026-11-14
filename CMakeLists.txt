@@ -470,6 +470,9 @@ add_library(riftbound_core
     src/engine/play_permissions.cpp
     src/engine/prompt_description.cpp
     src/engine/observer_view.cpp
+    # Search prune. In the core library so riftbound_tests can call it;
+    # the rules engine does not.
+    src/agents/friendly_harm.cpp
     src/io/state_renderer.cpp
     src/io/replay_writer.cpp
     src/io/state_editor.cpp
