@@ -1056,6 +1056,12 @@ private:
     /// The play is announced (CardPlayedEvent, "played not from hand") once
     /// the permanent has entered the board (CR 383.4.a.2).
     void announcePermanentPlayed(GameObjectId card_id, PlayerId player);
+    /// Hunters' Circle: the first unit or gear a player plays at that
+    /// battlefield on their turn spends the one permission, whether or not
+    /// the play paid its printed cost. A later unit or gear that turn is not
+    /// discounted. A play at another location, a spell, and a play on the
+    /// opponent's turn do not spend it.
+    void noteUnitOrGearPlayed(PlayerId player, GameObjectId card, const LocationId& where);
     /// Puts chain item `item_id` below every item queued since `first_new`
     /// (CR 354: the card went on the chain as its play began, so what paying
     /// for it triggered is newer and resolves first).

@@ -18,9 +18,16 @@ public:
 
     // "When you hold here": the battlefield's hold, with the holder as its
     // controller (TriggerManager::onScore). WhenIHold is a unit's own hold.
+    // "If your Rune Deck is empty" is the trigger condition (CR 383.2.a.1):
+    // judged when the hold happens. A rune that arrives or leaves in response
+    // does not change whether the ability was placed.
     TriggerType triggerType() const override { return TriggerType::WhenYouHoldHere; }
+    bool triggerCondition(const GameState& state, GameObjectId, PlayerId controller,
+                          TriggerType, GameObjectId) const override {
+        return controller != PlayerId::None && state.player(controller).rune_deck.empty();
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (ctx.state.player(ctx.controller).rune_deck.empty()) ctx.executor.scorePoints(ctx.controller, 1);
+        ctx.executor.scorePoints(ctx.controller, 1);
     }
 
 private:

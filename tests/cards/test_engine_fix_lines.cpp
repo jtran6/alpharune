@@ -6,6 +6,7 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <string>
 #include <variant>
 
@@ -73,6 +74,24 @@ protected:
         play.card = card;
         play.play_location = where;
         e.testHook_executeIntent(play);
+    }
+
+    // The later hand play is full price: a [2] unit from 2 Energy leaves 0,
+    // and a [1] gear from 1 Energy leaves 0. A discount still in force leaves 1.
+    void expectNoDiscount(GameEngine& e, GameObjectId card, int energy) {
+        settleLikeTheEngine(e);
+        e.mutableState().player(P1).rune_pool.energy = energy;
+        playAt(e, card, BattlefieldLocation{BattlefieldId::fromRaw(0)});
+        EXPECT_EQ(e.mutableState().player(P1).rune_pool.energy, 0);
+    }
+
+    static void toTrash(GameState& st, GameObjectId card) {
+        auto& obj = st.getObject(card);
+        auto& ps = st.player(obj.owner);
+        ps.hand.erase(std::remove(ps.hand.begin(), ps.hand.end(), card), ps.hand.end());
+        obj.zone = ZoneType::Trash;
+        obj.location.reset();
+        ps.trash.push_back(card);
     }
 
     GameObjectId legend(PlayerId owner, CardDefId def) {
@@ -205,6 +224,82 @@ TEST_F(EngineFixLines, HuntersCircle_AReactionPayableOnlyHereIsOffered) {
     });
 }
 
+TEST_F(EngineFixLines, HuntersCircle_IgnoreCostPlaySpendsThePermission) {
+    battlefieldCard(0, kCircle, P1);
+    addUnit(P1, kUnit, 1, 0);
+    auto first = addToHand(P1, kUnit);
+    auto gear = addToHand(P1, kDeployGear);
+    withEngine([&](GameEngine& e) {
+        e.testHook_cleanup();
+        const LocationId here{BattlefieldLocation{BattlefieldId::fromRaw(0)}};
+        EXPECT_TRUE(e.testHook_executor().playIgnoringCost(P1, first, here));
+        EXPECT_EQ(e.mutableState().getObject(first).location, here);
+        // A gear is the same permission. This one is not discounted.
+        expectNoDiscount(e, gear, 1);
+    });
+}
+
+TEST_F(EngineFixLines, HuntersCircle_EffectPaySpendsThePermission) {
+    battlefieldCard(0, kCircle, P1);
+    addUnit(P1, kUnit, 1, 0);
+    auto first = addToHand(P1, kUnit);
+    auto second = addToHand(P1, kUnit);
+    withEngine([&](GameEngine& e) {
+        e.testHook_cleanup();
+        e.mutableState().player(P1).rune_pool.energy = 2;
+        const LocationId here{BattlefieldLocation{BattlefieldId::fromRaw(0)}};
+        EXPECT_TRUE(e.testHook_executor().playPayingCost(P1, first, here));
+        EXPECT_EQ(e.mutableState().getObject(first).location, here);
+        // The effect play itself is the first play here, so it takes the [1].
+        EXPECT_EQ(e.mutableState().player(P1).rune_pool.energy, 1);
+        expectNoDiscount(e, second, 2);
+    });
+}
+
+TEST_F(EngineFixLines, HuntersCircle_AltCostPlaySpendsThePermission) {
+    battlefieldCard(0, kCircle, P1);
+    addUnit(P1, kUnit, 1, 0);
+    auto first = addToHand(P1, kUnit);
+    auto second = addToHand(P1, kUnit);
+    withEngine([&](GameEngine& e) {
+        e.testHook_cleanup();
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = first;
+        play.use_alt_play_cost = true;
+        play.play_location = BattlefieldLocation{BattlefieldId::fromRaw(0)};
+        e.testHook_executeIntent(play);
+        EXPECT_EQ(e.mutableState().getObject(first).location,
+                  LocationId{BattlefieldLocation{BattlefieldId::fromRaw(0)}});
+        expectNoDiscount(e, second, 2);
+    });
+}
+
+TEST_F(EngineFixLines, HuntersCircle_TrashReplaySpendsThePermission) {
+    battlefieldCard(0, kCircle, P1);
+    addUnit(P1, kUnit, 1, 0);
+    auto first = addToHand(P1, kUnit);
+    auto gear = addToHand(P1, kDeployGear);
+    withEngine([&](GameEngine& e) {
+        e.testHook_cleanup();
+        toTrash(e.mutableState(), first);
+        PlayerState::TrashReplayGrant grant;
+        grant.card = first;
+        e.mutableState().player(P1).trash_replay_grants.push_back(grant);
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = first;
+        play.play_source = Intent::PlaySource::Trash;
+        play.play_location = BattlefieldLocation{BattlefieldId::fromRaw(0)};
+        e.testHook_executeIntent(play);
+        EXPECT_EQ(e.mutableState().getObject(first).location,
+                  LocationId{BattlefieldLocation{BattlefieldId::fromRaw(0)}});
+        expectNoDiscount(e, gear, 1);
+    });
+}
+
 TEST_F(EngineFixLines, CosmicVista_EmptyRuneDeckScoresOnHold) {
     battlefieldCard(0, kVista, P1);
     addUnit(P1, kUnit, 1, 0);
@@ -225,6 +320,44 @@ TEST_F(EngineFixLines, CosmicVista_EmptyRuneDeckScoresOnHold) {
     withEngine([&](GameEngine& e) {
         e.testHook_scoreHold(P1, BattlefieldId::fromRaw(1));
         e.testHook_runChain();
+        EXPECT_EQ(e.mutableState().player(P1).score, 1);
+    });
+}
+
+TEST_F(EngineFixLines, CosmicVista_EmptyDeckIsJudgedWhenYouHold) {
+    battlefieldCard(0, kVista, P1);
+    addUnit(P1, kUnit, 1, 0);
+    withEngine([&](GameEngine& e) {
+        e.testHook_scoreHold(P1, BattlefieldId::fromRaw(0));
+        auto& st = e.mutableState();
+        auto rune = st.createObject();
+        auto& obj = st.getObject(rune);
+        obj.owner = P1;
+        obj.controller = P1;
+        obj.card_type = CardType::Rune;
+        obj.zone = ZoneType::RuneDeck;
+        obj.name = "Calm Rune";
+        st.player(P1).rune_deck.push_back(rune);
+        e.testHook_runChain();
+        // The hold saw an empty deck. A rune that arrives before the ability
+        // resolves does not take the point back.
+        EXPECT_EQ(st.player(P1).score, 2);
+    });
+
+    state.player(P1).score = 0;
+    state.player(P1).battlefields_scored_this_turn.clear();
+    state.player(P1).rune_deck.clear();
+    battlefieldCard(1, kVista, P1);
+    addUnit(P1, kUnit, 1, 1);
+    auto rune = addRune(P1, Domain::Calm);
+    state.getObject(rune).zone = ZoneType::RuneDeck;
+    state.getObject(rune).location.reset();
+    state.player(P1).rune_deck = {rune};
+    withEngine([&](GameEngine& e) {
+        e.testHook_scoreHold(P1, BattlefieldId::fromRaw(1));
+        e.mutableState().player(P1).rune_deck.clear();
+        e.testHook_runChain();
+        // The hold saw a rune. Emptying the deck in response does not score.
         EXPECT_EQ(e.mutableState().player(P1).score, 1);
     });
 }

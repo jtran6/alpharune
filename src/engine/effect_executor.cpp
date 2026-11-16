@@ -3246,6 +3246,17 @@ bool EffectExecutor::playPayingCost(PlayerId player, GameObjectId card,
     if (state_.getObject(card).isUnit() && location.has_value() &&
         !unitMayBePlayedTo(player, *location))
         return false;
+    // The cost is the cost of playing it THERE (Hunters' Circle). Restored
+    // when the payment returns, including when the play is not paid for.
+    struct PublishLocation {
+        EffectExecutor& ex;
+        std::optional<LocationId> saved;
+        PublishLocation(EffectExecutor& e, std::optional<LocationId> loc)
+            : ex(e), saved(e.playCostLocation()) {
+            e.setPlayCostLocation(std::move(loc));
+        }
+        ~PublishLocation() { ex.setPlayCostLocation(std::move(saved)); }
+    } publish{*this, location};
     // A new play: what an earlier play of this card paid is forgotten here,
     // as it begins (Card::forgetPlayPayments) — not after this play's own
     // additional cost has set its flags (testing phase K1).
@@ -3368,6 +3379,11 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
     }
 
     LocationId chosen_loc = location.value_or(LocationId{BaseLocation{player}});
+    // The first unit or gear played here spends that permission even when
+    // this play paid nothing (playIgnoringCost) or paid through the hook
+    // above (playPayingCost). A spell is not a unit or a gear.
+    if ((obj.isUnit() || obj.isGear()) && played_at_)
+        played_at_(player, card, chosen_loc);
     if (std::holds_alternative<BattlefieldLocation>(chosen_loc)) {
         obj.zone = ZoneType::BattlefieldZone;
     } else {

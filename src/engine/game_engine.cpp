@@ -125,9 +125,19 @@ void GameEngine::initSubsystems() {
     });
     effect_executor_->setNetPlayCost(
         [this](PlayerId p, GameObjectId card) { return netCardCost(p, card, {}); });
+    effect_executor_->setPlayedAt(
+        [this](PlayerId p, GameObjectId card, const LocationId& where) {
+            noteUnitOrGearPlayed(p, card, where);
+        });
     effect_executor_->setPlayCostFns(
-        [this](PlayerId p, GameObjectId card) { return effectPlayAffordable(p, card); },
         [this](PlayerId p, GameObjectId card) {
+            // An effect names where the unit is played. The discount for
+            // playing there is part of this cost (Hunters' Circle).
+            CostingAt at(*this, effect_executor_->playCostLocation());
+            return effectPlayAffordable(p, card);
+        },
+        [this](PlayerId p, GameObjectId card) {
+            CostingAt at(*this, effect_executor_->playCostLocation());
             // A spell's choices come before its cost (CR 355 -> 356), on an
             // effect play as on a play from hand: its target (with that
             // target's Deflect and discount) and its finalize pass (testing
@@ -3932,6 +3942,11 @@ void GameEngine::executePlayCard(const Intent& intent) {
     // the play is announced, so "when you play a unit here" abilities can
     // tell where it is being played.
     card.location = intent.play_location.value_or(BaseLocation{intent.player});
+    // The play happened, including an alternative cost and a trash replay,
+    // neither of which pays through payCardCost. One permission for the first
+    // unit or gear here this turn.
+    if (card.location.has_value())
+        noteUnitOrGearPlayed(intent.player, intent.card, *card.location);
 
     // CR 383.4.a.2: play effects "are put on the Chain as Pending Items after
     // the Permanent these effects correspond to is finalized and enters the
@@ -5699,6 +5714,7 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         effect_executor_->makeAsYouPlayChoices(intent.player, intent.card);   // CR 355.1
         maybePayOptionalAdditionalCost(intent.player, intent.card, 0, ignoring_base);
         card.location = BattlefieldLocation{bf_id};
+        noteUnitOrGearPlayed(intent.player, intent.card, *card.location);
         // Route through chain like normal plays
         auto& ps = state_.player(intent.player);
         ps.cards_played_this_turn++;
@@ -9849,9 +9865,9 @@ static bool costModifierApplies(const GameState& state, const PlayerState::CostM
     // "The first unit or gear" is one permission (Hunters' Circle). A spell
     // takes neither half.
     if (mod.units_and_gear && !card.isUnit() && !card.isGear()) return false;
-    // "on their turn": a play on the opponent's turn neither takes the
-    // discount nor uses the permission up (the stamp is written only when
-    // this returns true).
+    // "on their turn": a play on the opponent's turn does not take the
+    // discount. The permission is spent by noteUnitOrGearPlayed when the
+    // unit or gear is played, not by this check.
     if (mod.on_their_turn && state.turn.turn_player != payer) return false;
     if (!mod.first_here_key.empty()) {
         if (!state.objectExists(mod.source)) return false;
@@ -10545,31 +10561,27 @@ bool GameEngine::payCardCost(PlayerId player, GameObjectId card_obj,
             state_.objectExists(card_obj) ? spendForPlay(state_.getObject(card_obj))
                                           : SpendFor::Other))
         return false;
-    // The payment finished. A "first unit or gear here on their turn"
-    // permission that this payment used is spent now, on the battlefield that
-    // granted it, so the next cleanup's rebuilt modifier does not give it again.
-    if (state_.turn.turn_player == player && state_.objectExists(card_obj) &&
-        costing_play_location_ &&
-        std::holds_alternative<BattlefieldLocation>(*costing_play_location_)) {
-        const auto& played = state_.getObject(card_obj);
-        if (played.isUnit() || played.isGear()) {
-            const int printed = played.card_def_id != kInvalidId
-                ? card_db_.get(played.card_def_id).energy_cost : -1;
-            const bool combat_active = anyCombatInProgress(state_);
-            const int slot = static_cast<int>(
-                std::get<BattlefieldLocation>(*costing_play_location_).id.raw());
-            for (const auto& mod : state_.player(player).cost_modifiers) {
-                if (mod.first_here_key.empty() || mod.only_at_battlefield != slot) continue;
-                if (!costModifierApplies(state_, mod, /*own=*/true, player, played,
-                                        combat_active, printed, &costing_play_location_))
-                    continue;
-                if (!state_.objectExists(mod.source)) continue;
-                state_.getObject(mod.source).card_counters[mod.first_here_key] =
-                    state_.turn.turn_number + 1;
-            }
-        }
-    }
     return true;
+}
+
+void GameEngine::noteUnitOrGearPlayed(PlayerId player, GameObjectId card,
+                                     const LocationId& where) {
+    // One permission per player: the first unit or the first gear they play
+    // here on their turn. A second unit or gear that turn is full price, and
+    // so is a play that is not here. Alt-cost, trash, effect, and ignore-cost
+    // plays spend it the same way a printed-cost hand play does.
+    if (state_.turn.turn_player != player || !state_.objectExists(card)) return;
+    const auto& played = state_.getObject(card);
+    if (!played.isUnit() && !played.isGear()) return;
+    const auto* bf = std::get_if<BattlefieldLocation>(&where);
+    if (!bf) return;
+    const int slot = static_cast<int>(bf->id.raw());
+    const int stamp = state_.turn.turn_number + 1;
+    for (const auto& mod : state_.player(player).cost_modifiers) {
+        if (mod.first_here_key.empty() || mod.only_at_battlefield != slot) continue;
+        if (!state_.objectExists(mod.source)) continue;
+        state_.getObject(mod.source).card_counters[mod.first_here_key] = stamp;
+    }
 }
 
 bool GameEngine::askRunesFor(PlayerId player, GameObjectId card_obj, CostPaymentAdvance adv) {

@@ -788,6 +788,14 @@ public:
         can_afford_ = std::move(can);
         pay_cost_ = std::move(pay);
     }
+    /// Where an effect play that pays is going, while its cost is judged and
+    /// paid (Hunters' Circle: "play here"). Empty outside that payment.
+    std::optional<LocationId> playCostLocation() const { return play_cost_location_; }
+    void setPlayCostLocation(std::optional<LocationId> loc) { play_cost_location_ = std::move(loc); }
+    /// A unit or gear an effect played has entered at `where`. The engine
+    /// spends a "first unit or gear played here" permission from this.
+    using PlayedAtFn = std::function<void(PlayerId, GameObjectId, const LocationId&)>;
+    void setPlayedAt(PlayedAtFn fn) { played_at_ = std::move(fn); }
     /// What `card` costs to play while `cost` replaces or ignores its base
     /// (increases included). The engine injects the real cost; without that,
     /// the replacement itself is the answer.
@@ -938,6 +946,8 @@ private:
     QueueReflexiveFn queue_reflexive_;
     RechooseFn rechoose_;
     PayCostFn pay_cost_;
+    std::optional<LocationId> play_cost_location_;
+    PlayedAtFn played_at_;
     NetPlayCostFn net_play_cost_;
     const CardRegistry* card_registry_ = nullptr;  // optional; needed for playIgnoringCost onPlay dispatch
     OfferAccelerateFn offer_accelerate_;
