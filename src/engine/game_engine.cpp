@@ -125,9 +125,19 @@ void GameEngine::initSubsystems() {
     });
     effect_executor_->setNetPlayCost(
         [this](PlayerId p, GameObjectId card) { return netCardCost(p, card, {}); });
+    effect_executor_->setPlayedAt(
+        [this](PlayerId p, GameObjectId card, const LocationId& where) {
+            noteUnitOrGearPlayed(p, card, where);
+        });
     effect_executor_->setPlayCostFns(
-        [this](PlayerId p, GameObjectId card) { return effectPlayAffordable(p, card); },
         [this](PlayerId p, GameObjectId card) {
+            // An effect names where the unit is played. The discount for
+            // playing there is part of this cost (Hunters' Circle).
+            CostingAt at(*this, effect_executor_->playCostLocation());
+            return effectPlayAffordable(p, card);
+        },
+        [this](PlayerId p, GameObjectId card) {
+            CostingAt at(*this, effect_executor_->playCostLocation());
             // A spell's choices come before its cost (CR 355 -> 356), on an
             // effect play as on a play from hand: its target (with that
             // target's Deflect and discount) and its finalize pass (testing
@@ -3430,8 +3440,22 @@ bool GameEngine::canAffordChoosing(PlayerId player, GameObjectId card_id,
         bool has_choice = false;
         const auto disc = targetCostDiscount(player, targets, prefer_power == 1, &has_choice);
         if (prefer_power == 1 && !has_choice) break;
+        // The same optional spell discount canAfford counts (Starry-Eyed
+        // Songstress: exhaust her and three units for [2]). A finalize-pass
+        // spell is offered through this gate, with its targets filled in, so
+        // leaving the discount out offers a spell the payment then cannot
+        // finish.
+        int optional_energy = 0;
+        if (card.isSpell()) {
+            for (auto& [id, obj] : state_.objects.inPlay()) {
+                if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
+                if (const Card* other = card_registry_.get(obj.card_def_id))
+                    optional_energy = std::max(optional_energy,
+                                               other->optionalSpellEnergyOff(state_, id));
+            }
+        }
         auto with = [&](Card::PlayCostAdjust a) {
-            a.energy_reduction += disc.energy_reduction;
+            a.energy_reduction += disc.energy_reduction + optional_energy;
             a.power_reduction += disc.power_reduction;
             return canAffordWith(player, card_id, deflect, a);
         };
@@ -3918,6 +3942,11 @@ void GameEngine::executePlayCard(const Intent& intent) {
     // the play is announced, so "when you play a unit here" abilities can
     // tell where it is being played.
     card.location = intent.play_location.value_or(BaseLocation{intent.player});
+    // The play happened, including an alternative cost and a trash replay,
+    // neither of which pays through payCardCost. One permission for the first
+    // unit or gear here this turn.
+    if (card.location.has_value())
+        noteUnitOrGearPlayed(intent.player, intent.card, *card.location);
 
     // CR 383.4.a.2: play effects "are put on the Chain as Pending Items after
     // the Permanent these effects correspond to is finalized and enters the
@@ -5685,6 +5714,7 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         effect_executor_->makeAsYouPlayChoices(intent.player, intent.card);   // CR 355.1
         maybePayOptionalAdditionalCost(intent.player, intent.card, 0, ignoring_base);
         card.location = BattlefieldLocation{bf_id};
+        noteUnitOrGearPlayed(intent.player, intent.card, *card.location);
         // Route through chain like normal plays
         auto& ps = state_.player(intent.player);
         ps.cards_played_this_turn++;
@@ -6247,7 +6277,6 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit() || !card.hasKeyword(Keyword::Ambush)) continue;
-        if (!canAfford(player, card_id)) continue;
 
         const Card* amb = card.card_def_id != kInvalidId
             ? card_registry_.get(card.card_def_id) : nullptr;
@@ -6257,6 +6286,9 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
             // A battlefield where the player has units, or (Rengar, Trophy
             // Hunter) one with enemy units.
             if (!ambushLocation(amb, player, bf)) continue;
+            // A discount that applies only at this battlefield (Hunters' Circle).
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent ambush;
             ambush.type = IntentType::PlayActionCard;
             ambush.player = player;
@@ -6275,13 +6307,14 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
         if (card.card_def_id == kInvalidId) continue;
         Card* card_obj = card_registry_.get(card.card_def_id);
         if (!card_obj || !card_obj->playableAsReactionToAttack()) continue;
-        if (!canAfford(player, card_id)) continue;
 
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             if (!bf.combat_in_progress) continue;
             if (!bf.attacker.has_value() || *bf.attacker != player) continue;
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent pounce;
             pounce.type = IntentType::PlayReaction;
             pounce.player = player;
@@ -6347,36 +6380,41 @@ void GameEngine::generateReactionPermanentActions(PlayerId player, IntentType in
                              (deploy && ps.deploy_gear_have_action)))
                 timing = true;
             if (!timing) continue;
-            if (!canAfford(player, card_id)) continue;
+            // The cost is judged at the location this play would use. A
+            // discount that exists only there (Hunters' Circle) is invisible
+            // to a location-blind canAfford, which used to drop the card.
+            auto offer = [&](LocationId loc) {
+                CostingAt at(*this, loc);
+                if (!canAfford(player, card_id)) return;
+                Intent offered = play;
+                offered.play_location = loc;
+                actions.push_back(offered);
+            };
             if (card_obj->restrictsPlayLocations()) {
-                for (const auto& loc : card_obj->getPlayLocations(state_, player)) {
-                    Intent restricted = play;
-                    restricted.play_location = loc;
-                    actions.push_back(restricted);
-                }
+                for (const auto& loc : card_obj->getPlayLocations(state_, player))
+                    offer(loc);
             } else {
-                play.play_location = BaseLocation{player};
-                actions.push_back(play);
+                offer(BaseLocation{player});
             }
         } else if (card.isUnit()) {
             if (!card_obj->hasReactionTiming()) continue;
-            if (!canAfford(player, card_id)) continue;
+            auto offer = [&](LocationId loc) {
+                CostingAt at(*this, loc);
+                if (!canAfford(player, card_id)) return;
+                Intent offered = play;
+                offered.play_location = loc;
+                actions.push_back(offered);
+            };
             if (card_obj->restrictsPlayLocations()) {
-                for (const auto& loc : card_obj->getPlayLocations(state_, player)) {
-                    Intent restricted = play;
-                    restricted.play_location = loc;
-                    actions.push_back(restricted);
-                }
+                for (const auto& loc : card_obj->getPlayLocations(state_, player))
+                    offer(loc);
                 continue;
             }
-            play.play_location = BaseLocation{player};
-            actions.push_back(play);
+            offer(BaseLocation{player});
             if (ps.units_play_base_only) continue;  // Mageseeker Warden
             for (const auto& bf : state_.battlefields) {
                 if (!unitPlayableAt(card_obj, player, bf, &card)) continue;
-                Intent bf_play = play;
-                bf_play.play_location = BattlefieldLocation{bf.id};
-                actions.push_back(bf_play);
+                offer(BattlefieldLocation{bf.id});
             }
         }
     }
@@ -6411,7 +6449,6 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit() || !card.hasKeyword(Keyword::Ambush)) continue;
-        if (!canAfford(player, card_id)) continue;
 
         const Card* amb = card.card_def_id != kInvalidId
             ? card_registry_.get(card.card_def_id) : nullptr;
@@ -6419,6 +6456,8 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             if (!ambushLocation(amb, player, bf)) continue;
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent ambush;
             ambush.type = IntentType::PlayReaction;
             ambush.player = player;
@@ -6436,13 +6475,14 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
         if (card.card_def_id == kInvalidId) continue;
         Card* card_obj = card_registry_.get(card.card_def_id);
         if (!card_obj || !card_obj->playableAsReactionToAttack()) continue;
-        if (!canAfford(player, card_id)) continue;
 
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             if (!bf.combat_in_progress) continue;
             if (!bf.attacker.has_value() || *bf.attacker != player) continue;
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent pounce;
             pounce.type = IntentType::PlayReaction;
             pounce.player = player;
@@ -9822,6 +9862,20 @@ static bool costModifierApplies(const GameState& state, const PlayerState::CostM
         const auto* bf = std::get_if<BattlefieldLocation>(&**play_at);
         if (!bf || static_cast<int>(bf->id.raw()) != mod.only_at_battlefield) return false;
     }
+    // "The first unit or gear" is one permission (Hunters' Circle). A spell
+    // takes neither half.
+    if (mod.units_and_gear && !card.isUnit() && !card.isGear()) return false;
+    // "on their turn": a play on the opponent's turn does not take the
+    // discount. The permission is spent by noteUnitOrGearPlayed when the
+    // unit or gear is played, not by this check.
+    if (mod.on_their_turn && state.turn.turn_player != payer) return false;
+    if (!mod.first_here_key.empty()) {
+        if (!state.objectExists(mod.source)) return false;
+        const auto stamped = state.getObject(mod.source).card_counters.find(mod.first_here_key);
+        if (stamped != state.getObject(mod.source).card_counters.end() &&
+            stamped->second == state.turn.turn_number + 1)
+            return false;
+    }
     if (mod.affects_non_token_only && card.super_type == SuperType::Token) return false;
     if (mod.combat_active_only && !combat_active) return false;
     if (!mod.required_tag.empty() &&
@@ -10508,6 +10562,26 @@ bool GameEngine::payCardCost(PlayerId player, GameObjectId card_obj,
                                           : SpendFor::Other))
         return false;
     return true;
+}
+
+void GameEngine::noteUnitOrGearPlayed(PlayerId player, GameObjectId card,
+                                     const LocationId& where) {
+    // One permission per player: the first unit or the first gear they play
+    // here on their turn. A second unit or gear that turn is full price, and
+    // so is a play that is not here. Alt-cost, trash, effect, and ignore-cost
+    // plays spend it the same way a printed-cost hand play does.
+    if (state_.turn.turn_player != player || !state_.objectExists(card)) return;
+    const auto& played = state_.getObject(card);
+    if (!played.isUnit() && !played.isGear()) return;
+    const auto* bf = std::get_if<BattlefieldLocation>(&where);
+    if (!bf) return;
+    const int slot = static_cast<int>(bf->id.raw());
+    const int stamp = state_.turn.turn_number + 1;
+    for (const auto& mod : state_.player(player).cost_modifiers) {
+        if (mod.first_here_key.empty() || mod.only_at_battlefield != slot) continue;
+        if (!state_.objectExists(mod.source)) continue;
+        state_.getObject(mod.source).card_counters[mod.first_here_key] = stamp;
+    }
 }
 
 bool GameEngine::askRunesFor(PlayerId player, GameObjectId card_obj, CostPaymentAdvance adv) {

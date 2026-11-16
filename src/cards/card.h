@@ -1308,6 +1308,14 @@ public:
         return "__first_time_" + std::to_string(static_cast<int>(trigger));
     }
 
+    /// Called once the ability will be queued: its condition was met and it
+    /// is not a duplicate of a batch already on the chain. A "first time each
+    /// turn" that counts one player's events ("for each player, the first
+    /// time") stamps that here, when the event is accepted, so a later event
+    /// in the same batch sees it and a countered ability still counts
+    /// (CR 383.1). The default records nothing.
+    virtual void acceptTrigger(GameState& /*state*/, const TriggerEvent& /*event*/) const {}
+
     /// An Equipment whose effect text is a copy of its bearer's text ("As this
     /// is attached to a unit, copy that unit's text to this Equipment's effect
     /// text" — Svellsongur, CR 479.1.d). Effect text speaks for the bearer, so

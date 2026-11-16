@@ -17,6 +17,20 @@ public:
     const CardDef& def() const override { return def_; }
 
     TriggerType triggerType() const override { return TriggerType::WhenYouHideACard; }
+    // "When you hide a card here." "You" is this battlefield's controller, or
+    // the turn player while it is uncontrolled (CR 190.6). The hide is here
+    // when the hidden card's battlefield is this one. Judged as the card is
+    // hidden (CR 383.2.a.1).
+    bool triggerCondition(const GameState& state, GameObjectId source, PlayerId controller,
+                          TriggerType, GameObjectId subject) const override {
+        if (subject == kInvalidId || !state.objectExists(subject)) return false;
+        const auto here = battlefieldOfCard(state, source);
+        if (!here || state.getObject(subject).hidden_at != *here) return false;
+        PlayerId you = PlayerId::None;
+        for (const auto& bf : state.battlefields)
+            if (bf.id == *here) you = bf.controller.value_or(state.turn.turn_player);
+        return you != PlayerId::None && controller == you;
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         createGoldExhausted(ctx);
     }

@@ -455,6 +455,10 @@ bool TriggerManager::fireTrigger(GameObjectId source, PlayerId controller,
             }
     }
 
+    // The ability will be queued. A per-player "first time" stamps now, so the
+    // next event in this same batch already sees it (CR 383.1).
+    if (card)
+        card->acceptTrigger(state_, triggerEventFor(source, controller, fired, subject));
     RIFT_DEBUG(events_, "TRIGGER: " + obj.name + " (" + toString(controller) +
                      ") fires ability");
     const OpenClosedState oc_before = state_.turn.oc_state;
@@ -1305,6 +1309,13 @@ void TriggerManager::onUnitDied(const UnitDiedEvent& e) {
     // (Battle Mistress: "When one or more enemy units die, ready me.").
     fireLegendTrigger(TriggerType::WhenAFriendlyUnitDies, e.controller, 0, e.object);
     fireLegendTrigger(TriggerType::WhenAnEnemyUnitDies, opp, 0, e.object);
+    // A battlefield card has no location, so the board walk never asks it.
+    // "For each player, the first time a unit they control dies here": the
+    // ability is that player's (CR 190.6.c), including when they do not
+    // control the battlefield. A death at a base is not "here".
+    if (const auto* where = std::get_if<BattlefieldLocation>(&e.was_at))
+        fireBattlefieldTriggers(TriggerType::WhenAFriendlyUnitDies, e.controller,
+                                where->id, e.object);
 
     // "When you kill a unit with a spell" (Immortal Phoenix 037): the spell
     // that is resolving killed it, or it died in a cleanup of lethal damage a
@@ -2256,6 +2267,15 @@ void TriggerManager::onCardHidden(const CardHiddenEvent& e) {
         if (cardFiresOn(card_registry_, obj.card_def_id, TriggerType::WhenYouHideACard)) {
             fireTrigger(id, e.player, 0, TriggerType::WhenYouHideACard);
         }
+    }
+    // The battlefield the card was hidden at has no location either.
+    // hidden_at is stamped before this event. "You" is that battlefield's
+    // controller (the turn player while it is uncontrolled, CR 190.6); the
+    // card's condition refuses a hide by anyone else.
+    if (state_.objectExists(e.card)) {
+        const auto at = state_.getObject(e.card).hidden_at;
+        if (at.valid())
+            fireBattlefieldTriggers(TriggerType::WhenYouHideACard, e.player, at, e.card);
     }
 }
 
