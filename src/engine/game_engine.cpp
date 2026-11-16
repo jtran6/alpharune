@@ -3430,8 +3430,22 @@ bool GameEngine::canAffordChoosing(PlayerId player, GameObjectId card_id,
         bool has_choice = false;
         const auto disc = targetCostDiscount(player, targets, prefer_power == 1, &has_choice);
         if (prefer_power == 1 && !has_choice) break;
+        // The same optional spell discount canAfford counts (Starry-Eyed
+        // Songstress: exhaust her and three units for [2]). A finalize-pass
+        // spell is offered through this gate, with its targets filled in, so
+        // leaving the discount out offers a spell the payment then cannot
+        // finish.
+        int optional_energy = 0;
+        if (card.isSpell()) {
+            for (auto& [id, obj] : state_.objects.inPlay()) {
+                if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
+                if (const Card* other = card_registry_.get(obj.card_def_id))
+                    optional_energy = std::max(optional_energy,
+                                               other->optionalSpellEnergyOff(state_, id));
+            }
+        }
         auto with = [&](Card::PlayCostAdjust a) {
-            a.energy_reduction += disc.energy_reduction;
+            a.energy_reduction += disc.energy_reduction + optional_energy;
             a.power_reduction += disc.power_reduction;
             return canAffordWith(player, card_id, deflect, a);
         };
@@ -6247,7 +6261,6 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit() || !card.hasKeyword(Keyword::Ambush)) continue;
-        if (!canAfford(player, card_id)) continue;
 
         const Card* amb = card.card_def_id != kInvalidId
             ? card_registry_.get(card.card_def_id) : nullptr;
@@ -6257,6 +6270,9 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
             // A battlefield where the player has units, or (Rengar, Trophy
             // Hunter) one with enemy units.
             if (!ambushLocation(amb, player, bf)) continue;
+            // A discount that applies only at this battlefield (Hunters' Circle).
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent ambush;
             ambush.type = IntentType::PlayActionCard;
             ambush.player = player;
@@ -6275,13 +6291,14 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
         if (card.card_def_id == kInvalidId) continue;
         Card* card_obj = card_registry_.get(card.card_def_id);
         if (!card_obj || !card_obj->playableAsReactionToAttack()) continue;
-        if (!canAfford(player, card_id)) continue;
 
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             if (!bf.combat_in_progress) continue;
             if (!bf.attacker.has_value() || *bf.attacker != player) continue;
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent pounce;
             pounce.type = IntentType::PlayReaction;
             pounce.player = player;
@@ -6347,36 +6364,41 @@ void GameEngine::generateReactionPermanentActions(PlayerId player, IntentType in
                              (deploy && ps.deploy_gear_have_action)))
                 timing = true;
             if (!timing) continue;
-            if (!canAfford(player, card_id)) continue;
+            // The cost is judged at the location this play would use. A
+            // discount that exists only there (Hunters' Circle) is invisible
+            // to a location-blind canAfford, which used to drop the card.
+            auto offer = [&](LocationId loc) {
+                CostingAt at(*this, loc);
+                if (!canAfford(player, card_id)) return;
+                Intent offered = play;
+                offered.play_location = loc;
+                actions.push_back(offered);
+            };
             if (card_obj->restrictsPlayLocations()) {
-                for (const auto& loc : card_obj->getPlayLocations(state_, player)) {
-                    Intent restricted = play;
-                    restricted.play_location = loc;
-                    actions.push_back(restricted);
-                }
+                for (const auto& loc : card_obj->getPlayLocations(state_, player))
+                    offer(loc);
             } else {
-                play.play_location = BaseLocation{player};
-                actions.push_back(play);
+                offer(BaseLocation{player});
             }
         } else if (card.isUnit()) {
             if (!card_obj->hasReactionTiming()) continue;
-            if (!canAfford(player, card_id)) continue;
+            auto offer = [&](LocationId loc) {
+                CostingAt at(*this, loc);
+                if (!canAfford(player, card_id)) return;
+                Intent offered = play;
+                offered.play_location = loc;
+                actions.push_back(offered);
+            };
             if (card_obj->restrictsPlayLocations()) {
-                for (const auto& loc : card_obj->getPlayLocations(state_, player)) {
-                    Intent restricted = play;
-                    restricted.play_location = loc;
-                    actions.push_back(restricted);
-                }
+                for (const auto& loc : card_obj->getPlayLocations(state_, player))
+                    offer(loc);
                 continue;
             }
-            play.play_location = BaseLocation{player};
-            actions.push_back(play);
+            offer(BaseLocation{player});
             if (ps.units_play_base_only) continue;  // Mageseeker Warden
             for (const auto& bf : state_.battlefields) {
                 if (!unitPlayableAt(card_obj, player, bf, &card)) continue;
-                Intent bf_play = play;
-                bf_play.play_location = BattlefieldLocation{bf.id};
-                actions.push_back(bf_play);
+                offer(BattlefieldLocation{bf.id});
             }
         }
     }
@@ -6411,7 +6433,6 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit() || !card.hasKeyword(Keyword::Ambush)) continue;
-        if (!canAfford(player, card_id)) continue;
 
         const Card* amb = card.card_def_id != kInvalidId
             ? card_registry_.get(card.card_def_id) : nullptr;
@@ -6419,6 +6440,8 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             if (!ambushLocation(amb, player, bf)) continue;
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent ambush;
             ambush.type = IntentType::PlayReaction;
             ambush.player = player;
@@ -6436,13 +6459,14 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
         if (card.card_def_id == kInvalidId) continue;
         Card* card_obj = card_registry_.get(card.card_def_id);
         if (!card_obj || !card_obj->playableAsReactionToAttack()) continue;
-        if (!canAfford(player, card_id)) continue;
 
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             if (!bf.combat_in_progress) continue;
             if (!bf.attacker.has_value() || *bf.attacker != player) continue;
+            CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
+            if (!canAfford(player, card_id)) continue;
             Intent pounce;
             pounce.type = IntentType::PlayReaction;
             pounce.player = player;
@@ -9822,6 +9846,20 @@ static bool costModifierApplies(const GameState& state, const PlayerState::CostM
         const auto* bf = std::get_if<BattlefieldLocation>(&**play_at);
         if (!bf || static_cast<int>(bf->id.raw()) != mod.only_at_battlefield) return false;
     }
+    // "The first unit or gear" is one permission (Hunters' Circle). A spell
+    // takes neither half.
+    if (mod.units_and_gear && !card.isUnit() && !card.isGear()) return false;
+    // "on their turn": a play on the opponent's turn neither takes the
+    // discount nor uses the permission up (the stamp is written only when
+    // this returns true).
+    if (mod.on_their_turn && state.turn.turn_player != payer) return false;
+    if (!mod.first_here_key.empty()) {
+        if (!state.objectExists(mod.source)) return false;
+        const auto stamped = state.getObject(mod.source).card_counters.find(mod.first_here_key);
+        if (stamped != state.getObject(mod.source).card_counters.end() &&
+            stamped->second == state.turn.turn_number + 1)
+            return false;
+    }
     if (mod.affects_non_token_only && card.super_type == SuperType::Token) return false;
     if (mod.combat_active_only && !combat_active) return false;
     if (!mod.required_tag.empty() &&
@@ -10507,6 +10545,30 @@ bool GameEngine::payCardCost(PlayerId player, GameObjectId card_obj,
             state_.objectExists(card_obj) ? spendForPlay(state_.getObject(card_obj))
                                           : SpendFor::Other))
         return false;
+    // The payment finished. A "first unit or gear here on their turn"
+    // permission that this payment used is spent now, on the battlefield that
+    // granted it, so the next cleanup's rebuilt modifier does not give it again.
+    if (state_.turn.turn_player == player && state_.objectExists(card_obj) &&
+        costing_play_location_ &&
+        std::holds_alternative<BattlefieldLocation>(*costing_play_location_)) {
+        const auto& played = state_.getObject(card_obj);
+        if (played.isUnit() || played.isGear()) {
+            const int printed = played.card_def_id != kInvalidId
+                ? card_db_.get(played.card_def_id).energy_cost : -1;
+            const bool combat_active = anyCombatInProgress(state_);
+            const int slot = static_cast<int>(
+                std::get<BattlefieldLocation>(*costing_play_location_).id.raw());
+            for (const auto& mod : state_.player(player).cost_modifiers) {
+                if (mod.first_here_key.empty() || mod.only_at_battlefield != slot) continue;
+                if (!costModifierApplies(state_, mod, /*own=*/true, player, played,
+                                        combat_active, printed, &costing_play_location_))
+                    continue;
+                if (!state_.objectExists(mod.source)) continue;
+                state_.getObject(mod.source).card_counters[mod.first_here_key] =
+                    state_.turn.turn_number + 1;
+            }
+        }
+    }
     return true;
 }
 

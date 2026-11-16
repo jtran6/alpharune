@@ -16,7 +16,9 @@ class CosmicVista_1077 : public BattlefieldCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    TriggerType triggerType() const override { return TriggerType::WhenIHold; }
+    // "When you hold here": the battlefield's hold, with the holder as its
+    // controller (TriggerManager::onScore). WhenIHold is a unit's own hold.
+    TriggerType triggerType() const override { return TriggerType::WhenYouHoldHere; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (ctx.state.player(ctx.controller).rune_deck.empty()) ctx.executor.scorePoints(ctx.controller, 1);
     }

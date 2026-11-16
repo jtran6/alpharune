@@ -16,12 +16,13 @@ class HuntersCircle_1080 : public BattlefieldCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    void applyPassiveAura(GameState& state, PlayerId controller) const override {
+    void applyPassiveAura(GameState& state, PlayerId) const override {
         // A battlefield card has no location, so it is not in inPlay() and
-        // forEachSelfOnce never sees it. The engine calls this once per slot.
-        if (controller == PlayerId::None) return;
+        // forEachSelfOnce never sees it. The engine calls this once per slot;
+        // the marker keeps one pass from pushing the discount twice. "For
+        // each player": the passed controller is not who the discount is for.
         for (const auto& bf : state.battlefields) {
-            if (bf.controller != controller || !state.objectExists(bf.card_object_id)) continue;
+            if (!state.objectExists(bf.card_object_id)) continue;
             auto& self = state.getObject(bf.card_object_id);
             if (self.card_def_id != cardDefId()) continue;
             bool seen = false;
@@ -35,20 +36,22 @@ public:
             marker.keyword_value = kAuraOnceMarker;
             self.aura_effects.push_back(marker);
             const int slot = static_cast<int>(bf.id.raw());
-            PlayerState::CostModifier unit;
-            unit.source = bf.card_object_id;
-            unit.energy_reduction = 1;
-            unit.units_only = true;
-            unit.next_unit_only = true;
-            unit.from_aura = true;
-            unit.only_at_battlefield = slot;
-            PlayerState::CostModifier gear = unit;
-            gear.units_only = false;
-            gear.next_unit_only = false;
-            gear.gear_only = true;
-            gear.first_gear_per_turn = true;
-            state.player(controller).cost_modifiers.push_back(unit);
-            state.player(controller).cost_modifiers.push_back(gear);
+            for (PlayerId who : {PlayerId::Player1, PlayerId::Player2}) {
+                // One permission for the first unit OR gear that player plays
+                // here on their turn. The stamp lives on this battlefield
+                // (first_here_key) and survives the cleanup that rebuilds the
+                // modifier. next_unit_only would come back on the next cleanup
+                // and discount every unit.
+                PlayerState::CostModifier discount;
+                discount.source = bf.card_object_id;
+                discount.energy_reduction = 1;
+                discount.only_at_battlefield = slot;
+                discount.units_and_gear = true;
+                discount.on_their_turn = true;
+                discount.first_here_key =
+                    std::string("__hc_p") + std::to_string(static_cast<int>(who));
+                state.player(who).cost_modifiers.push_back(discount);
+            }
         }
     }
 

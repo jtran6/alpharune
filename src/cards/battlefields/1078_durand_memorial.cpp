@@ -16,13 +16,24 @@ class DurandMemorial_1078 : public BattlefieldCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    TriggerType triggerType() const override { return TriggerType::WhenIDefend; }
+    // "When you defend here": the defender's ability on this battlefield
+    // (TriggerManager::onCombatStarted). WhenIDefend is a unit's own.
+    TriggerType triggerType() const override { return TriggerType::WhenYouDefendHere; }
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
+        auto here = battlefieldOfCard(ctx.state, ctx.source);
+        if (!here.has_value())
+            for (const auto& bf : ctx.state.battlefields)
+                if (bf.replaced_card == std::optional<GameObjectId>{ctx.source}) here = bf.id;
+        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+            if (u.controller != ctx.controller || !here.has_value()) return false;
+            const auto at = u.battlefieldId();
+            return at.has_value() && *at == *here;
+        });
         auto t = pickTarget(ctx, "Durand Memorial: Tank this combat", units);
         if (finalizingChoices(ctx)) return;
-        if (t != kInvalidId) ctx.executor.giveKeywordThisCombat(t, Keyword::Tank, 1, BattlefieldId::fromRaw(0));
+        if (t != kInvalidId && here.has_value())
+            ctx.executor.giveKeywordThisCombat(t, Keyword::Tank, 1, *here);
     }
 
 private:

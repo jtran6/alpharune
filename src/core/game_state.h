@@ -315,6 +315,16 @@ struct PlayerState {
         // at any location; otherwise only a play whose chosen location is this
         // battlefield, judged when the cost is paid (before an onPlay rewrite).
         int only_at_battlefield = -1;
+        // One discount for a unit or a gear (Hunters' Circle: "the first unit
+        // or gear"). A spell does not take it, and playing either uses it up.
+        bool units_and_gear = false;
+        // "on their turn": the payer must be the turn player.
+        bool on_their_turn = false;
+        // card_counters key on `source`. When it holds turn_number + 1, this
+        // player has already played their first unit or gear here this turn
+        // and the discount does not apply again. Empty: no such limit.
+        // Written only after a payment that this modifier actually reduced.
+        std::string first_here_key;
     };
     std::vector<CostModifier> cost_modifiers;
 
