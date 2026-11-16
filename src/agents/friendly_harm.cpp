@@ -112,8 +112,12 @@ SpellShape shapeOf(const Card& card) {
         if (delta < 0) s.might_delta = std::min(s.might_delta, delta);
         else if (s.might_delta == 0) s.might_delta = delta;
     }
-    if (const size_t p = text.find("minimum of "); p != std::string::npos) {
-        const size_t j = p + 12;
+    // "minimum of " is 11 characters. The digit is the next one; one past
+    // that is the space, which is not a digit, so the floor stayed unset
+    // and a −4 that leaves the unit at 1 Might was scored as a kill.
+    static constexpr char kMinimumOf[] = "minimum of ";
+    if (const size_t p = text.find(kMinimumOf); p != std::string::npos) {
+        const size_t j = p + sizeof(kMinimumOf) - 1;
         if (j < text.size() && std::isdigit(static_cast<unsigned char>(text[j])))
             s.might_floor = numberAt(text, j);
     }
@@ -251,7 +255,8 @@ bool enemyCouldBeChosen(const GameState& state, PlayerId player, const SpellShap
 
 /// A friendly the printed card does not want, harmed without a death
 /// trigger and without a kill that pays. A non-killing result is dropped
-/// on its own. A kill is dropped only when an enemy is also a legal target.
+/// on its own. A kill with no death trigger is dropped whether or not an
+/// enemy is also a legal target: an empty target set is not that enemy.
 bool dropFriendly(const GameState& state, const GameObject& unit, PlayerId player,
                   const SpellShape& shape, bool enemy_legal, const CardRegistry& cards) {
     if (unit.controller != player) return false;
@@ -259,12 +264,10 @@ bool dropFriendly(const GameState& state, const GameObject& unit, PlayerId playe
     const bool killed = harmKills(unit, shape);
     if (killed && deathTrigger(state, unit, cards)) return false;
     if (killed && shape.additional_cost && shape.kills) return false;
-    if (!killed) {
-        // The draw or Predict is why the spell is cast when no enemy is legal.
-        if (shape.rider && !enemy_legal) return false;
-        return true;
-    }
-    return enemy_legal;
+    // The draw or Predict is why the line is cast when no enemy is legal,
+    // whether or not the friendly dies.
+    if (shape.rider && !enemy_legal) return false;
+    return true;
 }
 
 bool dropUntargetedPlay(const GameState& state, PlayerId player, const SpellShape& shape,
@@ -279,6 +282,17 @@ bool dropUntargetedPlay(const GameState& state, PlayerId player, const SpellShap
         if (!dropFriendly(state, obj, player, shape, enemy_legal, cards)) return false;
     }
     return any;
+}
+
+// A play that already named no one ("up to two units", including zero).
+// That set is not an enemy and it is not a friendly harm. A spell that
+// has not chosen yet still goes through dropUntargetedPlay.
+bool choseNoOne(const Card& card) {
+    const auto req = card.getTargetRequirements();
+    if (!req.optional || req.count <= 0) return false;
+    if (card.needsPlayTimeTarget() || card.needsPlayTimeTargetPair()) return false;
+    if (card.choicesAtFinalization() & Card::kFinalizeResolve) return false;
+    return true;
 }
 
 bool isPass(const Intent& intent) {
@@ -311,6 +325,11 @@ bool dropIntent(const GameState& state, const Intent& intent,
         // Zealot; Thousand-Tailed Watcher). The choice, if one is asked, is
         // filtered on its own.
         if (isPlay(intent.type) && card->def().card_type != CardType::Spell)
+            return false;
+        // Singularity's empty set names nobody. It does not keep the kill
+        // of a friendly, and it is not dropped as if it were that kill.
+        if (isPlay(intent.type) && card->def().card_type == CardType::Spell &&
+            choseNoOne(*card))
             return false;
         if (isPlay(intent.type) || isActivation(intent.type))
             return dropUntargetedPlay(state, intent.player, shape, cards);

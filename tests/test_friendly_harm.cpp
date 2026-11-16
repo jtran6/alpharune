@@ -38,6 +38,17 @@ protected:
                 return true;
         return false;
     }
+
+    static bool playsNothing(const std::vector<Intent>& legal, GameObjectId card) {
+        for (const auto& it : legal) {
+            if (it.card != card) continue;
+            if (it.type != IntentType::PlayCard && it.type != IntentType::PlayReaction &&
+                it.type != IntentType::PlayActionCard)
+                continue;
+            if (it.targets.empty() && it.chosen_objects.empty()) return true;
+        }
+        return false;
+    }
 };
 
 // The rules engine still offers Bellows when the only unit is the caster's
@@ -329,6 +340,163 @@ TEST_F(FriendlyHarmTest, GustEmptyFriendlyIsNotRestored) {
     const auto kept = searchCandidates(state, {choice}, card_registry);
     EXPECT_FALSE(chooses(kept, friendly));
     EXPECT_TRUE(kept.empty());
+}
+
+// Smoke Screen's −4 floors at 1, so Noxus Hopeful (4) and Plundering Poro
+// (2) stay. Watchful Sentry is 1 Might with [Deathknell]: the floor is the
+// digit after "minimum of " (11 characters). Reading one past it leaves the
+// floor unset, scores Might 0, and keeps the Sentry because a scored kill
+// with [Deathknell] stays. No enemy is a legal target. None of these is
+// searched. Jayce seeds 22 (Hopeful) and 31 (Poro).
+TEST_F(FriendlyHarmTest, SmokeScreenDropsALivingFriendlyWhenNoEnemyIsLegal) {
+    const auto hopeful = addUnit(P1, 12);
+    const auto poro = addUnit(P1, 392);
+    const auto sentry = addUnit(P1, 96);
+    ASSERT_EQ(state.getObject(hopeful).current_might, 4);
+    ASSERT_EQ(state.getObject(poro).current_might, 2);
+    ASSERT_EQ(state.getObject(sentry).current_might, 1);
+    ASSERT_TRUE(state.getObject(sentry).hasKeyword(Keyword::Deathknell));
+    const auto smoke = addToHand(P1, 93);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, smoke, hopeful));
+        EXPECT_TRUE(playsAt(legal, smoke, poro));
+        EXPECT_TRUE(playsAt(legal, smoke, sentry));
+        const auto kept = searchCandidates(engine.state(), legal, card_registry);
+        EXPECT_FALSE(playsAt(kept, smoke, hopeful));
+        EXPECT_FALSE(playsAt(kept, smoke, poro));
+        EXPECT_FALSE(playsAt(kept, smoke, sentry));
+    });
+}
+
+// Stupefy still draws when the only unit is a 1-Might [Deathknell]. The
+// floor leaves her alive, and the draw is the line.
+TEST_F(FriendlyHarmTest, StupefyOnTheOnlyDeathknellStillDraws) {
+    const auto sentry = addUnit(P1, 96);
+    ASSERT_EQ(state.getObject(sentry).current_might, 1);
+    ASSERT_TRUE(state.getObject(sentry).hasKeyword(Keyword::Deathknell));
+    const auto spell = addToHand(P1, 95);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, spell, sentry));
+        EXPECT_TRUE(playsAt(searchCandidates(engine.state(), legal, card_registry), spell, sentry));
+    });
+}
+
+// Singularity may deal 6 to nobody. That empty set names no unit, so it is
+// not an enemy, and it does not keep the line that kills her own champion
+// or her own Tracker. The empty cast itself stays: it harms nobody.
+TEST_F(FriendlyHarmTest, SingularityDropsTheFriendlyKillWhenNoEnemyIsLegal) {
+    const auto kaisa = addUnit(P1, 39);
+    const auto tracker = addUnit(P1, 958);
+    ASSERT_EQ(state.getObject(kaisa).current_might, 4);
+    ASSERT_EQ(state.getObject(tracker).current_might, 3);
+    const auto spell = addToHand(P1, 105);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, spell, kaisa));
+        EXPECT_TRUE(playsAt(legal, spell, tracker));
+        EXPECT_TRUE(playsNothing(legal, spell));
+        const auto kept = searchCandidates(engine.state(), legal, card_registry);
+        EXPECT_FALSE(playsAt(kept, spell, kaisa));
+        EXPECT_FALSE(playsAt(kept, spell, tracker));
+        EXPECT_TRUE(playsNothing(kept, spell));
+    });
+}
+
+// Hextech Ray has no empty target. 3 damage kills a Poro already at 1
+// damage on 2 Might, and her conquer text is not a death. No enemy unit
+// is at a battlefield. The kill is not searched.
+TEST_F(FriendlyHarmTest, HextechRayDropsTheFriendlyKillWhenNoEnemyIsLegal) {
+    const auto poro = addUnit(P1, 392, /*might=*/0, /*at_bf=*/0);
+    state.getObject(poro).damage_marked = 1;
+    ASSERT_EQ(state.getObject(poro).current_might, 2);
+    ASSERT_EQ(state.getObject(poro).damage_marked, 1);
+    const auto ray = addToHand(P1, 9);
+    fund(P1);
+    withEngine([&](GameEngine& engine) {
+        const auto legal = engine.generateLegalActions();
+        EXPECT_TRUE(playsAt(legal, ray, poro));
+        EXPECT_FALSE(playsAt(searchCandidates(engine.state(), legal, card_registry), ray, poro));
+    });
+}
+
+// Tracker deals 1 to each of up to 2 units. The first prompt can take the
+// enemy Scuttle Crab. selectSeveralTargets then erases that id, so the
+// second prompt no longer offers him, and the decline names nobody. The
+// second point, which kills her own Lecturing Yordle (1 damage on 2 Might,
+// no death text), is not searched. Riven seed 19 turn 6.
+TEST_F(FriendlyHarmTest, TrackerSecondPointDropsTheFriendlyKill) {
+    const auto yordle = addUnit(P1, 87);
+    state.getObject(yordle).damage_marked = 1;
+    ASSERT_EQ(state.getObject(yordle).current_might, 2);
+    const auto crab = addUnit(P2, 615, /*might=*/1);
+    const auto tracker = addToHand(P1, 958);
+
+    struct Agent : AgentInterface {
+        GameObjectId crab = kInvalidId;
+        GameObjectId yordle = kInvalidId;
+        const CardRegistry* cards = nullptr;
+        bool saw_second = false;
+        bool crab_on_second = false;
+        bool yordle_offered = false;
+        bool yordle_kept = true;
+        bool decline_kept = false;
+
+        Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+            const bool choice = !legal.empty() && std::all_of(legal.begin(), legal.end(),
+                [](const Intent& i) { return i.type == IntentType::MakeChoice; });
+            auto names = [](const Intent& i, GameObjectId id) {
+                return std::find(i.chosen_objects.begin(), i.chosen_objects.end(), id) !=
+                       i.chosen_objects.end();
+            };
+            bool tracker_prompt = false;
+            for (const auto& i : legal)
+                if (i.choice_label.find("Bilgewater Tracker") != std::string::npos)
+                    tracker_prompt = true;
+            if (choice && tracker_prompt) {
+                bool offers_crab = false;
+                bool offers_yordle = false;
+                for (const auto& i : legal) {
+                    if (names(i, crab)) offers_crab = true;
+                    if (names(i, yordle)) offers_yordle = true;
+                }
+                if (offers_crab) {
+                    for (const auto& i : legal)
+                        if (names(i, crab)) return i;
+                }
+                saw_second = true;
+                crab_on_second = offers_crab;
+                yordle_offered = offers_yordle;
+                const auto kept = searchCandidates(state, legal, *cards);
+                yordle_kept = false;
+                decline_kept = false;
+                for (const auto& i : kept) {
+                    if (names(i, yordle)) yordle_kept = true;
+                    if (i.chosen_objects.empty() && i.targets.empty()) decline_kept = true;
+                }
+                for (const auto& i : legal)
+                    if (i.chosen_objects.empty()) return i;
+            }
+            for (const auto& i : legal)
+                if (i.type == IntentType::PassPriority || i.type == IntentType::PassFocus)
+                    return i;
+            return legal.front();
+        }
+    } agent;
+    agent.crab = crab;
+    agent.yordle = yordle;
+    agent.cards = &card_registry;
+    playThroughEngine(tracker, &agent);
+
+    EXPECT_TRUE(agent.saw_second);
+    EXPECT_FALSE(agent.crab_on_second);
+    EXPECT_TRUE(agent.yordle_offered);
+    EXPECT_FALSE(agent.yordle_kept);
+    EXPECT_TRUE(agent.decline_kept);
 }
 
 // +Might on a friendly unit is a buff, not harm.
