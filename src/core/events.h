@@ -19,6 +19,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <vector>
 
 namespace riftbound {
@@ -408,6 +409,26 @@ private:
 // instantiate Boost.Signals2's invocation machinery for that signal (GCC queues
 // those instantiations when it parses the body). That was most of a card
 // file's compile time.
+
+/// What one play paid, for the play-by-play. `energy` / `power` are the card's
+/// own Energy and Power. `extra_*` is anything paid on top of that (an
+/// optional cost, [Accelerate] on its own, a Deflect). `other` is a cost that
+/// is not Energy or Power ("discarding 1", "killing a unit"). Written only
+/// while a reader asked, and never during a probe.
+struct PlayCostNote {
+    int energy = 0;
+    int extra_energy = 0;
+    int power = 0;
+    int extra_power = 0;
+    bool ignore_energy = false;
+    bool ignore_power = false;
+    bool known = false;
+    std::vector<std::string> other;
+
+    int totalEnergy() const { return energy + extra_energy; }
+    int totalPower() const { return power + extra_power; }
+};
+
 class EventBus {
 public:
     // Signals — subscribers connect to these. Every signal here has an
@@ -581,7 +602,32 @@ public:
     /// Disconnect all subscribers (useful between games).
     void disconnectAll();
 
+    /// The play-by-play asks for what each play paid. While this is off every
+    /// note below is a no-op, so a search that never asks does not record one.
+    void watchPlayCosts(bool on) { watch_play_costs_ = on; }
+    bool watchingPlayCosts() const { return watch_play_costs_; }
+    /// Drop whatever was recorded for `card` (a new play of it).
+    void clearPlayCost(GameObjectId card);
+    /// The card's own Energy and Power, after discounts and an ignored cost.
+    /// Leaves anything already added on top of that.
+    void notePlayCost(GameObjectId card, int energy, int power,
+                      bool ignore_energy, bool ignore_power);
+    void addPlayEnergy(GameObjectId card, int n);
+    void addPlayPower(GameObjectId card, int n);
+    void addPlayOther(GameObjectId card, std::string phrase);
+    const PlayCostNote* playCost(GameObjectId card) const;
+
+    /// While this is a card, a kill, an exhaust, a discard, or a resource
+    /// payment is part of paying to play that card.
+    void openPlayCost(GameObjectId card) { play_cost_open_ = card; }
+    void closePlayCost() { play_cost_open_ = kInvalidId; }
+    GameObjectId playCostOpen() const { return play_cost_open_; }
+
 private:
+    bool watch_play_costs_ = false;
+    GameObjectId play_cost_open_ = kInvalidId;
+    std::unordered_map<uint32_t, PlayCostNote> play_costs_;
+
     bool holding_ = false;
     int quiet_depth_ = 0;   // > 0 inside beginQuiet / endQuiet: emissions are dropped
     std::vector<std::function<void()>> held_;

@@ -35,6 +35,26 @@ namespace {
 // facedown zone has no location.
 bool onBoard(const GameObject& obj) { return obj.location.has_value(); }
 
+// A kill, exhaust, discard, or resource payment while a play's cost is open
+// is part of what that play paid. Nothing is written unless a reader asked.
+void notePlayCostAction(EventBus& events, const std::string& phrase) {
+    const GameObjectId card = events.playCostOpen();
+    if (card == kInvalidId || phrase.empty()) return;
+    events.addPlayOther(card, phrase);
+}
+
+void notePlayCostResources(EventBus& events, int energy, int power) {
+    const GameObjectId card = events.playCostOpen();
+    if (card == kInvalidId) return;
+    events.addPlayEnergy(card, energy);
+    events.addPlayPower(card, power);
+}
+
+std::string costObjectName(const GameObject& obj) {
+    const std::string name = obj.name.get();
+    return name.empty() ? std::string("a unit") : name;
+}
+
 // In play: on the board, a legend in its Legend Zone (which is not a location)
 // or a battlefield card in its slot. Board state — Exhausted, a "this turn"
 // Might or keyword, a control change — is written to nothing else: an object
@@ -562,6 +582,9 @@ void EffectExecutor::killObject(GameObjectId target) {
     // Riches) in Banishment, a bounced unit in a hand — killing any of them
     // again would announce a second death. The test is the board, not a zone.
     if (!onBoard(obj)) return;
+    // A unit or gear killed to pay for the play that is open.
+    if (obj.isUnit() || obj.isGear())
+        notePlayCostAction(events_, "killing " + costObjectName(obj));
     // Its death was replaced when the batch it dies in began (beginDeathBatch):
     // this kill is the one that was replaced.
     if (obj.last_known.batch_replaced) return;
@@ -914,7 +937,9 @@ bool EffectExecutor::payResources(PlayerId player, int energy, int power,
                                   resource::DomainMask mask, SpendFor f) {
     addForPayment(player, energy, power, mask, f);
     const auto chooser = runeChooser();
-    return resource::payIn(state_, events_, player, energy, power, mask, f, &chooser);
+    const bool paid = resource::payIn(state_, events_, player, energy, power, mask, f, &chooser);
+    if (paid) notePlayCostResources(events_, energy, power);
+    return paid;
 }
 
 bool EffectExecutor::payAnyPower(PlayerId player, int amount, SpendFor f) {
@@ -1692,6 +1717,7 @@ bool EffectExecutor::spendBuff(GameObjectId unit_id, PlayerId spender) {
     if (!state_.objectExists(unit_id)) return false;
     auto& unit = state_.getObject(unit_id);
     if (!onBoard(unit) || unit.buff_count <= 0) return false;
+    notePlayCostAction(events_, "spending a buff");
     unit.buff_count -= 1;
     unit.recomputeMight();
     RIFT_TRACE(events_, std::string("EFFECT: ") + toString(spender) + " spends a buff from " +
@@ -1884,6 +1910,7 @@ void EffectExecutor::discardCards(PlayerId player, int count) {
     }
 
     if (!discarded.empty()) {
+        notePlayCostAction(events_, "discarding " + std::to_string(discarded.size()));
         ps.has_discarded_this_turn = true;
         events_.emit(CardsDiscardedEvent{player, discarded});
         for (auto did : discarded) events_.emit(ObjectStateChangedEvent{did, "discarded"});
@@ -2129,6 +2156,8 @@ void EffectExecutor::exhaustObject(GameObjectId target) {
     // CR 415.1.b-c: an object that is already exhausted is not exhausted again,
     // and nothing that watches "becomes exhausted" is told that it did.
     if (obj.is_exhausted) return;
+    if (!obj.isRune())
+        notePlayCostAction(events_, "exhausting " + costObjectName(obj));
     obj.is_exhausted = true;
     events_.emit(ObjectStateChangedEvent{target, "exhausted"});
 }
@@ -3261,14 +3290,17 @@ bool EffectExecutor::playPayingCost(PlayerId player, GameObjectId card,
     // as it begins (Card::forgetPlayPayments) — not after this play's own
     // additional cost has set its flags (testing phase K1).
     Card::forgetPlayPayments(state_, cardFor(state_.getObject(card).card_def_id), player, card);
+    events_.clearPlayCost(card);
     // "As you play me" choices come before the cost (CR 355.1 -> 356); only
     // for a play that is going to be paid for.
     if (!can_afford_ || can_afford_(player, card)) makeAsYouPlayChoices(player, card);
     if (!can_afford_ || !pay_cost_) {
         StagedEffectCost staged(state_.player(player), cost, state_.getObject(card).zone);
-        if (!plainPay(state_, events_, player,
-                      plainCostOf(state_, card_db_, player, card), /*pay=*/true))
+        const PlainCost paid = plainCostOf(state_, card_db_, player, card);
+        if (!plainPay(state_, events_, player, paid, /*pay=*/true))
             return false;
+        events_.notePlayCost(card, paid.energy, paid.power,
+                             cost.ignore_energy, cost.ignore_power);
     } else {
         StagedEffectCost staged(state_.player(player), cost, state_.getObject(card).zone);
         // A replaced base cost paid while a spell or ability is resolving
@@ -3297,6 +3329,10 @@ bool EffectExecutor::playIgnoringCost(PlayerId player, GameObjectId card,
     // A new play, and nothing is paid for it: what an earlier play of this
     // card paid is forgotten (Card::forgetPlayPayments).
     Card::forgetPlayPayments(state_, cardFor(state_.getObject(card).card_def_id), player, card);
+    events_.clearPlayCost(card);
+    // The printed cost is not paid. [Accelerate] and an optional cost below
+    // are added on top of this.
+    events_.notePlayCost(card, 0, 0, true, true);
     makeAsYouPlayChoices(player, card);   // CR 355.1
     // Ignoring its cost, the play may still pay the card's optional
     // additional cost (CR 356.1.b; testing phase U7).

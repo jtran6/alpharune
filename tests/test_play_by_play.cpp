@@ -1,5 +1,7 @@
 /// The short account printed after a game. A move that drops its origin or
-/// its destination fails, and so does a short game whose summary was not printed.
+/// its destination fails, and so does a short game whose summary was not
+/// printed. A turn without its rune lines fails, and so does a play that
+/// names no cost.
 
 #include <gtest/gtest.h>
 
@@ -88,6 +90,39 @@ bool moveNamesPlaces(const std::string& line) {
     return !blank(origin) && !blank(dest);
 }
 
+/// A play names what was paid, or says that it was free or that its cost was
+/// ignored. A line that is not a play is not this function's concern.
+bool playNamesCost(const std::string& line) {
+    if (line.find(" plays ") == std::string::npos) return true;
+    return line.find(" for ") != std::string::npos ||
+           line.find("ignoring its ") != std::string::npos;
+}
+
+int countOf(const std::string& text, const std::string& needle) {
+    int n = 0;
+    for (size_t at = 0; (at = text.find(needle, at)) != std::string::npos; at += needle.size())
+        ++n;
+    return n;
+}
+
+/// Every turn block has a rune line for its start and another for its end,
+/// and every play names a cost.
+void expectRunesAndCosts(const std::string& text) {
+    const int turns = countOf(text, "\nTurn ") + (text.rfind("Turn ", 0) == 0 ? 1 : 0);
+    EXPECT_GT(turns, 0) << text;
+    EXPECT_EQ(countOf(text, "Runes at start:"), turns) << text;
+    EXPECT_EQ(countOf(text, "Runes at end:"), turns) << text;
+    std::istringstream lines(text);
+    std::string line;
+    int plays = 0;
+    while (std::getline(lines, line)) {
+        if (line.find(" plays ") == std::string::npos) continue;
+        ++plays;
+        EXPECT_TRUE(playNamesCost(line)) << line;
+    }
+    EXPECT_GE(plays, 1) << text;
+}
+
 } // namespace
 
 // The sentence a reader was promised: unit, origin, destination. The spell's
@@ -120,6 +155,16 @@ TEST(PlayByPlayText, MoveNamesOriginAndDestination) {
 
     state.turn.turn_number = 0;
     state.turn.turn_player = PlayerId::Player1;
+
+    const auto first_rune = state.createObject();
+    auto& fury = state.getObject(first_rune);
+    fury.name = "Fury Rune";
+    fury.card_type = CardType::Rune;
+    fury.controller = PlayerId::Player1;
+    fury.owner = PlayerId::Player1;
+    fury.zone = ZoneType::Base;
+    fury.location = BaseLocation{PlayerId::Player1};
+
     PlayByPlay chronicle(state, bus);
     bus.emit(PhaseChangedEvent{TurnPhase::Mulligan, TurnPhase::AwakenPhase, PlayerId::Player1});
     bus.emit(UnitMovedEvent{unit, PlayerId::Player1, BaseLocation{PlayerId::Player1},
@@ -137,17 +182,31 @@ TEST(PlayByPlayText, MoveNamesOriginAndDestination) {
     item.targets = {unit};
     item.chosen_objects = {unit};
     state.chain.items.push_back(item);
+    bus.notePlayCost(spell, 1, 0, false, false);
     bus.emit(ChainItemFinalizedEvent{item.id, spell, PlayerId::Player1});
+
+    const auto second_rune = state.createObject();
+    auto& calm = state.getObject(second_rune);
+    calm.name = "Calm Rune";
+    calm.card_type = CardType::Rune;
+    calm.controller = PlayerId::Player1;
+    calm.owner = PlayerId::Player1;
+    calm.zone = ZoneType::Base;
+    calm.location = BaseLocation{PlayerId::Player1};
 
     state.players[0].score = 1;
     const std::string text = chronicle.text();
 
     EXPECT_NE(text.find("Turn 1 - P1"), std::string::npos) << text;
+    EXPECT_NE(text.find("Runes at start: 1."), std::string::npos) << text;
+    EXPECT_NE(text.find("Runes at end: 2."), std::string::npos) << text;
     EXPECT_NE(text.find("P1 moves Lecturing Yordle from base to Frozen Fortress."),
               std::string::npos) << text;
     EXPECT_NE(text.find("P1 conquers Frozen Fortress. P1 controls it."), std::string::npos) << text;
-    EXPECT_NE(text.find("P1 plays Smoke Screen on Lecturing Yordle."), std::string::npos) << text;
+    EXPECT_NE(text.find("P1 plays Smoke Screen on Lecturing Yordle for 1 energy."),
+              std::string::npos) << text;
     EXPECT_NE(text.find("Score 1-0."), std::string::npos) << text;
+    expectRunesAndCosts(text);
 
     std::istringstream lines(text);
     std::string line;
@@ -198,6 +257,7 @@ TEST(PlayByPlayText, ShortGamePrintsTheSummary) {
     EXPECT_NE(out.find(" wins "), std::string::npos) << out;
     EXPECT_NE(out.find("\n  Score "), std::string::npos) << out;
     EXPECT_EQ(out.find("[TRC]"), std::string::npos) << out;
+    expectRunesAndCosts(out);
 
     std::istringstream lines(out);
     std::string line;

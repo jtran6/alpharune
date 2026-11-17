@@ -328,6 +328,56 @@ void EventBus::disconnectAll() {
     on_log.disconnect_all_slots();
 }
 
+namespace {
+bool recordingPlayCost(const EventBus& bus) {
+    return bus.watchingPlayCosts() && !bus.quiet();
+}
+} // namespace
+
+void EventBus::clearPlayCost(GameObjectId card) {
+    if (!recordingPlayCost(*this)) return;
+    play_costs_.erase(card.raw());
+}
+
+void EventBus::notePlayCost(GameObjectId card, int energy, int power,
+                            bool ignore_energy, bool ignore_power) {
+    if (!recordingPlayCost(*this)) return;
+    auto& note = play_costs_[card.raw()];
+    note.energy = std::max(0, energy);
+    note.power = std::max(0, power);
+    note.ignore_energy = ignore_energy;
+    note.ignore_power = ignore_power;
+    note.known = true;
+}
+
+void EventBus::addPlayEnergy(GameObjectId card, int n) {
+    if (!recordingPlayCost(*this) || n <= 0) return;
+    auto& note = play_costs_[card.raw()];
+    note.extra_energy += n;
+    note.known = true;
+}
+
+void EventBus::addPlayPower(GameObjectId card, int n) {
+    if (!recordingPlayCost(*this) || n <= 0) return;
+    auto& note = play_costs_[card.raw()];
+    note.extra_power += n;
+    note.known = true;
+}
+
+void EventBus::addPlayOther(GameObjectId card, std::string phrase) {
+    if (!recordingPlayCost(*this) || phrase.empty()) return;
+    auto& note = play_costs_[card.raw()];
+    note.known = true;
+    if (std::find(note.other.begin(), note.other.end(), phrase) == note.other.end())
+        note.other.push_back(std::move(phrase));
+}
+
+const PlayCostNote* EventBus::playCost(GameObjectId card) const {
+    auto it = play_costs_.find(card.raw());
+    if (it == play_costs_.end() || !it->second.known) return nullptr;
+    return &it->second;
+}
+
 bool EventBus::isDecisionLine(const std::string& msg) {
     static constexpr const char* kDecisionPrefix = "DECISION #";
     return msg.compare(0, 10, kDecisionPrefix) == 0;

@@ -24,6 +24,42 @@
 
 namespace riftbound {
 
+namespace {
+// Notes kills, exhausts, discards, resource payments, and XP spent to play
+// `card` while it is alive. A search that is not being read, and a probe,
+// open nothing.
+struct PlayCostWindow {
+    EventBus& bus;
+    const GameState* state = nullptr;
+    GameObjectId card = kInvalidId;
+    PlayerId player = PlayerId::None;
+    GameObjectId previous = kInvalidId;
+    int xp_before = 0;
+    bool on = false;
+
+    PlayCostWindow(EventBus& b, const GameState& s, GameObjectId c, PlayerId p)
+        : bus(b), state(&s), card(c), player(p), previous(b.playCostOpen()) {
+        on = b.watchingPlayCosts() && !b.quiet();
+        if (!on) return;
+        if (p == PlayerId::Player1 || p == PlayerId::Player2)
+            xp_before = s.player(p).xp;
+        b.openPlayCost(c);
+    }
+    ~PlayCostWindow() {
+        if (!on) return;
+        if (player == PlayerId::Player1 || player == PlayerId::Player2) {
+            const int spent = xp_before - state->player(player).xp;
+            if (spent > 0)
+                bus.addPlayOther(card, "spending " + std::to_string(spent) + " XP");
+        }
+        if (previous == kInvalidId) bus.closePlayCost();
+        else bus.openPlayCost(previous);
+    }
+    PlayCostWindow(const PlayCostWindow&) = delete;
+    PlayCostWindow& operator=(const PlayCostWindow&) = delete;
+};
+} // namespace
+
 GameEngine::GameEngine(const CardDB& card_db, EventBus& event_bus,
                        const CardRegistry& card_registry)
     : card_db_(card_db), events_(event_bus), card_registry_(card_registry) {
@@ -204,7 +240,10 @@ void GameEngine::initSubsystems() {
                                               SpendFor::Spell);
                 };
                 paid = payTranchePartsAhead(p, plan.cost, base_mask, &rest);
-                if (plan.cost.discards > 0) effect_executor_->discardCards(p, plan.cost.discards);
+                if (plan.cost.discards > 0) {
+                    effect_executor_->discardCards(p, plan.cost.discards);
+                    events_.addPlayOther(card, "discarding " + std::to_string(plan.cost.discards));
+                }
             }
             if (paid && !canAffordWith(p, card, 0, adj)) {
                 // A cost paid during a resolution, not from a priority window:
@@ -2509,6 +2548,8 @@ bool GameEngine::offerAccelerateOnItsOwn(PlayerId player, GameObjectId card_id, 
     if (!half.has_value()) return false;
     if (!effect_executor_->payResources(player, half->first, half->second, mask, SpendFor::Unit))
         return false;
+    events_.addPlayEnergy(card_id, half->first);
+    events_.addPlayPower(card_id, half->second);
     RIFT_TRACE(events_, "ACCELERATE: " + state_.getObject(card_id).name + " pays [" +
                      std::to_string(half->first) + "] + " + std::to_string(half->second) +
                      " power to enter ready");
@@ -2614,6 +2655,11 @@ ChainItem GameEngine::collectFinalizeChoices(ChainItem item, const FinalizeAnswe
     if (state_.chain.resuming.has_value()) outer = std::move(*state_.chain.resuming);
     state_.chain.resuming = std::move(item);
     state_.chain.resuming->finalizing = true;
+    // A cost paid in this pass (kill, exhaust, XP, an extra Energy) is part
+    // of playing the card. The pass ends at the card's marker, so the effect
+    // after it is not included.
+    const PlayCostWindow paying(events_, state_, state_.chain.resuming->source,
+                                state_.chain.resuming->controller);
 
     // A card may ask as many questions as its text needs (one per unit on a
     // crowded board). The bound only stops a card that never stops asking,
@@ -3302,6 +3348,7 @@ void GameEngine::executeIntent(const Intent& intent) {
 // still afford.
 void GameEngine::forgetPlayPayments(PlayerId player, GameObjectId card_id) {
     if (!state_.objectExists(card_id)) return;
+    events_.clearPlayCost(card_id);
     const auto& card = state_.getObject(card_id);
     Card::forgetPlayPayments(state_,
         card.card_def_id != kInvalidId ? card_registry_.get(card.card_def_id) : nullptr,
@@ -3319,6 +3366,7 @@ Card::PlayCostAdjust GameEngine::payAdditionalPlayCosts(PlayerId player, GameObj
     // executePlaySpell (a reaction played off the chain, an effect that plays
     // a card and pays for it): the play starts here for them.
     Card::forgetPlayPayments(state_, cc, player, card_id);
+    events_.clearPlayCost(card_id);
     const auto addl = cc->additionalPlayCost(state_, card_db_, player, card_id);
     Card::PlayCostAdjust adj;
     // A spell with no additional cost of its own still reaches the permanent
@@ -3327,6 +3375,7 @@ Card::PlayCostAdjust GameEngine::payAdditionalPlayCosts(PlayerId player, GameObj
         CardContext ctx{state_, events_, *effect_executor_, player, card_id};
         const EffectExecutor::ActingFor acting(*effect_executor_, card_id);
         ctx.registry = &card_registry_;
+        const PlayCostWindow paying(events_, state_, card_id, player);
         adj = cc->payAdditionalPlayCost(ctx, [&](const Card::PlayCostAdjust& a) {
             return canAffordWith(player, card_id, extra_any_power, a);
         });
@@ -3886,6 +3935,7 @@ void GameEngine::executePlayCard(const Intent& intent) {
         // [A] is any Domain, and several [A] need not share one.
         const Domain d = alt.any_domain ? Domain::Count : alt.power_domain;
         payAdditionalCost(intent.player, alt.energy, alt.power, d, spendForPlay(card));
+        events_.notePlayCost(intent.card, alt.energy, alt.power, false, false);
         RIFT_TRACE(events_, "ALT_COST: " + card.name + " played for its alternative cost");
     } else if (!paid_via_grant) {
         // Choices before costs (CR 355.1.a): whether to pay [Accelerate] and
@@ -4500,7 +4550,11 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
             if (!payTranchePartsAhead(who, plan.cost, base_mask, &rest))
                 throw std::logic_error("GameEngine::finishPlaySpell: the [Repeat] costs of " +
                                        card.name + " were offered as payable and could not be paid");
-            if (plan.cost.discards > 0) effect_executor_->discardCards(who, plan.cost.discards);
+            if (plan.cost.discards > 0) {
+                effect_executor_->discardCards(who, plan.cost.discards);
+                events_.addPlayOther(intent.card,
+                                     "discarding " + std::to_string(plan.cost.discards));
+            }
         }
         // The card's own cost, with the tranches' Energy and Power of its
         // Domains in the same payment (beginCostPayment reads them).
@@ -5708,6 +5762,9 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
     // (Batch8Test.U7_NoHiddenCardPrintsAMandatoryAdditionalCost).
     Card::PlayCostAdjust ignoring_base;
     ignoring_base.ignore_cost = true;
+    // A facedown play ignores the base cost (CR 811). An optional cost paid
+    // after this is added on top.
+    events_.notePlayCost(intent.card, 0, 0, true, true);
 
     // Play ignoring base cost — permanents go to the BF they were hidden at
     if (card.isPermanent()) {
@@ -9734,6 +9791,7 @@ void GameEngine::maybePayOptionalAdditionalCost(PlayerId player, GameObjectId ca
         if (on_decision) on_decision(state_, dopts, dchosen);
         if (dchosen.chosen_value.value_or(0) == 1) {
             effect_executor_->discardCards(player, cost.discard_cards);
+            events_.addPlayOther(card_id, "discarding " + std::to_string(cost.discard_cards));
             if (cost.paid_flag && cost.paid_flag[0] != '\0')
                 card.card_counters[cost.paid_flag] = 1;
         }
@@ -9787,6 +9845,7 @@ void GameEngine::maybePayOptionalAdditionalCost(PlayerId player, GameObjectId ca
     if (on_decision) on_decision(state_, opts, chosen);
 
     if (chosen.chosen_value.value_or(0) == 1) {
+        const PlayCostWindow paying(events_, state_, card_id, player);
         payOptionalCost(player, cost.energy, cost.power, domains, spend_for, card_id,
                         "optional additional cost");
         if (cost.paid_flag && cost.paid_flag[0] != '\0') {
@@ -10238,6 +10297,12 @@ GameEngine::CostPaymentAdvance GameEngine::beginCostPayment(
     }
     RIFT_TRACE(events_, "PAY_COST: " + card.name + " E=" + std::to_string(energy_needed) +
                      " P=" + std::to_string(power_needed));
+    // The amounts charged, pool included, before the cursor spends them rune
+    // by rune. An ignored half is still named even when it came to zero.
+    const bool ignore_energy = ps.transient_ignore_energy || adj.ignore_cost ||
+        card.card_counters.find("__ignore_energy") != card.card_counters.end();
+    const bool ignore_power = ps.transient_ignore_power || adj.ignore_cost;
+    events_.notePlayCost(card_obj, energy_needed, power_needed, ignore_energy, ignore_power);
     return beginPaymentOf(player, card_obj, energy_needed, power_needed, def.domains);
 }
 
@@ -10497,6 +10562,8 @@ bool GameEngine::payTrashReplayGrant(PlayerId player, GameObjectId card_id,
             const EffectExecutor::ActingFor acting(*effect_executor_, card_id);
             ok = effect_executor_->payResources(player, 0, cost.extra_any, resource::kAnyDomain, f);
         }
+        if (ok)
+            events_.notePlayCost(card_id, cost.energy, cost.power + cost.extra_any, false, false);
     }
     if (ok && grant.banish_after && state_.objectExists(card_id))
         state_.getObject(card_id).banish_on_leave_chain = true;
@@ -10561,6 +10628,7 @@ bool GameEngine::payCardCost(PlayerId player, GameObjectId card_obj,
             state_.objectExists(card_obj) ? spendForPlay(state_.getObject(card_obj))
                                           : SpendFor::Other))
         return false;
+    events_.addPlayPower(card_obj, printed_extra);
     return true;
 }
 
