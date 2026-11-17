@@ -46,6 +46,7 @@
 #include "engine/batch_runner.h"
 #include "engine/game_engine.h"
 #include "io/batch_report.h"
+#include "io/play_by_play.h"
 #include "io/play_server.h"
 #include "io/replay_writer.h"
 #include "io/state_renderer.h"
@@ -920,12 +921,17 @@ int main(int argc, char* argv[]) {
     std::thread game_thread([&] {
         std::string last_line;
         try {
+            // The same short account a batch prints next to its per-game
+            // line. A normal run prints it; --trace and --render-html do not
+            // have to be on.
+            PlayByPlay chronicle(engine.state(), events);
             auto result = engine.runGame(deck1, deck2, *seat1, *seat2, game_seed);
             std::cout << "\nGame over: winner="
                       << static_cast<int>(result.winner)
                       << " | reason=" << result.termination_reason
                       << " | turns=" << result.total_turns
                       << "\n";
+            std::cout << chronicle.text();
             last_line = "[TRC] GAME_OVER: " + result.termination_reason;
         } catch (const std::exception& e) {
             std::cerr << "[engine] exception: " << e.what() << "\n";

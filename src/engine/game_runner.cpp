@@ -1,12 +1,14 @@
 #include "game_runner.h"
 #include "agents/random_agent.h"
 #include "agents/random_player_agent.h"
+#include "io/play_by_play.h"
 #include "io/replay_writer.h"
 #include "io/state_renderer.h"
 
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <random>
 #include <sstream>
 #include <stdexcept>
@@ -153,6 +155,14 @@ GameResult GameRunner::run() {
         }
     };
 
+    // One short block per turn, printed with the per-game result line.
+    // A batch of 20 is the size a 100-game sample is split into, so a larger
+    // batch keeps the progress line and does not print a block per game.
+    // Built for a normal run: it does not depend on --trace or --render-html.
+    std::unique_ptr<PlayByPlay> chronicle;
+    if (config_.total_games <= 20)
+        chronicle = std::make_unique<PlayByPlay>(engine.state(), events);
+
     GameResult result;
     try {
         result = engine.runGame(deck1_, deck2_, *agent1, *agent2, game_seed);
@@ -197,6 +207,7 @@ GameResult GameRunner::run() {
                       << " in " << result.total_turns << " turns"
                       << " (" << result.total_decisions << " decisions)"
                       << " — " << result.termination_reason << "\n";
+            if (chronicle) std::cout << chronicle->text();
         }
 
         // Progress for batches > 20 games. Tick on whichever fires first:
