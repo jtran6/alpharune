@@ -652,6 +652,14 @@ void TriggerManager::onTokenCreated(const TokenCreatedEvent& e) {
         }
         for (auto& [id, t] : fires)
             fireTrigger(id, state_.getObject(id).controller, 0, t, /*subject=*/e.object);
+        // A battlefield card has no location, so the walk above skips it.
+        // "When you play a gear here" (Rakelstake). Same as a unit token,
+        // which announceUnitPlayed already hands to the battlefield.
+        if (state_.objectExists(e.object)) {
+            if (auto played_bf = state_.getObject(e.object).battlefieldId())
+                fireBattlefieldTriggers(TriggerType::WhenYouPlayAGear, player, *played_bf,
+                                        /*subject=*/e.object);
+        }
     }
 
     // The token's own keyword abilities. It has just been put on the board,
@@ -827,6 +835,14 @@ void TriggerManager::onCardPlayed(const CardPlayedEvent& e) {
         }
         for (auto wid : watchers)
             fireTrigger(wid, e.player, 0, TriggerType::WhenYouPlayAGear, /*subject=*/e.object);
+        // A battlefield card has no location, so it is not in the walk above.
+        // "When you play a gear here" (Rakelstake) fires on the battlefield
+        // the gear was played to, the way announceUnitPlayed does for a unit.
+        if (state_.objectExists(e.object)) {
+            if (auto played_bf = state_.getObject(e.object).battlefieldId())
+                fireBattlefieldTriggers(TriggerType::WhenYouPlayAGear, e.player, *played_bf,
+                                        /*subject=*/e.object);
+        }
     }
 
     // "When you play a unit" and its relatives.
