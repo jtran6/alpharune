@@ -5965,6 +5965,45 @@ bool banishedUntilEndingOpen(const GameState& state, PlayerId player, int throug
     if (ending && through == turn + 1) return true;
     return false;
 }
+
+// Cards a banishment permission currently lets `player` play (Runeblade
+// Anvil, Akali, Brash, Clocktower Guardian). The same stamp the Main Phase
+// already reads. Timing — Reaction in a Closed State, Action at Focus — is
+// the card's own, applied by the generator that walks the list.
+std::vector<GameObjectId> playableFromBanishment(const GameState& state, PlayerId player) {
+    std::vector<GameObjectId> out;
+    for (GameObjectId card_id : state.player(player).banishment) {
+        if (!state.objectExists(card_id)) continue;
+        const auto& card = state.getObject(card_id);
+        const bool unbounded =
+            card.card_counters.find("__playable_unbounded") != card.card_counters.end();
+        auto mark = card.card_counters.find("__playable_through_turn");
+        if (!unbounded && (mark == card.card_counters.end() ||
+                           !banishedUntilEndingOpen(state, player, mark->second)))
+            continue;
+        out.push_back(card_id);
+    }
+    return out;
+}
+
+// Hand, Chosen Champion (CR 420.1.a), and a card the banishment permission
+// currently allows. Showdown and Closed State plays walk this list; the Main
+// Phase lists the banished card itself as a PlayCard.
+std::vector<GameObjectId> handChampionAndBanished(const GameState& state, PlayerId player) {
+    const auto& ps = state.player(player);
+    std::vector<GameObjectId> out = ps.hand;
+    if (ps.champion_zone != kInvalidId && state.objectExists(ps.champion_zone) &&
+        state.getObject(ps.champion_zone).zone == ZoneType::ChampionZone)
+        out.push_back(ps.champion_zone);
+    for (auto id : playableFromBanishment(state, player)) out.push_back(id);
+    return out;
+}
+
+void noteBanishedSource(const GameState& state, Intent& play) {
+    if (state.objectExists(play.card) &&
+        state.getObject(play.card).zone == ZoneType::Banishment)
+        play.play_source = Intent::PlaySource::Banishment;
+}
 }
 
 std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const {
@@ -6181,47 +6220,10 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
                 actions.push_back(at);
             }
         } else if (card.isSpell()) {
-            // The same offer as a spell from hand: one intent per target set
-            // when the play names its targets, and a discount from the chosen
-            // target counts. A required target, a pair, or a finalize pass
-            // that cannot be paid for (a Deflect the spell cannot meet) is
-            // not a play.
-            if (state_.player(player).cant_play_spells_this_turn) continue;
-            if (!card_obj->hasLegalTargets(state_, player, card_db_)) continue;
-            const bool afford_plain = canAfford(player, card_id);
-            auto legal_targets = card_obj->enumerateLegalTargets(state_, player);
-            auto req = card_obj->getTargetRequirements();
-            auto emitSpell = [&](std::vector<GameObjectId> targets) {
-                Intent play = play_intent;
-                play.play_location = std::nullopt;
-                play.targets = std::move(targets);
-                actions.push_back(std::move(play));
-            };
-            if ((req.count > 0 && card_obj->needsPlayTimeTarget()) ||
-                card_obj->needsPlayTimeTargetPair()) {
-                bool payable = legal_targets.empty() &&
-                    (afford_plain || (card_obj->needsPlayTimeTargetPair() &&
-                                      (card_obj->choicesAtFinalization() & Card::kFinalizeResolve)));
-                for (auto t : legal_targets)
-                    if (!payable && canAffordChoosing(player, card_id, {t})) payable = true;
-                if (payable && card_obj->needsPlayTimeTargetPair() &&
-                    (card_obj->choicesAtFinalization() & Card::kFinalizeResolve) &&
-                    (!afford_plain || anyDeflectFor(player)))
-                    payable = payableThroughAFinalizeChoice(player, card_id, nullptr, true);
-                if (!payable) continue;
-                emitSpell({});
-            } else if (req.count == 0 || (req.optional && legal_targets.empty())) {
-                bool offer = afford_plain || payableThroughAFinalizeChoice(player, card_id, nullptr);
-                if (offer && afford_plain &&
-                    (card_obj->choicesAtFinalization() & Card::kFinalizeResolve) &&
-                    !card_obj->needsPlayTimeTarget() && anyDeflectFor(player))
-                    offer = payableThroughAFinalizeChoice(player, card_id, nullptr, true);
-                if (!offer) continue;
-                emitSpell({});
-            } else {
-                for (auto& tset : spellTargetSets(card_obj, state_, player, req, legal_targets))
-                    if (canAffordChoosing(player, card_id, tset)) emitSpell(std::move(tset));
-            }
+            // The hand's spell list (generateSpellActions) offers this spell
+            // too, in the Main Phase and at the spell's own timing in a
+            // Closed State or a showdown. One offer.
+            continue;
         } else {
             play_intent.play_location = BaseLocation{player};
             actions.push_back(play_intent);
@@ -6345,9 +6347,11 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
                                     actions);
     }
 
-    // Ambush: play units with [Ambush] during showdowns — from the hand or
-    // the Champion Zone (CR 420.1.a; testing phase D63).
-    for (auto card_id : handAndChampion(player)) {
+    // Ambush: play units with [Ambush] during showdowns — from the hand, the
+    // Champion Zone (CR 420.1.a; testing phase D63), or banishment while a
+    // "you may play that card" permission is open.
+    const auto showdown_sources = handChampionAndBanished(state_, player);
+    for (auto card_id : showdown_sources) {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit() || !card.hasKeyword(Keyword::Ambush)) continue;
@@ -6371,13 +6375,15 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
             ambush.player = player;
             ambush.card = card_id;
             ambush.play_location = BattlefieldLocation{bf.id};
+            noteBanishedSource(state_, ambush);
             actions.push_back(ambush);
         }
     }
 
     // Reaction-to-attack plays (e.g., Rengar, Pouncing — play to a BF where
-    // you are currently attacking).
-    for (auto card_id : state_.player(player).hand) {
+    // you are currently attacking). The Chosen Champion and a banished copy
+    // use the same permission as a copy in hand (CR 420.1.a).
+    for (auto card_id : showdown_sources) {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit()) continue;
@@ -6401,6 +6407,7 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
             pounce.player = player;
             pounce.card = card_id;
             pounce.play_location = BattlefieldLocation{bf.id};
+            noteBanishedSource(state_, pounce);
             // A [Reaction] unit is also offered this battlefield below. While
             // the permission is live, do not add that play a second time.
             if (state_.player(player).next_unit_any_battlefield > 0 &&
@@ -6445,10 +6452,9 @@ void GameEngine::generateReactionPermanentActions(PlayerId player, IntentType in
                                                    std::vector<Intent>& actions) const {
     const auto& ps = state_.player(player);
     if (ps.cant_play_cards_this_turn) return;
-    std::vector<GameObjectId> sources = ps.hand;
-    if (ps.champion_zone != kInvalidId && state_.objectExists(ps.champion_zone) &&
-        state_.getObject(ps.champion_zone).zone == ZoneType::ChampionZone)
-        sources.push_back(ps.champion_zone);
+    // Hand, Chosen Champion, and a card banished under a play permission.
+    // The Main Phase offers that banished card as a PlayCard of its own.
+    const std::vector<GameObjectId> sources = handChampionAndBanished(state_, player);
     for (auto card_id : sources) {
         const auto& card = state_.getObject(card_id);
         if (card.card_def_id == kInvalidId) continue;
@@ -6459,6 +6465,7 @@ void GameEngine::generateReactionPermanentActions(PlayerId player, IntentType in
         play.type = intent_type;
         play.player = player;
         play.card = card_id;
+        noteBanishedSource(state_, play);
         if (card.isGear()) {
             const bool showdown = intent_type == IntentType::PlayActionCard;
             const bool deploy = card.hasKeyword(Keyword::Deploy);
@@ -6533,8 +6540,10 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
     generateReactionPermanentActions(player, IntentType::PlayReaction, actions);
 
     // Ambush: play units with [Ambush] as Reactions to BFs where you have
-    // units — from the hand or the Champion Zone (CR 420.1.a; testing phase D63).
-    for (auto card_id : handAndChampion(player)) {
+    // units — from the hand, the Champion Zone (CR 420.1.a; testing phase D63),
+    // or banishment while a "you may play that card" permission is open.
+    const auto closed_sources = handChampionAndBanished(state_, player);
+    for (auto card_id : closed_sources) {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit() || !card.hasKeyword(Keyword::Ambush)) continue;
@@ -6555,12 +6564,15 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
             ambush.player = player;
             ambush.card = card_id;
             ambush.play_location = BattlefieldLocation{bf.id};
+            noteBanishedSource(state_, ambush);
             actions.push_back(ambush);
         }
     }
 
     // Reaction-to-attack plays during Closed State (Rengar, Pouncing).
-    for (auto card_id : state_.player(player).hand) {
+    // The Chosen Champion and a banished copy use the same permission as a
+    // copy in hand (CR 420.1.a).
+    for (auto card_id : closed_sources) {
         if (locked_out) break;
         auto& card = state_.getObject(card_id);
         if (!card.isUnit()) continue;
@@ -6584,6 +6596,7 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
             pounce.player = player;
             pounce.card = card_id;
             pounce.play_location = BattlefieldLocation{bf.id};
+            noteBanishedSource(state_, pounce);
             // generateReactionPermanentActions already offered a [Reaction]
             // unit this battlefield. While the permission is live, do not
             // add that play a second time.
@@ -6816,7 +6829,12 @@ void GameEngine::generateSpellActions(PlayerId player, bool action_ok,
     // Lilting Lullaby / cards-lockout: zero spell-play actions while the
     // controller is under either lockout flag this turn.
     if (ps.cant_play_cards_this_turn || ps.cant_play_spells_this_turn) return;
-    for (auto card_id : ps.hand) {
+    // A banished "you may play that card" uses this same list, so a Reaction
+    // spell is offered in a Closed State and an Action spell at Focus. The
+    // Main Phase no longer emits that spell on its own.
+    std::vector<GameObjectId> spell_sources = ps.hand;
+    for (auto id : playableFromBanishment(state_, player)) spell_sources.push_back(id);
+    for (auto card_id : spell_sources) {
         auto& card = state_.getObject(card_id);
         if (!card.isSpell()) continue;
         // Check timing keywords
@@ -6897,7 +6915,10 @@ void GameEngine::generateSpellActions(PlayerId player, bool action_ok,
         // the counterspell would resolve against. CR 820 is the same
         // shape as Accelerate's "you may pay additional" — a yes/no at
         // cost time, not a pre-encoded vocab slot.
-        auto emit = [&](Intent play) { actions.push_back(std::move(play)); };
+        auto emit = [&](Intent play) {
+            noteBanishedSource(state_, play);
+            actions.push_back(std::move(play));
+        };
 
         // Phase 6q — target decoupling. When the card opts in via
         // needsPlayTimeTarget() or needsPlayTimeTargetPair(), emit
