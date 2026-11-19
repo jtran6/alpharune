@@ -117,12 +117,18 @@ public:
             while (static_cast<int>(ri.resume_data.size()) < base + 4) ri.resume_data.push_back(0);
             if (ri.resume_data[base] == 0) {
                 const int n = std::min(2, static_cast<int>(deck.size()));
-                ri.resume_data[base] = n + 1;
-                for (int i = 0; i < n; ++i) {
-                    const GameObjectId id = deck[deck.size() - 1 - static_cast<std::size_t>(i)];
-                    ri.resume_data[base + 1 + i] = static_cast<int32_t>(id.raw());
+                std::vector<GameObjectId> looked;
+                for (int i = 0; i < n; ++i)
+                    looked.push_back(deck[deck.size() - 1 - static_cast<std::size_t>(i)]);
+                std::vector<GameObjectId> kept;
+                for (auto id : looked) {
                     knowledge::shown(ctx.state, id, knowledge::only(ctx.controller));
+                    // "As you look at me" (Nocturne). A card that leaves is not drawn.
+                    if (ctx.executor.seenOnTopOfDeck(ctx.controller, id)) kept.push_back(id);
                 }
+                ri.resume_data[base] = static_cast<int>(kept.size()) + 1;
+                for (int i = 0; i < static_cast<int>(kept.size()); ++i)
+                    ri.resume_data[base + 1 + i] = static_cast<int32_t>(kept[i].raw());
             }
             const int n = ri.resume_data[base] - 1;
             std::vector<GameObjectId> top;

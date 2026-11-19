@@ -41,21 +41,10 @@ public:
         auto& ri = *ctx.state.chain.resuming;
         if (ri.resume_point == kDone) return;
         if (ri.resume_point != kChosen) {
-            auto picked_before = [&ri](GameObjectId id) {
-                return std::find(ri.resume_data.begin(), ri.resume_data.end(),
-                                 static_cast<int32_t>(id.raw())) != ri.resume_data.end();
-            };
-            // A unit already picked stays available: its Deflect was paid then.
+            // Each time a unit is chosen its Deflect is paid again (CR 809.1.c),
+            // so a unit already picked is offered only when that cost can be paid.
             auto offered = [&]() {
-                const auto units = anyUnit(ctx.state, ctx.controller);
-                std::vector<GameObjectId> fresh, out;
-                for (auto id : units) if (!picked_before(id)) fresh.push_back(id);
-                fresh = offerableChoices(ctx, fresh);
-                for (auto id : units)
-                    if (picked_before(id) ||
-                        std::find(fresh.begin(), fresh.end(), id) != fresh.end())
-                        out.push_back(id);
-                return out;
+                return offerableChoices(ctx, anyUnit(ctx.state, ctx.controller));
             };
             if (ri.resume_point == kAwait) {
                 const auto can_pick = offered();
@@ -63,7 +52,7 @@ public:
                 if (std::find(can_pick.begin(), can_pick.end(), unit) == can_pick.end())
                     unit = can_pick.empty() ? kInvalidId : can_pick.front();
                 if (unit != kInvalidId) {
-                    if (!picked_before(unit)) commitChosenObject(ctx, unit);
+                    commitChosenObject(ctx, unit);
                     ri.resume_data.push_back(static_cast<int32_t>(unit.raw()));
                 }
                 ri.resume_point = unit == kInvalidId ? kChosen : kPicking;
@@ -108,8 +97,12 @@ public:
             ctx.executor.dealDamage(id, 2, ctx.source);
             hit.push_back(id);
         }
-        {   // the batch is for these kills only
-            ctx.executor.killLethallyDamagedTogether(hit);   // they die at the same time
+        {   // Units already lethally damaged die with these (CR 142.4.a, 383.2.c.2).
+            for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
+                if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
+                if (std::find(hit.begin(), hit.end(), id) == hit.end()) hit.push_back(id);
+            }
+            ctx.executor.killLethallyDamagedTogether(hit);
         }
     }
 private:

@@ -106,10 +106,11 @@ public:
             // The chosen units that are still legal targets: units at a
             // battlefield. "At a battlefield with total Might 4 or less" is a
             // requirement on them as a group (CR 355.11), judged now.
-            const auto legal = chooseableUnits(ctx.state, ctx.controller, [&ri](const GameObject& u) {
+            const auto legal = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
                 return u.isAtBattlefield() &&
                        std::find(ri.resume_data.begin(), ri.resume_data.end(),
-                                 static_cast<int32_t>(u.id.raw())) != ri.resume_data.end();
+                                 static_cast<int32_t>(u.id.raw())) != ri.resume_data.end() &&
+                       ctx.state.stillTheChosenObject(ri, u.id);
             });
             if (fitsTogether(ctx.state, legal)) { kill(legal); return; }
             // They no longer fit (a unit gained Might, or they are at different

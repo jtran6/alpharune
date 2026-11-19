@@ -5419,7 +5419,8 @@ void GameEngine::executeStandardMove(const Intent& intent) {
         moveUnit(unit_id, dest);
     }
     for (size_t i = 0; i < moving.size(); ++i)
-        events_.emit(UnitMovedEvent{moving[i], intent.player, origins[i], dest, true});
+        events_.emit(UnitMovedEvent{moving[i], intent.player, origins[i], dest, true,
+                                    intent.player});
 
     // Check if this contests a battlefield
     if (std::holds_alternative<BattlefieldLocation>(dest)) {
@@ -5542,7 +5543,10 @@ int combatDamageDealt(const GameObject& t, int assigned) {
 /// can be considered lethal. Such a unit is exempt from any considerations of
 /// mandatory assignment."
 bool canTakeCombatDamage(const GameObject& t) {
-    return !t.immune_to_damage && !t.prevent_next_damage_this_turn;
+    // CR 467.2.c.10's example is Counter Strike: preventing the next damage
+    // does not exempt the unit from mandatory assignment. The assigned
+    // damage is prevented when it is dealt (combatDamageDealt).
+    return !t.immune_to_damage;
 }
 
 /// Minimum ASSIGNED amount that deals lethal damage to `t` (CR 467.2.c.4.a).

@@ -76,6 +76,12 @@ public:
     bool payEquipExtraCost(CardContext& ctx, GameObjectId unit) override {
         return payEquipExtraCost(ctx, unit, EquipTerms{});
     }
+    // Equipped: +3 Might and [Ganking] while this is attached (CR 137.3, 718.4, 810.1).
+    KeywordSet equippedKeywords() const override {
+        KeywordSet k;
+        k.set(Keyword::Ganking);
+        return k;
+    }
 
 private:
     const CardDef def_ = [] {
@@ -95,9 +101,11 @@ private:
         d.energy_cost = 3;
         d.power_cost = 1;
         d.might = 3;
+        d.might_bonus = 3;
         d.rarity = Rarity::Epic;
         d.keywords.set(Keyword::Equip);
         d.ability_text = R"RB([Equip] — [A] or exhaust a friendly unit. (Pay the cost: Attach this to a unit you control.))RB";
+        d.effect_text = R"RB([Ganking] (I can move from battlefield to battlefield.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/04aaded01b23641e496e39f51882ccfe89715492-744x1040.png)RB";
         return d;
     }();

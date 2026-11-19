@@ -36,6 +36,11 @@ struct UnitMovedEvent {
     LocationId from;
     LocationId to;
     bool is_standard_move;  // true if standard move action, false if effect-driven
+    // Who performed the move: the spell or ability's controller, or the player
+    // who took the standard move. None means the object's controller (an
+    // effect that did not name a performer). "When you move" reads this
+    // (CR 412.4).
+    PlayerId performed_by = PlayerId::None;
 };
 
 /// A game object entered the board (played, created, channeled).

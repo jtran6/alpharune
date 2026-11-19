@@ -16,11 +16,10 @@ public:
     const CardDef& def() const override { return def_; }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>& targets) override {
         if (!targets.empty()) {
+            // Lethal damage kills in the cleanup, together with every other
+            // unit that is already lethal (CR 142.4.a, 383.2.c.2). Killing
+            // here would let one of them see the other's death.
             ctx.executor.dealDamage(targets[0], 8, ctx.source);
-            if (ctx.state.objectExists(targets[0]) &&
-                ctx.state.getObject(targets[0]).hasLethalDamage()) {
-                ctx.executor.killObject(targets[0]);
-            }
         }
     }
     TargetRequirements getTargetRequirements() const override {

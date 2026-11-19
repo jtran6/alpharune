@@ -48,7 +48,11 @@ public:
         if (ri.resume_point == kDone) return;   // moved once already
         const auto& u = ctx.state.getObject(mover);
         if (!u.isUnit() || !u.location.has_value()) return;
-        moveTo(ctx, mover, dest);
+        if (!moveTo(ctx, mover, dest)) {
+            ri.resume_point = kDone;
+            RIFT_TRACE(ctx.events, "DRAGON'S RAGE: the unit could not be moved");
+            return;
+        }
         ri.resume_point = kDone;
         RIFT_TRACE(ctx.events, "DRAGON'S RAGE: moved an enemy unit");
         ctx.executor.queueReflexiveTrigger(ctx.source, ctx.controller, 0,
@@ -84,8 +88,14 @@ public:
         int m_other = ctx.state.getObject(other).current_might;
         ctx.executor.dealDamage(other, m_mover, mover);
         ctx.executor.dealDamage(mover, m_other, other);
-        {   // the batch is for these kills only
-            ctx.executor.killLethallyDamagedTogether(std::vector<GameObjectId>{mover, other});   // they die at the same time
+        {   // Units already lethally damaged die with these (CR 142.4.a, 383.2.c.2).
+            std::vector<GameObjectId> batch{mover, other};
+            for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
+                if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
+                if (std::find(batch.begin(), batch.end(), id) == batch.end())
+                    batch.push_back(id);
+            }
+            ctx.executor.killLethallyDamagedTogether(std::move(batch));
         }
         RIFT_TRACE(ctx.events, "DRAGON'S RAGE: mutual-Might damage");
     }

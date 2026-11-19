@@ -864,7 +864,13 @@ struct ChainItem {
     // belongs to the trigger, not to the unit — a unit that moves again
     // before this resolves gives its second trigger a different one. Cards
     // read it with triggeringMove() (card_helpers.h).
-    struct Move { LocationId from; LocationId to; };
+    struct Move {
+        LocationId from;
+        LocationId to;
+        // Who performed it. None: the object's controller, so Move{from, to}
+        // still means a move that player made.
+        PlayerId performed_by = PlayerId::None;
+    };
     std::optional<Move> triggering_move;
 
     // Set for a reflexive trigger (CR 387-389: "Do this: ...", "Do one of the

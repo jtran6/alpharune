@@ -376,6 +376,7 @@ TEST(StrongIds, EveryObjectIdReadFromAnIntegerSlotIsOnTheAuditedList) {
         {"src/cards/spells/0309_flash.cpp", 1},
         {"src/cards/spells/0402_bellows_breath.cpp", 1},
         {"src/cards/spells/0475_guards.cpp", 2},
+        {"src/cards/spells/0505_void_rush.cpp", 1},  // the revealed cards, written plain in resume_data[32+]
         {"src/cards/spells/0513_arise.cpp", 2},
         {"src/cards/spells/0516_hostile_takeover.cpp", 1},
         {"src/cards/spells/0616_tricksy_tentacles.cpp", 1},   // the picks, written plain (batch M1)

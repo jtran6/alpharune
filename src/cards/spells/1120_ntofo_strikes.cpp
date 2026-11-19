@@ -42,8 +42,16 @@ public:
                               ctx.state.chain.resuming->resume_point == 12);
         if (waiting) return;
         if (f != kInvalidId) ctx.executor.giveTemporaryKeyword(f, Keyword::Shield, 2);
-        if (f != kInvalidId && e != kInvalidId)
-            ctx.executor.dealDamage(e, std::max(1, ctx.state.getObject(f).shield_value), ctx.source);
+        if (f != kInvalidId && e != kInvalidId) {
+            // Every Shield instance: the printed and this-turn value, and each
+            // one an Equipment or an aura gives (CR 814).
+            const auto& unit = ctx.state.getObject(f);
+            int shield = unit.shield_value;
+            for (const auto& aura : unit.aura_effects)
+                if (aura.keyword == Keyword::Shield)
+                    shield += std::max(1, aura.keyword_value);
+            ctx.executor.dealDamage(e, std::max(1, shield), ctx.source);
+        }
     }
 
 private:

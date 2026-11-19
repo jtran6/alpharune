@@ -37,15 +37,15 @@ public:
         return friendlyUnitChoice(state, controller, object);
     }
     static constexpr const char* kMaskKey = "curtain_call_used_mask";
-    static constexpr const char* kPlayKey = "curtain_call_play";
 
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>& /*targets*/) override {
         auto& counters = ctx.state.getObject(ctx.source).card_counters;
-        // Modes used by earlier executions of THIS play (none unless
-        // repeated). Direct invocations with no chain item count as one play.
-        const int play = ctx.state.chain.resuming.has_value()
-            ? static_cast<int>(ctx.state.chain.resuming->id.raw()) + 1 : 0;
-        const int used_mask = counters[kPlayKey] == play ? counters[kMaskKey] : 0;
+        // Modes already chosen by an earlier execution of THIS play. The mask
+        // lives on the spell: a [Repeat] execution chooses on a chain item of
+        // its own and returns at the marker, so a mask written after the
+        // marker, or keyed by that item, never reaches the next execution
+        // (CR 820.1.c). forgetPlayPayments drops it when the next play begins.
+        const int used_mask = counters[kMaskKey];
 
         const auto at_bf = chooseableUnits(ctx.state, ctx.controller,
             [](const GameObject& o) { return o.isAtBattlefield(); });
@@ -77,10 +77,9 @@ public:
             if (target == kInvalidId && ctx.state.chain.resuming.has_value() &&
                 ctx.state.chain.resuming->resume_point == 7) return;   // waiting
         }
+        counters[kMaskKey] = used_mask | (1 << mode);
         if (finalizingChoices(ctx)) return;   // choices end here (CR 355)
 
-        counters[kPlayKey] = play;
-        counters[kMaskKey] = used_mask | (1 << mode);
         const bool has_target = target != kInvalidId && ctx.state.objectExists(target);
         switch (mode) {
             case 0:

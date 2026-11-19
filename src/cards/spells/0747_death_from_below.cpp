@@ -74,17 +74,30 @@ public:
             return ctx.state.objectExists(ctx.source) &&
                    ctx.state.getObject(ctx.source).zone == ZoneType::Trash;
         };
+        // "[A]" replaces the printed cost. Spell-cost increases still apply
+        // (CR 356.1), and the payment is a spell's (SpendFor::Spell).
+        const EffectPlayCost replay{.replace_energy = 0, .replace_power = 1};
         const int again = confirmOptional(ctx, "Death from Below: play it from your trash for [A]",
             [&]() {
-                return costAlreadyPaid(ctx) ||
-                       (in_trash() && ctx.executor.canPayAnyPower(ctx.controller, 1) &&
-                        !enumerateLegalTargets(ctx.state, ctx.controller).empty());
+                return in_trash() &&
+                       !enumerateLegalTargets(ctx.state, ctx.controller).empty() &&
+                       (costAlreadyPaid(ctx) ||
+                        ctx.executor.canPlayPayingCost(ctx.controller, ctx.source, replay));
             });
-        if (again == 1 && costDueNow(ctx) && !ctx.executor.payAnyPower(ctx.controller, 1)) return;
-        if (finalizingChoices(ctx)) return;   // the "may" and the [A] end here (CR 388.4)
+        if (again == -1) return;
+        // The [A], and any spell-cost increase on top of it, is paid as the
+        // reflexive trigger is finalized (CR 388.4, 356.1). The card is played
+        // when the trigger resolves.
+        if (again == 1 && costDueNow(ctx)) {
+            const auto cost = ctx.executor.stagedNetCost(ctx.controller, ctx.source, replay);
+            if (!ctx.executor.payResources(ctx.controller, cost.first, cost.second,
+                                           resource::kAnyDomain, SpendFor::Spell))
+                return;
+        }
+        if (finalizingChoices(ctx)) return;   // the "may" and the cost end here (CR 388.4)
         if (again < 1 || !in_trash()) return; // declined, or it left the trash in response
-        RIFT_TRACE(ctx.events, "DEATH FROM BELOW: paid [A] -> played from the trash");
         ctx.executor.playIgnoringCost(ctx.controller, ctx.source);
+        RIFT_TRACE(ctx.events, "DEATH FROM BELOW: paid [A] -> played from the trash");
     }
 private:
     const CardDef def_ = [] {

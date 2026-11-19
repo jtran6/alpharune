@@ -26,14 +26,27 @@ public:
         return out;
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>& /*targets*/) override {
+        if (!ctx.state.chain.resuming.has_value()) return;
+        auto& ri = *ctx.state.chain.resuming;
         const EffectExecutor::EffectPlayCost reduced{.energy_reduction = 2};
-        // Reveal once — not again when re-entered with an answer.
-        const bool first_pass = !ctx.state.chain.resuming.has_value() ||
-                                ctx.state.chain.resuming->resume_point == 0;
-        // Void Hatchling: "If you would reveal cards from a deck, look at the
-        // top card first." — once, before the two are revealed.
-        if (first_pass) ctx.executor.lookBeforeReveal(ctx.controller);
-        const auto top = topTwo(ctx.state, ctx.controller);
+        // The revealed cards are remembered on the chain item. Re-reading the
+        // deck after one of them has left (Nocturne, as it is revealed) would
+        // treat a card that was never revealed as one of the two.
+        if (ri.resume_data.size() < 40) ri.resume_data.resize(40, 0);
+        const bool first_pass = ri.resume_data[30] == 0;
+        if (first_pass) {
+            // Void Hatchling: "If you would reveal cards from a deck, look at the
+            // top card first." — once, before the two are revealed.
+            ctx.executor.lookBeforeReveal(ctx.controller);
+            const auto revealed = topTwo(ctx.state, ctx.controller);
+            ri.resume_data[30] = 1;
+            ri.resume_data[31] = static_cast<int>(revealed.size());
+            for (int i = 0; i < static_cast<int>(revealed.size()); ++i)
+                ri.resume_data[32 + i] = static_cast<int32_t>(revealed[i].raw());
+        }
+        std::vector<GameObjectId> top;
+        for (int i = 0; i < ri.resume_data[31]; ++i)
+            top.push_back(GameObjectId::fromRaw(ri.resume_data[32 + i]));
         if (top.empty()) return;
         if (first_pass) {
             for (auto cid : top) {
@@ -79,17 +92,20 @@ public:
             }
         }
 
-        int to_draw = static_cast<int>(top.size());
         if (chosen != kInvalidId) {
-            --to_draw;
             // banishObject takes the card out of the deck through deck_ops.
             ctx.executor.banishObject(chosen);
             if (ctx.executor.playPayingCost(ctx.controller, chosen, where_to, reduced))
                 RIFT_TRACE(ctx.events, "VOID RUSH: banished and played " +
                                     ctx.state.getObject(chosen).name + ", its cost reduced by [2]");
         }
-        // "Draw any you didn't banish": they are still the top cards.
-        if (to_draw > 0) ctx.executor.drawCards(ctx.controller, to_draw);
+        // "Draw any you didn't banish." A card the reveal took away (Nocturne)
+        // is not among them, and neither is a card that was never revealed.
+        for (auto cid : top) {
+            const auto& deck = ctx.state.player(ctx.controller).main_deck;
+            if (std::find(deck.begin(), deck.end(), cid) == deck.end()) continue;
+            ctx.executor.drawHeldCard(ctx.controller, cid, /*seen_by_all=*/true);
+        }
     }
 private:
     const CardDef def_ = [] {
