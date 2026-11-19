@@ -887,9 +887,20 @@ public:
     /// applied by this hook (by this or any other card) are in it yet — so an
     /// effect never counts toward the Might test that grants it. The engine
     /// folds again afterwards. Same calling contract as applyPassiveAura (once
-    /// per (card, controller), every instance).
+    /// per (card, controller), every instance). An effect that reads what these
+    /// hooks granted is applyAfterMightDependentAuras: this hook has not seen
+    /// a later card's grant, nor a text copy applied after the list.
     virtual bool hasMightDependentAura() const { return false; }
     virtual void applyMightDependentAura(GameState& /*state*/, PlayerId /*controller*/) const {}
+
+    /// A continuous effect that reads the grants of this pass's Might-dependent
+    /// hooks ("I have [Assault] equal to my [Shield]", when that [Shield] may
+    /// itself be Might-dependent). Called after every applyMightDependentAura,
+    /// including the extra copy a text-copying Equipment applies once that list
+    /// is done, and before the fold, so the answer does not depend on the order
+    /// those hooks ran in. Same calling contract as applyPassiveAura.
+    virtual bool appliesAfterMightDependentAuras() const { return false; }
+    virtual void applyAfterMightDependentAuras(GameState& /*state*/, PlayerId /*controller*/) const {}
     /// True for a card whose continuous effect is given to cards in a Main
     /// Deck, a Rune Deck, a Trash or Banishment ("Your Equipment everywhere
     /// have [Quick-Draw]"). While one is in play the Cleanup walks every
