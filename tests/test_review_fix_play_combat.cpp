@@ -355,6 +355,17 @@ protected:
         s().player(p).champion_zone = id;
         return id;
     }
+    /// Banishment permission the Main Phase already honors. `unbounded` is
+    /// Clocktower Guardian (no Ending Phase); otherwise Akali / Runeblade Anvil.
+    GameObjectId inBanishment(PlayerId p, CardDefId def_id, bool unbounded = false) {
+        auto id = makeCard(p, def_id);
+        auto& c = s().getObject(id);
+        c.zone = ZoneType::Banishment;
+        s().player(p).banishment.push_back(id);
+        if (unbounded) c.card_counters["__playable_unbounded"] = 1;
+        else c.card_counters["__playable_through_turn"] = s().turn.turn_number;
+        return id;
+    }
     GameObjectId inDeck(PlayerId p, CardDefId def_id) {
         auto id = makeCard(p, def_id);
         s().getObject(id).zone = ZoneType::MainDeck;
@@ -498,6 +509,141 @@ TEST_F(PlayCombatFixTest, Showdown_PlayReactionIntent_PlaysThePermanent) {
     ASSERT_TRUE(r.location.has_value()) << "the intent was executed, not dropped";
     EXPECT_EQ(*r.location, LocationId{BattlefieldLocation{0}});
     EXPECT_TRUE(s().player(P1).hand.empty());
+}
+
+TEST_F(PlayCombatFixTest, Pounce_ChosenChampionIsOfferedToTheBattlefieldHeIsAttacking) {
+    // CR 420.1.a: the Chosen Champion is played like a card from hand.
+    // "I can be played to a battlefield you're attacking."
+    makeEngine();
+    control(0, P2);
+    onBoard(P1, kTVanilla, 0);
+    onBoard(P2, kTVanilla, 0);
+    auto& bf = s().battlefields[0];
+    bf.combat_in_progress = true;
+    bf.is_contested = true;
+    bf.contested_by = P1;
+    bf.attacker = P1;
+    bf.defender = P2;
+    enterShowdown(P1);
+    s().player(P1).rune_pool.energy = 3;
+    s().player(P1).rune_pool.power[static_cast<int>(Domain::Fury)] = 1;
+    auto rengar = inChampionZone(P1, kRengarPouncing);
+
+    const auto legal = engine_->generateLegalActions();
+    std::optional<Intent> pounce;
+    for (const auto& i : legal)
+        if (i.type == IntentType::PlayReaction && i.card == rengar &&
+            i.play_location == LocationId{BattlefieldLocation{0}})
+            pounce = i;
+    ASSERT_TRUE(pounce.has_value()) << "the Champion Zone copy is offered onto the attack";
+
+    int count = 0;
+    engine_->testHook_resolveShowdownDecision(BattlefieldId::fromRaw(0), *pounce, P1, count);
+
+    const auto& r = s().getObject(rengar);
+    ASSERT_TRUE(r.location.has_value());
+    EXPECT_EQ(*r.location, LocationId{BattlefieldLocation{0}});
+    EXPECT_EQ(r.controller, P1);
+    EXPECT_EQ(s().player(P1).champion_zone, kInvalidId);
+}
+
+TEST_F(PlayCombatFixTest, Pounce_ChosenChampionIsOfferedInAClosedState) {
+    makeEngine();
+    control(0, P2);
+    onBoard(P1, kTVanilla, 0);
+    onBoard(P2, kTVanilla, 0);
+    auto& bf = s().battlefields[0];
+    bf.combat_in_progress = true;
+    bf.attacker = P1;
+    bf.defender = P2;
+    enterClosedState(P1);
+    s().player(P1).rune_pool.energy = 3;
+    s().player(P1).rune_pool.power[static_cast<int>(Domain::Fury)] = 1;
+    auto rengar = inChampionZone(P1, kRengarPouncing);
+
+    const auto legal = engine_->generateLegalActions();
+    bool offered = false;
+    for (const auto& i : legal)
+        if (i.type == IntentType::PlayReaction && i.card == rengar &&
+            i.play_location == LocationId{BattlefieldLocation{0}})
+            offered = true;
+    EXPECT_TRUE(offered);
+}
+
+TEST_F(PlayCombatFixTest, BanishedReactionSpell_IsPlayedInAClosedState) {
+    // Akali, Brash / Runeblade Anvil: "you may play that card" until the
+    // next Ending Phase. A Reaction spell is legal in a Closed State.
+    makeEngine();
+    auto spell = inBanishment(P1, kTNoopSpell);
+    enterClosedState(P1);
+
+    const auto legal = engine_->generateLegalActions();
+    std::optional<Intent> play;
+    for (const auto& i : legal)
+        if (i.type == IntentType::PlayReaction && i.card == spell) play = i;
+    ASSERT_TRUE(play.has_value());
+    EXPECT_EQ(play->play_source, Intent::PlaySource::Banishment);
+    EXPECT_EQ(play->player, P1);
+
+    engine_->testHook_executeIntent(*play);
+
+    EXPECT_EQ(s().getObject(spell).zone, ZoneType::Trash);
+    EXPECT_TRUE(s().player(P1).banishment.empty());
+    EXPECT_EQ(s().getObject(spell).card_def_id, kTNoopSpell);
+}
+
+TEST_F(PlayCombatFixTest, BanishedActionSpell_IsOfferedAtFocusAndNotInAClosedState) {
+    makeEngine();
+    auto spell = inBanishment(P1, kTNoopSpell);
+    s().getObject(spell).keywords.reset();
+    s().getObject(spell).keywords.set(Keyword::Action);
+
+    enterShowdown(P1);
+    const auto at_focus = engine_->generateLegalActions();
+    std::optional<Intent> play;
+    for (const auto& i : at_focus)
+        if (i.card == spell) play = i;
+    ASSERT_TRUE(play.has_value());
+    EXPECT_EQ(play->type, IntentType::PlayActionCard);
+    EXPECT_EQ(play->play_source, Intent::PlaySource::Banishment);
+
+    enterClosedState(P1);
+    const auto closed = engine_->generateLegalActions();
+    for (const auto& i : closed) EXPECT_NE(i.card, spell);
+}
+
+TEST_F(PlayCombatFixTest, BanishedSpell_MainPhaseStillOffersItOnce) {
+    makeEngine();
+    auto spell = inBanishment(P1, kTNoopSpell);
+    int offers = 0;
+    for (const auto& i : engine_->generateLegalActions())
+        if (i.card == spell) {
+            ++offers;
+            EXPECT_EQ(i.type, IntentType::PlayCard);
+            EXPECT_EQ(i.play_source, Intent::PlaySource::Banishment);
+        }
+    EXPECT_EQ(offers, 1);
+}
+
+TEST_F(PlayCombatFixTest, BanishedSpell_StampedWindowIsYourTurnOnly) {
+    // The Ending Phase window is this player's turn. Clocktower Guardian's
+    // card has no ending, so a Reaction spell stays playable on the
+    // opponent's turn.
+    makeEngine();
+    auto stamped = inBanishment(P1, kTNoopSpell);
+    auto open = inBanishment(P1, kTNoopSpell, /*unbounded=*/true);
+    s().turn.turn_player = P2;
+    enterClosedState(P1);
+
+    bool stamped_offered = false;
+    bool open_offered = false;
+    for (const auto& i : engine_->generateLegalActions()) {
+        if (i.card == stamped) stamped_offered = true;
+        if (i.card == open && i.play_source == Intent::PlaySource::Banishment)
+            open_offered = true;
+    }
+    EXPECT_FALSE(stamped_offered);
+    EXPECT_TRUE(open_offered);
 }
 
 // ─── 2.8: [Action] abilities in a showdown pass the usual gates ─────────────
