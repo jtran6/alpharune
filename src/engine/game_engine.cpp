@@ -328,6 +328,10 @@ void GameEngine::initSubsystems() {
         [this](GameObjectId source, PlayerId controller, TriggerType t, GameObjectId subject) {
             trigger_manager_->queueTrigger(source, controller, t, subject);
         });
+    effect_executor_->setQueueEquipped(
+        [this](GameObjectId gear, GameObjectId unit, PlayerId controller, TriggerType t) {
+            trigger_manager_->queueEquipped(gear, unit, controller, t);
+        });
     effect_executor_->setQueueReflexive(
         [this](GameObjectId source, PlayerId controller, int index, std::vector<int32_t> data) {
             trigger_manager_->queueReflexive(source, controller, index, std::move(data));
@@ -3444,6 +3448,7 @@ Card::PlayCostAdjust GameEngine::targetCostDiscount(PlayerId player,
                                                     bool prefer_power, bool* has_choice) const {
     Card::PlayCostAdjust out;
     int either = 0;
+    std::vector<BattlefieldId> spell_discount_bfs;
     for (auto t : targets) {
         if (!state_.objectExists(t)) continue;
         const auto& tobj = state_.getObject(t);
@@ -3451,11 +3456,19 @@ Card::PlayCostAdjust GameEngine::targetCostDiscount(PlayerId player,
         if (tobj.controller == player)
             either = std::max(either, tobj.spells_targeting_me_cost_reduction);
         if (!tobj.isUnit() || tobj.controller != player) continue;
-        if (auto tbf = tobj.battlefieldId())
+        // "One or more" units at one battlefield is that battlefield's [A]
+        // once. Two battlefields add (Sandswept Tomb), they do not max.
+        if (auto tbf = tobj.battlefieldId()) {
+            if (std::find(spell_discount_bfs.begin(), spell_discount_bfs.end(), *tbf) !=
+                spell_discount_bfs.end())
+                continue;
             for (const auto& b : state_.battlefields)
-                if (b.id == *tbf)
-                    out.power_reduction =
-                        std::max(out.power_reduction, b.friendly_spell_discount_power);
+                if (b.id == *tbf && b.friendly_spell_discount_power > 0) {
+                    out.power_reduction += b.friendly_spell_discount_power;
+                    spell_discount_bfs.push_back(*tbf);
+                    break;
+                }
+        }
     }
     if (has_choice) *has_choice = either > 0;
     if (prefer_power) out.power_reduction += either;
@@ -3936,6 +3949,7 @@ void GameEngine::executePlayCard(const Intent& intent) {
         const Domain d = alt.any_domain ? Domain::Count : alt.power_domain;
         payAdditionalCost(intent.player, alt.energy, alt.power, d, spendForPlay(card));
         events_.notePlayCost(intent.card, alt.energy, alt.power, false, false);
+        card.card_counters["__energy_charged"] = std::max(0, alt.energy);
         RIFT_TRACE(events_, "ALT_COST: " + card.name + " played for its alternative cost");
     } else if (!paid_via_grant) {
         // Choices before costs (CR 355.1.a): whether to pay [Accelerate] and
@@ -3978,13 +3992,20 @@ void GameEngine::executePlayCard(const Intent& intent) {
     // Forge "first gear each turn"). NOTE: this runs AFTER payCardCost, so the
     // first gear's cost reduction still sees gears_played_this_turn == 0.
     if (card.isGear()) {
-        ps.gears_played_this_turn++;
+        // Ornn's Forge: the first friendly non-token gear each turn. A token
+        // is not that gear, and this runs after the cost so the play itself
+        // still sees 0.
+        if (!card.isToken()) ps.gears_played_this_turn++;
         for (const auto& tag : card.tags) {
             if (tag == "Equipment") { ps.equipment_played_this_turn++; break; }
         }
     }
     int energy_spent = 0;
-    if (card.card_def_id != kInvalidId) {
+    if (auto charged = card.card_counters.find("__energy_charged");
+        charged != card.card_counters.end()) {
+        energy_spent = charged->second;
+        card.card_counters.erase("__energy_charged");
+    } else if (card.card_def_id != kInvalidId) {
         energy_spent = card_db_.get(card.card_def_id).energy_cost;
     }
     // Store the play location on the game object so resolvePermanent can use it.
@@ -4588,9 +4609,17 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
     if (card.card_def_id != kInvalidId) {
         energy_spent = card_db_.get(card.card_def_id).energy_cost;
     }
+    // beginCostPayment stamped the energy actually charged (after discounts,
+    // Repeat energy included). A path that never paid that way keeps the
+    // printed cost plus Repeat.
     int total_energy_spent = energy_spent + repeat_energy_spent;
+    if (auto charged = card.card_counters.find("__energy_charged");
+        charged != card.card_counters.end()) {
+        total_energy_spent = charged->second;
+        card.card_counters.erase("__energy_charged");
+    }
     // Snapshot on PlayerState so legend triggers can read it. Forgotten
-    // Library / Virtuoso gate on the TOTAL energy spent (base + repeats).
+    // Library / Virtuoso gate on the energy charged for the spell.
     ps.last_spell_energy_spent = total_energy_spent;
     // Track the most-expensive single spell paid for this turn (Jhin,
     // Meticulous Killer: "if you've spent [4]+ to play a spell this turn").
@@ -5792,6 +5821,9 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         // Route through chain like normal plays
         auto& ps = state_.player(intent.player);
         ps.cards_played_this_turn++;
+        // A facedown gear is still a gear played (Ornn's Forge). The cost was
+        // ignored, so this is the play that spends the first discount.
+        if (card.isGear() && !card.isToken()) ps.gears_played_this_turn++;
         // Hidden play is "ignoring its base cost" (CR 811) — energy_spent = 0.
         // Announced once it has entered (CR 383.4.a.2; resolvePermanent).
         // Played from face down = from somewhere other than hand.
@@ -10388,6 +10420,10 @@ GameEngine::CostPaymentAdvance GameEngine::beginCostPayment(
     }
     RIFT_TRACE(events_, "PAY_COST: " + card.name + " E=" + std::to_string(energy_needed) +
                      " P=" + std::to_string(power_needed));
+    // What this play charges, Repeat energy included, after discounts.
+    // finishPlaySpell / the permanent's play announcement read it. An ignored
+    // base is already 0 in energy_needed (effectiveCardCost).
+    card.card_counters["__energy_charged"] = std::max(0, energy_needed);
     // The amounts charged, pool included, before the cursor spends them rune
     // by rune. An ignored half is still named even when it came to zero.
     const bool ignore_energy = ps.transient_ignore_energy || adj.ignore_cost ||
@@ -10629,6 +10665,7 @@ bool GameEngine::payTrashReplayGrant(PlayerId player, GameObjectId card_id,
     // The grant's cost after increases and discounts (CR 356.3, 356.4) — the
     // same amounts generateTrashReplayActions checked (trashGrantCost).
     bool ok = state_.objectExists(card_id);
+    int charged_energy = 0;
     if (ok) {
         // With an "or" discount from a target ([1] or [A] less), the Energy
         // half is taken when that leaves the cost payable, else the Power half.
@@ -10653,11 +10690,17 @@ bool GameEngine::payTrashReplayGrant(PlayerId player, GameObjectId card_id,
             const EffectExecutor::ActingFor acting(*effect_executor_, card_id);
             ok = effect_executor_->payResources(player, 0, cost.extra_any, resource::kAnyDomain, f);
         }
-        if (ok)
+        if (ok) {
+            charged_energy = std::max(0, cost.energy);
             events_.notePlayCost(card_id, cost.energy, cost.power + cost.extra_any, false, false);
+        }
     }
-    if (ok && grant.banish_after && state_.objectExists(card_id))
-        state_.getObject(card_id).banish_on_leave_chain = true;
+    if (ok && state_.objectExists(card_id)) {
+        // The grant's energy is what this play charged (repeats already added).
+        state_.getObject(card_id).card_counters["__energy_charged"] = charged_energy;
+        if (grant.banish_after)
+            state_.getObject(card_id).banish_on_leave_chain = true;
+    }
 
     // Consume the grant whether or not payment fully succeeded — re-find since
     // payAdditionalCost may have mutated the vector indirectly (it does not,

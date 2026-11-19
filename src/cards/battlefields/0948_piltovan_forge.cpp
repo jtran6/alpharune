@@ -18,10 +18,12 @@ public:
     // "While you control this battlefield, the first friendly gear activated
     // ability played each turn costs [1] less." The engine applies the
     // published discount to the first gear ability its controller activates
-    // each turn (GameEngine::activationEnergyReduction).
+    // each turn (GameEngine::activationEnergyReduction). The field is cleared
+    // at the start of every aura pass and this hook runs once per battlefield,
+    // so each copy this player controls adds [1].
     void applyPassiveAura(GameState& state, PlayerId controller) const override {
         if (controller == PlayerId::None) return;
-        state.player(controller).first_gear_ability_discount = 1;
+        state.player(controller).first_gear_ability_discount += 1;
     }
 private:
     const CardDef def_ = [] {

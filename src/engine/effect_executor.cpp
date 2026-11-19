@@ -3408,8 +3408,14 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
         sps.cards_played_this_turn++;
         // Announced as it resolves (CR 420.4.a; finding G12).
         obj.card_counters[Card::kPlayedNotFromHand] = from_hand ? 0 : 1;
+        int charged = 0;
+        if (auto it = obj.card_counters.find("__energy_charged");
+            it != obj.card_counters.end()) {
+            charged = it->second;
+            obj.card_counters.erase("__energy_charged");
+        }
         events_.emit(CardPlayedEvent{card, player, obj.card_type,
-                                     sps.cards_played_this_turn});
+                                     sps.cards_played_this_turn, charged});
         queue_spell_(player, card);
         return true;
     }
@@ -3463,6 +3469,9 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
 
     auto& ps = state_.player(player);
     ps.cards_played_this_turn++;
+    // A non-token gear an effect plays spends Ornn's Forge's first discount.
+    // After the play is committed, so this play itself still saw 0.
+    if (obj.isGear() && !obj.isToken()) ps.gears_played_this_turn++;
 
     // Fire the card's onPlay hook (CR 355.1 "As you play me"). Without
     // this, cards played by Dazzling Aurora / Mirror Image / etc. via
@@ -3502,8 +3511,17 @@ bool EffectExecutor::playIgnoringCostDecided(PlayerId player, GameObjectId card,
 
     // One play: its play triggers are one batch (CR 383.3.d; testing phase U4).
     const SimultaneousTriggers together(state_.chain);
+    int charged = 0;
+    if (state_.objectExists(card)) {
+        auto& played = state_.getObject(card);
+        if (auto it = played.card_counters.find("__energy_charged");
+            it != played.card_counters.end()) {
+            charged = it->second;
+            played.card_counters.erase("__energy_charged");
+        }
+    }
     events_.emit(CardPlayedEvent{card, player, obj.card_type,
-        ps.cards_played_this_turn});
+        ps.cards_played_this_turn, charged});
     if (!from_hand && state_.objectExists(card))
         events_.emit(ObjectStateChangedEvent{card, "played_not_from_hand"});
     events_.emit(EnteredBoardEvent{card, player, obj.card_type,

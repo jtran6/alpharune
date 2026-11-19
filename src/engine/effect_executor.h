@@ -774,6 +774,17 @@ public:
                                GameObjectId subject = kInvalidId) {
         if (queue_trigger_) queue_trigger_(source, controller, trigger, subject);
     }
+    /// An Equipment's "When I conquer" (TriggerManager::queueEquippedTrigger):
+    /// the gear's printed text is inactive while attached, so it cannot go
+    /// through queueTriggeredAbility. The condition is checked and the item
+    /// carries equipped_unit. No-op without an engine (bare executor).
+    using QueueEquippedFn = std::function<void(GameObjectId, GameObjectId, PlayerId, TriggerType)>;
+    void setQueueEquipped(QueueEquippedFn fn) { queue_equipped_ = std::move(fn); }
+    bool canQueueEquipped() const { return static_cast<bool>(queue_equipped_); }
+    void queueEquippedAbility(GameObjectId gear, GameObjectId unit, PlayerId controller,
+                              TriggerType trigger) {
+        if (queue_equipped_) queue_equipped_(gear, unit, controller, trigger);
+    }
     /// [Accelerate] for a unit an effect plays without paying its cost
     /// (injected by the engine: GameEngine::offerAccelerateOnItsOwn). True if
     /// it was paid. Without it (a bare executor) nothing is offered.
@@ -943,6 +954,7 @@ private:
     CanAffordFn can_afford_;
     QueueSpellFn queue_spell_;
     QueueTriggerFn queue_trigger_;
+    QueueEquippedFn queue_equipped_;
     QueueReflexiveFn queue_reflexive_;
     RechooseFn rechoose_;
     PayCostFn pay_cost_;

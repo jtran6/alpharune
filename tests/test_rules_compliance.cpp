@@ -1560,6 +1560,49 @@ TEST_F(VendettaLastCardsTest, SandsweptTomb_DiscountsASpellThatChoosesAFriendlyU
     EXPECT_EQ(cast(there), 0) << "no discount for a unit at another battlefield";
 }
 
+TEST_F(VendettaLastCardsTest, SandsweptTomb_TwoTombsStackOnceEach) {
+    constexpr CardDefId kSandsweptTomb = 951;
+    constexpr CardDefId kClashOfGiants = 672;   // [6] + 2 Body, choose two units
+    setUpBoard();
+    setBattlefieldCard(0, kSandsweptTomb, std::nullopt);
+    setBattlefieldCard(1, kSandsweptTomb, std::nullopt);
+    engine_->testHook_cleanup();
+    auto a = engineUnit(P1, 1, /*at_bf=*/0);
+    auto b = engineUnit(P1, 1, /*at_bf=*/1);
+    struct PairAgent : AgentInterface {
+        GameObjectId first = kInvalidId, second = kInvalidId;
+        int n = 0;
+        Intent selectAction(const GameState&, const std::vector<Intent>& legal) override {
+            if (legal.empty()) return Intent{};
+            bool objects = false;
+            for (const auto& i : legal)
+                if (!i.chosen_objects.empty()) objects = true;
+            if (objects) {
+                const GameObjectId want = n++ == 0 ? first : second;
+                for (const auto& i : legal)
+                    if (!i.chosen_objects.empty() && i.chosen_objects.front() == want) return i;
+            }
+            for (const auto& i : legal)
+                if (i.type == IntentType::PassPriority) return i;
+            return legal.front();
+        }
+    } pair;
+    pair.first = a;
+    pair.second = b;
+    engine_->testHook_setAgents(&pair, &p2_);
+    s().player(P1).rune_pool.energy = 6;
+    s().player(P1).rune_pool.power[static_cast<int>(Domain::Body)] = 2;
+    auto spell = cardInHand(P1, kClashOfGiants);
+    Intent play;
+    play.type = IntentType::PlayCard;
+    play.player = P1;
+    play.card = spell;
+    engine_->testHook_executeIntent(play); settleLikeTheEngine(*engine_);
+    EXPECT_EQ(s().player(P1).rune_pool.power[static_cast<int>(Domain::Body)], 2)
+        << "one [A] from each tomb";
+    EXPECT_EQ(pair.n, 2);
+}
+
 TEST_F(VendettaLastCardsTest, NewChoices_TheNewControllerReChoosesTheTarget) {
     setUpBoard();
     auto original = engineUnit(P1, 2);

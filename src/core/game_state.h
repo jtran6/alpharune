@@ -155,7 +155,7 @@ struct PlayerState {
     // Per-turn tracking
     int cards_played_this_turn = 0;
     int equipment_played_this_turn = 0;  // gears tagged "Equipment" played this turn
-    int gears_played_this_turn = 0;      // any gear played this turn (Ornn's Forge)
+    int gears_played_this_turn = 0;      // non-token gears played this turn (Ornn's Forge)
     bool has_discarded_this_turn = false;
     std::set<BattlefieldId> battlefields_scored_this_turn;
     bool burned_out = false;

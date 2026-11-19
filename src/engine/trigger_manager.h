@@ -57,6 +57,13 @@ public:
                       GameObjectId subject = kInvalidId) {
         fireTrigger(source, controller, 0, trigger, subject);
     }
+    /// An Equipment's "When I ..." as if it had just triggered
+    /// (EffectExecutor::queueEquippedAbility). The condition is checked and
+    /// the item carries the unit (ChainItem::equipped_unit).
+    void queueEquipped(GameObjectId gear, GameObjectId unit, PlayerId controller,
+                       TriggerType trigger) {
+        queueEquippedTrigger(gear, unit, controller, trigger);
+    }
 
 
 private:

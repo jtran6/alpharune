@@ -35,14 +35,16 @@ public:
         if (!my_bf || unit.battlefieldId() != my_bf) return false;
         for (const auto& bf : state.battlefields)
             if (bf.id == *my_bf && !bf.combat_in_progress) return false;
-        return payableAnyPower(state, unit.controller) >= 3;
+        return true;
     }
     bool applyReplacement(CardContext& ctx, GameObjectId dying_unit) override {
-        // "here ... during combat", and "its controller may pay [A][A][A]" is
-        // offered only when payable (replacementApplies).
+        // "here ... during combat". The [A][A][A] is offered when it can be
+        // paid, counting [Add] abilities (canPayAnyPower). Pool and runes
+        // alone are not the whole payment.
         if (!replacementApplies(ctx.state, ctx.source, ctx.controller, dying_unit)) return false;
         auto& unit = ctx.state.getObject(dying_unit);
         const PlayerId payer = unit.controller;
+        if (!ctx.executor.canPayAnyPower(payer, 3)) return false;
         if (!ctx.executor.confirmNow(payer, "Altar of Blood: pay [A][A][A] to heal, exhaust "
                                             "and recall " + unit.name + "?"))
             return false;
