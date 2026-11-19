@@ -171,7 +171,8 @@ void TriggerManager::onDamageDealt(const DamageDealtEvent& e) {
 
 void TriggerManager::checkDelayedAbilities(TriggerType trigger,
                                             PlayerId relevant_player,
-                                            GameObjectId event_object) {
+                                            GameObjectId event_object,
+                                            bool include_repeats) {
     // Decide what fires first, on a copy: queueing an ability emits events,
     // and a handler may add a delayed ability (the vector can reallocate) —
     // one added now did not see this event and must not fire for it.
@@ -179,6 +180,7 @@ void TriggerManager::checkDelayedAbilities(TriggerType trigger,
     for (auto& da : state_.delayed_abilities) {
         if (da.fired) continue;
         if (da.trigger != trigger) continue;
+        if (!include_repeats && da.repeats) continue;
         if (da.watches() != relevant_player) continue;
         // Object-scoped delayed abilities (e.g. Deadly Flourish: "when IT
         // dies") fire only for the specific target. kInvalidId = unscoped.
@@ -218,6 +220,26 @@ void TriggerManager::checkDelayedAbilities(TriggerType trigger,
             dcard && dcard->triggeredAbilityAdds(trigger) && resolve_add_now_)
             resolve_add_now_(item_id, oc_before, chain_was_empty);
     }
+}
+
+bool TriggerManager::hasPendingEndOfTurn() const {
+    const PlayerId turn = state_.turn.turn_player;
+    const PlayerId opp = opponent(turn);
+    for (const auto& da : state_.delayed_abilities) {
+        if (da.fired || da.repeats || da.trigger != TriggerType::AtEndOfTurn) continue;
+        const PlayerId who = da.watches();
+        if (who == turn || who == opp) return true;
+    }
+    return false;
+}
+
+void TriggerManager::collectPendingEndOfTurn() {
+    // One-shots only. A repeating "this turn" ability was queued when the
+    // Ending Step was announced and stays until it expires; collecting it
+    // again would put it on the chain once per pass.
+    const PlayerId turn = state_.turn.turn_player;
+    checkDelayedAbilities(TriggerType::AtEndOfTurn, turn, kInvalidId, false);
+    checkDelayedAbilities(TriggerType::AtEndOfTurn, opponent(turn), kInvalidId, false);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

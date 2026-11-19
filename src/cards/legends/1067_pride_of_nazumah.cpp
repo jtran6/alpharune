@@ -21,11 +21,21 @@ public:
         c.energy = 1; c.exhaust = true;
         return c;
     }
+    // Shield this object has right now: its own value, plus each aura or
+    // Equipment instance. A bare [Shield] is 1, the same as the aura fold.
+    // 0 stays 0 — there is no instance to round up.
+    static int shieldNow(const GameObject& u) {
+        int n = std::max(0, u.shield_value);
+        for (const auto& ae : u.aura_effects)
+            if (ae.keyword == Keyword::Shield) n += std::max(1, ae.keyword_value);
+        return n;
+    }
     // "I have [Assault] equal to my [Shield]" this turn, including 0. A
     // granted Assault of 0 is +0 [M]: the aura fold's Assault is at least 1,
-    // so this is written on the unit and moved when its Shield changes.
+    // so this is written on the unit. A second call with the same Shield
+    // adds nothing.
     static void syncAssault(GameObject& u) {
-        const int want = std::max(0, u.shield_value);
+        const int want = shieldNow(u);
         const int have = u.card_counters.count("__pride_have")
                              ? u.card_counters["__pride_have"] : 0;
         const int delta = want - have;
@@ -53,30 +63,41 @@ public:
         if (t == kInvalidId || !ctx.state.objectExists(t)) return;
         auto& u = ctx.state.getObject(t);
         u.card_counters["__pride_turn"] = ctx.state.turn.turn_number + 1;   // +1 so 0 = never
+        // The unit this ability was given to. A new life (it left the board)
+        // is not this one (CR 124.1).
+        u.card_counters["__pride_life"] = static_cast<int>(u.zone.incarnation());
         syncAssault(u);
     }
-    // A later Shield change this turn moves the Assault. The Expiration
-    // Step has already taken the temporary value back; do not put it on again.
-    void applyPassiveAura(GameState& state, PlayerId controller) const override {
-        forEachSelfOnce(*this, state, controller, [&](GameObjectId, GameObject&) {
-            std::vector<GameObjectId> units;
-            for (auto& [id, u] : state.objects.onBoard()) {
-                if (!u.isUnit() || !u.location.has_value() || u.controller != controller) continue;
-                const auto it = u.card_counters.find("__pride_turn");
-                if (it == u.card_counters.end() || it->second != state.turn.turn_number + 1) continue;
-                units.push_back(id);
+    // After every ordinary aura, so Shield from an aura or from Equipment is
+    // already on the unit. A later change this turn moves the Assault. The
+    // ability is the unit's: a control change does not freeze the old number.
+    bool hasMightDependentAura() const override { return true; }
+    void applyMightDependentAura(GameState& state, PlayerId) const override {
+        std::vector<GameObjectId> units;
+        for (auto& [id, u] : state.objects.onBoard()) {
+            if (!u.isUnit() || !u.location.has_value()) continue;
+            const auto it = u.card_counters.find("__pride_turn");
+            if (it == u.card_counters.end() || it->second != state.turn.turn_number + 1) continue;
+            units.push_back(id);
+        }
+        const bool expired = state.turn.phase == TurnPhase::ExpirationStep;
+        for (auto id : units) {
+            if (!state.objectExists(id)) continue;
+            auto& u = state.getObject(id);
+            const auto life = u.card_counters.find("__pride_life");
+            const bool same = life != u.card_counters.end() &&
+                              life->second == static_cast<int>(u.zone.incarnation());
+            // The Expiration Step has already taken the temporary value back.
+            // A unit that left and came back is a new object and does not
+            // keep the grant.
+            if (expired || !same) {
+                u.card_counters.erase("__pride_turn");
+                u.card_counters.erase("__pride_have");
+                u.card_counters.erase("__pride_life");
+                continue;
             }
-            for (auto id : units) {
-                if (!state.objectExists(id)) continue;
-                auto& u = state.getObject(id);
-                if (state.turn.phase == TurnPhase::ExpirationStep) {
-                    u.card_counters.erase("__pride_turn");
-                    u.card_counters.erase("__pride_have");
-                    continue;
-                }
-                syncAssault(u);
-            }
-        });
+            syncAssault(u);
+        }
     }
 
 private:

@@ -1,10 +1,16 @@
-// The five legend defects from the legend audit.
+// The five legend defects from the legend audit, and the lines a paid unit
+// from hand does not play.
 // Boy Who Shattered Time: the kill ends with the turn, and an end-of-turn
-// ability is not queued when there is no unit to kill.
+// ability is not queued when there is no unit to kill. The [2][A] and the
+// kill are the same unit: a facedown or ignore-cost play spends both, a
+// countered kill does not move to a later unit, and a unit played during the
+// Ending Step is still killed.
 // The Exile: a unit token played to a battlefield that player controls enters
 // ready. The line does not reduce energy.
 // Pride of Nazumah: Assault equals Shield this turn, including 0, and follows
-// a later Shield change.
+// a later Shield change. Shield from an aura or an Equipment counts. The
+// grant ends when the unit leaves the board, a second activation does not
+// add another Assault, and a control change does not freeze the old number.
 // Iron Revenant: the ability is not offered, and the legend is not exhausted,
 // when the trash has no unit or gear.
 // Agony's Embrace: the ability is queued only for a facedown play, and only
@@ -95,6 +101,63 @@ protected:
             settleLikeTheEngine(e);
         });
     }
+
+    // A second legend in the zone, beside the one legend() seated.
+    GameObjectId legendBeside(PlayerId owner, CardDefId def_id) {
+        auto id = state.createObject();
+        auto& obj = state.getObject(id);
+        obj.card_def_id = def_id;
+        obj.name = card_db.get(def_id).name;
+        obj.card_type = CardType::Legend;
+        obj.owner = owner;
+        obj.controller = owner;
+        obj.zone = ZoneType::LegendZone;
+        return id;
+    }
+
+    GameObjectId gearOnBoard(PlayerId owner, CardDefId def_id) {
+        auto id = state.createObject();
+        auto& obj = state.getObject(id);
+        obj.card_def_id = def_id;
+        obj.name = card_db.get(def_id).name;
+        obj.card_type = CardType::Gear;
+        obj.owner = owner;
+        obj.controller = owner;
+        if (def_id != kInvalidId) {
+            const auto& def = card_db.get(def_id);
+            obj.tags = def.tags;
+            obj.keywords = def.keywords;
+            obj.might_bonus = def.might_bonus;
+        }
+        obj.zone = ZoneType::Base;
+        obj.location = BaseLocation{owner};
+        return id;
+    }
+
+    void activatePride(GameObjectId unit) {
+        state.player(P1).rune_pool.energy = 1;
+        state.getObject(state.player(P1).legend_zone).is_exhausted = false;
+        Intent act;
+        act.type = IntentType::ActivateAbility;
+        act.player = P1;
+        act.ability_source = state.player(P1).legend_zone;
+        EnginePathAgent agent(EnginePathAgent::choosing(unit));
+        withEngine([&](GameEngine& e) {
+            e.testHook_executeIntent(act);
+            settleLikeTheEngine(e);
+        }, &agent);
+    }
+
+    // Pay the printed cost from floating Energy added here, on top of whatever
+    // the pool already holds. What is left is the discount: a [2] reduction
+    // on a card that costs [2] leaves the Energy that was added.
+    int energyAfterPaying(GameObjectId card) {
+        const PlayerId player = state.getObject(card).controller;
+        const auto& def = card_db.get(state.getObject(card).card_def_id);
+        state.player(player).rune_pool.energy += def.energy_cost;
+        playThroughEngine(card, nullptr, std::nullopt, nullptr, /*fund=*/false);
+        return state.player(player).rune_pool.energy;
+    }
 };
 
 TEST_F(LegendDefects, BoyKillEndsWithTheTurnAndNoEmptyEndOfTurnAbility) {
@@ -135,6 +198,118 @@ TEST_F(LegendDefects, BoyKillsTheUnitPlayedThisTurn) {
     EXPECT_EQ(state.player(P1).rune_pool.energy, 2);
     ASSERT_TRUE(state.getObject(unit).location.has_value());
     withEngine([&](GameEngine& e) { e.testHook_endingStep(); });
+    EXPECT_FALSE(state.getObject(unit).location.has_value());
+    EXPECT_TRUE(inTrash(P1, unit));
+}
+
+// A facedown unit is the next unit. It takes the kill, and it takes the
+// discount too: the next unit paid from hand is full price and lives.
+TEST_F(LegendDefects, BoyFacedownPlaySpendsTheDiscountWithTheKill) {
+    auto boy = legend(P1, 1062);
+    activateBoy(boy);
+    addUnit(P1, 13, 0, 0);
+    state.battlefields[0].controller = P1;
+    auto facedown = hide(P1, 135, 0, 1);
+    Intent play;
+    play.type = IntentType::PlayCard;
+    play.player = P1;
+    play.card = facedown;
+    withEngine([&](GameEngine& e) {
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+    });
+    EXPECT_TRUE(state.player(P1).cost_modifiers.empty());
+    ASSERT_TRUE(state.getObject(facedown).location.has_value());
+
+    auto paid = addToHand(P1, 13);
+    EXPECT_EQ(energyAfterPaying(paid), 0);
+    ASSERT_TRUE(state.getObject(paid).location.has_value());
+
+    withEngine([&](GameEngine& e) { e.testHook_endingStep(); });
+    EXPECT_TRUE(inTrash(P1, facedown));
+    EXPECT_FALSE(inTrash(P1, paid));
+    EXPECT_TRUE(state.getObject(paid).location.has_value());
+}
+
+// A unit an effect plays while ignoring its cost is that same next unit.
+TEST_F(LegendDefects, BoyIgnoreCostPlaySpendsTheDiscountWithTheKill) {
+    auto boy = legend(P1, 1062);
+    activateBoy(boy);
+    auto free = addToHand(P1, 13);
+    withEngine([&](GameEngine& e) {
+        ASSERT_TRUE(e.testHook_executor().playIgnoringCost(
+            P1, free, LocationId{BaseLocation{P1}}));
+        settleLikeTheEngine(e);
+    });
+    EXPECT_TRUE(state.player(P1).cost_modifiers.empty());
+    ASSERT_TRUE(state.getObject(free).location.has_value());
+
+    auto paid = addToHand(P1, 13);
+    EXPECT_EQ(energyAfterPaying(paid), 0);
+    ASSERT_TRUE(state.getObject(paid).location.has_value());
+
+    withEngine([&](GameEngine& e) { e.testHook_endingStep(); });
+    EXPECT_TRUE(inTrash(P1, free));
+    EXPECT_FALSE(inTrash(P1, paid));
+    EXPECT_TRUE(state.getObject(paid).location.has_value());
+}
+
+// Countering the kill does not hand it to a later unit. The discount was
+// already this unit's: the later one is full price, and neither dies.
+TEST_F(LegendDefects, BoyCounteredKillDoesNotPassToALaterUnit) {
+    auto boy = legend(P1, 1062);
+    activateBoy(boy);
+    auto first = addToHand(P1, 13);
+    state.player(P1).rune_pool.energy = 2;
+    withEngine([&](GameEngine& e) {
+        bool countered = false;
+        auto conn = events.on_chain_item_finalized.connect(
+            [&](const ChainItemFinalizedEvent& ev) {
+                if (countered || ev.source != boy) return;
+                for (const auto& ci : e.mutableState().chain.items) {
+                    if (ci.id != ev.item || ci.fired_trigger != TriggerType::WhenYouPlayAUnit)
+                        continue;
+                    countered = true;
+                    // What a counter does: the item leaves the chain after it
+                    // is finalized and before it resolves (CR 355.9.a.2).
+                    e.testHook_executor().removeChainItem(ev.item);
+                    return;
+                }
+            });
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = first;
+        play.play_location = LocationId{BaseLocation{P1}};
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+        conn.disconnect();
+        EXPECT_TRUE(countered);
+    });
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 2);
+    EXPECT_TRUE(state.player(P1).cost_modifiers.empty());
+    ASSERT_TRUE(state.getObject(first).location.has_value());
+
+    auto later = addToHand(P1, 13);
+    EXPECT_EQ(energyAfterPaying(later), 2);
+    ASSERT_TRUE(state.getObject(later).location.has_value());
+
+    withEngine([&](GameEngine& e) { e.testHook_endingStep(); });
+    EXPECT_TRUE(state.getObject(first).location.has_value());
+    EXPECT_FALSE(inTrash(P1, first));
+    EXPECT_TRUE(state.getObject(later).location.has_value());
+    EXPECT_FALSE(inTrash(P1, later));
+}
+
+// The discounted unit, played while the Ending Step's chain is resolving,
+// is still killed at end of turn.
+TEST_F(LegendDefects, BoyKillsTheDiscountedUnitPlayedDuringTheEndingStep) {
+    auto boy = legend(P1, 1062);
+    activateBoy(boy);
+    gearOnBoard(P1, 160);   // Dazzling Aurora: at end of turn, play a unit ignoring its cost
+    auto unit = addToDeck(P1, 13);
+    withEngine([&](GameEngine& e) { e.testHook_endingStep(); });
+    EXPECT_TRUE(state.player(P1).cost_modifiers.empty());
     EXPECT_FALSE(state.getObject(unit).location.has_value());
     EXPECT_TRUE(inTrash(P1, unit));
 }
@@ -207,6 +382,83 @@ TEST_F(LegendDefects, PrideAssaultEqualsShieldAndFollowsIt) {
     withEngine([&](GameEngine& e) { e.testHook_cleanup(); });
     EXPECT_EQ(state.getObject(unit).assault_value, 0);
     EXPECT_EQ(state.getObject(unit).current_might, 3);
+}
+
+// Shield from an aura (Mechanized Menace's bare [Shield] on a Mech) and from
+// Equipment counts, including a change later this turn. 0 is the existing
+// shield_value case above.
+TEST_F(LegendDefects, PrideAssaultFollowsAuraAndEquipmentShield) {
+    legend(P1, 1067);
+    legendBeside(P1, 551);
+    auto mech = addUnit(P1, 88, 3, 0);
+    state.battlefields[0].controller = P1;
+    combatInProgress(0, P1);
+    state.getObject(mech).shield_value = 0;
+    activatePride(mech);
+    EXPECT_EQ(state.getObject(mech).assault_value, 1);
+    EXPECT_EQ(state.getObject(mech).current_might, 4);
+    EXPECT_TRUE(state.getObject(mech).hasKeyword(Keyword::Assault));
+
+    auto armor = gearOnBoard(P1, 387);
+    withEngine([&](GameEngine& e) {
+        ASSERT_TRUE(e.testHook_executor().attachGear(armor, mech));
+        e.testHook_cleanup();
+    });
+    EXPECT_EQ(state.getObject(mech).assault_value, 3);
+    EXPECT_EQ(state.getObject(mech).current_might, 6);
+    EXPECT_TRUE(state.getObject(mech).hasKeyword(Keyword::Assault));
+}
+
+// The grant is this object, this turn. A second activation does not add a
+// second Assault. Bounce and replay: the new object does not keep it, even
+// once it has Shield again.
+TEST_F(LegendDefects, PrideGrantEndsWhenTheUnitLeavesAndDoesNotStack) {
+    legend(P1, 1067);
+    auto unit = addUnit(P1, 13, 3, 0);
+    state.battlefields[0].controller = P1;
+    combatInProgress(0, P1);
+    state.getObject(unit).shield_value = 3;
+    activatePride(unit);
+    EXPECT_EQ(state.getObject(unit).assault_value, 3);
+    EXPECT_EQ(state.getObject(unit).current_might, 6);
+
+    activatePride(unit);
+    EXPECT_EQ(state.getObject(unit).assault_value, 3);
+    EXPECT_EQ(state.getObject(unit).current_might, 6);
+
+    withEngine([&](GameEngine& e) { e.testHook_executor().bounceToHand(unit); });
+    EXPECT_FALSE(state.getObject(unit).location.has_value());
+    EXPECT_TRUE(inHand(P1, unit));
+    playThroughEngine(unit);
+    state.getObject(unit).shield_value = 5;
+    withEngine([&](GameEngine& e) { e.testHook_cleanup(); });
+    EXPECT_EQ(state.getObject(unit).assault_value, 0);
+    EXPECT_FALSE(state.getObject(unit).hasKeyword(Keyword::Assault));
+    EXPECT_EQ(state.getObject(unit).current_might, state.getObject(unit).base_might);
+}
+
+// The ability is the unit's for the turn. A later Shield change after control
+// passes still moves Assault, and the turn's end takes the grant off.
+TEST_F(LegendDefects, PrideAssaultFollowsShieldAfterControlChanges) {
+    legend(P1, 1067);
+    auto unit = addUnit(P1, 13, 3);
+    state.getObject(unit).shield_value = 2;
+    activatePride(unit);
+    EXPECT_EQ(state.getObject(unit).assault_value, 2);
+
+    withEngine([&](GameEngine& e) {
+        e.testHook_executor().takeControl(unit, P2);
+        e.testHook_cleanup();
+    });
+    EXPECT_EQ(state.getObject(unit).controller, P2);
+    state.getObject(unit).shield_value = 6;
+    withEngine([&](GameEngine& e) { e.testHook_cleanup(); });
+    EXPECT_EQ(state.getObject(unit).assault_value, 6);
+    EXPECT_TRUE(state.getObject(unit).hasKeyword(Keyword::Assault));
+
+    withEngine([&](GameEngine& e) { e.testHook_expirationStep(); });
+    EXPECT_EQ(state.getObject(unit).assault_value, 0);
+    EXPECT_FALSE(state.getObject(unit).hasKeyword(Keyword::Assault));
 }
 
 TEST_F(LegendDefects, IronRevenantIsNotOfferedWithNothingToBanish) {

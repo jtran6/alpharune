@@ -60,6 +60,23 @@ public:
         if (it == c.end() || it->second != state.turn.turn_number + 1) return false;
         return !triggeredAbilityOnChain(state, source, trigger);
     }
+    // The discount and the kill are spent on this unit as it is accepted,
+    // not as the ability resolves. A facedown play and a play that ignores
+    // its cost never enter beginCostPayment, so the [2][A] is still here and
+    // is spent with the kill: the next unit paid from hand is not cheaper.
+    // A counter takes this ability off the chain before it resolves; the
+    // stamp is already spent, so the death does not move to a later unit.
+    void acceptTrigger(GameState& state, const TriggerEvent& ev) const override {
+        if (ev.trigger != TriggerType::WhenYouPlayAUnit) return;
+        if (!state.objectExists(ev.source)) return;
+        state.getObject(ev.source).card_counters["__boy_kill"] = 0;
+        auto& mods = state.player(ev.controller).cost_modifiers;
+        mods.erase(std::remove_if(mods.begin(), mods.end(),
+                        [&](const PlayerState::CostModifier& m) {
+                            return m.next_unit_only && m.source == ev.source;
+                        }),
+                   mods.end());
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         // The delayed "Kill me at end of turn" (atEndOfTurnAbout). It is the
         // only AtEndOfTurn this card resolves: the legend itself does not
@@ -71,7 +88,6 @@ public:
             return;
         }
         if (!ctx.state.objectExists(ctx.source)) return;
-        ctx.state.getObject(ctx.source).card_counters["__boy_kill"] = 0;
         if (!ctx.state.chain.resuming) return;
         const auto sub = ctx.state.chain.resuming->triggering_subject;
         // No unit: do not queue an empty end-of-turn ability.

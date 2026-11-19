@@ -1493,6 +1493,25 @@ void GameEngine::endingStep() {
     // Aurora plays that becomes Mighty, a death): nothing is pending when the
     // Expiration Step begins (CR 335).
     settleStagedAndChain();
+
+    // The collection above ran as the step was announced. A unit played
+    // while that chain resolved can be given "Kill me at end of turn" only
+    // after it, and the Expiration Step would otherwise erase that delayed
+    // ability unfired (CR 317.1.a). Collect again until nothing new is
+    // waiting. One that queues another is collected too.
+    constexpr int kMaxLateEndOfTurn = 8;
+    for (int pass = 0; pass < kMaxLateEndOfTurn; ++pass) {
+        if (state_.game_over || !trigger_manager_->hasPendingEndOfTurn()) break;
+        const ChainItemId before = state_.chain.next_id;
+        trigger_manager_->collectPendingEndOfTurn();
+        if (!settleStagedAndChain()) return;
+        if (state_.chain.next_id == before && !trigger_manager_->hasPendingEndOfTurn()) break;
+        if (pass + 1 == kMaxLateEndOfTurn && trigger_manager_->hasPendingEndOfTurn())
+            throw std::logic_error(
+                "GameEngine::endingStep: \"at end of turn\" abilities queued during the "
+                "Ending Step were still waiting after " +
+                std::to_string(kMaxLateEndOfTurn) + " passes (CR 317.1.a)");
+    }
 }
 
 void GameEngine::expireTemporaryKeywords(GameObject& obj, const CardDB& db) {

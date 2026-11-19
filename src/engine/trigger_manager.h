@@ -46,6 +46,14 @@ public:
     /// Connect to all event bus signals. Call once after construction.
     void subscribe();
 
+    /// A delayed "at end of turn" ability is still waiting. The Ending Step
+    /// collects these as it is announced; one queued while that chain
+    /// resolves (a unit played then and given "Kill me at end of turn") is
+    /// still this turn's.
+    bool hasPendingEndOfTurn() const;
+    /// Put those waiting abilities on the chain, for both players.
+    void collectPendingEndOfTurn();
+
     /// Put `source`'s triggered ability for `trigger` on the chain as if the
     /// event had happened (EffectExecutor::queueTriggeredAbility).
     /// Put a reflexive trigger on the chain (EffectExecutor::
@@ -80,7 +88,8 @@ private:
 
     /// Check and fire any delayed abilities matching a trigger type.
     void checkDelayedAbilities(TriggerType trigger, PlayerId relevant_player,
-                                GameObjectId event_object = kInvalidId);
+                                GameObjectId event_object = kInvalidId,
+                                bool include_repeats = true);
 
     // ── Equipment triggers ──
 
