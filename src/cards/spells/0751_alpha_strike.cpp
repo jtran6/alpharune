@@ -75,13 +75,15 @@ public:
             });
         if (!splitDamageAmong(ctx, "Alpha Strike", total, src, legal, damaged)) return;
 
-        // The damage is marked here. The kill is the cleanup after the spell
-        // (CR 142.4.a), together with units that were already lethal. XP is
-        // for a unit this spell's damage will kill, queued before that cleanup.
+        // The damage is only marked. The kill is the cleanup after the spell
+        // (CR 142.4.a). XP is for a unit that cleanup kills: damageKills,
+        // including an Elder Dragon kill short of Might (CR 142.4.c), and not
+        // a death a replacement keeps from happening.
         int kills = 0;
         for (auto id : damaged) {
-            if (!ctx.state.objectExists(id)) continue;
-            if (ctx.state.getObject(id).hasLethalDamage()) ++kills;
+            if (!ctx.executor.damageKills(id)) continue;
+            if (ctx.executor.couldReplaceDeath(id)) continue;
+            ++kills;
         }
         // "Then for each unit this kills, do this: Gain 1 XP." — one
         // reflexive trigger per unit killed (CR 388.1.a, 389.2), each a chain

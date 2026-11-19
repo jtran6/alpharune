@@ -761,6 +761,98 @@ TEST_F(SignatureDefectTest, Chronobreak_AnyAmountIsNotCapped) {
     EXPECT_TRUE(o(kept).location.has_value()) << "the one unit is played back";
 }
 
+// Twenty-one units are still here when the spell resolves. Each one is played
+// back. One unit never asks for an order, so it cannot see the stored list
+// run into the play-order prompt.
+TEST_F(SignatureDefectTest, Chronobreak_TwentyOneUnitsArePlayedBack) {
+    std::vector<GameObjectId> units;
+    for (int i = 0; i < 21; ++i) units.push_back(addUnit(P1, kInvalidId, 1));
+    auto spell = addToHand(P1, kChrono);
+    state.player(P1).rune_pool.universal_power = 21;
+    fund(spell);
+    EnginePathAgent agent([](const std::vector<Intent>& legal) {
+        bool objects = false;
+        int highest = -1;
+        for (const auto& i : legal) {
+            if (!i.chosen_objects.empty()) objects = true;
+            if (i.chosen_value.has_value()) highest = std::max(highest, *i.chosen_value);
+        }
+        if (!objects && highest >= 21) {
+            for (const auto& i : legal)
+                if (i.chosen_value.has_value() && *i.chosen_value == 21) return i;
+        }
+        for (const auto& i : legal)
+            if (i.chosen_value.has_value() && *i.chosen_value == 0) return i;
+        return legal.front();
+    });
+    play(spell, &agent);
+    int back = 0;
+    for (auto id : units)
+        if (o(id).location.has_value()) ++back;
+    EXPECT_EQ(back, 21);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
+}
+
+// A death the cleanup replaces is not a kill, so it grants no XP.
+TEST_F(SignatureDefectTest, AlphaStrike_AReplacedDeathGrantsNoXp) {
+    auto striker = addUnit(P1, kInvalidId, 4);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    o(victim).death_replacement_recall_pending = true;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent agent([victim](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == victim) return i;
+        for (const auto& i : legal)
+            if (i.chosen_objects.empty() && i.chosen_value.has_value() && *i.chosen_value == 0)
+                return i;
+        return legal.front();
+    });
+    play(spell, &agent, true, {striker});
+    EXPECT_TRUE(o(victim).location.has_value()) << "healed, exhausted, and recalled";
+    EXPECT_EQ(state.player(P1).xp, 0);
+}
+
+// Smite's "banish it instead" is the same: the unit does not die.
+TEST_F(SignatureDefectTest, AlphaStrike_ABanishInsteadGrantsNoXp) {
+    auto striker = addUnit(P1, kInvalidId, 4);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    o(victim).banish_if_would_die_this_turn = true;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent agent([victim](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == victim) return i;
+        for (const auto& i : legal)
+            if (i.chosen_objects.empty() && i.chosen_value.has_value() && *i.chosen_value == 0)
+                return i;
+        return legal.front();
+    });
+    play(spell, &agent, true, {striker});
+    EXPECT_EQ(o(victim).zone.get(), ZoneType::Banishment);
+    EXPECT_EQ(state.player(P1).xp, 0);
+}
+
+// Elder Dragon: any of the opponent's damage kills, even short of Might.
+TEST_F(SignatureDefectTest, AlphaStrike_AnElderDragonKillGrantsXp) {
+    auto striker = addUnit(P1, kInvalidId, 1);
+    addUnit(P1, 680, 8);
+    auto victim = addUnit(P2, kInvalidId, 5, 0);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent agent([victim](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == victim) return i;
+        for (const auto& i : legal)
+            if (i.chosen_objects.empty() && i.chosen_value.has_value() && *i.chosen_value == 1)
+                return i;
+        for (const auto& i : legal)
+            if (i.chosen_objects.empty() && i.chosen_value.has_value() && *i.chosen_value == 0)
+                return i;
+        return legal.front();
+    });
+    play(spell, &agent, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
 }  // namespace
 }  // namespace signature_defects
 }  // namespace riftbound::test
