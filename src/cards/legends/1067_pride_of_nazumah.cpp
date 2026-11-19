@@ -21,12 +21,62 @@ public:
         c.energy = 1; c.exhaust = true;
         return c;
     }
+    // "I have [Assault] equal to my [Shield]" this turn, including 0. A
+    // granted Assault of 0 is +0 [M]: the aura fold's Assault is at least 1,
+    // so this is written on the unit and moved when its Shield changes.
+    static void syncAssault(GameObject& u) {
+        const int want = std::max(0, u.shield_value);
+        const int have = u.card_counters.count("__pride_have")
+                             ? u.card_counters["__pride_have"] : 0;
+        const int delta = want - have;
+        if (delta != 0) {
+            u.assault_value += delta;
+            u.temp_assault_value += delta;
+            if (u.assault_value < 0) u.assault_value = 0;
+            if (u.temp_assault_value < 0) u.temp_assault_value = 0;
+            u.card_counters["__pride_have"] = want;
+        }
+        if (want > 0) {
+            u.keywords.set(Keyword::Assault);
+            u.temp_keywords.set(Keyword::Assault);
+        } else if (u.assault_value <= 0) {
+            u.assault_value = 0;
+            u.temp_assault_value = 0;
+            u.keywords.clear(Keyword::Assault);
+            u.temp_keywords.clear(Keyword::Assault);
+        }
+        u.recomputeMight();
+    }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
         auto t = pickTarget(ctx, "Pride of Nazumah: Assault equal to Shield", units);
-        if (t == kInvalidId) return;
-        int shield = std::max(1, ctx.state.getObject(t).shield_value);
-        ctx.executor.giveTemporaryKeyword(t, Keyword::Assault, shield);
+        if (t == kInvalidId || !ctx.state.objectExists(t)) return;
+        auto& u = ctx.state.getObject(t);
+        u.card_counters["__pride_turn"] = ctx.state.turn.turn_number + 1;   // +1 so 0 = never
+        syncAssault(u);
+    }
+    // A later Shield change this turn moves the Assault. The Expiration
+    // Step has already taken the temporary value back; do not put it on again.
+    void applyPassiveAura(GameState& state, PlayerId controller) const override {
+        forEachSelfOnce(*this, state, controller, [&](GameObjectId, GameObject&) {
+            std::vector<GameObjectId> units;
+            for (auto& [id, u] : state.objects.onBoard()) {
+                if (!u.isUnit() || !u.location.has_value() || u.controller != controller) continue;
+                const auto it = u.card_counters.find("__pride_turn");
+                if (it == u.card_counters.end() || it->second != state.turn.turn_number + 1) continue;
+                units.push_back(id);
+            }
+            for (auto id : units) {
+                if (!state.objectExists(id)) continue;
+                auto& u = state.getObject(id);
+                if (state.turn.phase == TurnPhase::ExpirationStep) {
+                    u.card_counters.erase("__pride_turn");
+                    u.card_counters.erase("__pride_have");
+                    continue;
+                }
+                syncAssault(u);
+            }
+        });
     }
 
 private:

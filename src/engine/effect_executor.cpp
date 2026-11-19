@@ -2590,10 +2590,28 @@ GameObjectId EffectExecutor::createToken(PlayerId controller, CardType type,
         (state_.player(controller).units_enter_ready_this_turn ||
          state_.player(controller).otherUnitsEnterReady(obj.id)))
         enter_ready = true;
+    // "Units you play to battlefields you control enter ready" (The Exile).
+    // A unit token is played (CR 350.2). The card-play paths already read
+    // this flag; the token's play does too. The line does not reduce a cost.
+    bool ready_at_your_battlefield = false;
+    if (type == CardType::Unit &&
+        state_.player(controller).units_enter_ready_at_your_bf &&
+        std::holds_alternative<BattlefieldLocation>(location)) {
+        const auto raw = static_cast<size_t>(std::get<BattlefieldLocation>(location).id.raw());
+        if (raw < state_.battlefields.size()) {
+            const auto& slot = state_.battlefields[raw];
+            if (slot.controller.has_value() && *slot.controller == controller) {
+                enter_ready = true;
+                ready_at_your_battlefield = true;
+            }
+        }
+    }
     // Units enter exhausted unless ready; anything enters exhausted when its
-    // instruction says so and "your tokens enter ready" does not replace that.
+    // instruction says so and "your tokens enter ready" (or The Exile, at a
+    // battlefield that player controls) does not replace that.
     obj.is_exhausted = (!enter_ready && type == CardType::Unit) ||
-                       (enters_exhausted && !state_.player(controller).tokens_enter_ready);
+                       (enters_exhausted && !state_.player(controller).tokens_enter_ready &&
+                        !ready_at_your_battlefield);
 
     if (std::holds_alternative<BaseLocation>(location)) {
         obj.zone = ZoneType::Base;
