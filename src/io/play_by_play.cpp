@@ -110,6 +110,8 @@ PlayByPlay::PlayByPlay(const GameState& state, EventBus& events)
         [this](const DamageDealtEvent& e) { onDamage(e); }));
     connections_.emplace_back(events.on_object_state_changed.connect(
         [this](const ObjectStateChangedEvent& e) { onStateChanged(e); }));
+    connections_.emplace_back(events.on_predicted.connect(
+        [this](const PredictEvent& e) { onPredicted(e); }));
 }
 
 PlayByPlay::~PlayByPlay() { events_.watchPlayCosts(false); }
@@ -345,6 +347,16 @@ void PlayByPlay::onDamage(const DamageDealtEvent& e) {
         name = objectName(e.target);
     }
     combat_.damage.push_back(DamageNote{e.target, who, std::move(name), e.amount});
+}
+
+void PlayByPlay::onPredicted(const PredictEvent& e) {
+    if (e.count <= 0) return;
+    if (e.player != PlayerId::Player1 && e.player != PlayerId::Player2) return;
+    // The cards looked at stay off the line. A Predict is a private look.
+    std::string line = std::string(toString(e.player)) + " Predicts";
+    if (e.count != 1) line += " " + std::to_string(e.count);
+    line += ".";
+    add(std::move(line));
 }
 
 void PlayByPlay::onStateChanged(const ObjectStateChangedEvent& e) {

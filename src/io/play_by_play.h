@@ -14,11 +14,11 @@
 /// and what they kept. A play names the card and the player. A move names the
 /// unit, where it came from, and where it went. A combat names who fought and
 /// the damage. A conquer or a hold names the battlefield and who controls it
-/// afterwards. The score is one line at the end of the turn. A spell's target
-/// is named, including a friendly unit. Each turn says how many runes that
-/// player has when the turn starts and again when it ends. Each play says
-/// what was paid for it. A free play and a play that ignores its cost say so.
-/// A quiet probe writes nothing.
+/// afterwards. A Predict names the player. The score is one line at the end
+/// of the turn. A spell's target is named, including a friendly unit. Each
+/// turn says how many runes that player has when the turn starts and again
+/// when it ends. Each play says what was paid for it. A free play and a play
+/// that ignores its cost say so. A quiet probe writes nothing.
 
 #include "core/events.h"
 #include "core/game_state.h"
@@ -117,6 +117,7 @@ private:
     void onCombatEnded(const CombatEndedEvent& e);
     void onDamage(const DamageDealtEvent& e);
     void onStateChanged(const ObjectStateChangedEvent& e);
+    void onPredicted(const PredictEvent& e);
 
     void beginTurn(PlayerId player);
     void add(std::string line);

@@ -367,6 +367,14 @@ struct CardRevealedEvent {
     ZoneType     source_zone     = ZoneType::MainDeck;
 };
 
+/// A player Predicted (CR 437): they looked at the top of their Main Deck.
+/// `count` is how many cards that look covered. The cards themselves stay
+/// off this event; a Predict is private.
+struct PredictEvent {
+    PlayerId player = PlayerId::None;
+    int count = 0;
+};
+
 // ─── Event Bus ───────────────────────────────────────────────────────────────
 /// Central event dispatcher using Boost.Signals2.
 ///
@@ -479,6 +487,7 @@ public:
     boost::signals2::signal<void(const ChainEmptiedEvent&)>        on_chain_emptied;
     boost::signals2::signal<void(const SpellResolvedEvent&)>       on_spell_resolved;
     boost::signals2::signal<void(const CardRevealedEvent&)>        on_card_revealed;
+    boost::signals2::signal<void(const PredictEvent&)>             on_predicted;
 
     // Convenience emit methods
     void emit(const UnitMovedEvent& e);
@@ -517,6 +526,7 @@ public:
     void emit(const ChainEmptiedEvent& e);
     void emit(const SpellResolvedEvent& e);
     void emit(const CardRevealedEvent& e);
+    void emit(const PredictEvent& e);
 
     // ── Holding ──
     // While held, nothing emitted (log lines included) reaches a subscriber:

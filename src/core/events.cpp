@@ -224,6 +224,12 @@ void EventBus::emit(const CardRevealedEvent& e) {
     if (holding_) { held_.push_back([this, e] { on_card_revealed(e); }); return; }
     on_card_revealed(e);
 }
+void EventBus::emit(const PredictEvent& e) {
+    ++activity_;
+    if (quiet_depth_ > 0) return;
+    if (holding_) { held_.push_back([this, e] { on_predicted(e); }); return; }
+    on_predicted(e);
+}
 
 // ── holding ──────────────────────────────────────────────────────────────────
 void EventBus::hold() { holding_ = true; }
@@ -325,6 +331,7 @@ void EventBus::disconnectAll() {
     on_chain_emptied.disconnect_all_slots();
     on_spell_resolved.disconnect_all_slots();
     on_card_revealed.disconnect_all_slots();
+    on_predicted.disconnect_all_slots();
     on_log.disconnect_all_slots();
 }
 
