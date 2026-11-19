@@ -21,10 +21,11 @@ public:
     TrashPlayCost trashPlayCost(const GameState& state, PlayerId owner,
                                 GameObjectId self) const override {
         // CR 812.1.c: Legion is on once a card other than this one was
-        // finalized this turn. The play that moved this card into the trash
-        // is this card, so it does not count.
-        int others = state.player(owner).cards_played_this_turn;
-        if (playOrdinalThisTurn(state, self) > 0) --others;
+        // finalized this turn. Every play of this card is this card,
+        // including a bounce and a second play, and the play that just
+        // moved it into the trash. Only a different card counts.
+        const int others = state.player(owner).cards_played_this_turn -
+                           playsThisTurn(state, self);
         if (others < 1) return {};
         return {.valid = true, .energy = 3, .power = 1, .power_domain = Domain::Fury};
     }

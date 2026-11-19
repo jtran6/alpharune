@@ -603,6 +603,18 @@ inline int playOrdinalThisTurn(const GameState& state, GameObjectId card) {
     return n == counters.end() ? 0 : n->second;
 }
 
+/// How many times this object was played this turn, or 0. Stamped with
+/// playOrdinalThisTurn. A second play of the same card is still that card
+/// (CR 812.1.c): Legion subtracts the whole count, not one.
+inline int playsThisTurn(const GameState& state, GameObjectId card) {
+    if (!state.objectExists(card)) return 0;
+    const auto& counters = state.getObject(card).card_counters;
+    auto turn = counters.find("__play_ordinal_turn");
+    if (turn == counters.end() || turn->second != state.turn.turn_number + 1) return 0;
+    auto n = counters.find("__play_count");
+    return n == counters.end() ? 0 : n->second;
+}
+
 inline bool hasTag(const GameObject& obj, const std::string& tag) {
     for (const auto& t : obj.tags) if (t == tag) return true;
     return false;

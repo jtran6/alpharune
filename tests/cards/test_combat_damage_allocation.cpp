@@ -406,5 +406,49 @@ TEST_F(DamageAllocationTest, TankAndBacklineOnOneUnit_AssignerChoosesWhich) {
     EXPECT_EQ(two.size(), 3u);
 }
 
+// CR 467.2.c.8 with Dune Surfer: "You ignore [Tank] while assigning combat
+// damage here." Tank no longer applies, so a unit that also has [Backline]
+// is Backline only and is not assigned before a unit that has neither.
+TEST_F(DamageAllocationTest, IgnoredTankAndBackline_IsNotAssignedFirst) {
+    makeEngine();
+    eng_state()->battlefields[0].ignore_tank[playerIndex(P1)] = true;
+    KeywordSet both;
+    both.set(Keyword::Tank);
+    both.set(Keyword::Backline);
+    auto caitlyn = placeDefender(3, both);
+    auto vanilla_a = placeDefender(2);
+    auto vanilla_b = placeDefender(2);
+    // The order a Tank-first sort would hand the cascade: her, then the vanillas.
+    std::vector<GameObjectId> targets = {caitlyn, vanilla_a, vanilla_b};
+
+    using Mark = std::set<std::pair<GameObjectId, int>>;
+    auto outcomes = [&](int damage) {
+        std::set<Mark> out;
+        auto adv = engine_->testHook_advanceCombatDamage(P1, damage, targets);
+        EXPECT_EQ(adv.kind, GameEngine::CombatDamageAdvance::Kind::NeedDecision);
+        for (const auto& intent : adv.legal) {
+            Mark mark;
+            for (const auto& a : intent.damage_assignments)
+                if (a.damage > 0) mark.insert({a.target_unit, a.damage});
+            out.insert(mark);
+        }
+        return out;
+    };
+
+    // 4 damage kills both vanillas. It must not kill her and leave one alive.
+    const auto four = outcomes(4);
+    EXPECT_TRUE(four.count(Mark{{vanilla_a, 2}, {vanilla_b, 2}}));
+    EXPECT_FALSE(four.count(Mark{{caitlyn, 3}, {vanilla_a, 1}}));
+    EXPECT_FALSE(four.count(Mark{{caitlyn, 3}, {vanilla_b, 1}}));
+    EXPECT_EQ(four.size(), 1u);
+
+    // 2 damage is one vanilla. She is Backline, so it is not all assigned to her.
+    const auto two = outcomes(2);
+    EXPECT_TRUE(two.count(Mark{{vanilla_a, 2}}));
+    EXPECT_TRUE(two.count(Mark{{vanilla_b, 2}}));
+    EXPECT_FALSE(two.count(Mark{{caitlyn, 2}}));
+    EXPECT_EQ(two.size(), 2u);
+}
+
 }  // namespace
 }  // namespace riftbound::test

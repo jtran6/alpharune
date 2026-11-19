@@ -116,5 +116,51 @@ TEST_F(RepeatTest, OneShotRepeatGrantAppliesToASpellThatAlreadyHasRepeat) {
     EXPECT_EQ(ps.rune_pool.energy, 0) << "base [2] plus two [Repeat] [2]";
 }
 
+// CR 820.3: the one-shot and Syndra's "[Repeat] [2][P]" are separate
+// instances. A spell that already prints [Repeat] can pay all three.
+TEST_F(RepeatTest, BothRepeatGrantsApplyToASpellThatAlreadyPrintsRepeat) {
+    auto spell = addToHand(P1, kDesertsCall);
+    auto& ps = state.player(P1);
+    ps.grant_repeat_base_to_next_spell = true;
+    ps.spells_have_repeat_energy = 2;
+    ps.spells_have_repeat_power = 1;
+    ps.spells_have_repeat_domain = Domain::Chaos;
+    // Base [2], printed [Repeat] [2], the one-shot [Repeat] [2], Syndra's [2][P].
+    ps.rune_pool.energy = 8;
+    ps.rune_pool.power[static_cast<int>(Domain::Chaos)] = 1;
+    EnginePathAgent all(EnginePathAgent::script({1, 1, 1, EnginePathAgent::kRest}));
+    playThroughEngine(spell, &all, std::nullopt, nullptr, /*fund=*/false);
+    EXPECT_EQ(sandSoldiers(state), 4);
+    EXPECT_FALSE(ps.grant_repeat_base_to_next_spell);
+    EXPECT_EQ(ps.rune_pool.energy, 0);
+    EXPECT_EQ(ps.rune_pool.power[static_cast<int>(Domain::Chaos)], 0);
+}
+
+// The one-shot is "your next spell". An effect play that fails its payment
+// did not give the spell [Repeat], so the grant is still there for the next one.
+TEST_F(RepeatTest, FailedEffectPlayDoesNotSpendTheOneShotRepeat) {
+    auto spell = addToHand(P1, kDesertsCall);
+    auto& ps = state.player(P1);
+    ps.grant_repeat_base_to_next_spell = true;
+    ps.rune_pool.energy = 0;
+    EffectPlayCost unaffordable;
+    unaffordable.replace_energy = 5;
+    withEngine([&](GameEngine& e) {
+        EXPECT_FALSE(e.testHook_executor().playPayingCost(
+            P1, spell, std::nullopt, unaffordable));
+    });
+    EXPECT_TRUE(ps.grant_repeat_base_to_next_spell);
+    EXPECT_TRUE(inHand(P1, spell));
+    EXPECT_EQ(sandSoldiers(state), 0);
+    EXPECT_EQ(ps.cards_played_this_turn, 0);
+
+    ps.rune_pool.energy = 6;   // base [2] + printed [2] + the one-shot [2]
+    EnginePathAgent both(EnginePathAgent::script({1, 1, EnginePathAgent::kRest}));
+    playThroughEngine(spell, &both, std::nullopt, nullptr, /*fund=*/false);
+    EXPECT_EQ(sandSoldiers(state), 3);
+    EXPECT_FALSE(ps.grant_repeat_base_to_next_spell);
+    EXPECT_EQ(ps.rune_pool.energy, 0);
+}
+
 }  // namespace
 }  // namespace riftbound::test
