@@ -37,20 +37,46 @@ public:
         mod.units_only = true;
         mod.next_unit_only = true;
         ctx.state.player(ctx.controller).cost_modifiers.push_back(mod);
-        ctx.state.getObject(ctx.source).card_counters["__boy_kill"] = 1;
+        // The discount is this turn (CostModifier::this_turn_only). The kill
+        // is too: the stamp is this turn's number, and it is spent on the
+        // next unit. A later turn's unit is not this one.
+        ctx.state.getObject(ctx.source).card_counters["__boy_kill"] =
+            ctx.state.turn.turn_number + 1;   // +1 so 0 = never
     }
-    std::vector<TriggerType> triggerTypes() const override { return {TriggerType::WhenYouPlayAUnit, TriggerType::AtEndOfTurn}; }
+    // Only the unit play. "At the end of your turn" with no unit to kill is
+    // not an ability: the kill is the delayed ability queued when the unit
+    // is played, and nothing is queued when it is not.
+    std::vector<TriggerType> triggerTypes() const override {
+        return {TriggerType::WhenYouPlayAUnit};
+    }
+    // "The next unit you play this turn." A unit on a later turn, or a
+    // second unit while this one is still on the chain, does not trigger.
+    bool triggerCondition(const GameState& state, GameObjectId source, PlayerId,
+                          TriggerType trigger, GameObjectId) const override {
+        if (trigger != TriggerType::WhenYouPlayAUnit) return true;
+        if (!state.objectExists(source)) return false;
+        const auto& c = state.getObject(source).card_counters;
+        const auto it = c.find("__boy_kill");
+        if (it == c.end() || it->second != state.turn.turn_number + 1) return false;
+        return !triggeredAbilityOnChain(state, source, trigger);
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (ctx.state.chain.resuming && ctx.state.chain.resuming->fired_trigger == TriggerType::AtEndOfTurn) {
-            auto sub = ctx.state.chain.resuming->triggering_subject;
-            if (sub != kInvalidId) ctx.executor.killObject(sub);
+        // The delayed "Kill me at end of turn" (atEndOfTurnAbout). It is the
+        // only AtEndOfTurn this card resolves: the legend itself does not
+        // trigger then.
+        if (ctx.firing_trigger == TriggerType::AtEndOfTurn) {
+            if (!ctx.state.chain.resuming) return;
+            const auto sub = ctx.state.chain.resuming->triggering_subject;
+            if (sub != kInvalidId && ctx.state.objectExists(sub)) ctx.executor.killObject(sub);
             return;
         }
-        if (!ctx.state.objectExists(ctx.source) || ctx.state.getObject(ctx.source).card_counters["__boy_kill"] != 1) return;
+        if (!ctx.state.objectExists(ctx.source)) return;
         ctx.state.getObject(ctx.source).card_counters["__boy_kill"] = 0;
         if (!ctx.state.chain.resuming) return;
-        auto sub = ctx.state.chain.resuming->triggering_subject;
-        if (sub != kInvalidId) atEndOfTurnAbout(ctx, cardDefId(), sub, 0);
+        const auto sub = ctx.state.chain.resuming->triggering_subject;
+        // No unit: do not queue an empty end-of-turn ability.
+        if (sub == kInvalidId || !ctx.state.objectExists(sub)) return;
+        atEndOfTurnAbout(ctx, cardDefId(), sub, 0);
     }
 
 private:

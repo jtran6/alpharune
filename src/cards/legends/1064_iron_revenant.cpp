@@ -23,6 +23,17 @@ public:
         c.exhaust = true;
         return c;
     }
+    // CR 403.3: an ability that has no legal choice for a required cost is
+    // not activated. With no unit or gear in the trash there is nothing to
+    // banish, so the ability is not offered and the [E] is not paid.
+    bool canActivateAbility(const GameState& state, PlayerId controller) const override {
+        for (auto id : state.player(controller).trash) {
+            if (!state.objectExists(id)) continue;
+            const auto& o = state.getObject(id);
+            if (o.isUnit() || o.isGear()) return true;
+        }
+        return false;
+    }
     void onActivate(CardContext& ctx, const std::vector<GameObjectId>&) override {
         auto trash = ctx.state.player(ctx.controller).trash;
         std::vector<GameObjectId> opts;

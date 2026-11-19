@@ -17,14 +17,24 @@ public:
     const CardDef& def() const override { return def_; }
 
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayACard; }
+    // "From face down" is the trigger condition (CR 383.2.a.1): a play from
+    // hand does not put the ability on the chain. "Once each turn"
+    // (CR 383.3.e.1): performed once, or still on the chain, a later
+    // facedown play does not trigger it.
+    bool triggerCondition(const GameState& state, GameObjectId source, PlayerId,
+                          TriggerType trigger, GameObjectId subject) const override {
+        if (!playedFromFacedown(state, subject)) return false;
+        if (!state.objectExists(source)) return false;
+        const auto& c = state.getObject(source).card_counters;
+        const auto it = c.find("__agony");
+        if (it != c.end() && it->second == state.turn.turn_number + 1) return false;
+        return !triggeredAbilityOnChain(state, source, trigger);
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (!ctx.state.chain.resuming) return;
-        auto sub = ctx.state.chain.resuming->triggering_subject;
-        if (!playedFromFacedown(ctx.state, sub)) return;
-        if (ctx.state.objectExists(ctx.source) &&
-            ctx.state.getObject(ctx.source).card_counters["__agony"] == ctx.state.turn.turn_number) return;
         if (ctx.state.objectExists(ctx.source))
-            ctx.state.getObject(ctx.source).card_counters["__agony"] = ctx.state.turn.turn_number;
+            ctx.state.getObject(ctx.source).card_counters["__agony"] =
+                ctx.state.turn.turn_number + 1;   // +1 so 0 = never
         ctx.executor.drawCards(ctx.controller, 1);
         if (ctx.state.turn.turn_player != ctx.controller) ctx.executor.discardCards(ctx.controller, 1);
     }
