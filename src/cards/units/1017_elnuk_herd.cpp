@@ -19,9 +19,12 @@ public:
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
-            return u.controller == ctx.controller;
-        });
+        // Played from facedown, a friendly unit at the battlefield he was
+        // played to (CR 811.1.d.3). From hand, any friendly unit.
+        auto units = atHiddenBattlefield(ctx.state, ctx.source,
+            chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
+                return u.controller == ctx.controller;
+            }));
         auto t = pickTarget(ctx, "Elnuk Herd: +3 [M] to a friendly unit", units);
         if (finalizingChoices(ctx)) return;
         if (t != kInvalidId) ctx.executor.giveTemporaryMight(t, 3);

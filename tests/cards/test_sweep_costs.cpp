@@ -1604,10 +1604,10 @@ TEST_F(SweepCostsTest, TrashReplayGrant_ATargetsDiscountTakesThePowerOfAGrantWit
     EXPECT_EQ(o(irelia).buff_count, 1);
 }
 
-// NOT A DEFECT (9.L2, hidden plays): a card played from facedown ignores its
-// base cost (CR 811), so there is no cost for a target's discount to make
-// payable — the generator has no cost gate and needs none. What a target adds
-// is its Deflect, and that does gate the offer.
+// A card played from facedown ignores its base cost (CR 811.1.b). This board
+// has no cost increase, so the spell is offered with nothing to spend. A
+// target's Deflect is paid on top of an increase (CR 356.1.b.3) and still
+// gates the offer. An increase itself is gated in test_hidden_cards_audit.cpp.
 TEST_F(SweepCostsTest, HiddenPlay_HasNoCostGateAndATargetIsOfferedOnlyIfItsDeflectCanBePaid) {
     state.battlefields[0].controller = P1;
     state.turn.turn_number = 3;

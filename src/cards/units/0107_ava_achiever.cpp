@@ -42,6 +42,8 @@ public:
             const auto& card = ctx.state.getObject(cid);
             if (!card.hasKeyword(Keyword::Hidden)) continue;
             if (card.isUnit() && !units_ok) continue;
+            // Ignoring its cost still pays a cost increase (CR 356.1.b.3).
+            if (!ctx.executor.canPayIgnoredCost(ctx.controller, cid)) continue;
             out.push_back(cid);
         }
         return out;

@@ -55,15 +55,18 @@ public:
             RIFT_TRACE(ctx.events, "PACK OF WONDERS: returned a friendly gear/unit to hand");
             return;
         }
-        // A facedown card: out of the battlefield's facedown zone, into its
-        // owner's hand (it was never on the board, so nothing "leaves" it).
+        // A facedown card that changes zones is revealed to all players first
+        // (CR 422.4, 425.1). It is still in the facedown zone for that reveal.
+        ctx.events.emit(CardRevealedEvent{picked, obj.card_def_id, obj.owner,
+                                          /*revealed_to_all=*/true, PlayerId::None,
+                                          ZoneType::FacedownZone});
         for (auto& bf : ctx.state.battlefields)
             bf.facedown.erase(std::remove(bf.facedown.begin(), bf.facedown.end(), picked),
                               bf.facedown.end());
         obj.is_hidden = false;
         obj.hidden_at = kInvalidId;
-        deck::putInHand(ctx.state, picked, knowledge::nobody(), deck::Place::Facedown);
-        RIFT_TRACE(ctx.events, "PACK OF WONDERS: returned a facedown card to hand");
+        deck::putInHand(ctx.state, picked, knowledge::everyone(), deck::Place::Facedown);
+        RIFT_TRACE(ctx.events, "PACK OF WONDERS: revealed a facedown card and returned it to hand");
     }
 private:
     const CardDef def_ = [] {
