@@ -66,13 +66,8 @@ public:
             hit.push_back(id);
         }
         for (auto id : hit) ctx.executor.dealDamage(id, dmg, ctx.source);
-        {   // Units already lethally damaged die with these (CR 142.4.a, 383.2.c.2).
-            for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
-                if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
-                if (std::find(hit.begin(), hit.end(), id) == hit.end()) hit.push_back(id);
-            }
-            ctx.executor.killLethallyDamagedTogether(hit);
-        }
+        // Lethal damage kills in the cleanup after the spell (CR 142.4.a),
+        // so the destination is still there for the move.
         // Then move your unit there.
         ctx.executor.moveToBattlefield(mover, bf);
         RIFT_TRACE(ctx.events, "STORMBRINGER: dealt " + std::to_string(dmg) +

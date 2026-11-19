@@ -34,7 +34,6 @@ public:
         if (ctx.state.objectExists(ctx.source))
             x = ctx.state.getObject(ctx.source).card_counters["__chrono_x"];
         if (x < 0) x = 0;
-        if (x > 20) x = 20;
         // The Power is paid ahead of the spell's [2] Energy. A ready rune is
         // exhausted for that Energy before it is recycled, so paying X equal
         // to the number of ready runes still leaves the spell payable.
@@ -62,7 +61,7 @@ public:
         if (ri.resume_data[8] == 0) {
             int x = 0;
             if (ri.finalizing) {
-                const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 20, SpendFor::Spell);
+                const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 100000, SpendFor::Spell);
                 x = pickXAmount(ctx, "Chronobreak: pay any amount of Power", 0, cap);
                 if (x < 0) return;
                 if (ctx.state.objectExists(ctx.source))

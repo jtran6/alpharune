@@ -88,15 +88,7 @@ public:
         int m_other = ctx.state.getObject(other).current_might;
         ctx.executor.dealDamage(other, m_mover, mover);
         ctx.executor.dealDamage(mover, m_other, other);
-        {   // Units already lethally damaged die with these (CR 142.4.a, 383.2.c.2).
-            std::vector<GameObjectId> batch{mover, other};
-            for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
-                if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
-                if (std::find(batch.begin(), batch.end(), id) == batch.end())
-                    batch.push_back(id);
-            }
-            ctx.executor.killLethallyDamagedTogether(std::move(batch));
-        }
+        // Lethal damage kills in the cleanup after the spell (CR 142.4.a).
         RIFT_TRACE(ctx.events, "DRAGON'S RAGE: mutual-Might damage");
     }
     TargetRequirements getTargetRequirements() const override {

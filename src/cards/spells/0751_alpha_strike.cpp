@@ -75,21 +75,14 @@ public:
             });
         if (!splitDamageAmong(ctx, "Alpha Strike", total, src, legal, damaged)) return;
 
-        // Kill lethally-damaged units (after all damage is marked); gain 1 XP
-        // per unit this kills.
-        // Units already lethally damaged die with these, so they do not see
-        // the deaths (CR 142.4.a, 383.2.c.2). XP is only for a unit this
-        // spell's damage killed.
-        std::vector<GameObjectId> batch = damaged;
-        for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
-            if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
-            if (std::find(batch.begin(), batch.end(), id) == batch.end())
-                batch.push_back(id);
-        }
-        const auto died = ctx.executor.killLethallyDamagedTogether(std::move(batch));
+        // The damage is marked here. The kill is the cleanup after the spell
+        // (CR 142.4.a), together with units that were already lethal. XP is
+        // for a unit this spell's damage will kill, queued before that cleanup.
         int kills = 0;
-        for (auto id : damaged)
-            if (std::find(died.begin(), died.end(), id) != died.end()) ++kills;
+        for (auto id : damaged) {
+            if (!ctx.state.objectExists(id)) continue;
+            if (ctx.state.getObject(id).hasLethalDamage()) ++kills;
+        }
         // "Then for each unit this kills, do this: Gain 1 XP." — one
         // reflexive trigger per unit killed (CR 388.1.a, 389.2), each a chain
         // item of its own.

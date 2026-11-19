@@ -580,6 +580,187 @@ TEST_F(SignatureDefectTest, Encore_ACardThatLeavesAsItIsLookedAtIsNotDrawn) {
     EXPECT_TRUE(inHand(P1, other));
 }
 
+// CR 467.2.c.5, 467.2.c.3: the prevented instance is never lethal, so the
+// whole assignment stays on that tank. The tank is still a legal assignee.
+TEST_F(SignatureDefectTest, CounterStrike_TheWholeAttackStaysOnThePreventedTank) {
+    auto tank = addUnit(P1, kInvalidId, 3, 0);
+    o(tank).keywords.set(Keyword::Tank);
+    auto other = addUnit(P1, kInvalidId, 2, 0);
+    auto spell = addToHand(P1, kCounter);
+    EnginePathAgent agent(EnginePathAgent::choosing(tank));
+    play(spell, &agent);
+    ASSERT_TRUE(o(tank).prevent_next_damage_this_turn);
+    combatInProgress(0, P2);
+    int to_tank = 0;
+    int to_other = 0;
+    withEngine([&](GameEngine& e) {
+        auto adv = e.testHook_advanceCombatDamage(P2, 5, {tank, other});
+        ASSERT_FALSE(adv.legal.empty());
+        for (const auto& a : adv.legal.front().damage_assignments) {
+            if (a.target_unit == tank) to_tank += a.damage;
+            if (a.target_unit == other) to_other += a.damage;
+        }
+        e.testHook_executeIntent(adv.legal.front());
+    });
+    EXPECT_EQ(to_tank, 5) << "no amount is lethal, so the 5 stays on the tank";
+    EXPECT_EQ(to_other, 0) << "the next defender is not assigned the rest";
+    EXPECT_EQ(o(tank).damage_marked, 0);
+    EXPECT_FALSE(o(tank).prevent_next_damage_this_turn);
+    EXPECT_EQ(o(other).damage_marked, 0);
+}
+
+// CR 142.4.a: the spell marks damage. The destination is still there when
+// the unit moves. Cleanup after the spell kills what the damage made lethal.
+TEST_F(SignatureDefectTest, Stormbringer_TheDestinationIsAliveWhenTheUnitMoves) {
+    auto mover = addUnit(P1, kInvalidId, 5);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto spell = addToHand(P1, kStorm);
+    fund(spell);
+    Intent intent = playOf(spell);
+    EnginePathAgent agent(EnginePathAgent::script({static_cast<int>(mover.raw()), 1}));
+    GameState* live = nullptr;
+    bool saw_move = false;
+    bool victim_still_there = false;
+    boost::signals2::scoped_connection guard = events.on_unit_moved.connect(
+        [&](const UnitMovedEvent& ev) {
+            if (!live || ev.object != mover) return;
+            saw_move = true;
+            victim_still_there = live->objectExists(victim) &&
+                                 live->getObject(victim).location.has_value();
+        });
+    withEngine([&](GameEngine& e) {
+        live = &e.mutableState();
+        e.testHook_executeIntent(intent);
+        settleLikeTheEngine(e);
+        live = nullptr;
+    }, &agent);
+    EXPECT_TRUE(saw_move);
+    EXPECT_TRUE(victim_still_there) << "the kill is the cleanup after the spell";
+    EXPECT_TRUE(o(mover).isAtBattlefield());
+    EXPECT_FALSE(o(victim).location.has_value());
+}
+
+// CR 356.1.a, 356.3: the [A] and a spell tax from a Helm played in response
+// are paid as the replay resolves, not when the reflexive is finalized.
+TEST_F(SignatureDefectTest, DeathFromBelow_AHelmPlayedInResponseIsPaid) {
+    auto first = addUnit(P2, kInvalidId, 3, 0);
+    auto second = addUnit(P2, kInvalidId, 3, 1);
+    auto spell = addToHand(P1, kBelow);
+    state.player(P1).rune_pool.energy = 5;
+    state.player(P1).rune_pool.universal_power = 2;
+    Intent intent = playOf(spell);
+    EnginePathAgent p1(EnginePathAgent::choosing(first, EnginePathAgent::May::Yes));
+    GameState* live = nullptr;
+    int power_when_responding = -1;
+    PickByPredicateAgent p2([&](int, const std::vector<Intent>& legal) {
+        if (live && power_when_responding < 0) {
+            const auto& trash = live->player(P1).trash;
+            if (std::find(trash.begin(), trash.end(), spell) != trash.end()) {
+                power_when_responding = live->player(P1).rune_pool.universal_power;
+                // Both players passing goes straight to resolution, so the
+                // Helm's aura has not had a cleanup. The tax is what that
+                // aura writes, and the replay must pay it (CR 356.3).
+                auto helm = live->createObject();
+                auto& g = live->getObject(helm);
+                g.owner = P2;
+                g.controller = P2;
+                g.card_def_id = kHelm;
+                g.card_type = CardType::Gear;
+                g.zone = ZoneType::Base;
+                g.location = BaseLocation{P2};
+                live->player(P1).spell_tax_energy += 1;
+            }
+        }
+        for (const auto& i : legal)
+            if (i.type == IntentType::PassPriority) return i;
+        return legal.front();
+    });
+    withEngine([&](GameEngine& e) {
+        live = &e.mutableState();
+        e.testHook_executeIntent(intent);
+        settleLikeTheEngine(e);
+        live = nullptr;
+    }, &p1, &p2);
+    EXPECT_EQ(power_when_responding, 1) << "the [A] is not spent before the response";
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 0) << "printed [4] and the Helm's [1]";
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
+    EXPECT_FALSE(o(second).location.has_value());
+}
+
+// The Power is not spent when the spell is no longer in the trash at resolution.
+TEST_F(SignatureDefectTest, DeathFromBelow_LeavingTheTrashSpendsNothing) {
+    auto first = addUnit(P2, kInvalidId, 3, 0);
+    auto second = addUnit(P2, kInvalidId, 3, 1);
+    auto spell = addToHand(P1, kBelow);
+    state.player(P1).rune_pool.energy = 4;
+    state.player(P1).rune_pool.universal_power = 2;
+    Intent intent = playOf(spell);
+    EnginePathAgent p1(EnginePathAgent::choosing(first, EnginePathAgent::May::Yes));
+    GameState* live = nullptr;
+    bool yanked = false;
+    PickByPredicateAgent p2([&](int, const std::vector<Intent>& legal) {
+        if (live && !yanked) {
+            auto& trash = live->player(P1).trash;
+            auto it = std::find(trash.begin(), trash.end(), spell);
+            if (it != trash.end()) {
+                trash.erase(it);
+                live->getObject(spell).zone = ZoneType::Hand;
+                live->getObject(spell).location = std::nullopt;
+                live->player(P1).hand.push_back(spell);
+                yanked = true;
+            }
+        }
+        for (const auto& i : legal)
+            if (i.type == IntentType::PassPriority) return i;
+        return legal.front();
+    });
+    withEngine([&](GameEngine& e) {
+        live = &e.mutableState();
+        e.testHook_executeIntent(intent);
+        settleLikeTheEngine(e);
+        live = nullptr;
+    }, &p1, &p2);
+    EXPECT_TRUE(yanked);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 1);
+    EXPECT_EQ(o(spell).zone.get(), ZoneType::Hand);
+    EXPECT_TRUE(o(second).location.has_value()) << "the replay did not happen";
+}
+
+// "Any amount" is not capped. The choice is still made before priority.
+TEST_F(SignatureDefectTest, Chronobreak_AnyAmountIsNotCapped) {
+    auto kept = addUnit(P1, kInvalidId, 2, 0);
+    auto spell = addToHand(P1, kChrono);
+    state.player(P1).rune_pool.universal_power = 21;
+    fund(spell);
+    bool offered_21 = false;
+    EnginePathAgent agent([&](const std::vector<Intent>& legal) {
+        bool objects = false;
+        int highest = -1;
+        for (const auto& i : legal) {
+            if (!i.chosen_objects.empty()) objects = true;
+            if (i.chosen_value.has_value()) highest = std::max(highest, *i.chosen_value);
+        }
+        if (!objects && highest >= 2) {
+            for (const auto& i : legal)
+                if (i.chosen_value.has_value() && *i.chosen_value == 21) {
+                    offered_21 = true;
+                    return i;
+                }
+            for (const auto& i : legal)
+                if (i.chosen_value.has_value() && *i.chosen_value == 0) return i;
+        }
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == kept) return i;
+        for (const auto& i : legal)
+            if (i.chosen_value.has_value() && *i.chosen_value == 0) return i;
+        return legal.front();
+    });
+    play(spell, &agent);
+    EXPECT_TRUE(offered_21);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0) << "the 21 was paid";
+    EXPECT_TRUE(o(kept).location.has_value()) << "the one unit is played back";
+}
+
 }  // namespace
 }  // namespace signature_defects
 }  // namespace riftbound::test
