@@ -34,6 +34,9 @@ struct GameConfig {
     int total_games = 1;          // for progress display
     std::string agent1_spec = "random";
     std::string agent2_spec = "random";
+    /// Deck-list stems for the play-by-play header. Empty: the legend's name.
+    std::string deck1_name;
+    std::string deck2_name;
     /// The Mode of Play (GameEngine::setMatchFormat; testing phase V1-G4):
     /// Duel draws each setup battlefield at random, Match asks each player.
     /// An MCTS-style agent built by `agent_factory` must be given the same

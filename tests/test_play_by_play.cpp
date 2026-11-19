@@ -1,7 +1,11 @@
 /// The short account printed after a game. A move that drops its origin or
 /// its destination fails, and so does a short game whose summary was not
 /// printed. A turn without its rune lines fails, and so does a play that
-/// names no cost.
+/// names no cost. A finished game whose header omits the seed, the decks,
+/// the agents, the ending, the score, the turns, or the decisions fails.
+/// So does a combat that omits who fought or the damage, a mulligan that
+/// omits what was shipped or kept, and a throw that is dropped or that
+/// calls the game usable.
 
 #include <gtest/gtest.h>
 
@@ -234,7 +238,12 @@ TEST(PlayByPlayText, ShortGamePrintsTheSummary) {
 
     GameConfig cfg;
     cfg.base_seed = 19;
-    cfg.total_games = 1;
+    // A batch of 20 is still listed, one block per game.
+    cfg.total_games = 20;
+    cfg.deck1_name = "fiora";
+    cfg.deck2_name = "yi_rebuild";
+    cfg.agent1_spec = "move-then-stop";
+    cfg.agent2_spec = "move-then-stop";
     cfg.debug_mode = false;
     cfg.trace_mode = false;
     cfg.do_render = false;
@@ -249,14 +258,27 @@ TEST(PlayByPlayText, ShortGamePrintsTheSummary) {
     runner.run();
     const std::string out = testing::internal::GetCapturedStdout();
 
-    const auto game = out.find("Game 1 [seed=19]:");
+    const auto game = out.find(
+        "Game 1 [seed=19]: decks fiora vs yi_rebuild, agents move-then-stop vs move-then-stop.");
     const auto turn = out.find("Turn 1 - ");
     ASSERT_NE(game, std::string::npos) << out;
     ASSERT_NE(turn, std::string::npos) << out;
     EXPECT_LT(game, turn) << out;
-    EXPECT_NE(out.find(" wins "), std::string::npos) << out;
+    EXPECT_NE(out.find("Ended by concede:"), std::string::npos) << out;
+    EXPECT_NE(out.find(" wins."), std::string::npos) << out;
+    EXPECT_NE(out.find("Mulligan:"), std::string::npos) << out;
+    EXPECT_NE(out.find("P1 kept "), std::string::npos) << out;
+    EXPECT_NE(out.find("P2 kept "), std::string::npos) << out;
+    EXPECT_EQ(out.find("shipped"), std::string::npos) << out;
+    EXPECT_NE(out.find("Decisions "), std::string::npos) << out;
+    EXPECT_EQ(out.find("Not usable"), std::string::npos) << out;
     EXPECT_NE(out.find("\n  Score "), std::string::npos) << out;
     EXPECT_EQ(out.find("[TRC]"), std::string::npos) << out;
+    const auto turns_at = out.find("Turns ");
+    ASSERT_NE(turns_at, std::string::npos) << out;
+    const int header_turns = std::atoi(out.c_str() + turns_at + 6);
+    const int blocks = countOf(out, "\nTurn ");
+    EXPECT_EQ(header_turns, blocks) << out;
     expectRunesAndCosts(out);
 
     std::istringstream lines(out);
@@ -268,6 +290,300 @@ TEST(PlayByPlayText, ShortGamePrintsTheSummary) {
         EXPECT_TRUE(moveNamesPlaces(line)) << line;
     }
     EXPECT_GE(moves, 1) << out;
+}
+
+PlayByPlay::Account sampleAccount() {
+    PlayByPlay::Account account;
+    account.number = 4;
+    account.seed = 99;
+    account.deck1 = "fiora";
+    account.deck2 = "yi_rebuild";
+    account.agent1 = "random";
+    account.agent2 = "ismcts:sims=20";
+    return account;
+}
+
+std::string endedBy(const std::string& reason, PlayerId winner, int score1, int score2) {
+    GameState state;
+    EventBus bus;
+    PlayByPlay chronicle(state, bus);
+    chronicle.setAccount(sampleAccount());
+    chronicle.complete(winner, score1, score2, 40, reason);
+    return chronicle.text();
+}
+
+// The header is the fact list for the data decision. It names the ending
+// and does not say whether the game should be trained on.
+TEST(PlayByPlayText, HeaderNamesHowTheGameEnded) {
+    const std::string gutter = endedBy("Gutter Palace win condition", PlayerId::Player1, 2, 2);
+    EXPECT_NE(gutter.find("Game 4 [seed=99]: decks fiora vs yi_rebuild, agents random vs "
+                          "ismcts:sims=20."),
+              std::string::npos) << gutter;
+    EXPECT_NE(gutter.find("Ended by an alternate win: Gutter Palace win condition."),
+              std::string::npos) << gutter;
+    EXPECT_NE(gutter.find("P1 wins. Score 2-2. Turns 0. Decisions 40."), std::string::npos)
+        << gutter;
+    EXPECT_NE(gutter.find("Mulligan: neither player was asked."), std::string::npos) << gutter;
+    EXPECT_EQ(gutter.find("Not usable"), std::string::npos) << gutter;
+
+    const std::string plaza =
+        endedBy("The Grand Plaza win condition (7+ units here)", PlayerId::Player2, 1, 3);
+    EXPECT_NE(plaza.find("Ended by an alternate win: The Grand Plaza win condition (7+ units here)."),
+              std::string::npos) << plaza;
+
+    const std::string points = endedBy("P1 reached 8 points", PlayerId::Player1, 8, 3);
+    EXPECT_NE(points.find("Ended by points: P1 reached 8 points."), std::string::npos) << points;
+
+    const std::string burned =
+        endedBy("P2 wins via burn-out point (CR 432.3)", PlayerId::Player2, 4, 8);
+    EXPECT_NE(burned.find("Ended by points: P2 wins via burn-out point (CR 432.3)."),
+              std::string::npos) << burned;
+
+    const std::string conceded = endedBy("P1 conceded", PlayerId::Player2, 1, 0);
+    EXPECT_NE(conceded.find("Ended by concede: P1 conceded."), std::string::npos) << conceded;
+
+    const std::string capped = endedBy("Max turns reached", PlayerId::None, 4, 4);
+    EXPECT_NE(capped.find("Ended by a draw: Max turns reached. No winner."), std::string::npos)
+        << capped;
+
+    const std::string loop = endedBy(
+        "Draw: a loop of mandatory actions no player broke (Tournament Rules 505.6), at Self",
+        PlayerId::None, 0, 0);
+    EXPECT_NE(loop.find("Ended by a draw: a loop of mandatory actions no player broke "
+                        "(Tournament Rules 505.6), at Self."),
+              std::string::npos) << loop;
+
+    GameState state;
+    EventBus bus;
+    PlayByPlay thrown(state, bus);
+    thrown.setAccount(sampleAccount());
+    state.decision_index = 3;
+    thrown.unusable("injected fault");
+    const std::string failed = thrown.text();
+    EXPECT_NE(failed.find("Game 4 [seed=99]:"), std::string::npos) << failed;
+    EXPECT_NE(failed.find("Ended by a throw. Not usable: injected fault."), std::string::npos)
+        << failed;
+    EXPECT_NE(failed.find("Score 0-0. Turns 0. Decisions 3."), std::string::npos) << failed;
+    EXPECT_EQ(failed.find("wins"), std::string::npos) << failed;
+
+    const std::string never_started = PlayByPlay::failedGame(sampleAccount(), "agent factory failed");
+    EXPECT_NE(never_started.find("Game 4 [seed=99]: decks fiora vs yi_rebuild"), std::string::npos)
+        << never_started;
+    EXPECT_NE(never_started.find("Ended by a throw. Not usable: agent factory failed."),
+              std::string::npos) << never_started;
+}
+
+// Shipped cards are the ones set aside. Kept cards are the rest of the hand,
+// in hand order, not the cards drawn to replace them.
+TEST(PlayByPlayText, MulliganNamesWhatWasShippedAndKept) {
+    GameState state;
+    EventBus bus;
+    auto add = [&](const char* name) {
+        const auto id = state.createObject();
+        state.getObject(id).name = name;
+        return id;
+    };
+    const auto smoke = add("Smoke Screen");
+    const auto yordle = add("Lecturing Yordle");
+    const auto charm = add("Charm");
+    const auto fiora = add("Fiora");
+    state.player(PlayerId::Player1).hand = {smoke, yordle, charm};
+    state.player(PlayerId::Player2).hand = {fiora, smoke, yordle, charm};
+
+    PlayByPlay chronicle(state, bus);
+    chronicle.setAccount(sampleAccount());
+    chronicle.noteDecision(state, Intent::mulligan(PlayerId::Player1, {smoke}));
+    chronicle.noteDecision(state, Intent::mulligan(PlayerId::Player2, {}));
+    chronicle.complete(PlayerId::Player2, 0, 1, 2, "P1 conceded");
+    const std::string text = chronicle.text();
+
+    EXPECT_NE(text.find("Mulligan: P1 shipped Smoke Screen, and kept Lecturing Yordle and Charm. "
+                        "P2 kept Fiora, Smoke Screen, Lecturing Yordle, and Charm."),
+              std::string::npos) << text;
+}
+
+// Who fought, including a unit that joined after the combat started, and the
+// combat damage. A spell's damage during the combat is not that line.
+TEST(PlayByPlayText, CombatNamesFightersAndDamage) {
+    GameState state;
+    EventBus bus;
+
+    const auto field = state.createObject();
+    auto& fortress = state.getObject(field);
+    fortress.name = "Frozen Fortress";
+    fortress.card_type = CardType::Battlefield;
+    BattlefieldState bf;
+    bf.id = BattlefieldId::fromRaw(0);
+    bf.card_object_id = field;
+    state.battlefields.push_back(bf);
+
+    auto place = [&](const char* name, PlayerId who) {
+        const auto id = state.createObject();
+        auto& obj = state.getObject(id);
+        obj.name = name;
+        obj.card_type = CardType::Unit;
+        obj.controller = who;
+        obj.owner = who;
+        obj.zone = ZoneType::BattlefieldZone;
+        obj.location = BattlefieldLocation{0};
+        return id;
+    };
+    const auto yordle = place("Lecturing Yordle", PlayerId::Player1);
+    const auto recruit = place("Recruit", PlayerId::Player2);
+    // Not at the battlefield when the combat starts.
+    const auto eager = state.createObject();
+    auto& late = state.getObject(eager);
+    late.name = "Eager Recruit";
+    late.card_type = CardType::Unit;
+    late.controller = PlayerId::Player1;
+    late.owner = PlayerId::Player1;
+
+    state.turn.turn_number = 2;
+    state.turn.turn_player = PlayerId::Player1;
+
+    PlayByPlay chronicle(state, bus);
+    bus.emit(CombatStartedEvent{BattlefieldId::fromRaw(0), PlayerId::Player1, PlayerId::Player2});
+    // Arrived after the combat started. Still part of who fought.
+    bus.emit(ObjectStateChangedEvent{eager, "joined_combat"});
+
+    bus.emit(DamageDealtEvent{recruit, 2, kInvalidId, true});
+    bus.emit(DamageDealtEvent{recruit, 1, kInvalidId, true});
+    bus.emit(DamageDealtEvent{yordle, 9, kInvalidId, false});
+    bus.emit(DamageDealtEvent{yordle, 2, kInvalidId, true});
+    bus.emit(CombatEndedEvent{BattlefieldId::fromRaw(0), PlayerId::Player1});
+
+    const std::string text = chronicle.text();
+    EXPECT_NE(text.find("Combat at Frozen Fortress: P1's Lecturing Yordle and Eager Recruit "
+                        "against P2's Recruit. P2's Recruit takes 3 damage and "
+                        "P1's Lecturing Yordle takes 2 damage."),
+              std::string::npos) << text;
+    EXPECT_EQ(text.find("9"), std::string::npos) << text;
+}
+
+// Emissions and mulligan notes inside a quiet stretch are a probe. They are
+// not part of the game that was played.
+TEST(PlayByPlayText, QuietProbeWritesNothing) {
+    GameState state;
+    EventBus bus;
+    const auto unit = state.createObject();
+    auto& yordle = state.getObject(unit);
+    yordle.name = "Lecturing Yordle";
+    yordle.card_type = CardType::Unit;
+    yordle.controller = PlayerId::Player1;
+    const auto smoke = state.createObject();
+    state.getObject(smoke).name = "Smoke Screen";
+    state.player(PlayerId::Player1).hand = {smoke};
+
+    PlayByPlay chronicle(state, bus);
+    const auto quiet = bus.beginQuiet();
+    bus.emit(PhaseChangedEvent{TurnPhase::Mulligan, TurnPhase::AwakenPhase, PlayerId::Player1});
+    bus.emit(CardPlayedEvent{unit, PlayerId::Player1, CardType::Unit, 1});
+    chronicle.noteDecision(state, Intent::mulligan(PlayerId::Player1, {smoke}));
+    bus.endQuiet(quiet);
+
+    chronicle.setAccount(sampleAccount());
+    chronicle.complete(PlayerId::Player1, 8, 0, 1, "P1 reached 8 points");
+    const std::string text = chronicle.text();
+    EXPECT_EQ(text.find("Lecturing Yordle"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Smoke Screen"), std::string::npos) << text;
+    EXPECT_EQ(text.find("plays "), std::string::npos) << text;
+    EXPECT_NE(text.find("Mulligan: neither player was asked."), std::string::npos) << text;
+
+    bus.emit(PhaseChangedEvent{TurnPhase::Mulligan, TurnPhase::AwakenPhase, PlayerId::Player1});
+    bus.notePlayCost(unit, 0, 0, false, false);
+    bus.emit(CardPlayedEvent{unit, PlayerId::Player1, CardType::Unit, 1});
+    const std::string after = chronicle.text();
+    EXPECT_NE(after.find("P1 plays Lecturing Yordle for free."), std::string::npos) << after;
+}
+
+/// Keeps the opening hand, then throws. The mulligan was a real decision.
+class KeepThenThrow : public AgentInterface {
+public:
+    Intent selectAction(const GameState&, const std::vector<Intent>& legal) override {
+        // Each seat is its own agent, and each is asked to mulligan once.
+        // The next decision, after both have kept, is where the game throws.
+        for (const auto& action : legal)
+            if (action.type == IntentType::MulliganDecision && action.cards_to_mulligan.empty())
+                return action;
+        throw std::runtime_error("boom after the mulligan");
+    }
+};
+
+// The block is printed, and the exception still leaves the runner. The game
+// is not counted as played.
+TEST(PlayByPlayText, AThrowStillPrintsTheGameAndSaysItIsNotUsable) {
+    CardRegistry registry;
+    registry.loadAll();
+    CardDB db;
+    db.buildFromClasses(registry);
+    const char* env = std::getenv("RIFTBOUND_ROOT");
+    const std::string root = env ? env : ".";
+    const auto deck1 = DeckValidator::loadFromDeckList(root + "/decks/fiora.txt", db);
+    const auto deck2 = DeckValidator::loadFromDeckList(root + "/decks/yi_rebuild.txt", db);
+
+    GameConfig cfg;
+    cfg.base_seed = 23;
+    cfg.total_games = 1;
+    cfg.deck1_name = "fiora";
+    cfg.deck2_name = "yi_rebuild";
+    cfg.agent1_spec = "keep-then-throw";
+    cfg.agent2_spec = "keep-then-throw";
+    cfg.agent_factory = [](int, uint64_t) {
+        return std::make_unique<KeepThenThrow>();
+    };
+    AggregateResults results;
+    results.total_games = 1;
+    GameRunner runner(db, registry, deck1, deck2, cfg, results);
+
+    testing::internal::CaptureStdout();
+    std::string what;
+    try {
+        runner.run();
+    } catch (const std::runtime_error& e) {
+        what = e.what();
+    }
+    const std::string out = testing::internal::GetCapturedStdout();
+
+    ASSERT_NE(what.find("game 1 [seed=23]: boom after the mulligan"), std::string::npos) << what;
+    EXPECT_NE(out.find("Game 1 [seed=23]: decks fiora vs yi_rebuild, agents keep-then-throw vs "
+                       "keep-then-throw."),
+              std::string::npos) << out;
+    EXPECT_NE(out.find("Ended by a throw. Not usable: boom after the mulligan."), std::string::npos)
+        << out;
+    EXPECT_NE(out.find("Mulligan:"), std::string::npos) << out;
+    EXPECT_NE(out.find("P1 kept "), std::string::npos) << out;
+    EXPECT_NE(out.find("P2 kept "), std::string::npos) << out;
+    EXPECT_EQ(results.games_completed.load(), 0);
+}
+
+// Past 20 games the progress line stays, and a game is not listed.
+TEST(PlayByPlayText, ABatchLargerThanTwentyDoesNotListEachGame) {
+    CardRegistry registry;
+    registry.loadAll();
+    CardDB db;
+    db.buildFromClasses(registry);
+    const char* env = std::getenv("RIFTBOUND_ROOT");
+    const std::string root = env ? env : ".";
+    const auto deck1 = DeckValidator::loadFromDeckList(root + "/decks/fiora.txt", db);
+    const auto deck2 = DeckValidator::loadFromDeckList(root + "/decks/yi_rebuild.txt", db);
+
+    GameConfig cfg;
+    cfg.base_seed = 19;
+    cfg.total_games = 21;
+    cfg.agent_factory = [](int, uint64_t) {
+        return std::make_unique<MoveThenStop>();
+    };
+    AggregateResults results;
+    results.total_games = 21;
+    GameRunner runner(db, registry, deck1, deck2, cfg, results);
+
+    testing::internal::CaptureStdout();
+    runner.run();
+    const std::string out = testing::internal::GetCapturedStdout();
+    EXPECT_EQ(out.find("Game 1 [seed="), std::string::npos) << out;
+    EXPECT_EQ(out.find("Mulligan:"), std::string::npos) << out;
+    EXPECT_EQ(out.find("Ended by "), std::string::npos) << out;
+    EXPECT_EQ(results.games_completed.load(), 1);
 }
 
 } // namespace riftbound::test::play_by_play

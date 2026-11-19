@@ -138,35 +138,72 @@ GameResult GameRunner::run() {
             " [seed=" + std::to_string(game_seed) + "]: " + e.what());
     };
 
+    // The header of the play-by-play. Built before the agents, so a failure
+    // while seating them still names this game.
+    auto deckLabel = [&](const DeckSubmission& deck, const std::string& given) {
+        if (!given.empty()) return given;
+        if (deck.legend == kInvalidId) return std::string("unknown");
+        try {
+            const std::string name = card_db_.get(deck.legend).name;
+            return name.empty() ? std::string("unknown") : name;
+        } catch (const std::out_of_range&) {
+            return std::string("unknown");
+        }
+    };
+    PlayByPlay::Account account;
+    account.number = config_.game_index + 1;
+    account.seed = game_seed;
+    account.deck1 = deckLabel(deck1_, config_.deck1_name);
+    account.deck2 = deckLabel(deck2_, config_.deck2_name);
+    account.agent1 = config_.agent1_spec.empty() ? std::string("random") : config_.agent1_spec;
+    account.agent2 = config_.agent2_spec.empty() ? std::string("random") : config_.agent2_spec;
+    // A batch of 20 is the size a 100-game sample is split into, so a larger
+    // batch keeps the progress line and does not print a block per game.
+    const bool list_this_game = config_.total_games <= 20;
+    auto reportThrow = [&](const std::string& error) {
+        if (!list_this_game) return;
+        std::lock_guard<std::mutex> lock(results_.console_mutex);
+        std::cout << PlayByPlay::failedGame(account, error);
+    };
+
     std::unique_ptr<AgentInterface> agent1, agent2;
     try {
         agent1 = makeAgent(0, config_.agent1_spec);
         agent2 = makeAgent(1, config_.agent2_spec);
     } catch (const std::exception& e) {
+        reportThrow(e.what());
         throw inThisGame(e);
     }
 
-    // Decision callback feeds the HTML replay writer when --render is on.
+    // One short block per turn. Built for a normal run: it does not depend
+    // on --trace or --render-html. A throw still prints the block.
+    std::unique_ptr<PlayByPlay> chronicle;
+    if (list_this_game) {
+        chronicle = std::make_unique<PlayByPlay>(engine.state(), events);
+        chronicle->setAccount(account);
+    }
+
+    // The replay, when --render-html is on, and the mulligan for the block.
     engine.on_decision = [&](const GameState& state,
                               const std::vector<Intent>& actions,
                               const Intent& chosen) {
-        if (replay) {
-            replay->recordDecision(state, actions, chosen, renderer);
-        }
+        if (chronicle) chronicle->noteDecision(state, chosen);
+        if (replay) replay->recordDecision(state, actions, chosen, renderer);
     };
-
-    // One short block per turn, printed with the per-game result line.
-    // A batch of 20 is the size a 100-game sample is split into, so a larger
-    // batch keeps the progress line and does not print a block per game.
-    // Built for a normal run: it does not depend on --trace or --render-html.
-    std::unique_ptr<PlayByPlay> chronicle;
-    if (config_.total_games <= 20)
-        chronicle = std::make_unique<PlayByPlay>(engine.state(), events);
 
     GameResult result;
     try {
         result = engine.runGame(deck1_, deck2_, *agent1, *agent2, game_seed);
     } catch (const std::exception& e) {
+        if (list_this_game) {
+            std::lock_guard<std::mutex> lock(results_.console_mutex);
+            if (chronicle) {
+                chronicle->unusable(e.what());
+                std::cout << chronicle->text();
+            } else {
+                std::cout << PlayByPlay::failedGame(account, e.what());
+            }
+        }
         throw inThisGame(e);
     }
 
@@ -197,17 +234,12 @@ GameResult GameRunner::run() {
                       << log_buffer.str();
         }
 
-        // Per-game result (only for small batches)
-        if (config_.total_games <= 20) {
-            std::cout << "Game " << (config_.game_index + 1)
-                      << " [seed=" << game_seed << "]: "
-                      << toString(result.winner) << " wins"
-                      << " (" << result.final_scores[0] << "-"
-                      << result.final_scores[1] << ")"
-                      << " in " << result.total_turns << " turns"
-                      << " (" << result.total_decisions << " decisions)"
-                      << " — " << result.termination_reason << "\n";
-            if (chronicle) std::cout << chronicle->text();
+        // The same block a single game prints. A batch of 20 is included;
+        // a larger batch keeps the progress line and does not list each game.
+        if (list_this_game && chronicle) {
+            chronicle->complete(result.winner, result.final_scores[0], result.final_scores[1],
+                                result.total_decisions, result.termination_reason);
+            std::cout << chronicle->text();
         }
 
         // Progress for batches > 20 games. Tick on whichever fires first:

@@ -666,6 +666,12 @@ int main(int argc, char* argv[]) {
     // Truncating here, ONCE, keeps both paths in lockstep. 2^31 distinct
     // seeds is plenty for batch reproducibility.
     uint64_t game_seed = (seed == 0 ? std::random_device{}() : seed) & 0x7FFFFFFFu;
+    const auto deckLabel = [](const std::string& path) {
+        const std::string stem = fs::path(path).stem().string();
+        return stem.empty() ? path : stem;
+    };
+    const std::string deck1_name = deckLabel(deck1_path);
+    const std::string deck2_name = deckLabel(deck2_path);
     if (num_games == 1) {
         std::cout << "Seed: " << game_seed
                   << (seed == 0 ? "  (random)" : "  (--seed)") << "\n";
@@ -725,6 +731,8 @@ int main(int argc, char* argv[]) {
         cfg.total_games   = num_games;
         cfg.agent1_spec   = spec1.raw;
         cfg.agent2_spec   = spec2.raw;
+        cfg.deck1_name    = deck1_name;
+        cfg.deck2_name    = deck2_name;
         cfg.agent_factory = std::move(factory);
         cfg.match_format  = match_format;
 
@@ -920,20 +928,35 @@ int main(int argc, char* argv[]) {
     std::atomic<bool> game_failed{false};
     std::thread game_thread([&] {
         std::string last_line;
+        // The same short account a batch prints. A normal run prints it;
+        // --trace and --render-html do not have to be on. A throw still
+        // prints the block.
+        PlayByPlay chronicle(engine.state(), events);
+        PlayByPlay::Account account;
+        account.number = 1;
+        account.seed = game_seed;
+        account.deck1 = deck1_name;
+        account.deck2 = deck2_name;
+        account.agent1 = spec1.raw;
+        account.agent2 = spec2.raw;
+        chronicle.setAccount(std::move(account));
+        auto previous = std::move(engine.on_decision);
+        engine.on_decision = [&chronicle, previous = std::move(previous)](
+                                 const GameState& st,
+                                 const std::vector<Intent>& actions,
+                                 const Intent& chosen) {
+            chronicle.noteDecision(st, chosen);
+            if (previous) previous(st, actions, chosen);
+        };
         try {
-            // The same short account a batch prints next to its per-game
-            // line. A normal run prints it; --trace and --render-html do not
-            // have to be on.
-            PlayByPlay chronicle(engine.state(), events);
             auto result = engine.runGame(deck1, deck2, *seat1, *seat2, game_seed);
-            std::cout << "\nGame over: winner="
-                      << static_cast<int>(result.winner)
-                      << " | reason=" << result.termination_reason
-                      << " | turns=" << result.total_turns
-                      << "\n";
-            std::cout << chronicle.text();
+            chronicle.complete(result.winner, result.final_scores[0], result.final_scores[1],
+                               result.total_decisions, result.termination_reason);
+            std::cout << "\n" << chronicle.text();
             last_line = "[TRC] GAME_OVER: " + result.termination_reason;
         } catch (const std::exception& e) {
+            chronicle.unusable(e.what());
+            std::cout << "\n" << chronicle.text();
             std::cerr << "[engine] exception: " << e.what() << "\n";
             game_failed.store(true);
             last_line = std::string("[WRN] ENGINE_EXCEPTION: ") + e.what();
