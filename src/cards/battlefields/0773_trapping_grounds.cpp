@@ -24,11 +24,18 @@ public:
         return bf && excessCombatDamageAt(state, controller, *bf) >= 3;
     }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>& /*targets*/) override {
+        // No destination is printed. Where an effect plays a token is a choice
+        // of that play (CR 355.2, 420.3.b), made as the token is played.
         KeywordSet kw; kw.set(Keyword::Deflect);
-        ctx.executor.createToken(ctx.controller, CardType::Unit, "Bird",
-                                  /*might=*/1, /*tags=*/{"Bird"}, kw,
-                                  BaseLocation{ctx.controller},
-                                  /*enter_ready=*/false);
+        std::vector<GameObjectId> made;
+        const bool played = playTokensChoosingLocations(
+            ctx, "Trapping Grounds: play the Bird", 1,
+            [&](LocationId where) {
+                return ctx.executor.createToken(ctx.controller, CardType::Unit, "Bird",
+                                                 /*might=*/1, /*tags=*/{"Bird"}, kw, where,
+                                                 /*enter_ready=*/false);
+            }, made);
+        if (!played) return;
         RIFT_TRACE(ctx.events, "TRAPPING GROUNDS: conquer with 3+ excess damage -> 1[M] Bird w/ [Deflect]");
     }
 private:

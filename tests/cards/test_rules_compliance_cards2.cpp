@@ -51,6 +51,7 @@ constexpr CardDefId kRenataMastermind = 410;
 constexpr CardDefId kTrinityForce     = 437;   // "[Equip] [O]"
 constexpr CardDefId kJaxUnrelenting   = 440;
 constexpr CardDefId kCull             = 455;
+constexpr CardDefId kHextechGauntlets = 748;
 constexpr CardDefId kJaeMedarda       = 463;
 constexpr CardDefId kDravenAudacious  = 469;
 constexpr CardDefId kUnsungHero       = 488;
@@ -1541,28 +1542,33 @@ TEST_F(RulesCards2Test, RulesCards2_CR383_4_g_ReckonersArena_PutsConquerEffectsO
 
     EXPECT_EQ(state.player(P1).xp, 0)
         << "CR 383.4.g.1: \"placed on the chain as if it had just triggered\", not run inline";
-    ASSERT_EQ(state.chain.items.size(), 1u);
-    const ChainItem queued = state.chain.items.back();
-    EXPECT_EQ(queued.source, horror);
-    EXPECT_NE(queued.source, elsewhere);
-    EXPECT_NE(queued.source, enemy);
-    EXPECT_EQ(queued.controller, P1);
-    EXPECT_EQ(queued.card_def_id, kArachnoidHorror);
-    EXPECT_TRUE(queued.is_ability);
-    EXPECT_FALSE(queued.is_activated_ability);
-    EXPECT_EQ(queued.fired_trigger, TriggerType::WhenIConquerOrHold);
-    EXPECT_EQ(queued.status, ChainItemStatus::Pending);
+    // Both units here, including the enemy's. [Hunt] is a conquer effect too
+    // (CR 823.1.b), so each horror's WhenIConquerOrHold is activated.
+    ASSERT_EQ(state.chain.items.size(), 2u);
+    bool saw_friendly = false, saw_enemy = false;
+    while (!state.chain.items.empty()) {
+        const ChainItem queued = state.chain.items.back();
+        EXPECT_NE(queued.source, elsewhere);
+        EXPECT_EQ(queued.card_def_id, kArachnoidHorror);
+        EXPECT_EQ(queued.controller, state.getObject(queued.source).controller);
+        EXPECT_TRUE(queued.is_ability);
+        EXPECT_FALSE(queued.is_activated_ability);
+        EXPECT_EQ(queued.fired_trigger, TriggerType::WhenIConquerOrHold);
+        EXPECT_EQ(queued.status, ChainItemStatus::Pending);
+        if (queued.source == horror) saw_friendly = true;
+        if (queued.source == enemy) saw_enemy = true;
+        beginResolvingTop();
+        CardContext unit_ctx{state, events, exec, queued.controller, queued.source};
+        unit_ctx.firing_trigger = queued.fired_trigger;
+        unit_ctx.registry = &card_registry;
+        card_registry.get(queued.card_def_id)->onTrigger(unit_ctx, {});
+        state.chain.resuming.reset();
+    }
+    EXPECT_TRUE(saw_friendly);
+    EXPECT_TRUE(saw_enemy);
     EXPECT_EQ(state.turn.oc_state, OpenClosedState::Closed);
-
-    // It resolves like any triggered ability, with its own resume slots.
-    beginResolvingTop();
-    CardContext unit_ctx{state, events, exec, queued.controller, queued.source};
-    unit_ctx.firing_trigger = queued.fired_trigger;
-    unit_ctx.registry = &card_registry;
-    card_registry.get(queued.card_def_id)->onTrigger(unit_ctx, {});
-    state.chain.resuming.reset();
     EXPECT_EQ(state.player(P1).xp, 2);
-    EXPECT_EQ(state.player(P2).xp, 0);
+    EXPECT_EQ(state.player(P2).xp, 2);
 }
 
 TEST_F(RulesCards2Test, RulesCards2_CR383_4_g_ReckonersArena_IncludesConquerEffectsFromEquipment) {
@@ -1577,8 +1583,52 @@ TEST_F(RulesCards2Test, RulesCards2_CR383_4_g_ReckonersArena_IncludesConquerEffe
 
     card_registry.get(kReckonersArena)->onTrigger(ctx, {});
 
+    ASSERT_EQ(state.chain.items.size(), 1u) << "the gear's conquer effect is a chain item";
+    const ChainItem queued = state.chain.items.back();
+    EXPECT_EQ(queued.source, cull);
+    EXPECT_EQ(queued.equipped_unit, unit);
+    EXPECT_EQ(queued.triggering_subject, unit);
+    EXPECT_EQ(queued.controller, P1);
+    EXPECT_EQ(queued.fired_trigger, TriggerType::WhenIConquer);
+    expectGoldInBase(P1, 0);   // queued, not resolved inline
+
+    beginResolvingTop();
+    CardContext gear_ctx{state, events, exec, queued.controller, queued.source};
+    gear_ctx.firing_trigger = queued.fired_trigger;
+    gear_ctx.registry = &card_registry;
+    card_registry.get(kCull)->onEquippedTrigger(gear_ctx, unit, {});
+    state.chain.resuming.reset();
     expectGoldInBase(P1, 1);
-    EXPECT_TRUE(state.chain.items.empty()) << "the unit itself has no conquer ability";
+}
+
+TEST_F(RulesCards2Test, RulesCards2_CR383_4_g_ReckonersArena_EquipmentConditionIsChecked) {
+    EffectExecutor exec(state, events, card_db, &card_registry);
+    auto arena = installBattlefieldCard(0, kReckonersArena);
+    auto unit = addUnit(P1, kInvalidId, 3, /*at_bf=*/0);
+    auto gloves = addGear(P1, kHextechGauntlets);   // conquer, if 3+ excess
+    attach(gloves, unit);
+    addToDeck(P1, kLegionRearguard);
+    state.player(P1).last_combat_bf = BattlefieldId::fromRaw(0);
+    state.player(P1).excess_combat_damage = 2;
+    CardContext ctx{state, events, exec, P1, arena};
+    ctx.firing_trigger = TriggerType::WhenYouHoldHere;
+    ctx.registry = &card_registry;
+
+    card_registry.get(kReckonersArena)->onTrigger(ctx, {});
+    EXPECT_TRUE(state.chain.items.empty()) << "2 excess does not meet \"3 or more\"";
+    EXPECT_EQ(static_cast<int>(state.player(P1).hand.size()), 0);
+
+    state.player(P1).excess_combat_damage = 3;
+    card_registry.get(kReckonersArena)->onTrigger(ctx, {});
+    ASSERT_EQ(state.chain.items.size(), 1u);
+    EXPECT_EQ(state.chain.items.back().source, gloves);
+    EXPECT_EQ(state.chain.items.back().fired_trigger, TriggerType::WhenIConquer);
+    beginResolvingTop();
+    CardContext gear_ctx{state, events, exec, P1, gloves};
+    gear_ctx.firing_trigger = TriggerType::WhenIConquer;
+    gear_ctx.registry = &card_registry;
+    card_registry.get(kHextechGauntlets)->onEquippedTrigger(gear_ctx, unit, {});
+    EXPECT_EQ(static_cast<int>(state.player(P1).hand.size()), 1);
 }
 
 TEST_F(RulesCards2Test, RulesCards2_Repulse_NotWhenAnotherFriendlyUnitIsChosenToo) {

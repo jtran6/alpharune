@@ -32,13 +32,17 @@ public:
     // condition ("[Empowered][>]", "if you've played ...") are checked by the
     // unit's own onTrigger when its item resolves, as they are for a real one.
     //
-    // The engine queues it (EffectExecutor::queueTriggeredAbility ->
-    // TriggerManager::fireTrigger, with its suppression and trigger-condition
-    // checks). A bare executor with no engine behind it (unit tests) has no
-    // trigger manager, so queueConquerAbility writes the item itself there.
-    // Conquer effects an Equipment gives its unit ("When I conquer, ..." in the
-    // gear's effect text) are run inline through Card::onEquippedTrigger, which
-    // is how TriggerManager::fireEquippedTriggers runs them for a real conquer.
+    // The engine queues a unit's ability (EffectExecutor::queueTriggeredAbility
+    // -> TriggerManager::fireTrigger, with its suppression and trigger-condition
+    // checks). Equipment is queued the same way it is for a real conquer
+    // (queueEquippedTrigger): the gear's printed text is inactive while
+    // attached, so fireTrigger would drop it, and the condition ("if you
+    // assigned 3 or more excess damage") is checked as the item is placed.
+    // A bare executor has no trigger manager, so the fallback writes the item
+    // itself and checks the equipment condition first.
+    // [Hunt] is both a conquer and a hold effect (CR 823.1.b). A hold already
+    // queued WhenIConquerOrHold; activating conquer effects queues it again.
+    // That second chain item is the instruction (CR 383.4.g.1).
     TriggerType triggerType() const override { return TriggerType::WhenYouHoldHere; }
 
     static bool isConquerTrigger(TriggerType t) {
@@ -75,17 +79,37 @@ public:
         ctx.state.turn.oc_state = OpenClosedState::Closed;   // as addAbility does
         if (was_empty) ctx.events.emit(ChainCreatedEvent{item.id, unit.controller});
     }
+    static void queueEquippedConquer(CardContext& ctx, GameObjectId gear_id, GameObjectId unit,
+                                     PlayerId controller, TriggerType fired) {
+        auto& chain = ctx.state.chain;
+        const bool was_empty = !chain.exists();
+        const auto& gear = ctx.state.getObject(gear_id);
+        ChainItem item;
+        item.id = chain.allocateId();
+        item.status = ChainItemStatus::Pending;
+        item.source = gear_id;
+        item.card_def_id = gear.card_def_id;
+        item.controller = controller;
+        item.is_ability = true;
+        item.is_activated_ability = false;
+        item.fired_trigger = fired;
+        item.equipped_unit = unit;
+        item.triggering_subject = unit;
+        chain.items.push_back(item);
+        ctx.state.turn.oc_state = OpenClosedState::Closed;
+        if (was_empty) ctx.events.emit(ChainCreatedEvent{item.id, controller});
+    }
 
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (!ctx.registry) return;
         // Which battlefield does this BF-card object represent?
         const std::optional<BattlefieldId> my_bf = battlefieldOfCard(ctx.state, ctx.source);
         if (!my_bf) return;
-        // Snapshot the holder's units here first: queuing and gear effects can
-        // touch the object map.
+        // Every unit here, either player's: "units here", not "your units".
+        // Snapshot first: queuing can touch the object map.
         std::vector<GameObjectId> units;
         for (auto& [id, obj] : ctx.state.objects.onBoard()) {
-            if (!obj.isUnit() || obj.controller != ctx.controller) continue;
+            if (!obj.isUnit()) continue;
             auto ubf = obj.battlefieldId();
             if (ubf && *ubf == *my_bf) units.push_back(id);
         }
@@ -119,7 +143,8 @@ public:
                     ++activated;
                 }
             }
-            // Conquer effects granted by attached Equipment.
+            // Conquer effects granted by attached Equipment. The unit's
+            // controller owns the ability, including an enemy unit here.
             const auto attached = ctx.state.getObject(uid).attachments;   // copy
             for (auto gid : attached) {
                 if (!ctx.state.objectExists(gid) || !ctx.state.objectExists(uid)) continue;
@@ -127,10 +152,15 @@ public:
                 if (gear.card_def_id == kInvalidId) continue;
                 Card* gc = ctx.registry->get(gear.card_def_id);
                 if (!gc || !isConquerTrigger(gc->equippedTriggerType())) continue;
-                CardContext sub{ctx.state, ctx.events, ctx.executor, ctx.controller, gid};
-                sub.firing_trigger = gc->equippedTriggerType();
-                sub.registry = ctx.registry;
-                gc->onEquippedTrigger(sub, uid, {});
+                const TriggerType fired = gc->equippedTriggerType();
+                const PlayerId uctrl = ctx.state.getObject(uid).controller;
+                if (ctx.executor.canQueueEquipped())
+                    ctx.executor.queueEquippedAbility(gid, uid, uctrl, fired);
+                else if (gc->triggerConditionOn(ctx.state,
+                             Card::TriggerEvent{gid, uctrl, fired, uid}))
+                    queueEquippedConquer(ctx, gid, uid, uctrl, fired);
+                else
+                    continue;
                 ++activated;
             }
         }

@@ -90,6 +90,9 @@ void Card::forgetPlayPayments(GameState& state, const Card* card, PlayerId playe
     if (!state.objectExists(object)) return;
     auto& counters = state.getObject(object).card_counters;
     counters.erase(kAdditionalCostPaid);
+    // Energy this object was charged for a play (GameEngine::beginCostPayment).
+    // A new play starts clean; the play that charged it reads the stamp.
+    counters.erase("__energy_charged");
     // Whether [Accelerate] was decided / paid for a play, and from where the
     // play came (GameEngine::decideAccelerate): per-play flags, dropped as a
     // play begins. (Whether a card on the board gives the unit [Accelerate]

@@ -1,4 +1,5 @@
 #include "cards/card.h"
+#include "cards/card_helpers.h"
 #include "cards/card_registry.h"
 #include "core/game_state.h"
 #include "core/events.h"
@@ -17,14 +18,17 @@ public:
     // "When a player chooses a friendly unit here with a spell for the first
     // time each turn, they draw 1." Fired from the "chosen_by_controller"
     // event (WhenAFriendlyUnitChosenHere; the chosen unit is the subject),
-    // which abilities emit too: triggerCondition keeps only a SPELL's choice.
-    // Once per turn per player via a turn-stamped card_counter.
+    // which abilities emit too: triggerCondition keeps only a SPELL's choice
+    // of a unit here. The first time each turn is stamped when the ability is
+    // accepted (CR 383.1), so a countered ability still counts and a second
+    // spell the same turn is not queued.
     TriggerType triggerType() const override {
         return TriggerType::WhenAFriendlyUnitChosenHere;
     }
-    bool triggerCondition(const GameState& state, GameObjectId /*source*/,
-                          PlayerId controller, TriggerType /*trigger*/,
-                          GameObjectId subject) const override {
+    static std::string key(PlayerId p) {
+        return std::string("__dreaming_tree_drew_p") + std::to_string(static_cast<int>(p));
+    }
+    static bool spellsChoice(const GameState& state, PlayerId controller, GameObjectId subject) {
         // The chooser is the item whose choice is being made: the one being
         // resolved or finalized, else the newest chain item of this player
         // that lists the unit among its choices (a target locked in at play).
@@ -38,14 +42,24 @@ public:
         }
         return false;
     }
+    bool triggerCondition(const GameState& state, GameObjectId source,
+                          PlayerId controller, TriggerType /*trigger*/,
+                          GameObjectId subject) const override {
+        if (!spellsChoice(state, controller, subject)) return false;
+        const auto here = battlefieldOfCard(state, source);
+        if (!here || subject == kInvalidId || !state.objectExists(subject)) return false;
+        const auto at = state.getObject(subject).battlefieldId();
+        if (!at || *at != *here) return false;
+        const auto stamped = state.getObject(source).card_counters.find(key(controller));
+        return stamped == state.getObject(source).card_counters.end() ||
+               stamped->second != state.turn.turn_number + 1;
+    }
+    void acceptTrigger(GameState& state, const TriggerEvent& ev) const override {
+        if (!state.objectExists(ev.source)) return;
+        state.getObject(ev.source).card_counters[key(ev.controller)] =
+            state.turn.turn_number + 1;
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (!ctx.state.objectExists(ctx.source)) return;
-        auto& me = ctx.state.getObject(ctx.source);
-        const int stamp = ctx.state.turn.turn_number + 1;  // +1 so default 0 = never
-        const std::string key = "__dreaming_tree_drew_p" +
-            std::to_string(static_cast<int>(ctx.controller));
-        if (me.card_counters[key] == stamp) return;  // already drew this turn
-        me.card_counters[key] = stamp;
         ctx.executor.drawCards(ctx.controller, 1);
         RIFT_TRACE(ctx.events, "THE DREAMING TREE: first friendly-unit choice here -> draw 1");
     }

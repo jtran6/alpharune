@@ -51,7 +51,11 @@ constexpr CardDefId kAllay = 603;
 constexpr CardDefId kSoulShepherd = 639;
 constexpr CardDefId kElderDragon = 680;
 constexpr CardDefId kBaronNashor = 709;
+constexpr CardDefId kSealOfRage = 536;
 constexpr CardDefId kAltarOfBlood = 762;
+constexpr CardDefId kForgottenLibrary = 767;
+constexpr CardDefId kOnslaught = 868;          // spell, [4]
+constexpr CardDefId kPiltovanForge = 948;
 constexpr CardDefId kBlackFlameAltar = 764;
 constexpr CardDefId kVaultsOfHelia = 775;
 constexpr CardDefId kWujuMaster = 784;
@@ -916,6 +920,22 @@ TEST_F(AltarOfBloodTest, NotOfferedWhenItCannotBePaid) {
     EXPECT_FALSE(o(dying_).location.has_value());
 }
 
+TEST_F(AltarOfBloodTest, OfferedWhenAnAddCoversTheRest) {
+    combatAt(0, P2);
+    rune(P1, Domain::Calm);
+    rune(P1, Domain::Calm);                 // [A][A], the third comes from [Add]
+    auto seal = fromDef(P1, kSealOfRage);   // [E]: [Reaction] — [Add] [R]
+    o(seal).zone = ZoneType::Base;
+    o(seal).location = BaseLocation{P1};
+    a1_.say_yes = true;
+
+    engine_->testHook_processLethalDamage();
+
+    EXPECT_EQ(a1_.yes_no_asked, 1);
+    EXPECT_TRUE(o(dying_).isAtBase()) << "the Add pays the third [A]";
+    EXPECT_TRUE(o(seal).is_exhausted);
+}
+
 TEST_F(AltarOfBloodTest, NotOfferedOutsideCombat) {
     a1_.say_yes = true;
     for (int i = 0; i < 3; ++i) rune(P1, Domain::Calm);
@@ -938,6 +958,81 @@ TEST_F(AltarOfBloodTest, OnlyUnitsAtTheAltar) {
 }
 
 // ─── 5.4: Elder Dragon's rule is the card's, not a text match ───────────────
+
+TEST_F(AurasCostsTest, PiltovanForge_TwoCopiesStack) {
+    battlefieldCard(0, kPiltovanForge);
+    battlefieldCard(1, kPiltovanForge);
+    s().battlefields[0].controller = P1;
+    s().battlefields[1].controller = P1;
+    auto hold0 = vanilla(P1, 2, 0);
+    auto hold1 = vanilla(P1, 2, 1);
+    cleanup();
+    EXPECT_EQ(s().player(P1).first_gear_ability_discount, 2);
+
+    s().battlefields[1].card_object_id = kInvalidId;
+    cleanup();
+    EXPECT_EQ(s().player(P1).first_gear_ability_discount, 1);
+
+    o(hold0).location = BaseLocation{P1};
+    o(hold0).zone = ZoneType::Base;
+    o(hold1).location = BaseLocation{P1};
+    o(hold1).zone = ZoneType::Base;
+    cleanup();
+    EXPECT_EQ(s().player(P1).first_gear_ability_discount, 0);
+}
+
+TEST_F(AurasCostsTest, OrnnsForge_AnEffectPlayedGearSpendsTheFirstDiscount) {
+    battlefieldCard(0, kOrnnsForge);
+    s().battlefields[0].controller = P1;
+    vanilla(P1, 2, 0);   // keeps control through the cleanup
+    cleanup();
+    auto priced = inHand(P1, kClothArmor);   // [1]
+    EXPECT_TRUE(engine_->testHook_canAfford(P1, priced))
+        << "the first non-token gear is [1] less, so [1] is free";
+
+    auto token = fromDef(P1, kClothArmor);
+    o(token).super_type = SuperType::Token;
+    o(token).zone = ZoneType::Hand;
+    s().player(P1).hand.push_back(token);
+    ASSERT_TRUE(engine_->testHook_executor().playIgnoringCost(P1, token));
+    EXPECT_EQ(s().player(P1).gears_played_this_turn, 0) << "a token gear is not the first gear";
+    EXPECT_TRUE(engine_->testHook_canAfford(P1, priced));
+
+    auto played = inHand(P1, kClothArmor);
+    ASSERT_TRUE(engine_->testHook_executor().playIgnoringCost(P1, played));
+    EXPECT_EQ(s().player(P1).gears_played_this_turn, 1);
+    EXPECT_FALSE(engine_->testHook_canAfford(P1, priced))
+        << "the effect play spent the first discount";
+}
+
+TEST_F(AurasCostsTest, ForgottenLibrary_ADiscountedSpellDoesNotCountItsPrintedCost) {
+    battlefieldCard(0, kForgottenLibrary);
+    s().battlefields[0].controller = P1;
+    vanilla(P1, 2, 0);
+    auto top = s().createObject();
+    o(top).owner = o(top).controller = P1;
+    o(top).card_type = CardType::Unit;
+    o(top).zone = ZoneType::MainDeck;
+    s().player(P1).main_deck.push_back(top);
+
+    PlayerState::CostModifier cheaper;
+    cheaper.energy_reduction = 1;
+    s().player(P1).cost_modifiers.push_back(cheaper);
+    s().player(P1).rune_pool.energy = 3;   // printed [4], charged [3]
+    auto spell = inHand(P1, kOnslaught);
+
+    Intent play;
+    play.type = IntentType::PlayCard;
+    play.player = P1;
+    play.card = spell;
+    engine_->testHook_executeIntent(play);
+    settleLikeTheEngine(*engine_);
+
+    EXPECT_EQ(o(spell).card_counters["__energy_spent_on_play"], 3);
+    EXPECT_EQ(s().player(P1).main_deck.size(), 1u)
+        << "3 energy does not meet \"spent [4] or more\"";
+    EXPECT_EQ(s().player(P1).main_deck.front(), top);
+}
 
 TEST_F(AurasCostsTest, ElderDragon_AnyOfYourDamageKills) {
     onBoard(P1, kElderDragon);

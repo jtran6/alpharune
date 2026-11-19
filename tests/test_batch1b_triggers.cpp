@@ -1265,6 +1265,29 @@ TEST_F(Batch1bCombat, I2_TrappingGrounds_AConquerWithThreeExcessPlaysABird) {
     EXPECT_EQ(unitsNamed(P1, "Bird"), 1);
 }
 
+TEST_F(Batch1bCombat, I2_TrappingGrounds_TheBirdCanBePlayedToTheBattlefield) {
+    battlefieldCard(0, kTrappingGrounds);
+    vanilla(P1, 0, 4);
+    vanilla(P2, 0, 1);
+    stageCombat(0, P1);
+    EnginePathAgent pick([](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (i.choice_label.find("play the Bird") != std::string::npos &&
+                i.chosen_value == 1)
+                return i;
+        for (const auto& i : legal)
+            if (i.type == IntentType::PassPriority) return i;
+        return legal.front();
+    });
+    withEngine([&](GameEngine& e) { e.testHook_advanceMainPhase(); }, &pick);
+    GameObjectId bird = kInvalidId;
+    for (const auto& [id, obj] : state.objects)
+        if (obj.isUnit() && obj.name == "Bird" && obj.controller == P1) bird = id;
+    ASSERT_NE(bird, kInvalidId);
+    EXPECT_EQ(o(bird).battlefieldId(), std::optional<BattlefieldId>(BattlefieldId::fromRaw(0)))
+        << "no destination is printed, so the battlefield is a legal play";
+}
+
 TEST_F(Batch1bCombat, I2_PiltoverEnforcer_AConquerWithThreeExcessOffersTheReady) {
     battlefieldCard(0, kFrozenFortress);   // the conquer's subject is the battlefield's card
     auto enforcer = legendOf(P1, kPiltoverEnforcer);

@@ -106,10 +106,10 @@ struct CardPlayedEvent {
     CardType card_type;
     int cards_played_this_turn; // count after this play
 
-    // Total energy "spent" on this play — base energy cost plus any
-    // Repeat increments paid (CR 820). Used by Forgotten Library / Virtuoso
-    // for the "if you spent [4] or more" gate. For non-spells (units/gear)
-    // this is just the base energy_cost.
+    // Energy charged for this play: the cost after discounts, Repeat energy
+    // paid with it included (CR 820). 0 when the play paid none (ignored,
+    // facedown, an effect that does not pay). Forgotten Library / Virtuoso
+    // read it for "if you spent [4] or more".
     int energy_spent = 0;
 };
 
