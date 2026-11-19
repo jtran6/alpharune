@@ -16,12 +16,23 @@ class PackedAmphitheater_1081 : public BattlefieldCard {
 public:
     const CardDef& def() const override { return def_; }
 
-    void applyPassiveAura(GameState& state, PlayerId controller) const override {
-        forEachSelfOnce(*this, state, controller, [&](GameObjectId self, GameObject& me) {
-            if (!me.location.has_value()) return;
-            for (auto& [id, obj] : state.objects.atLocation(*me.location))
-                if (obj.isUnit() && obj.isChampion()) auraMight(obj, self, 1);
-        });
+    // "Champion units here have +1 [M]." A battlefield card has no location
+    // and is not in the Legend Zone, so forEachSelfOnce (objects.inPlay())
+    // never visits it and the bonus was never written. The hook runs once per
+    // slot holding this card; walking the slots, one effect per slot, is how
+    // Trifarian War Camp gives its Might.
+    void applyPassiveAura(GameState& state, PlayerId /*controller*/) const override {
+        for (const auto& bf : state.battlefields) {
+            if (!state.objectExists(bf.card_object_id)) continue;
+            if (state.getObject(bf.card_object_id).card_def_id != cardDefId()) continue;
+            for (auto& [uid, u] : state.objects.onBoard()) {
+                if (!u.isUnit() || !u.isChampion()) continue;
+                auto ubf = u.battlefieldId();
+                if (!ubf || *ubf != bf.id) continue;
+                if (hasAuraFrom(u, bf.card_object_id)) continue;
+                auraMight(u, bf.card_object_id, 1);
+            }
+        }
     }
 
 private:

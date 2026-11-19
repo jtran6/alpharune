@@ -21,6 +21,8 @@ protected:
     static constexpr CardDefId kMemorial = 1078;
     static constexpr CardDefId kAcademy = 1074;
     static constexpr CardDefId kCircle = 1080;
+    static constexpr CardDefId kAmphitheater = 1081;
+    static constexpr CardDefId kRakelstake = 1082;
     static constexpr CardDefId kSongstress = 1070;
     static constexpr CardDefId kHighNote = 1098;    // [3], choices in the finalize pass
     static constexpr CardDefId kShen = 241;         // [3][A], [Reaction]
@@ -440,6 +442,99 @@ TEST_F(EngineFixLines, Songstress_FinalizeSpellShortByTwoIsPlayed) {
         for (const auto& intent : e.testHook_mainPhaseActions(P1))
             EXPECT_FALSE(intent.type == IntentType::PlayCard && intent.card == dear);
     });
+}
+
+// Packed Amphitheater and Rakelstake. Each assertion below fails before the
+// fix and passes after it.
+
+TEST_F(EngineFixLines, PackedAmphitheater_ChampionsHereHavePlusOneMight) {
+    battlefieldCard(0, kAmphitheater, P1);
+    auto shen = addUnit(P1, kShen, 0, 0);
+    auto poro = addUnit(P1, kUnit, 0, 0);
+    auto elsewhere = addUnit(P1, kShen, 0, 1);
+    withEngine([&](GameEngine& e) {
+        e.testHook_cleanup();
+        // Printed Might 3, plus the battlefield's +1. A cleanup is what combat
+        // and every Might check read.
+        EXPECT_EQ(e.mutableState().getObject(shen).current_might, 4);
+        EXPECT_EQ(e.mutableState().getObject(poro).current_might, 2);
+        EXPECT_EQ(e.mutableState().getObject(elsewhere).current_might, 3);
+    });
+}
+
+TEST_F(EngineFixLines, PackedAmphitheater_CombatDealsTheBonusMight) {
+    // P2 holds the battlefield, so Shen is the attacker and [Shield] does not
+    // add. He deals 4 and the 4 [M] defender dies; at printed Might he deals 3
+    // and that defender lives.
+    battlefieldCard(0, kAmphitheater, P2);
+    auto shen = addUnit(P1, kShen, 0, 0);
+    auto defender = addUnit(P2, kInvalidId, 4, 0);
+    withEngine([&](GameEngine& e) {
+        e.testHook_cleanup();
+        EXPECT_EQ(e.mutableState().getObject(shen).current_might, 4);
+        EXPECT_EQ(e.mutableState().battlefields[0].contested_by, P1);
+        e.testHook_runCombat(BattlefieldId::fromRaw(0));
+        EXPECT_FALSE(e.mutableState().getObject(defender).location.has_value());
+    });
+}
+
+TEST_F(EngineFixLines, Rakelstake_FirstPlayHerePredictsAndTheSecondDoesNot) {
+    battlefieldCard(0, kRakelstake, P1);
+    addUnit(P1, kUnit, 1, 0);
+    addToDeck(P1, kUnit);
+    auto away = addToHand(P1, kUnit);
+    auto first = addToHand(P1, kUnit);
+    auto second = addToHand(P1, kUnit);
+    const LocationId here{BattlefieldLocation{BattlefieldId::fromRaw(0)}};
+    const LocationId other{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    EnginePathAgent p1;
+    playThroughEngine(away, &p1, other);
+    EXPECT_EQ(p1.predict_kept_by_default, 0);
+    playThroughEngine(first, &p1, here);
+    EXPECT_EQ(p1.predict_kept_by_default, 1);
+    playThroughEngine(second, &p1, here);
+    EXPECT_EQ(p1.predict_kept_by_default, 1);
+    state.turn.turn_number += 1;
+    auto later = addToHand(P1, kUnit);
+    playThroughEngine(later, &p1, here);
+    EXPECT_EQ(p1.predict_kept_by_default, 2);
+}
+
+TEST_F(EngineFixLines, Rakelstake_TheOtherPlayerGetsTheirOwnFirstPlay) {
+    battlefieldCard(0, kRakelstake, P1);
+    addUnit(P1, kUnit, 1, 0);
+    addToDeck(P1, kUnit);
+    addToDeck(P2, kUnit);
+    auto mine = addToHand(P1, kUnit);
+    auto theirs = addToHand(P2, kUnit);
+    auto again = addToHand(P2, kUnit);
+    const LocationId here{BattlefieldLocation{BattlefieldId::fromRaw(0)}};
+    EnginePathAgent p1, p2;
+    playThroughEngine(mine, &p1, here, &p2);
+    EXPECT_EQ(p1.predict_kept_by_default, 1);
+    EXPECT_EQ(p2.predict_kept_by_default, 0);
+    playThroughEngine(theirs, &p1, here, &p2);
+    EXPECT_EQ(p2.predict_kept_by_default, 1);
+    playThroughEngine(again, &p1, here, &p2);
+    EXPECT_EQ(p2.predict_kept_by_default, 1);
+}
+
+TEST_F(EngineFixLines, Rakelstake_AGearHerePredictsAndUsesTheSamePermission) {
+    battlefieldCard(0, kRakelstake, P1);
+    addUnit(P1, kUnit, 1, 0);
+    addToDeck(P1, kUnit);
+    auto gear = addToHand(P1, kDeployGear);
+    auto unit = addToHand(P1, kUnit);
+    const LocationId here{BattlefieldLocation{BattlefieldId::fromRaw(0)}};
+    const LocationId other{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    EnginePathAgent p1;
+    playThroughEngine(gear, &p1, other);
+    EXPECT_EQ(p1.predict_kept_by_default, 0);
+    auto here_gear = addToHand(P1, kDeployGear);
+    playThroughEngine(here_gear, &p1, here);
+    EXPECT_EQ(p1.predict_kept_by_default, 1);
+    playThroughEngine(unit, &p1, here);
+    EXPECT_EQ(p1.predict_kept_by_default, 1);
 }
 
 }  // namespace test_engine_fix_lines
