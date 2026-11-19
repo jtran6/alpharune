@@ -23,6 +23,8 @@ protected:
     static constexpr CardDefId kCircle = 1080;
     static constexpr CardDefId kAmphitheater = 1081;
     static constexpr CardDefId kRakelstake = 1082;
+    static constexpr CardDefId kHideout = 1079;
+    static constexpr CardDefId kCaress = 1122;
     static constexpr CardDefId kSongstress = 1070;
     static constexpr CardDefId kHighNote = 1098;    // [3], choices in the finalize pass
     static constexpr CardDefId kShen = 241;         // [3][A], [Reaction]
@@ -107,6 +109,67 @@ protected:
         obj.zone = ZoneType::LegendZone;
         state.player(owner).legend_zone = id;
         return id;
+    }
+
+    // What separates two turns: the turn number advances, then the next turn
+    // starts by clearing both players' this-turn counters (advanceTurnQueue,
+    // then runTurn).
+    void beginNextTurn() {
+        state.turn.turn_number += 1;
+        state.player(P1).resetTurnTracking();
+        state.player(P2).resetTurnTracking();
+    }
+
+    void holdBattlefield(int slot, PlayerId who) {
+        state.battlefields[slot].controller = who;
+        addUnit(who, kUnit, 1, slot);
+    }
+
+    void faceDown(GameObjectId card, int slot) {
+        auto& obj = state.getObject(card);
+        auto& hand = state.player(obj.owner).hand;
+        hand.erase(std::remove(hand.begin(), hand.end(), card), hand.end());
+        obj.zone = ZoneType::FacedownZone;
+        obj.location.reset();
+        obj.is_hidden = true;
+        obj.hidden_at = BattlefieldId::fromRaw(slot);
+        obj.hidden_on_turn = state.turn.turn_number - 1;
+        state.battlefields[slot].facedown.push_back(card);
+        state.battlefields[slot].controller = obj.controller;
+    }
+
+    // Pouty Poro is [2]. [Accelerate] is [1] plus a Power of its Domain, paid
+    // from the pool here so the only prompt is the Accelerate yes/no.
+    void fundPrintedPlusAccelerate() {
+        state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost + 1;
+        state.player(P1).rune_pool.universal_power = 1;
+    }
+
+    struct PlaySpots {
+        bool base = false;
+        bool bf[3] = {};
+    };
+
+    static PlaySpots spotsFor(const std::vector<Intent>& actions, GameObjectId card,
+                              IntentType type) {
+        PlaySpots spots;
+        for (const auto& intent : actions) {
+            if (intent.card != card || intent.type != type || !intent.play_location) continue;
+            if (std::holds_alternative<BaseLocation>(*intent.play_location)) spots.base = true;
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*intent.play_location)) {
+                const int slot = static_cast<int>(bf->id.raw());
+                if (slot >= 0 && slot < 3) spots.bf[slot] = true;
+            }
+        }
+        return spots;
+    }
+
+    // BF 0 is friendly, BF 1 is an enemy battlefield, BF 2 blocks unit plays.
+    void threeBattlefields() {
+        holdBattlefield(0, P1);
+        holdBattlefield(1, P2);
+        addBattlefield();
+        state.battlefields[2].blocks_unit_play = true;
     }
 };
 
@@ -535,6 +598,163 @@ TEST_F(EngineFixLines, Rakelstake_AGearHerePredictsAndUsesTheSamePermission) {
     EXPECT_EQ(p1.predict_kept_by_default, 1);
     playThroughEngine(unit, &p1, here);
     EXPECT_EQ(p1.predict_kept_by_default, 1);
+}
+
+// Firelights' Hideout and Last Caress. The expiry, the buff, and the facedown
+// destinations fail before the fix and pass after it.
+
+TEST_F(EngineFixLines, FirelightsHideout_TheNextUnitThisTurnHasAccelerate) {
+    auto hideout = battlefieldCard(0, kHideout, P1);
+    addUnit(P1, kUnit, 1, 0);
+    fireTriggerThroughEngine(hideout, TriggerType::WhenYouConquerHere);
+    ASSERT_EQ(state.player(P1).next_unit_accelerate, 1);
+
+    auto unit = addToHand(P1, kUnit);
+    fundPrintedPlusAccelerate();
+    EnginePathAgent pay(EnginePathAgent::script({1}));
+    playThroughEngine(unit, &pay, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_FALSE(state.getObject(unit).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 0);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0);
+    EXPECT_EQ(state.player(P1).next_unit_accelerate, 0);
+
+    // The grant is the next unit, and entering spends it.
+    auto another = addToHand(P1, kUnit);
+    fundPrintedPlusAccelerate();
+    EnginePathAgent payAgain(EnginePathAgent::script({1}));
+    playThroughEngine(another, &payAgain, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_TRUE(state.getObject(another).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 1);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 1);
+}
+
+TEST_F(EngineFixLines, FirelightsHideout_AccelerateEndsWhenTheNextTurnStarts) {
+    auto hideout = battlefieldCard(0, kHideout, P1);
+    addUnit(P1, kUnit, 1, 0);
+    fireTriggerThroughEngine(hideout, TriggerType::WhenYouConquerHere);
+    ASSERT_EQ(state.player(P1).next_unit_accelerate, 1);
+
+    beginNextTurn();
+    EXPECT_EQ(state.player(P1).next_unit_accelerate, 0);
+
+    auto unit = addToHand(P1, kUnit);
+    fundPrintedPlusAccelerate();
+    EnginePathAgent pay(EnginePathAgent::script({1}));
+    playThroughEngine(unit, &pay, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_TRUE(state.getObject(unit).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 1);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 1);
+}
+
+TEST_F(EngineFixLines, LastCaress_ThePlayedUnitIsBuffed) {
+    threeBattlefields();
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+    ASSERT_EQ(state.getObject(spell).zone, ZoneType::Trash);
+    ASSERT_EQ(state.player(P1).next_unit_any_battlefield, 1);
+
+    auto unit = addToHand(P1, kUnit);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), unit, IntentType::PlayCard);
+        EXPECT_TRUE(spots.base);
+        EXPECT_TRUE(spots.bf[0]);
+        EXPECT_TRUE(spots.bf[1]);
+        EXPECT_FALSE(spots.bf[2]);
+    });
+
+    const int printed = card_db.get(kUnit).might;
+    const LocationId enemy{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    playThroughEngine(unit, nullptr, enemy, nullptr, false);
+    EXPECT_EQ(state.getObject(unit).location, enemy);
+    EXPECT_EQ(state.getObject(unit).buff_count, 1);
+    EXPECT_EQ(state.getObject(unit).current_might, printed + 1);
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+
+    auto second = addToHand(P1, kUnit);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), second, IntentType::PlayCard);
+        EXPECT_TRUE(spots.base);
+        EXPECT_TRUE(spots.bf[0]);
+        EXPECT_FALSE(spots.bf[1]);
+    });
+    playThroughEngine(second, nullptr, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_EQ(state.getObject(second).buff_count, 0);
+    EXPECT_EQ(state.getObject(second).current_might, printed);
+}
+
+TEST_F(EngineFixLines, LastCaress_AFacedownUnitCanBePlayedToAnyBattlefield) {
+    threeBattlefields();
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+    auto hidden = addToHand(P1, kUnit);
+    faceDown(hidden, 0);
+
+    int plays = 0;
+    withEngine([&](GameEngine& e) {
+        for (const auto& intent : e.testHook_mainPhaseActions(P1))
+            if (intent.card == hidden && intent.type == IntentType::PlayActionCard) ++plays;
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), hidden,
+                                    IntentType::PlayActionCard);
+        EXPECT_TRUE(spots.bf[0]);
+        EXPECT_TRUE(spots.bf[1]);
+        EXPECT_FALSE(spots.bf[2]);
+        EXPECT_FALSE(spots.base);
+    });
+    EXPECT_EQ(plays, 2);
+
+    const LocationId enemy{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    withEngine([&](GameEngine& e) {
+        Intent play;
+        play.type = IntentType::PlayActionCard;
+        play.player = P1;
+        play.card = hidden;
+        play.play_location = enemy;
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+    });
+    const int printed = card_db.get(kUnit).might;
+    EXPECT_EQ(state.getObject(hidden).location, enemy);
+    EXPECT_FALSE(state.getObject(hidden).is_hidden);
+    EXPECT_EQ(state.getObject(hidden).buff_count, 1);
+    EXPECT_EQ(state.getObject(hidden).current_might, printed + 1);
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+
+    auto later = addToHand(P1, kUnit);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), later, IntentType::PlayCard);
+        EXPECT_FALSE(spots.bf[1]);
+    });
+}
+
+TEST_F(EngineFixLines, LastCaress_AnyBattlefieldEndsWhenTheNextTurnStarts) {
+    threeBattlefields();
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+    auto unit = addToHand(P1, kUnit);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), unit, IntentType::PlayCard);
+        EXPECT_TRUE(spots.bf[1]);
+        EXPECT_FALSE(spots.bf[2]);
+    });
+
+    beginNextTurn();
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), unit, IntentType::PlayCard);
+        EXPECT_TRUE(spots.base);
+        EXPECT_TRUE(spots.bf[0]);
+        EXPECT_FALSE(spots.bf[1]);
+        EXPECT_FALSE(spots.bf[2]);
+    });
+    const int printed = card_db.get(kUnit).might;
+    playThroughEngine(unit, nullptr, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_EQ(state.getObject(unit).buff_count, 0);
+    EXPECT_EQ(state.getObject(unit).current_might, printed);
 }
 
 }  // namespace test_engine_fix_lines

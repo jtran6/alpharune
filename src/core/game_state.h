@@ -184,6 +184,7 @@ struct PlayerState {
     bool units_enter_ready_at_your_bf = false;  // The Exile: units played to your battlefields enter ready
     int next_unit_any_battlefield = 0;          // Last Caress: the next unit may be played to any battlefield
     int next_unit_accelerate = 0;               // Firelights' Hideout: the next unit has Accelerate
+    int next_unit_buff = 0;                     // Last Caress: that next unit is [Buff]ed when played
     int gear_ability_bonus_damage = 0;          // Ziggs, Short-Fused: friendly gear abilities deal +1
     int high_energy_plays_this_turn = 0;        // a card with Energy cost 7+ was played
     int played_to_battlefield_this_turn = 0;    // a unit or gear was played to a battlefield
@@ -473,6 +474,9 @@ struct PlayerState {
         draws_before_last_draw = 0;
         unit_died_in_beginning_this_turn = false;
         units_enter_ready_this_turn = false;
+        next_unit_any_battlefield = 0;
+        next_unit_accelerate = 0;
+        next_unit_buff = 0;
         unit_died_this_turn = false;
         gear_died_this_turn = false;
         high_energy_plays_this_turn = 0;

@@ -5770,7 +5770,24 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
     if (card.isPermanent()) {
         effect_executor_->makeAsYouPlayChoices(intent.player, intent.card);   // CR 355.1
         maybePayOptionalAdditionalCost(intent.player, intent.card, 0, ignoring_base);
-        card.location = BattlefieldLocation{bf_id};
+        // Ordinarily the battlefield it was hidden at (CR 811.1.d.1). Last
+        // Caress names another legal battlefield, and that play spends the
+        // permission when the unit enters (resolvePermanent).
+        LocationId played_at{BattlefieldLocation{bf_id}};
+        if (card.isUnit() && intent.play_location.has_value() &&
+            state_.player(intent.player).next_unit_any_battlefield > 0) {
+            if (const auto* chosen = std::get_if<BattlefieldLocation>(&*intent.play_location)) {
+                const auto raw = static_cast<size_t>(chosen->id.raw());
+                if (raw < state_.battlefields.size()) {
+                    const Card* unit_card = card.card_def_id != kInvalidId
+                        ? card_registry_.get(card.card_def_id) : nullptr;
+                    if (unitPlayableAt(unit_card, intent.player,
+                                       state_.battlefields[raw], &card))
+                        played_at = *intent.play_location;
+                }
+            }
+        }
+        card.location = played_at;
         noteUnitOrGearPlayed(intent.player, intent.card, *card.location);
         // Route through chain like normal plays
         auto& ps = state_.player(intent.player);
@@ -6644,11 +6661,15 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
             // Must be hidden on a previous turn to gain Reaction
             if (card.hidden_on_turn >= state_.turn.turn_number) continue;
             if (card.isSpell() && ps.cant_play_spells_this_turn) continue;
-            // A hidden unit is played to that battlefield (CR 811.1.d.1); where
-            // units can't be played, or not by this player, it is not played at
-            // all — "can't" wins (CR 054.1; testing phase G22). The same rule as
-            // an effect play (EffectExecutor::unitMayBePlayedTo).
-            if (card.isUnit() && (bf.blocks_unit_play || ps.units_play_base_only)) continue;
+            // A hidden unit is played to that battlefield (CR 811.1.d.1), unless
+            // the card says even from face down it may be played to any
+            // battlefield (Last Caress: card text supersedes 811.1.d.1). Where
+            // units can't be played, or not by this player, it is not played
+            // at all — "can't" wins (CR 054.1; testing phase G22). The same
+            // rule as an effect play (EffectExecutor::unitMayBePlayedTo).
+            if (card.isUnit() && ps.units_play_base_only) continue;
+            if (card.isUnit() && bf.blocks_unit_play && ps.next_unit_any_battlefield <= 0)
+                continue;
 
             if (card.card_def_id != kInvalidId && card.isSpell()) {
                 Card* card_obj = card_registry_.get(card.card_def_id);
@@ -6727,6 +6748,24 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
             if (card.card_def_id != kInvalidId && card.isSpell()) {
                 const Card* hc = card_registry_.get(card.card_def_id);
                 if (hc && !hc->hasLegalChoicesHiddenAt(state_, player, card_db_, bf.id)) continue;
+            }
+            // "Even from face down" the next unit may be played to any
+            // battlefield that does not block unit plays (Last Caress). One
+            // play per such battlefield, the hidden one included when it is
+            // legal. executePlayFromHidden uses the chosen location.
+            if (card.isUnit() && ps.next_unit_any_battlefield > 0) {
+                const Card* unit_card = card.card_def_id != kInvalidId
+                    ? card_registry_.get(card.card_def_id) : nullptr;
+                for (const auto& dest : state_.battlefields) {
+                    if (!unitPlayableAt(unit_card, player, dest, &card)) continue;
+                    Intent at;
+                    at.type = intent_type;
+                    at.player = player;
+                    at.card = card_id;
+                    at.play_location = BattlefieldLocation{dest.id};
+                    actions.push_back(at);
+                }
+                continue;
             }
             // No-target hidden play (or permanent — its location is set
             // to the hidden-at BF by executePlayFromHidden).

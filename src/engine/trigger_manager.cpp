@@ -614,6 +614,17 @@ void TriggerManager::announceUnitPlayed(GameObjectId unit, PlayerId player) {
 
     // Legends say "When you play a unit," too; the legend has no location.
     fireLegendTrigger(TriggerType::WhenYouPlayAUnit, player, 0, /*subject=*/unit);
+
+    // A spell in the trash can still be "when you play it" for the next unit
+    // (Last Caress). Only a card that triggers from the trash; the copy is
+    // taken first because firing may move cards.
+    const auto trash = state_.player(player).trash;
+    for (auto id : trash) {
+        if (!state_.objectExists(id)) continue;
+        const Card* watcher = card_registry_.get(state_.getObject(id).card_def_id);
+        if (!watcher || !watcher->triggersWhileInTrash(TriggerType::WhenYouPlayAUnit)) continue;
+        fireTrigger(id, player, 0, TriggerType::WhenYouPlayAUnit, /*subject=*/unit);
+    }
 }
 
 // A token is PLAYED (CR 350.2: "Tokens are not cards, but can still be
