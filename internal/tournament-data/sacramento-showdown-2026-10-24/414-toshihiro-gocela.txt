@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 414th place
+# player: Toshihiro Gocela
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-414/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Bellows Breath
+3 Defy
+2 Discipline
+3 Find Your Center
+2 Ravenbloom Student
+2 Resplendent Rostrum
+3 Retreat
+2 Sanction
+3 Scuttle Crab
+2 Siphoning Strike
+3 Sprite Burst
+3 Steel Paws
+2 Temporal Breach
+3 Thousand-Tailed Watcher
+2 Tomb-Raider Barbara
+2 Twilight Shroud
+
+Battlefields:
+1 Rockfall Path
+1 Sigil of the Storm
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Back Off
+1 Crescent Strike
+1 Crumbling Sands
+1 Discipline
+1 Hush
+1 Ravenbloom Student
+1 Sanctum Conservator
+1 Tomb-Raider Barbara
+1 Twilight Shroud

@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 57th place
+# player: Violetexe
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/sacramento-57/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+3 Gem Jammer
+3 Inferna
+3 Trifarian Captain
+1 Grim Apothecary
+2 Kennen, Keeper of Balance
+2 Pyke, Dockside Butcher
+3 Rek'Sai, Breacher
+1 Fiora, Victorious
+3 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Vault Breaker
+2 Deathgrip
+2 Falling Star
+3 Hidden Blade
+1 Salvage
+2 Long Sword
+3 Hextech Gauntlets
+
+Battlefields:
+1 Packed Amphitheater
+1 Star Spring
+1 Vilemaw's Lair
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+1 Grim Apothecary
+1 Vi, Peacekeeper
+2 Decree of Rage
+1 Brittle Steel
+2 Decree of Unity
+1 Falling Star
+1 Salvage
+1 Long Sword

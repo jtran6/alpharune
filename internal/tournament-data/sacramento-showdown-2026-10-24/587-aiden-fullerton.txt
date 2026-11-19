@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 587th place
+# player: Aiden Fullerton
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-587/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+3 Amateur Demolitionist
+1 Boots of Swiftness
+1 Darius, Trifarian
+3 Detonate
+1 Detonation Amplifier
+2 Falling Star
+2 Ferrous Forerunner
+3 Kai'Sa, Survivor
+2 Noxus Hopeful
+1 Ride the Wind
+3 Seal of Rage
+3 Shimmering Swimmer
+3 Sneaky Deckhand
+1 Star-Crossed
+1 Switcheroo
+2 Traveling Merchant
+3 Treasure Hunter
+2 Up from the Deep
+2 Vex, Apathetic
+
+Battlefields:
+1 Hunters' Circle
+1 Void Gate
+1 Zaun Warrens
+
+Runes:
+5 Chaos Rune
+7 Fury Rune
+
+Sideboard:
+2 Acceptable Losses
+1 An Offer You Can't Refuse
+1 Decree of Rage
+3 Gust
+1 Rebuke
+1 Thermo Beam
+1 Vex, Apathetic

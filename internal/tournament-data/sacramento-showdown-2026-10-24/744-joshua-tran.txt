@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 744th place
+# player: Joshua Tran
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-744/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+1 Acceptable Losses
+2 Eclipse
+1 Fizz, Trickster
+1 Flash
+2 Gust
+2 Hard Bargain
+3 Hwei, Brooding Painter
+3 Moonfall
+3 Ravenbloom Student
+1 Rebuke
+2 Ride the Wind
+1 Smoke Screen
+2 Sprite Fountain
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+3 Tideturner
+3 Traveling Merchant
+2 Vex, Apathetic
+1 Vex, Cheerless
+
+Battlefields:
+1 Abandoned Hall
+1 Seat of Power
+1 Targon's Peak
+
+Runes:
+7 Chaos Rune
+5 Mind Rune
+
+Sideboard:
+1 Acceptable Losses
+2 Decree of Insight
+1 Fizz, Trickster
+1 Singularity
+1 Star-Crossed
+1 Tail-Cloaked Matriarch
+2 Turn to Dust
+1 Up from the Deep

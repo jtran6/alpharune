@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 529th place
+# player: Allen Zhong
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-529/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+3 Coalesced Energy
+1 Dominus
+3 Falling Star
+2 First Mate
+2 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+2 Long Sword
+1 Lost to the Sands
+3 Noxus Hopeful
+3 Pit Rookie
+2 Punch First
+1 Pyke, Dockside Butcher
+3 Rampage
+3 Rengar, Trophy Hunter
+1 Sabotage
+
+Battlefields:
+1 Black Market
+1 Protective Sands
+1 Seat of Power
+
+Runes:
+5 Body Rune
+7 Fury Rune
+
+Sideboard:
+1 Against the Odds
+1 Brittle Steel
+2 Ferrous Forerunner
+1 Graves, Blasting Through
+2 Piercing Light
+1 Repulse
+2 Sabotage

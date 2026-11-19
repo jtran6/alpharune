@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 208th place
+# player: Francisco guerrero
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-208/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Bellows Breath
+2 Concert Poster
+2 Deadly Flourish
+1 Dockside Lock-Up
+3 Encore
+2 Heimerdinger, Academy Instructor
+2 Honest Broker
+2 Imperial Decree
+3 Jayce, Man of Progress
+2 Mordekaiser, Dominating
+3 Plundering Poro
+2 Raucous Anthem
+1 Shadow's Call
+2 Singularity
+2 Soaring Scout
+2 Thousand-Tailed Watcher
+3 Vanguard Armory
+3 Wages of Pain
+
+Battlefields:
+1 Forbidding Waste
+1 Forgotten Monument
+1 Trifarian War Camp
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Decree of Insight
+3 Decree of Unity
+1 Dockside Lock-Up
+2 Rocket Barrage
+1 Seraphine, Not Alone
+1 Shadow's Call

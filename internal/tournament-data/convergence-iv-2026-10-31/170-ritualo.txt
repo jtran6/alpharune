@@ -1,0 +1,45 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 170th place
+# player: Ritualo
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-170/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+3 Boots of Swiftness
+3 Edge of Night
+3 Gutter Guardian
+3 Hold 'Em
+3 Kinkou Initiate
+3 Punch First
+3 Pyke, Returned
+3 Rampage
+3 Rengar, Trophy Hunter
+3 Seraphic Wyvern
+3 Tail-Cloaked Matriarch
+3 Tornado Warrior
+3 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Rakelstake
+1 Startipped Peak
+
+Runes:
+8 Body Rune
+4 Chaos Rune
+
+Sideboard:
+1 Baron Nashor
+3 Graves, Blasting Through
+3 Gust
+3 Ruin Runner

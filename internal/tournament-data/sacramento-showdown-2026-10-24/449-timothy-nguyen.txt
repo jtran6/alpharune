@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 449th place
+# player: Timothy Nguyen
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-449/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+1 B.F. Sword
+2 Bellows Breath
+1 Burn Away
+3 Concert Poster
+1 Consult the Past
+1 Dragon Form
+1 Eclipse
+2 Encore
+3 Forge of the Future
+2 Hidden Blade
+1 Honest Broker
+2 Imperial Decree
+3 Jayce, Man of Progress
+1 Pickpocket
+3 Plundering Poro
+2 Raucous Anthem
+2 Seal of Unity
+1 Singularity
+1 Sprite Fountain
+2 Time Warp
+3 Vanguard Armory
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Forbidding Waste
+1 Seat of Power
+1 Trifarian War Camp
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Insight
+1 Decree of Unity
+2 Dockside Lock-Up
+1 Pickpocket
+1 Salvage
+1 The Ruination
+1 Thousand-Tailed Watcher
+1 Vi, Peacekeeper

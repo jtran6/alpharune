@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 260th place
+# player: Sigggy
+# record: 0-0-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-260/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Bilgewater Tracker
+3 Carrion Dredger
+2 Deathgrip
+2 Ferrous Forerunner
+2 Hidden Blade
+3 Honest Broker
+2 Imperial Decree
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+3 Realm of Death
+3 Rengar, Pouncing
+2 Shen, Kinkou
+3 Trifarian Captain
+2 Vanguard Captain
+3 Vi, Peacekeeper
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Against the Odds
+2 Brittle Steel
+2 Brynhir Thundersong
+1 Ferrous Forerunner
+2 Minotaur Reckoner
+1 Mordekaiser, Twice Slain

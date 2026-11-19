@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 659th place
+# player: Kesson Yamamoto
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-659/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+1 Bilgewater Tracker
+3 Falling Star
+2 Gem Jammer
+3 Hextech Gauntlets
+3 Honest Broker
+3 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+1 Kayle, Justified
+2 Minotaur Reckoner
+3 Pendulum Blade
+2 Perfect Execution
+3 Pyke, Dockside Butcher
+3 Rengar, Unseen
+2 Seal of Rage
+1 Twilight Reveler
+2 Unsung Hero
+2 Vault Breaker
+
+Battlefields:
+1 Sunken Temple
+1 Treasure Hoard
+1 Vilemaw's Lair
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+1 Divine Judgment
+1 Fallen Feline
+2 Ferrous Forerunner
+1 Hidden Blade
+2 Salvage
+2 Smite
+1 Thermo Beam

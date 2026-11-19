@@ -1,0 +1,52 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 8th place
+# player: Zapdos
+# record: 9-3-0
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-8/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Elder Dragon
+2 Garbage Grabber
+3 Platewyrm Egg
+2 Gutter Palace
+3 Dazzling Aurora
+3 Bellows Breath
+2 Flurry of Blades
+1 Repulse
+2 Sabotage
+3 Dredge Up
+3 Mobilize
+2 Temporal Breach
+3 Catalyst of Aeons
+1 Rocket Barrage
+2 Sprite Burst
+1 Progress Day
+3 Clairvoyance
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 The Papertree
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+1 Flurry of Blades
+1 Repulse
+1 Sabotage
+2 Unyielding Spirit
+3 Deadly Flourish
+2 Rocket Barrage

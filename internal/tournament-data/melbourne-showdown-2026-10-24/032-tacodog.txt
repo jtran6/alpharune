@@ -1,0 +1,56 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 32nd place
+# player: TacoDog
+# record: 6-3-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-32/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Gemhand Hunter
+2 Scuttle Crab
+3 Wuju Apprentice
+1 Disarming Rake
+2 Kinkou Initiate
+2 Voracious Gromp
+3 Arachnoid Horror
+2 Elnuk Herd
+2 Master Yi, Unstoppable
+3 Zhonya's Hourglass
+3 Defy
+3 Punch First
+1 Repulse
+3 Discipline
+2 Grim Resolve
+2 Skyward Strike
+1 Back Off
+1 Rampage
+
+Battlefields:
+1 Amateur Recital
+1 Gardens of Becoming
+1 Reckoner's Arena
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Decree of Focus
+1 Decree of Strength
+1 Hush
+1 Repulse
+1 Sabotage
+2 Unyielding Spirit
+1 Disposal Order
+1 Alpha Strike
+1 Disarming Rake

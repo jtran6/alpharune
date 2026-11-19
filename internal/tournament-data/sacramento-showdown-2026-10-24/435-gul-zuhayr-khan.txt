@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 435th place
+# player: Gul Zuhayr Khan
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-435/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Meticulous Killer
+
+MainDeck:
+2 Bellows Breath
+3 Consult the Past
+3 Curtain Call
+3 Deadly Flourish
+2 Downstage Dramatics
+1 Falling Star
+2 Ferrous Forerunner
+2 Forecaster
+1 Frigid Touch
+2 Noxus Hopeful
+1 Piercing Light
+2 Plundering Poro
+3 Rocket Barrage
+3 Singularity
+3 Sprite Burst
+1 Temporal Breach
+2 Thousand-Tailed Watcher
+2 Time Warp
+1 Unchecked Power
+
+Battlefields:
+1 Black Market
+1 Rockfall Path
+1 Sigil of the Storm
+
+Runes:
+5 Fury Rune
+7 Mind Rune
+
+Sideboard:
+1 Decree of Insight
+1 Decree of Rage
+1 Ekko, Revolutionary
+2 Sprite Fountain
+2 Square Up
+1 Thermo Beam
+1 Unchecked Power

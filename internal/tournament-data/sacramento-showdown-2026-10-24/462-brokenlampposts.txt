@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 462nd place
+# player: BrokenLampPosts
+# record: 2-2-2
+# source: https://riftwatch.gg/decks/sacramento-462/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+2 Acceptable Losses
+3 Amateur Demolitionist
+1 An Offer You Can't Refuse
+2 Bilgewater Tracker
+3 Detonate
+1 Ekko, Revolutionary
+3 Falling Star
+1 Fizz, Trickster
+2 Gust
+2 Noxus Hopeful
+3 Pack of Wonders
+1 Piercing Light
+1 Ride the Wind
+3 Seal of Rage
+3 Shimmering Swimmer
+1 Star-Crossed
+2 The List
+3 Treasure Trove
+2 Vex, Apathetic
+
+Battlefields:
+1 Frozen Fortress
+1 Rakelstake
+1 Void Gate
+
+Runes:
+4 Chaos Rune
+8 Fury Rune
+
+Sideboard:
+1 Acceptable Losses
+1 Bilgewater Tracker
+3 Decree of Rage
+1 Ekko, Revolutionary
+1 Fizz, Trickster
+1 Morgana, Vindictive
+1 Star-Crossed
+1 Thermo Beam

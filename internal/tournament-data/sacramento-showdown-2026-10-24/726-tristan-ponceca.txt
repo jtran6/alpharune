@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 726th place
+# player: Tristan Ponceca
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-726/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+3 Bellows Breath
+2 Carrion Dredger
+3 Concert Poster
+2 Eclipse
+3 Encore
+2 Faithful Manufactor
+2 Fanfare
+3 Imperial Decree
+1 Lacerate
+1 Mordekaiser, Dominating
+1 Raucous Anthem
+3 Seal of Unity
+3 Shadow's Call
+3 Strigian Oracle
+3 Stupefy
+1 Thousand-Tailed Watcher
+3 Vanguard Captain
+
+Battlefields:
+1 Forbidding Waste
+1 Ravenbloom Conservatory
+1 Trifarian War Camp
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Decree of Insight
+2 Decree of Unity
+2 Galio, Indefatigable
+2 Safety Inspector
+2 Salvage

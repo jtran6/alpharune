@@ -1,0 +1,59 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 725th place
+# player: Jared Lively
+# record: 0-5-0
+# source: https://riftwatch.gg/decks/sacramento-725/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+1 Adaptatron
+2 Ahri, Alluring
+3 Allay, Eager Admirer
+2 Astral Heron
+2 Back Off
+1 Blitzcrank, Impassive
+1 Blossoming Dreamroot
+2 Charm
+1 Concert Poster
+3 Defy
+3 Discipline
+2 Emperor's Divide
+2 Hidden Blade
+1 Janna, Savior
+1 Ki Barrier
+2 Life from Stone
+1 Mageseeker Investigator
+1 Salvage
+2 Scuttle Crab
+3 Soaring Scout
+2 Sona, Harmonious
+1 Vilemaw
+
+Battlefields:
+1 Amateur Recital
+1 Grove of the God-Willow
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Decree of Focus
+1 Decree of Unity
+1 Disarming Rake
+1 Dockside Lock-Up
+1 Mageseeker Warden
+1 Not So Fast
+2 Salvage
+1 Twilight Shroud
+1 Vilemaw

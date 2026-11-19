@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 608th place
+# player: Kristian Campos
+# record: 1-5-1
+# source: https://riftwatch.gg/decks/sacramento-608/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+2 Back Off
+2 Block
+3 Consult the Heavens
+3 Defy
+3 Emperor's Divide
+2 Hunting Blind
+1 K'Sante, Courageous
+3 Mutated Mouser
+3 Nazuman Ntofo
+2 Ntofo Strikes
+1 Punch First
+1 Repulse
+2 Scuttle Crab
+3 Stalwart Poro
+2 Stoic Ferryman
+3 Vilemaw
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Durand Memorial
+1 Fortified Position
+1 Grove of the God-Willow
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+1 Disarming Rake
+2 Graves, Blasting Through
+2 Not So Fast
+2 Punch First
+1 Repulse
+2 Sabotage

@@ -1,0 +1,21 @@
+# Orlando Showdown
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# live: https://riftwatch.gg/api/live?event=showdown-orlando
+# pulled: 12:28 PM ET on November 19, 2026
+# Scores are the winner's games, then the opponent's games, as Riftwatch shows them.
+# Swiss pairings are not in this payload.
+
+Top cut
+
+Quarterfinals (round 12)
+- Tabris (Riven, The Exile, 2nd place, internal/tournament-data/orlando-showdown-2026-10-31/002-tabris.txt) beat Zapdos (Jayce, Defender of Tomorrow, 8th place, internal/tournament-data/orlando-showdown-2026-10-31/008-zapdos.txt) 2-0
+- Frosty (Kai'Sa, Daughter of the Void, 4th place, internal/tournament-data/orlando-showdown-2026-10-31/004-frosty.txt) beat TM2 (Riven, The Exile, 5th place, internal/tournament-data/orlando-showdown-2026-10-31/005-tm2.txt) 2-0
+- LURK xSimo (Kha'Zix, Voidreaver, 3rd place, internal/tournament-data/orlando-showdown-2026-10-31/003-lurk-xsimo.txt) beat Swagyolo420yea (Jayce, Defender of Tomorrow, 7th place, internal/tournament-data/orlando-showdown-2026-10-31/007-swagyolo420yea.txt) 2-0
+- MERC Koopastar (Riven, The Exile, 1st place, internal/tournament-data/orlando-showdown-2026-10-31/001-merc-koopastar.txt) beat CTCG Relivia (Riven, The Exile, 6th place, internal/tournament-data/orlando-showdown-2026-10-31/006-ctcg-relivia.txt) 2-0
+
+Semifinals (round 13)
+- Tabris (Riven, The Exile, 2nd place, internal/tournament-data/orlando-showdown-2026-10-31/002-tabris.txt) beat Frosty (Kai'Sa, Daughter of the Void, 4th place, internal/tournament-data/orlando-showdown-2026-10-31/004-frosty.txt) 2-0
+- MERC Koopastar (Riven, The Exile, 1st place, internal/tournament-data/orlando-showdown-2026-10-31/001-merc-koopastar.txt) beat LURK xSimo (Kha'Zix, Voidreaver, 3rd place, internal/tournament-data/orlando-showdown-2026-10-31/003-lurk-xsimo.txt) 2-1
+
+Final (round 14)
+- MERC Koopastar (Riven, The Exile, 1st place, internal/tournament-data/orlando-showdown-2026-10-31/001-merc-koopastar.txt) beat Tabris (Riven, The Exile, 2nd place, internal/tournament-data/orlando-showdown-2026-10-31/002-tabris.txt) 2-1

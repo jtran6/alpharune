@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 674th place
+# player: Boba Sam Chen
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-674/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+1 Against the Odds
+2 Akali, Silent
+3 Astral Heron
+2 Back Off
+2 Blitzcrank, Impassive
+1 Brawl
+1 Brynhir Thundersong
+1 Darius, Trifarian
+3 Defy
+3 Discipline
+3 Falling Star
+3 Mischievous Marai
+1 Not So Fast
+1 Perfect Execution
+3 Scuttle Crab
+3 Shuriken Flip
+3 Stellacorn Herder
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+5 Calm Rune
+7 Fury Rune
+
+Sideboard:
+2 Brittle Steel
+1 Darius, Trifarian
+2 Decree of Focus
+2 Decree of Rage
+1 Ferrous Forerunner
+1 Hush
+1 Thermo Beam

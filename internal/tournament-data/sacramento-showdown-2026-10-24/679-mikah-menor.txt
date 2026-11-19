@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 679th place
+# player: Mikah Menor
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-679/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+1 Bedeviling Stranger
+2 Demacian Diplomat
+2 Fizz, Trickster
+3 Grim Resolve
+1 Hard Bargain
+3 Irresistible Faefolk
+1 Noxian Demolitionist
+2 Pillaged Armory
+3 Punch First
+2 Rampage
+1 Rebuke
+2 Reckless Innovator
+2 Rengar, Trophy Hunter
+2 Ride the Wind
+2 Ruin Runner
+2 Sabotage
+2 Star-Crossed
+1 Tideturner
+1 Vex, Apathetic
+3 Void Assault
+1 Zed, Without a Sound
+
+Battlefields:
+1 Monastery of Hirana
+1 Sandswept Tomb
+1 Star Spring
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Abandon
+2 An Offer You Can't Refuse
+1 Angler Beast
+2 Decree of Strength
+2 Gust
+2 Nidalee, Cat Form

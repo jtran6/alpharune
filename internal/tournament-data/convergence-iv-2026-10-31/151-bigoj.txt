@@ -1,0 +1,55 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 151st place
+# player: BigOJ
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-151/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 Akshan, Mischievous
+1 Baron Nashor
+2 Boots of Swiftness
+2 Edge of Night
+2 Ezreal, Prodigy
+1 Fizz, Trickster
+2 Gust
+3 Gutter Guardian
+2 Hold 'Em
+2 K'Sante, Courageous
+3 Kinkou Initiate
+1 Onslaught
+1 Punch First
+3 Pyke, Returned
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Star-Crossed
+3 Tail-Cloaked Matriarch
+2 Tornado Warrior
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Rakelstake
+1 Startipped Peak
+
+Runes:
+5 Body Rune
+7 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+2 Graves, Blasting Through
+1 Rampage
+2 Ravenbloom Prefect
+2 Ruin Runner
+1 Star-Crossed
+1 Vex, Apathetic

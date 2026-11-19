@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 134th place
+# player: Kevin Yin
+# record: 5-2-1
+# source: https://riftwatch.gg/decks/sacramento-134/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+3 Ravenbloom Student
+3 Scuttle Crab
+2 Blitzcrank, Impassive
+3 Astral Heron
+1 Thousand-Tailed Watcher
+2 Vilemaw
+3 Defy
+3 Stupefy
+2 Battle Preparations
+3 Discipline
+1 Not So Fast
+1 Back Off
+3 Eclipse
+3 Cloth Armor
+3 Zhonya's Hourglass
+3 The Ball
+
+Battlefields:
+1 Abandoned Hall
+1 Targon's Peak
+1 Veiled Temple
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+3 Disarming Rake
+1 Charm
+2 Decree of Focus
+2 Decree of Insight
+1 Not So Fast
+1 Wind Wall

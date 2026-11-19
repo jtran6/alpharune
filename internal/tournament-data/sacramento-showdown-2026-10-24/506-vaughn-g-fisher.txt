@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 506th place
+# player: Vaughn G Fisher
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-506/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+1 Back Off
+2 Bellows Breath
+2 Charm
+3 Defy
+2 Find Your Center
+1 Ki Burst
+2 Life from Stone
+3 Lonely Poro
+3 Piltovan Guidebot
+2 Retreat
+3 Scuttle Crab
+3 Steel Paws
+3 Temporal Breach
+3 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+1 Zhonya's Hourglass
+
+Battlefields:
+1 Ripper's Bay
+1 Rockfall Path
+1 The Papertree
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+1 Astral Heron
+1 Bellows Breath
+1 Crumbling Sands
+1 Gravity Field
+1 Not So Fast
+1 Rocket Barrage
+1 Singularity
+2 Tomb-Raider Barbara
+1 Turn to Dust

@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 450th place
+# player: Alexander Farnlacher
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-450/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Pyke, Bloodharbor Ripper
+
+Champion:
+1 Pyke, Dockside Butcher
+
+MainDeck:
+3 Amateur Demolitionist
+1 Baron Nashor
+3 Bewitching Spirit
+3 Bilgewater Tracker
+2 Detonate
+3 Falling Star
+2 Fizz, Trickster
+1 Gust
+1 Hard Bargain
+2 Kai'Sa, Survivor
+3 Pack of Wonders
+2 Perfect Execution
+1 Piercing Light
+1 Ride the Wind
+1 Shimmering Swimmer
+2 Star-Crossed
+3 The List
+3 Treasure Trove
+2 Vex, Apathetic
+
+Battlefields:
+1 Forbidding Waste
+1 The Candlelit Sanctum
+1 Void Gate
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+1 Angler Beast
+2 Downwell
+2 Ferrous Forerunner
+2 Gust
+1 Vex, Apathetic

@@ -1,0 +1,48 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 52nd place
+# player: Andrew Givler
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-52/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+3 Cataclysm
+3 Dazzling Aurora
+2 Defy
+3 Discipline
+3 Elder Dragon
+3 Find Your Center
+1 Hush
+3 Mobilize
+3 Not So Fast
+3 Punch First
+3 Rampage
+3 Rengar, Trophy Hunter
+3 Seraphic Wyvern
+3 Vilemaw
+
+Battlefields:
+1 Dragon Roost
+1 The Papertree
+1 Vilemaw's Lair
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Charm
+2 Disposal Order
+2 Flurry of Blades
+1 Hush
+3 Sabotage

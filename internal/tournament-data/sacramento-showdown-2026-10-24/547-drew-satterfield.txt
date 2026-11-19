@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 547th place
+# player: Drew Satterfield
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-547/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ambessa, Matriarch of War
+
+Champion:
+1 Ambessa, The Wolf
+
+MainDeck:
+1 Anivia, Primal
+3 Baccai Witherclaw
+1 Challenge
+2 Elder Dragon
+3 Guttural Roar
+3 Kayle, Justified
+3 Kinkou Initiate
+3 Legion Marauder
+3 Noxian Emissary
+3 Profiteer
+2 Public Execution
+3 Rampage
+2 Rengar, Trophy Hunter
+2 Repulse
+2 Rift Herald
+1 Salvage
+2 Shadow's Call
+
+Battlefields:
+1 Mystic Vortex
+1 Risen Altar
+1 Treasure Hoard
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Decree of Strength
+2 Decree of Unity
+2 Ki Barrier
+1 Rengar, Trophy Hunter
+2 Sabotage
+1 Salvage

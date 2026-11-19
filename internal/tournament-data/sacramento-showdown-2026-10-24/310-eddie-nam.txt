@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 310th place
+# player: Eddie Nam
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-310/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+3 Bedeviling Stranger
+3 Blast Cone
+1 Bone Skewer
+2 Evelynn, Entrancing
+3 Gutter Guardian
+3 Hold 'Em
+2 Irresistible Faefolk
+3 Nidalee, Cat Form
+1 Portable Portal
+2 Punch First
+2 Pyke, Returned
+3 Rengar, Trophy Hunter
+2 Sabotage
+2 Siren's Song
+1 Star-Crossed
+2 Switcheroo
+2 Tail-Cloaked Matriarch
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Grove of the God-Willow
+1 Packed Amphitheater
+
+Runes:
+7 Body Rune
+5 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+2 Decree of Strength
+2 Disposal Order
+2 Hard Bargain
+2 Stalwart Goatherd

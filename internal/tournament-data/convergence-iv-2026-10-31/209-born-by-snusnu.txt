@@ -1,0 +1,56 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 209th place
+# player: Born By SnuSnu
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-209/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+2 Charm
+2 Consult the Heavens
+3 Defy
+3 Discipline
+2 First Mate
+1 Hush
+1 K'Sante, Courageous
+1 Meditation
+2 Mutated Mouser
+3 Nazuman Ntofo
+1 Not So Fast
+3 Ntofo Strikes
+2 Portable Portal
+2 Punch First
+2 Rengar, Trophy Hunter
+3 Scuttle Crab
+1 Stalwart Goatherd
+3 Stalwart Poro
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Fortified Position
+1 Grove of the God-Willow
+1 The Papertree
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+1 Graves, Blasting Through
+1 Hunting Blind
+1 Not So Fast
+1 Punch First
+2 Ruin Runner
+1 Sabotage
+1 Tomb-Raider Barbara

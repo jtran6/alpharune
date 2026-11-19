@@ -1,0 +1,57 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 5th place
+# player: Big Nonsense
+# record: 3-0-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-5/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Bellows Breath
+3 Bilgewater Tracker
+3 Blastcone Fae
+2 Brynhir Thundersong
+1 Card Sharp
+1 Chronobreak
+1 Eclipse
+1 Ekko, Ingenious
+2 Falling Star
+2 Lecturing Yordle
+2 Orb of Regret
+1 Retreat
+1 Riptide Mage
+2 Rocket Barrage
+2 Shock Blast
+1 Singularity
+3 Stupefy
+3 Temporal Breach
+2 The Empyrean
+3 Thousand-Tailed Watcher
+1 Time Warp
+
+Battlefields:
+1 Ripper's Bay
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Annie, Fiery
+2 Brittle Steel
+2 Ekko, Revolutionary
+1 Pickpocket
+1 Singularity
+1 Time Warp
+2 Unchecked Power

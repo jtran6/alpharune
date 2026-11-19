@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 493rd place
+# player: Dadream Satterwhite
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-493/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Bellows Breath
+3 Defy
+1 Disarming Rake
+3 Discipline
+3 Find Your Center
+3 Frostcoat Mother
+2 Life from Stone
+1 Not So Fast
+3 Ravenbloom Student
+2 Sprite Burst
+2 Steel Paws
+3 Strigian Oracle
+1 Tasty Faefolk
+3 The Empyrean
+3 Thousand-Tailed Watcher
+1 Time Warp
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 Sigil of the Storm
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+2 Decree of Focus
+1 Guardian Angel
+1 Hush
+1 Sprite Burst
+3 Tomb-Raider Barbara
+1 Unchecked Power

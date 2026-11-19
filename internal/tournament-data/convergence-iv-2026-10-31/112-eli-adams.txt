@@ -1,0 +1,57 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 112th place
+# player: Eli Adams
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-112/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Ahri, Nine-Tailed Fox
+
+Champion:
+1 Ahri, Confident
+
+MainDeck:
+1 Back Off
+2 Charm
+3 Defy
+3 Discipline
+3 Fox-Fire
+2 Frigid Touch
+1 Hush
+2 Kai'Sa, Evolutionary
+3 Mournful Witness
+1 Not So Fast
+3 Ravenbloom Student
+1 Riptide Mage
+2 Singularity
+1 Smoke Screen
+2 Stalwart Poro
+2 Stellacorn Herder
+3 Stupefy
+1 Thousand-Tailed Watcher
+1 Turn to Dust
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Targon's Peak
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Back Off
+1 Decree of Focus
+1 Decree of Insight
+1 Disarming Rake
+1 Falling Comet
+1 Rocket Barrage
+3 Temporal Breach
+1 Thousand-Tailed Watcher

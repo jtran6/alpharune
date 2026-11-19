@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 407th place
+# player: Scott Shyu
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-407/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Bellows Breath
+3 Carrion Dredger
+3 Concert Poster
+2 Cull the Weak
+1 Dragon Form
+3 Eclipse
+3 Encore
+2 Escaped Grayback
+1 Facebreaker
+1 Hidden Blade
+2 Imperial Decree
+3 Seal of Unity
+1 Singularity
+1 Soraka, Wanderer
+2 Sprite Burst
+1 Temporal Breach
+3 Trifarian Captain
+3 Vanguard Captain
+2 Wages of Pain
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Treasure Hoard
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+1 Decree of Insight
+2 Decree of Unity
+1 Facebreaker
+2 Forge of the Future
+2 Salvage
+1 Soraka, Wanderer
+1 The Ruination

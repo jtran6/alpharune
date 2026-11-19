@@ -1,0 +1,54 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 22nd place
+# player: Akira Bui
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-22/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Bellows Breath
+3 Catalyst of Aeons
+3 Clairvoyance
+3 Dazzling Aurora
+2 Deadly Flourish
+3 Dredge Up
+3 Elder Dragon
+2 Flurry of Blades
+2 Garbage Grabber
+1 Gutter Palace
+3 Platewyrm Egg
+1 Portable Portal
+1 Progress Day
+2 Rocket Barrage
+2 Sabotage
+2 Sprite Burst
+3 Wages of Pain
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+1 Avalanche
+1 Deadly Flourish
+2 Decree of Strength
+1 Gutter Palace
+2 Repulse
+1 Sabotage
+1 Turn to Dust
+1 Unchecked Power

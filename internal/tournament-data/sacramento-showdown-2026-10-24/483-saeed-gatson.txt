@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 483rd place
+# player: Saeed Gatson
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-483/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+2 Armored Tusker
+2 Blitzcrank, Impassive
+1 Block
+2 Charm
+3 Defy
+3 Discipline
+3 First Mate
+3 Mutated Mouser
+2 Nazuman Ntofo
+2 Ntofo Strikes
+3 Punch First
+3 Rengar, Trophy Hunter
+2 Repulse
+3 Scuttle Crab
+2 Stalwart Poro
+1 Staunch Survivor
+2 Stoic Ferryman
+
+Battlefields:
+1 Amateur Recital
+1 Grove of the God-Willow
+1 Seat of Power
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Graves, Blasting Through
+1 Hunting Blind
+1 Hush
+1 K'Sante, Courageous
+1 Portable Portal
+2 Ruin Runner
+2 Tomb-Raider Barbara

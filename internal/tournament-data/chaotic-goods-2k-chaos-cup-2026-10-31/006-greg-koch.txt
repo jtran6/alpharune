@@ -1,0 +1,51 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 6th place
+# player: Greg koch
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-6/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Blacksmith
+
+MainDeck:
+2 Aspiring Engineer
+3 Brutalizer
+2 Charm
+3 Clockwork Keeper
+3 Defy
+1 Guardian Angel
+1 Helm of Suppression
+1 Janna, Savior
+1 Mask of Foresight
+3 Patched Porobot
+3 Pit Crew
+3 Poro Snax
+1 Retreat
+3 Scuttle Crab
+3 Seal of Focus
+3 Sprite Fountain
+3 Sterak's Gage
+
+Battlefields:
+1 Ornn's Forge
+1 Seat of Power
+1 Veiled Temple
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+2 Bellows Breath
+2 Decree of Focus
+2 Decree of Insight
+2 Disarming Rake
+1 Guardian Angel
+1 Hush

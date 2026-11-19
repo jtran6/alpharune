@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 691st place
+# player: Aiden Pester
+# record: 0-2-1
+# source: https://riftwatch.gg/decks/sacramento-691/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Mechanical Marvel
+
+MainDeck:
+2 Blossoming Dreamroot
+1 Cloth Armor
+3 Command: Attack
+2 Consult the Past
+3 Defy
+3 Discipline
+3 Frigid Jewel
+2 Gravity Field
+1 Helm of Suppression
+2 Mask of Foresight
+3 Patched Porobot
+2 Pit Crew
+2 Resplendent Rostrum
+3 Stupefy
+3 The Ball
+2 The Empyrean
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Treasure Hoard
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Disarming Rake
+1 Helm of Suppression
+2 Hush
+2 Thousand-Tailed Watcher
+1 Unchecked Power

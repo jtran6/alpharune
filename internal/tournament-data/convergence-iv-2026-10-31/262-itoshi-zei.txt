@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 262nd place
+# player: Itoshi Zei
+# record: 0-0-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-262/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+2 Call to Glory
+2 Concert Poster
+2 Demacian Standard
+1 Dockside Lock-Up
+1 Ki Barrier
+2 Kinkou Initiate
+2 Nidalee, Cat Form
+2 Overloaded Traveler
+2 Pillaged Armory
+2 Pit Rookie
+1 Portable Portal
+1 Primal Strength
+2 Punch First
+2 Rampage
+1 Repulse
+2 Sabotage
+2 Shadow's Call
+3 Skystrike Squadron
+2 Tactical Retreat
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Decree of Strength
+2 Decree of Unity
+2 Graves, Blasting Through
+2 Imperial Decree
+2 Salvage

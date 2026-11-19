@@ -1,0 +1,66 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 453rd place
+# player: Shiniko
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-453/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ivern, Green Father
+
+Champion:
+1 Ivern, Nurturer
+
+MainDeck:
+1 Allay, Eager Admirer
+2 Back Off
+1 Blitzcrank, Impassive
+1 Block
+1 Blossoming Dreamroot
+1 Daisy!
+3 Defy
+1 Disarming Rake
+2 Emperor's Divide
+1 Friendship
+2 Galio, Indefatigable
+1 Janna, Savior
+1 K'Sante, Dauntless
+1 Ki Burst
+2 Life from Stone
+1 Loyal Poro
+3 Mutated Mouser
+1 Not So Fast
+1 One-Two Punch
+1 Soraka, Wanderer
+1 Taric, Protector
+1 Thwonk!
+3 Trusty Ramhound
+1 Twilight Shroud
+2 Ultrasoft Poro
+1 Vi, Peacekeeper
+1 Vilemaw
+1 Yuumi, Magical Cat
+
+Battlefields:
+1 Frozen Fortress
+1 Minefield
+1 Shadow Temple
+
+Runes:
+8 Calm Rune
+4 Order Rune
+
+Sideboard:
+1 Charm
+1 Feral Strength
+1 For Demacia!
+1 Hunker Down
+1 Hush
+1 Iascylla
+1 Mordekaiser, Dominating
+1 Nami, Headstrong
+1 Raucous Anthem
+1 Resplendent Rostrum

@@ -1,0 +1,47 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 49th place
+# player: Jae Teska
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-49/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Bilgewater Tracker
+3 Carrion Dredger
+3 Concert Poster
+3 Cull the Weak
+3 Faithful Manufactor
+3 Falling Star
+1 Grim Apothecary
+3 Inferna
+2 Long Sword
+3 Noxus Hopeful
+3 Rengar, Pouncing
+3 Shimmering Swimmer
+3 Trifarian Captain
+3 Undertitan
+
+Battlefields:
+1 Hunters' Circle
+1 Ruined Monastery
+1 The Candlelit Sanctum
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Decree of Rage
+3 Decree of Unity
+2 Mordekaiser, Dominating
+1 Salvage

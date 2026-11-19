@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 247th place
+# player: Garrett Cheng
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-247/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+3 B.F. Sword
+2 Battle Preparations
+2 Charm
+3 Defy
+3 Discipline
+1 Emperor's Divide
+3 Fiora, Victorious
+2 Fiora, Worthy
+2 Hidden Blade
+2 Honest Broker
+1 Kennen, Keeper of Balance
+3 Loyal Poro
+3 Mournful Witness
+2 Protector's Shield
+1 Salvage
+1 Tasty Faefolk
+3 Unsung Hero
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Kinkou Temple
+1 Packed Amphitheater
+1 Trifarian War Camp
+
+Runes:
+5 Calm Rune
+7 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+1 Back Off
+1 Decree of Focus
+2 Decree of Unity
+1 Disarming Rake
+1 Facebreaker
+1 Hush
+1 Not So Fast
+1 Salvage

@@ -1,0 +1,51 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 19th place
+# player: Astral
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-19/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+1 B.F. Sword
+1 Black Rose Dignitary
+1 Chakram Dancer
+3 Cull the Weak
+3 Deathgrip
+3 Glasc Mixologist
+3 Hidden Blade
+2 Honest Broker
+3 Karthus, Eternal
+1 Kennen, Keeper of Balance
+1 Ki Barrier
+3 Mirror Image
+3 Ruined Rex
+1 Sacrifice
+3 Soaring Scout
+1 Stupefy
+2 Thousand-Tailed Watcher
+1 Vi, Peacekeeper
+3 Watchful Sentry
+
+Battlefields:
+1 Dusk Rose Lab
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Insight
+2 Decree of Unity
+3 Forge of the Future

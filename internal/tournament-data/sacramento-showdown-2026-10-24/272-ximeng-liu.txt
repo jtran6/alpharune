@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 272nd place
+# player: Ximeng Liu
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-272/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Bellows Breath
+2 Deadly Flourish
+3 Defy
+2 Ekko, Ingenious
+2 Find Your Center
+3 Lonely Poro
+3 Plundering Poro
+3 Retreat
+3 Scuttle Crab
+3 Singularity
+2 Sprite Burst
+3 Sprite Queen
+2 Temporal Breach
+3 Thousand-Tailed Watcher
+2 Tomb-Raider Barbara
+
+Battlefields:
+1 Ripper's Bay
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+4 Calm Rune
+8 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+2 Hush
+2 Pickpocket
+2 Rocket Barrage
+2 Unchecked Power

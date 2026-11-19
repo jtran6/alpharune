@@ -1,0 +1,57 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 2nd place
+# player: Jackson Sipila
+# record: 4-0-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-2/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+1 Akali, Silent
+1 An Offer You Can't Refuse
+2 Boots of Swiftness
+2 Charm
+3 Defiant Dance
+3 Defy
+3 Discipline
+2 En Garde
+1 Guardian Angel
+2 Life from Stone
+1 Not So Fast
+1 Pyke, Returned
+2 Ride the Wind
+3 Scuttle Crab
+2 Star-Crossed
+3 Stellacorn Herder
+3 Tideturner
+1 Twilight Shroud
+1 Vex, Apathetic
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Abandoned Hall
+1 Sunken Temple
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 Abandon
+2 Adaptatron
+1 Helm of Suppression
+1 Mageseeker Warden
+1 Not So Fast
+2 Ravenbloom Prefect
+1 Switcheroo
+1 Vex, Cheerless

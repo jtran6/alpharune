@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 496th place
+# player: Connor Tatooles
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-496/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Meticulous Killer
+
+MainDeck:
+1 Bellows Breath
+2 Bilgewater Tracker
+3 Consult the Past
+3 Curtain Call
+3 Deadly Flourish
+2 Ekko, Revolutionary
+2 Noxus Hopeful
+3 Plundering Poro
+1 Progress Day
+1 Rocket Barrage
+1 Scorched Earth
+3 Singularity
+3 Sprite Burst
+3 Strigian Oracle
+3 Stupefy
+2 Thousand-Tailed Watcher
+2 Time Warp
+1 Unchecked Power
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Sigil of the Storm
+
+Runes:
+5 Fury Rune
+7 Mind Rune
+
+Sideboard:
+2 Brittle Steel
+1 Decree of Insight
+1 Falling Star
+1 Frigid Touch
+1 Mel, Newly Awakened
+1 Noxus Hopeful
+1 Progress Day
+1 Temporal Breach
+1 Unchecked Power

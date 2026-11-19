@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 684th place
+# player: RaD Granpa
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-684/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+3 Battle Preparations
+1 Blitzcrank, Impassive
+3 Blossoming Dreamroot
+2 Charm
+3 Defy
+1 Disarming Rake
+3 Discipline
+3 En Garde
+3 Frigid Jewel
+3 Ki Burst
+1 Not So Fast
+3 Ravenbloom Student
+1 Riven, Broken Blade
+2 Scuttle Crab
+1 Smoke Screen
+3 Stupefy
+3 The Ball
+
+Battlefields:
+1 Abandoned Hall
+1 Fortified Position
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+1 Blitzcrank, Impassive
+2 Deadly Flourish
+2 Decree of Insight
+1 Disarming Rake
+2 Hush
+1 Not So Fast
+1 Singularity

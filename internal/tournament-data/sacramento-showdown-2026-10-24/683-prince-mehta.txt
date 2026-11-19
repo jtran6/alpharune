@@ -1,0 +1,59 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 683rd place
+# player: Prince mehta
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-683/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+1 An Offer You Can't Refuse
+2 Astral Heron
+1 Back Off
+3 Bedeviling Stranger
+1 Blitzcrank, Impassive
+2 Boots of Swiftness
+3 Defy
+3 Discipline
+1 Evelynn, In Control
+1 Gust
+2 Kharox
+3 Mutated Mouser
+1 Rebuke
+1 Ride the Wind
+1 Star-Crossed
+3 Steel Paws
+2 Switcheroo
+2 Tideturner
+3 Tornado Warrior
+1 Vex, Apathetic
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Bandle Tree
+1 Startipped Peak
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Abandon
+1 Block
+1 Decree of Focus
+1 Hunting Blind
+1 Not So Fast
+1 Pyke, Returned
+2 Ravenbloom Prefect
+1 Rebuke
+1 Star-Crossed

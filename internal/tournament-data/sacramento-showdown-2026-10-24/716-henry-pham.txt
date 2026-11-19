@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 716th place
+# player: Henry Pham
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/sacramento-716/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+3 Acceptable Losses
+3 Amateur Demolitionist
+2 An Offer You Can't Refuse
+2 Bilgewater Tracker
+1 Detonate
+3 Falling Star
+2 Fizz, Trickster
+3 Pack of Wonders
+3 Runeblade Anvil
+3 Seal of Rage
+3 Shimmering Swimmer
+1 Star-Crossed
+1 Switcheroo
+1 The Good Stuff
+3 The List
+3 Traveling Merchant
+2 Treasure Trove
+
+Battlefields:
+1 Rockfall Path
+1 Vilemaw's Lair
+1 Void Gate
+
+Runes:
+4 Chaos Rune
+8 Fury Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+3 Decree of Rage
+2 Gust
+2 Kha'Zix, Mutating Horror
+2 Vex, Apathetic

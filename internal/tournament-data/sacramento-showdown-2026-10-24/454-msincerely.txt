@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 454th place
+# player: Msincerely
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-454/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Poppy, Keeper of the Hammer
+
+Champion:
+1 Poppy, Paragon
+
+MainDeck:
+1 Akshan, Mischievous
+1 Challenge
+3 Enthralling Protector
+3 Gemhand Hunter
+3 Grim Resolve
+1 Hidden Blade
+2 Irresistible Faefolk
+2 Keeper's Verdict
+2 Kennen, Keeper of Balance
+2 Ki Barrier
+2 Kinkou Initiate
+2 Lucian, Merciless
+2 Master Yi, Tempered
+1 Onslaught
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+1 Salvage
+3 Shepherd's Heirloom
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Gardens of Becoming
+1 Sandswept Tomb
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Decree of Strength
+2 Decree of Unity
+2 Repulse
+2 Ruin Runner
+1 Sabotage
+1 Salvage
+1 Vi, Peacekeeper

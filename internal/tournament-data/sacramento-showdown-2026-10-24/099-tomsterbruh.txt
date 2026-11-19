@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 99th place
+# player: tomsterbruh
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-99/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Destructive
+
+MainDeck:
+1 Blighted Battleaxe
+1 Brittle Steel
+3 Deathgrip
+2 Falling Star
+3 Hextech Gauntlets
+3 Hidden Blade
+3 Immortal Phoenix
+2 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Kennen, Keeper of Balance
+1 Long Sword
+2 Noxus Hopeful
+3 Perfect Execution
+1 Pyke, Dockside Butcher
+3 Seal of Rage
+1 Sky Splitter
+3 Undying Legion
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Minefield
+1 Shadow Temple
+1 Zaun Warrens
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+2 Brittle Steel
+2 Brynhir Thundersong
+1 Decree of Rage
+1 Decree of Unity
+2 Ferrous Forerunner
+1 Lacerate

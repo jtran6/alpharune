@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 392nd place
+# player: TK Lor
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-392/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Bellows Breath
+3 Defy
+3 Discipline
+1 Eclipse
+1 Irelia, Fervent
+3 Lonely Poro
+1 Not So Fast
+3 Ravenbloom Student
+1 Resplendent Rostrum
+2 Riven, Broken Blade
+2 Strigian Oracle
+3 Stupefy
+1 Tasty Faefolk
+3 Temporal Breach
+2 The Empyrean
+3 Thousand-Tailed Watcher
+1 Time Warp
+1 Twilight Shroud
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 The Papertree
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Insight
+2 Disarming Rake
+1 Hush
+2 Pickpocket
+1 Singularity

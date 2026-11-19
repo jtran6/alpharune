@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 670th place
+# player: Budabryan
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-670/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+2 Armored Tusker
+1 Charm
+2 Consult the Heavens
+3 Defy
+3 Discipline
+2 Emperor's Divide
+2 Graves, Blasting Through
+1 K'Sante, Courageous
+2 Ki Burst
+2 Life from Stone
+3 Mutated Mouser
+2 Nazuman Ntofo
+2 Ntofo Strikes
+2 Punch First
+3 Stalwart Poro
+3 Staunch Survivor
+2 Stoic Ferryman
+2 Svellsongur
+
+Battlefields:
+1 Durand Memorial
+1 Grove of the God-Willow
+1 Hunters' Circle
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+1 Charm
+2 Disarming Rake
+2 Hush
+1 Not So Fast
+2 Ruin Runner
+2 Twilight Shroud

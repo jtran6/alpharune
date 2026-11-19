@@ -1,0 +1,57 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 26th place
+# player: Sparrows
+# record: 6-3-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-26/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Steel Paws
+3 Bedeviling Stranger
+2 Scuttle Crab
+2 Tideturner
+1 Pyke, Returned
+3 Tornado Warrior
+1 Blitzcrank, Impassive
+3 Astral Heron
+2 Zhonya's Hourglass
+2 Boots of Swiftness
+3 Defy
+1 Gust
+1 Ki Burst
+1 Abandon
+1 Battle Preparations
+1 Discipline
+2 Rebuke
+3 Switcheroo
+2 Back Off
+2 Star-Crossed
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Fortified Position
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 Decree of Focus
+1 Gust
+2 Hush
+1 An Offer You Can't Refuse
+2 Not So Fast
+1 Tomb-Raider Barbara
+1 Blitzcrank, Impassive
+1 Baron Nashor

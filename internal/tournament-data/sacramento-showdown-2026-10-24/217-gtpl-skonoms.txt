@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 217th place
+# player: GTPL Skonoms
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-217/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ivern, Green Father
+
+Champion:
+1 Ivern, Nurturer
+
+MainDeck:
+1 Azir, Sovereign
+1 Back Off
+1 Call to Glory
+1 Daisy!
+3 Defy
+3 Discipline
+2 Emperor's Divide
+2 Frisky Hunter
+3 Hidden Blade
+3 Hunker Down
+2 Hunting Dog
+2 Iridescent Avian
+3 Mutated Mouser
+3 Raucous Anthem
+3 Stalwart Poro
+3 Trusty Ramhound
+3 Ultrasoft Poro
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Blitzcrank, Impassive
+3 Disarming Rake
+1 Fallen Feline
+1 Hunting Blind
+1 Hush
+1 Janna, Savior
+1 Not So Fast
+1 Vilemaw

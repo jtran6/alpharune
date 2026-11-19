@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 634th place
+# player: alth
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-634/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Blood Money
+3 Catalyst of Aeons
+3 Concert Poster
+3 Dazzling Aurora
+3 Divining Shells
+3 Elder Dragon
+2 Flurry of Blades
+3 Mobilize
+2 Mordekaiser, Dominating
+3 Portable Portal
+3 Rampage
+2 Rengar, Trophy Hunter
+2 Repulse
+2 Rift Herald
+2 Sacrifice
+
+Battlefields:
+1 Amateur Recital
+1 Risen Altar
+1 Ruined Monastery
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Dockside Lock-Up
+2 Kayle, Justified
+2 Punch First
+2 Sabotage
+2 Zaun Punk

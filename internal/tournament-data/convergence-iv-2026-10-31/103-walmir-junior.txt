@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 103rd place
+# player: Walmir Junior
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-103/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Lucian, Purifier
+
+Champion:
+1 Lucian, Merciless
+
+MainDeck:
+2 Blighted Battleaxe
+3 Doran's Blade
+2 Falling Star
+2 First Mate
+1 Graves, Blasting Through
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+3 Long Sword
+3 Noxus Hopeful
+3 Pit Rookie
+3 Punch First
+1 Relentless Pursuit
+2 Rengar, Trophy Hunter
+1 Repulse
+2 Ruin Runner
+2 Sabotage
+
+Battlefields:
+1 Forbidding Waste
+1 Forge of the Fluft
+1 Rockfall Path
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+1 Against the Odds
+1 Akshan, Mischievous
+1 Brittle Steel
+1 Brynhir Thundersong
+1 Disposal Order
+2 Rampage
+1 Repulse
+2 Unyielding Spirit

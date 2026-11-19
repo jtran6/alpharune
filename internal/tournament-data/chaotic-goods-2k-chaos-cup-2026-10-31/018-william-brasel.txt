@@ -1,0 +1,56 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 18th place
+# player: William Brasel
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-18/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+2 Carrion Dredger
+1 Deathgrip
+1 Dunebreaker
+2 Escaped Grayback
+2 Falling Star
+1 Ferrous Forerunner
+2 Hidden Blade
+3 Honest Broker
+1 Imperial Decree
+1 Long Sword
+1 Noxus Hopeful
+2 Pyke, Dockside Butcher
+2 Rage Amplifier
+3 Realm of Death
+2 Rengar, Pouncing
+1 Shadow's Call
+1 Shen, Kinkou
+3 Trifarian Captain
+3 Vanguard Captain
+2 Vi, Peacekeeper
+3 Xin Zhao, Vigilant
+
+Battlefields:
+1 Black Rose Sanctum
+1 Trifarian War Camp
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Bilgewater Tracker
+2 Decree of Rage
+1 Decree of Unity
+1 Dockside Lock-Up
+1 Mordekaiser, Twice Slain
+1 Safety Inspector
+2 Salvage

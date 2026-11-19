@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 209th place
+# player: Milly
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-209/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+1 An Offer You Can't Refuse
+1 Burn Away
+1 Fizz, Trickster
+1 Flash
+1 Gust
+2 Last Rites
+3 Lightning Rush
+3 Nocturne, Horrifying
+1 Rebuke
+3 Reckless Innovator
+3 Rhasa the Sunderer
+3 Ride the Wind
+3 Seal of Discord
+3 Shadow Order Disciple
+1 Star-Crossed
+2 Switcheroo
+1 Teemo, Scout
+3 Traveling Merchant
+3 Trifarian Captain
+
+Battlefields:
+1 Minefield
+1 Sandswept Tomb
+1 Zaun Warrens
+
+Runes:
+9 Chaos Rune
+3 Order Rune
+
+Sideboard:
+1 Angler Beast
+2 Decree of Unity
+1 Fizz, Trickster
+1 Gust
+1 Ravenbloom Prefect
+1 Rebuke
+1 Shadows of the Past
+1 Star-Crossed
+1 Up from the Deep

@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 332nd place
+# player: Eric Robles
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-332/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Murderous Artist
+
+MainDeck:
+1 Brittle Steel
+3 Curtain Call
+2 Deadly Flourish
+3 Downstage Dramatics
+2 Ekko, Revolutionary
+3 Frigid Touch
+1 Hextech Anomaly
+2 Immortal Phoenix
+2 Kai'Sa, Survivor
+1 Mordekaiser, Twice Slain
+2 Noxus Hopeful
+3 Plundering Poro
+2 Punching Poro
+2 Scorched Earth
+1 Seal of Rage
+1 Singularity
+3 Sprite Burst
+1 Square Up
+2 Thousand-Tailed Watcher
+1 Unchecked Power
+1 Watchful Sentry
+
+Battlefields:
+1 Ravenbloom Conservatory
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Brittle Steel
+3 Decree of Insight
+3 Decree of Rage
+1 Lotus Trap
+1 Thermo Beam
+1 Time Warp

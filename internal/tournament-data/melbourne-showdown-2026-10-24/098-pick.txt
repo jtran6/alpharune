@@ -1,0 +1,63 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 98th place
+# player: Pick
+# record: 4-3-2
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-98/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Fiora, Grand Duelist
+
+Champion:
+1 Fiora, Worthy
+
+MainDeck:
+1 Carrion Dredger
+2 Pit Rookie
+2 Unsung Hero
+2 First Mate
+2 Hunting Dog
+2 Kayle, Justified
+1 Kennen, Keeper of Balance
+1 Kinkou Initiate
+2 Graves, Blasting Through
+1 Rengar, Trophy Hunter
+2 Sett, Brawler
+1 Elnuk Herd
+1 Pillaged Armory
+2 Doran's Blade
+1 Portable Portal
+2 B.F. Sword
+3 Punch First
+1 Sacrifice
+1 Hidden Blade
+2 Riposte
+1 Burn Away
+2 Call to Glory
+2 Hold 'Em
+2 Rampage
+
+Battlefields:
+1 Packed Amphitheater
+1 Sunken Temple
+1 Vilemaw's Lair
+
+Runes:
+6 Body Rune
+6 Order Rune
+
+Sideboard:
+1 Repulse
+1 Sabotage
+1 Unyielding Spirit
+1 Decree of Unity
+1 Lacerate
+1 Riposte
+1 Salvage
+1 Stalwart Goatherd
+1 Vi, Peacekeeper
+1 Harnessed Dragon

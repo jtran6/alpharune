@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 150th place
+# player: Raphael Okoye
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-150/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Bellows Breath
+3 Catalyst of Aeons
+3 Clairvoyance
+3 Dazzling Aurora
+3 Deadly Flourish
+3 Dredge Up
+3 Elder Dragon
+2 Flurry of Blades
+2 Garbage Grabber
+1 Gutter Palace
+3 Mobilize
+3 Platewyrm Egg
+3 Promising Future
+2 Sabotage
+2 Sprite Burst
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+8 Body Rune
+4 Mind Rune
+
+Sideboard:
+1 Avalanche
+2 Decree of Strength
+2 Repulse
+2 Rocket Barrage
+1 Sabotage
+2 Wages of Pain

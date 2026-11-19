@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 395th place
+# player: Christian Lu
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-395/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+3 Astral Heron
+1 Baron Nashor
+2 Battle Preparations
+1 Bedeviling Stranger
+3 Blade of the Exile
+1 Blitzcrank, Impassive
+3 Defy
+3 Discipline
+1 Flash
+1 Gust
+2 Rebuke
+2 Reckless Innovator
+1 Ride the Wind
+3 Scuttle Crab
+1 Star-Crossed
+1 Switcheroo
+3 The Good Stuff
+3 Tideturner
+1 Vex, Apathetic
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Akali, Silent
+2 An Offer You Can't Refuse
+1 Hush
+1 Not So Fast
+2 Ravenbloom Prefect
+1 Reckless Innovator
+1 Star-Crossed
+1 Vex, Apathetic

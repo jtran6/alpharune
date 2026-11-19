@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 703rd place
+# player: Evan Melendez
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/sacramento-703/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ezreal, Prodigal Explorer
+
+Champion:
+1 Ezreal, Prodigy
+
+MainDeck:
+3 Bellows Breath
+3 Bewitching Spirit
+3 Deadly Flourish
+2 Ezreal, Prodigy
+3 Fizz, Trickster
+3 Gust
+3 Pack of Wonders
+3 Star-Crossed
+3 Stupefy
+2 The List
+2 Thousand-Tailed Watcher
+2 Treasure Trove
+2 Turn to Dust
+2 Vex, Apathetic
+3 Wages of Pain
+
+Battlefields:
+1 Frozen Fortress
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+2 Angler Beast
+2 Kha'Zix, Mutating Horror
+2 Pickpocket
+2 Ravenbloom Prefect
+2 Reckless Innovator

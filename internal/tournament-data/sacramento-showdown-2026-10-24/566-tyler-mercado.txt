@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 566th place
+# player: Tyler Mercado
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-566/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Twice Slain
+
+MainDeck:
+3 Baited Hook
+2 Bilgewater Tracker
+2 Draven, Showboat
+1 Grand Strategem
+2 Hidden Blade
+3 Honest Broker
+1 Imperial Decree
+3 Inferna
+3 Rally the Troops
+3 Realm of Death
+3 Seal of Unity
+3 Spectral Matron
+3 Trifarian Captain
+3 Vanguard Captain
+2 Vi, Peacekeeper
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Minefield
+1 Trifarian War Camp
+1 Zaun Warrens
+
+Runes:
+4 Fury Rune
+8 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Decree of Unity
+1 Grand Strategem
+1 Imperial Decree
+2 Safety Inspector
+2 Zaun Punk

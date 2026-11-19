@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 585th place
+# player: Felix
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-585/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+3 Carrion Dredger
+1 Cleave
+2 Cull the Weak
+2 Deathgrip
+3 Falling Star
+2 Ferrous Forerunner
+3 Hextech Gauntlets
+1 Hidden Blade
+3 Immortal Phoenix
+3 Kai'Sa, Survivor
+1 Long Sword
+1 Perfect Execution
+2 Pyke, Dockside Butcher
+2 Sacrifice
+2 Seal of Rage
+3 Trifarian Captain
+2 Undying Legion
+3 Unsung Hero
+
+Battlefields:
+1 Forbidding Waste
+1 Forge of the Fluft
+1 Sunken Temple
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+1 Brittle Steel
+2 Brynhir Thundersong
+1 Decree of Unity
+2 Imperial Decree
+2 Salvage

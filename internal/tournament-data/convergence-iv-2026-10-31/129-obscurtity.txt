@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 129th place
+# player: Obscurtity
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-129/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lux, Lady of Luminosity
+
+Champion:
+1 Lux, Crownguard
+
+MainDeck:
+3 Applied Researchers
+2 Ashe, Focused
+2 Clairvoyance
+2 Cull the Weak
+3 Energy Conduit
+2 Falling Comet
+2 Garbage Grabber
+3 Plundering Poro
+2 Progress Day
+3 Promising Future
+1 Salvage
+3 Shock Blast
+1 Singularity
+2 The Ruination
+3 Time Warp
+3 Trifarian Captain
+2 Wages of Pain
+
+Battlefields:
+1 Forgotten Monument
+1 Rockfall Path
+1 Sigil of the Storm
+
+Runes:
+7 Mind Rune
+5 Order Rune
+
+Sideboard:
+2 Dockside Lock-Up
+1 Falling Comet
+3 Mel, Newly Awakened
+1 Salvage
+1 Singularity
+1 The Ruination
+1 Wages of Pain

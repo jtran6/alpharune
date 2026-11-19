@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 239th place
+# player: Joseph chen
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-239/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Bellows Breath
+3 Catalyst of Aeons
+3 Clairvoyance
+2 Consult the Past
+3 Dazzling Aurora
+3 Elder Dragon
+2 Flurry of Blades
+3 Garbage Grabber
+2 Gutter Palace
+3 Mobilize
+3 Platewyrm Egg
+1 Rocket Barrage
+2 Sabotage
+3 Sprite Burst
+2 Stupefy
+1 Temporal Breach
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+2 Disposal Order
+1 Progress Day
+2 Repulse
+2 Rocket Barrage
+1 Sabotage
+2 Sprite Fountain

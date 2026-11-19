@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 354th place
+# player: Samuel Lei
+# record: 3-2-0
+# source: https://riftwatch.gg/decks/sacramento-354/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ezreal, Prodigal Explorer
+
+Champion:
+1 Ezreal, Prodigy
+
+MainDeck:
+3 Bellows Breath
+3 Clairvoyance
+3 Deadly Flourish
+1 Existential Dread
+3 Fizz, Trickster
+3 Forecaster
+3 Gust
+1 Pickpocket
+1 Singularity
+2 Sprite Fountain
+3 Star-Crossed
+3 Stupefy
+3 Thousand-Tailed Watcher
+1 Turn to Dust
+3 Vex, Apathetic
+3 Wages of Pain
+
+Battlefields:
+1 Frozen Fortress
+1 Sigil of the Storm
+1 Vilemaw's Lair
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+2 Acceptable Losses
+1 Angler Beast
+1 Mindsplitter
+1 Pickpocket
+2 Ravenbloom Prefect
+1 Singularity
+1 Turn to Dust
+1 Unchecked Power

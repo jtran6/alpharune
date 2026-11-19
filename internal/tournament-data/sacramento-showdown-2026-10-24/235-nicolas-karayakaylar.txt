@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 235th place
+# player: Nicolas Karayakaylar
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-235/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Rengar, Pridestalker
+
+Champion:
+1 Rengar, Trophy Hunter
+
+MainDeck:
+2 Challenge
+1 Darius, Trifarian
+2 First Mate
+3 Grim Apothecary
+3 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+1 Long Sword
+3 Nidalee, Cat Form
+3 Pit Rookie
+3 Punch First
+3 Pyke, Dockside Butcher
+2 Sabotage
+1 Stalwart Goatherd
+3 Thrill of the Hunt
+
+Battlefields:
+1 Emperor's Dais
+1 Forbidding Waste
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Fury Rune
+
+Sideboard:
+2 Brittle Steel
+1 Brynhir Thundersong
+1 Darius, Trifarian
+2 Disposal Order
+2 Stalwart Goatherd
+2 Unyielding Spirit

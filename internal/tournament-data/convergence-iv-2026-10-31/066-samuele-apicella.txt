@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 66th place
+# player: Samuele Apicella
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-66/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+1 Akali, Silent
+2 Battle Preparations
+3 Brutalizer
+2 Charm
+3 Defy
+1 Disarming Rake
+3 Discipline
+3 En Garde
+1 Janna, Savior
+2 Lonely Poro
+3 Mask of Foresight
+3 Ravenbloom Student
+2 Smoke and Mirrors
+3 Sprite Burst
+3 Sprite Fountain
+3 Stupefy
+1 Unchecked Power
+
+Battlefields:
+1 Dusk Rose Lab
+1 Seat of Power
+1 Targon's Peak
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+1 Akali, Silent
+1 Battle Preparations
+3 Decree of Insight
+1 Lilting Lullaby
+1 Smoke and Mirrors
+2 Tomb-Raider Barbara
+1 Unchecked Power

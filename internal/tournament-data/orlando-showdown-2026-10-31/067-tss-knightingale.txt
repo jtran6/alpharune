@@ -1,0 +1,53 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 67th place
+# player: TSS KnightinGale
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-67/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Carrion Dredger
+2 Inferna
+3 Trifarian Captain
+2 Bilgewater Tracker
+2 Hunting Dog
+1 Rengar, Pouncing
+1 Shen, Kinkou
+3 Vanguard Captain
+2 Xin Zhao, Vigilant
+2 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Rengar, Unseen
+1 Minotaur Reckoner
+2 Vi, Peacekeeper
+2 Long Sword
+2 Falling Star
+2 Hidden Blade
+3 Realm of Death
+1 Imperial Decree
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Unity
+2 Salvage
+2 Ashe, Focused
+1 Minotaur Reckoner
+1 Dockside Lock-Up
+2 Ferrous Forerunner

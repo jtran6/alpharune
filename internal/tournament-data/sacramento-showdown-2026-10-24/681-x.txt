@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 681st place
+# player: X
+# record: 1-5-0
+# source: https://riftwatch.gg/decks/sacramento-681/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+3 Back Off
+2 Charm
+3 Clockwork Keeper
+2 Defy
+3 Discipline
+2 Ki Burst
+2 Not So Fast
+2 Portable Portal
+2 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+3 Scuttle Crab
+2 Sona, Harmonious
+3 Stalwart Poro
+3 Trevor Snoozebottom
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Durand Memorial
+1 Grove of the God-Willow
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Allay, Eager Admirer
+2 Decree of Strength
+1 Hush
+3 Meditation
+1 Sabotage
+1 Tomb-Raider Barbara

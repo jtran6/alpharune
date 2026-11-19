@@ -1,0 +1,51 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 4th place
+# player: Frosty
+# record: 10-2-1
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-4/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+3 Bilgewater Tracker
+3 Lecturing Yordle
+3 Noxus Hopeful
+3 Brynhir Thundersong
+3 Thousand-Tailed Watcher
+2 The Empyrean
+2 Bellows Breath
+3 Hextech Ray
+3 Stupefy
+1 Brittle Steel
+3 Falling Star
+2 Smoke Screen
+3 Temporal Breach
+1 Consult the Past
+2 Singularity
+2 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+3 Decree of Rage
+1 Retreat
+1 Brittle Steel
+2 Thermo Beam
+2 Ferrous Forerunner

@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 138th place
+# player: Ben CB
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-138/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Meticulous Killer
+
+MainDeck:
+3 Consult the Past
+3 Curtain Call
+3 Deadly Flourish
+2 Downstage Dramatics
+1 Falling Star
+2 Ferrous Forerunner
+1 Frigid Touch
+3 Noxus Hopeful
+1 Orb of Regret
+3 Plundering Poro
+3 Ravenbloom Student
+2 Rocket Barrage
+2 Singularity
+3 Sprite Burst
+2 Stupefy
+2 Thousand-Tailed Watcher
+2 Time Warp
+1 Unchecked Power
+
+Battlefields:
+1 Forbidding Waste
+1 Frozen Fortress
+1 Sigil of the Storm
+
+Runes:
+5 Fury Rune
+7 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+1 Ferrous Forerunner
+1 Progress Day
+1 Rocket Barrage
+2 Sprite Fountain
+1 Stupefy
+1 Thermo Beam
+1 Unchecked Power

@@ -1,0 +1,52 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 5th place
+# player: Zachary Hogue
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-5/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Sett, The Boss
+
+Champion:
+1 Sett, Kingpin
+
+MainDeck:
+3 Call to Glory
+2 Fiora, Victorious
+3 First Mate
+1 Hidden Blade
+3 Irresistible Faefolk
+1 Ki Barrier
+2 One-Two Punch
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Repulse
+2 Sabotage
+3 Showstopper
+3 Trifarian Captain
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Grove of the God-Willow
+1 Hunters' Circle
+1 Monastery of Hirana
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Akshan, Mischievous
+1 Decree of Strength
+2 Decree of Unity
+1 Repulse
+2 Ruin Runner
+2 Salvage
+1 Vi, Peacekeeper

@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 687th place
+# player: Alexis sanchez
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-687/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+2 Acceptable Losses
+3 Amateur Demolitionist
+1 Baron Nashor
+3 Bewitching Spirit
+3 Detonate
+3 Falling Star
+1 Gust
+2 Hexplosive Minefield
+2 Kai'Sa, Survivor
+3 Pack of Wonders
+2 Ride the Wind
+3 Seal of Rage
+2 Shimmering Swimmer
+1 Switcheroo
+1 The List
+3 Treasure Hunter
+3 Treasure Trove
+1 Vex, Apathetic
+
+Battlefields:
+1 Grove of the God-Willow
+1 Vilemaw's Lair
+1 Zaun Warrens
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+1 Acceptable Losses
+1 Brynhir Thundersong
+2 Decree of Rage
+1 Gust
+2 Hard Bargain
+1 Rebuke
+1 Vex, Apathetic
+1 Vi, Destructive

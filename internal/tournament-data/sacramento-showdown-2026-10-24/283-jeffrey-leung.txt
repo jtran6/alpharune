@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 283rd place
+# player: Jeffrey Leung
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-283/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+2 Back Off
+1 Concentrate
+3 Defy
+3 Discipline
+1 Elnuk Herd
+1 Emperor's Divide
+3 Gemhand Hunter
+2 Grim Resolve
+1 Herald of Spring
+2 Master Yi, Unstoppable
+2 Portable Portal
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Scuttle Crab
+2 Voracious Gromp
+3 Wuju Apprentice
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Amateur Recital
+1 Gardens of Becoming
+1 Reckoner's Arena
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Alpha Strike
+2 Decree of Focus
+1 Decree of Strength
+2 Disarming Rake
+1 Not So Fast
+1 Repulse
+2 Sabotage

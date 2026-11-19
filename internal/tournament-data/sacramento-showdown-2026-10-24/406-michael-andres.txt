@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 406th place
+# player: Michael Andres
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-406/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Revolutionary
+
+MainDeck:
+3 Antagonistic Apparatus
+1 Brittle Steel
+3 Consuming Curse
+3 Dredge Up
+3 Falling Star
+3 Ferrous Forerunner
+3 Hwei, Brooding Painter
+2 Inferna
+3 Kai'Sa, Survivor
+2 Perfect Execution
+3 Rumble, Hotheaded
+3 Singularity
+3 Stupefy
+1 Thousand-Tailed Watcher
+3 Unchecked Power
+
+Battlefields:
+1 Seat of Power
+1 Star Spring
+1 Sunken Temple
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Brittle Steel
+3 Decree of Insight
+1 Decree of Rage
+2 Thermo Beam
+2 Thousand-Tailed Watcher

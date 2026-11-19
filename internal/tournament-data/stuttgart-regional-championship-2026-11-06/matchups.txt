@@ -1,0 +1,21 @@
+# Stuttgart Regional Championship
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# live: https://riftwatch.gg/api/live?event=rc-europe-stuttgart
+# pulled: 12:28 PM ET on November 19, 2026
+# Scores are the winner's games, then the opponent's games, as Riftwatch shows them.
+# Swiss pairings are not in this payload.
+
+Top cut
+
+Quarterfinals (round 13)
+- DiamondHat (Riven, The Exile, 3rd place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/003-diamondhat.txt) beat On Curve Willy (Kennen, Heart of the Tempest, 8th place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/008-on-curve-willy.txt) 2-1
+- Sonecon (Riven, The Exile, 2nd place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/002-sonecon.txt) beat HXN Gonkra (Kennen, Heart of the Tempest, 7th place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/007-hxn-gonkra.txt) 2-0
+- ASC Evansrhim (Kennen, Heart of the Tempest, 1st place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/001-asc-evansrhim.txt) beat CTCG DZiden (Kai'Sa, Daughter of the Void, 5th place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/005-ctcg-dziden.txt) 2-1
+- BQO Caravaggio (Riven, The Exile, 4th place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/004-bqo-caravaggio.txt) beat lets see lol (Riven, The Exile, list not published) 2-1
+
+Semifinals (round 14)
+- Sonecon (Riven, The Exile, 2nd place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/002-sonecon.txt) beat DiamondHat (Riven, The Exile, 3rd place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/003-diamondhat.txt) 2-0
+- ASC Evansrhim (Kennen, Heart of the Tempest, 1st place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/001-asc-evansrhim.txt) beat BQO Caravaggio (Riven, The Exile, 4th place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/004-bqo-caravaggio.txt) 2-1
+
+Final (round 15)
+- ASC Evansrhim (Kennen, Heart of the Tempest, 1st place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/001-asc-evansrhim.txt) beat Sonecon (Riven, The Exile, 2nd place, internal/tournament-data/stuttgart-regional-championship-2026-11-06/002-sonecon.txt) 2-0

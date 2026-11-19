@@ -1,0 +1,51 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 53rd place
+# player: Gerardo Uranga
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-53/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mel, Soul's Reflection
+
+Champion:
+1 Mel, Defiant Soul
+
+MainDeck:
+3 Applied Researchers
+2 Bedeviling Stranger
+3 Dredge Up
+3 Ravenbloom Student
+1 Rebuke
+3 Rebuttal
+3 Shock Blast
+2 Smoke Screen
+1 Star-Crossed
+3 Stupefy
+1 Switcheroo
+3 The Empyrean
+3 Time Warp
+3 Traveling Merchant
+3 Up from the Deep
+2 Vex, Apathetic
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 Vilemaw's Lair
+
+Runes:
+5 Chaos Rune
+7 Mind Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+1 Mel, Newly Awakened
+2 Pickpocket
+2 Ravenbloom Prefect
+1 Rebuke
+1 Star-Crossed
+1 Thousand-Tailed Watcher

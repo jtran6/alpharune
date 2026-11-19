@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 736th place
+# player: Terry
+# record: 0-5-0
+# source: https://riftwatch.gg/decks/sacramento-736/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lucian, Purifier
+
+Champion:
+1 Lucian, Merciless
+
+MainDeck:
+1 Blighted Battleaxe
+1 Cleave
+3 Doran's Blade
+1 Falling Star
+3 First Mate
+2 Gem Jammer
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Long Sword
+1 Lucian, Merciless
+3 Noxus Hopeful
+1 Pit Rookie
+2 Poppy, Paragon
+3 Punch First
+3 Relentless Pursuit
+2 Ruin Runner
+2 Sabotage
+2 Twilight Reveler
+
+Battlefields:
+1 Forbidding Waste
+1 Forge of the Fluft
+1 Windswept Hillock
+
+Runes:
+5 Body Rune
+7 Fury Rune
+
+Sideboard:
+1 Akshan, Mischievous
+1 Falling Star
+3 Ferrous Forerunner
+1 Pit Rookie
+1 Rampage
+1 Repulse
+1 Thermo Beam

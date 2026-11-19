@@ -1,0 +1,59 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 614th place
+# player: Eric Orosco
+# record: 1-5-1
+# source: https://riftwatch.gg/decks/sacramento-614/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Ivern, Green Father
+
+Champion:
+1 Ivern, Nurturer
+
+MainDeck:
+1 Alpha Wildclaw
+1 Astral Heron
+2 Azir, Sovereign
+2 Block
+2 Call to Glory
+2 Charm
+1 Daisy!
+3 Defy
+3 Discipline
+2 Emperor's Divide
+2 Friendship
+2 Iridescent Avian
+1 Mageseeker Warden
+3 Mutated Mouser
+2 One-Two Punch
+2 Solari Sunhawk
+1 Spirit's Refuge
+3 Stalwart Poro
+1 Trusty Ramhound
+1 Ultrasoft Poro
+1 Vilemaw
+1 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Trapping Grounds
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Astral Heron
+1 Decree of Unity
+2 Disarming Rake
+1 Fallen Feline
+1 Flurry of Feathers
+1 Harnessed Dragon
+1 Ivern, Friend to All
+1 Remember the Fallen

@@ -1,0 +1,43 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 433rd place
+# player: Tay Goff
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-433/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Man of Progress
+
+MainDeck:
+2 Avalanche
+2 Bellows Breath
+2 Catalyst of Aeons
+3 Clairvoyance
+3 Dazzling Aurora
+3 Deadly Flourish
+3 Dredge Up
+3 Elder Dragon
+3 Flurry of Blades
+2 Garbage Grabber
+1 Gutter Palace
+3 Mobilize
+3 Platewyrm Egg
+3 Sprite Burst
+2 Temporal Breach
+1 Wages of Pain
+
+Battlefields:
+1 Forgotten Monument
+1 Frozen Fortress
+1 Sigil of the Storm
+
+Runes:
+8 Body Rune
+4 Mind Rune

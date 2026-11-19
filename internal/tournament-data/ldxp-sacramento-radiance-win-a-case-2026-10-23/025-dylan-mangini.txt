@@ -1,0 +1,55 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 25th place
+# player: Dylan Mangini
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-25/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Blacksmith
+
+MainDeck:
+1 Aspiring Engineer
+3 Brutalizer
+2 Charm
+2 Consult the Past
+3 Defy
+1 Discipline
+1 Dropboarder
+1 Guardian Angel
+1 Heart of Dark Ice
+2 Lonely Poro
+1 Mask of Foresight
+3 Patched Porobot
+3 Pit Crew
+3 Poro Snax
+3 Scuttle Crab
+3 Sprite Fountain
+2 Sterak's Gage
+2 Stupefy
+2 Thousand-Tailed Watcher
+
+Battlefields:
+1 Ornn's Forge
+1 Seat of Power
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+1 Decree of Focus
+1 Decree of Insight
+2 Disarming Rake
+1 Helm of Suppression
+2 Janna, Savior
+1 Not So Fast
+1 Pickpocket
+1 Unchecked Power

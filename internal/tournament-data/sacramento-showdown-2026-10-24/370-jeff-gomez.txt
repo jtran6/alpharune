@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 370th place
+# player: Jeff Gomez
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-370/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Bellows Breath
+1 Bilgewater Tracker
+3 Brynhir Thundersong
+3 Falling Star
+1 Ferrous Forerunner
+3 Hextech Ray
+2 Lecturing Yordle
+1 Lost to the Sands
+3 Noxus Hopeful
+3 Plundering Poro
+1 Singularity
+1 Smoke Screen
+3 Stupefy
+3 Temporal Breach
+1 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Bilgewater Tracker
+2 Brittle Steel
+2 Decree of Insight
+2 Decree of Rage
+1 Ferrous Forerunner
+1 Icathian Rain
+1 Pickpocket

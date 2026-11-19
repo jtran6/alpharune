@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 132nd place
+# player: Henry
+# record: 5-4-1
+# source: https://riftwatch.gg/decks/sacramento-132/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+1 Ashe, Focused
+2 Bilgewater Tracker
+3 Carrion Dredger
+1 Darius, Trifarian
+2 Deathgrip
+2 Falling Star
+2 Ferrous Forerunner
+1 Hidden Blade
+3 Honest Broker
+2 Hunting Dog
+3 Kai'Sa, Survivor
+2 Long Sword
+3 Noxus Hopeful
+2 Pyke, Dockside Butcher
+3 Realm of Death
+1 Salvage
+2 Shen, Kinkou
+2 Soaring Scout
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Minefield
+1 Seat of Power
+1 Zaun Warrens
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+1 Brittle Steel
+2 Decree of Rage
+2 Decree of Unity
+2 Forge of the Future
+2 Imperial Decree
+1 Salvage

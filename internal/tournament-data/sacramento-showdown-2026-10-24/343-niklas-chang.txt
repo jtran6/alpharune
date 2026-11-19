@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 343rd place
+# player: Niklas Chang
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-343/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mel, Soul's Reflection
+
+Champion:
+1 Mel, Newly Awakened
+
+MainDeck:
+1 Acceptable Losses
+3 Applied Researchers
+3 Dredge Up
+1 Fizz, Trickster
+1 Flash
+2 Gust
+3 Hwei, Brooding Painter
+3 Ravenbloom Student
+3 Rebuttal
+2 Ride the Wind
+2 Shock Blast
+1 Smoke Screen
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+3 Tideturner
+2 Time Warp
+3 Traveling Merchant
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Targon's Peak
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+2 Decree of Insight
+1 Fizz, Trickster
+1 Hard Bargain
+2 Pickpocket
+1 Unchecked Power
+1 Vex, Apathetic

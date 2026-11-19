@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 170th place
+# player: era
+# record: 4-2-1
+# source: https://riftwatch.gg/decks/sacramento-170/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+2 Inferna
+3 Irresistible Faefolk
+3 Pit Rookie
+3 First Mate
+2 Kinkou Initiate
+2 Nidalee, Cat Form
+1 Pyke, Dockside Butcher
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+2 Rengar, Trophy Hunter
+1 Ruin Runner
+3 Punch First
+2 Sabotage
+2 Falling Star
+2 Rampage
+3 Long Sword
+2 Blighted Battleaxe
+
+Battlefields:
+1 Black Market
+1 Forge of the Fluft
+1 Protective Sands
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+3 Coalesced Energy
+2 Ferrous Forerunner
+1 Ruin Runner
+1 Repulse
+2 Brittle Steel
+1 Rampage

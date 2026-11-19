@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 220th place
+# player: Ray Charles
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-220/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+2 Ahri, Alluring
+1 Alpha Wildclaw
+2 Astral Heron
+2 Bedeviling Stranger
+2 Blitzcrank, Impassive
+3 Charm
+3 Defy
+2 Ember Monk
+3 Kinkou Lifeblade
+1 Mageseeker Warden
+2 Meditation
+2 Mournful Witness
+2 Not So Fast
+1 Ravenbloom Prefect
+2 Scuttle Crab
+2 Stalwart Poro
+2 The Waters' Wage
+2 Vex, Apathetic
+1 Vilemaw
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Durand Memorial
+1 Fortified Position
+1 Grove of the God-Willow
+
+Runes:
+12 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+2 Disarming Rake
+2 Emperor's Divide
+2 Hush
+1 Mageseeker Warden
+1 Ravenbloom Prefect

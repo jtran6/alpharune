@@ -1,0 +1,53 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 42nd place
+# player: EpicPulls
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-42/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+1 Baron Nashor
+3 Bedeviling Stranger
+3 Blade of the Exile
+2 Blitzcrank, Impassive
+3 Defy
+3 Discipline
+2 Gust
+2 Rebuke
+3 Reckless Innovator
+3 Scuttle Crab
+1 Star-Crossed
+3 Stellacorn Herder
+1 The Good Stuff
+2 Tideturner
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Rakelstake
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+1 Baron Nashor
+3 Decree of Focus
+1 Hush
+1 Tomb-Raider Barbara
+2 Vex, Apathetic

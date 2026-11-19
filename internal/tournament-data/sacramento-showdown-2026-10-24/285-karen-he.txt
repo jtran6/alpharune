@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 285th place
+# player: Karen He
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-285/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ivern, Green Father
+
+Champion:
+1 Ivern, Nurturer
+
+MainDeck:
+3 Back Off
+2 Block
+1 Call to Glory
+3 Defy
+3 Discipline
+2 Frisky Hunter
+1 Hidden Blade
+3 Hunker Down
+3 Iridescent Avian
+1 Ivern, Nurturer
+1 Ki Burst
+3 Mutated Mouser
+3 Raucous Anthem
+3 Stalwart Poro
+1 Storm Raptor
+3 Trusty Ramhound
+3 Ultrasoft Poro
+
+Battlefields:
+1 Forgotten Monument
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+3 Ashe, Focused
+2 Emperor's Divide
+2 Safety Inspector
+3 Tomb-Raider Barbara

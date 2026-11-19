@@ -1,0 +1,59 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 603rd place
+# player: Simon Vang
+# record: 1-2-1
+# source: https://riftwatch.gg/decks/sacramento-603/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 Abandon
+1 Acceptable Losses
+1 Baron Nashor
+1 Bedeviling Stranger
+2 Boots of Swiftness
+2 Edge of Night
+2 Ezreal, Prodigy
+1 Fizz, Trickster
+1 Gust
+3 Gutter Guardian
+1 Hold 'Em
+2 K'Sante, Courageous
+1 Kharox
+3 Kinkou Initiate
+1 Onslaught
+2 Pyke, Returned
+2 Rampage
+2 Rengar, Trophy Hunter
+1 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+3 Tornado Warrior
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Rakelstake
+1 Startipped Peak
+
+Runes:
+4 Body Rune
+8 Chaos Rune
+
+Sideboard:
+1 Abandon
+1 Graves, Blasting Through
+1 Hold 'Em
+1 Portable Portal
+1 Rampage
+3 Ravenbloom Prefect
+1 Sabotage
+1 Switcheroo

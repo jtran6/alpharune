@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 143rd place
+# player: Marcus Smith
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-143/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Twice Slain
+
+MainDeck:
+2 Call to Glory
+2 Carrion Dredger
+1 Ferrous Forerunner
+2 Honest Broker
+3 Hunting Dog
+3 Karthus, Eternal
+3 LeBlanc, Fragmented
+3 Long Sword
+2 Noxian Emissary
+2 One-Two Punch
+1 Rally the Troops
+3 Realm of Death
+2 Shadow's Call
+1 Tactical Retreat
+3 Trifarian Captain
+2 Ultrasoft Poro
+2 Vanguard Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Minefield
+1 Ruined Monastery
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Rage
+3 Decree of Unity
+2 Imperial Decree
+3 Salvage

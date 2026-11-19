@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 364th place
+# player: vesper
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-364/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Bellows Breath
+1 Charm
+3 Defy
+3 Discipline
+3 Find Your Center
+3 Life from Stone
+3 Lonely Poro
+3 Scuttle Crab
+3 Steel Paws
+2 Stupefy
+3 Tasty Faefolk
+3 Temporal Breach
+3 Thousand-Tailed Watcher
+1 Time Warp
+1 Whiteflame Protector
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 The Papertree
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+1 Charm
+1 Convergent Mutation
+1 Decree of Focus
+1 Decree of Insight
+1 Not So Fast
+1 Singularity
+1 Time Warp
+2 Tomb-Raider Barbara
+1 Vilemaw

@@ -1,0 +1,57 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 27th place
+# player: XDPOW
+# record: 6-3-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-27/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Pyke, Bloodharbor Ripper
+
+Champion:
+1 Pyke, Returned
+
+MainDeck:
+2 Bedeviling Stranger
+2 Inferna
+1 Tideturner
+3 Traveling Merchant
+3 Ezreal, Prodigy
+1 Fizz, Trickster
+1 Pyke, Dockside Butcher
+2 Rengar, Pouncing
+3 Tornado Warrior
+2 Kai'Sa, Survivor
+2 Noxus Hopeful
+3 Tail-Cloaked Matriarch
+1 Ferrous Forerunner
+2 Kharox
+2 Cleave
+1 Existential Dread
+1 An Offer You Can't Refuse
+2 Falling Star
+1 Hard Bargain
+2 Switcheroo
+2 Star-Crossed
+
+Battlefields:
+1 Minefield
+1 Ripper's Bay
+1 Zaun Warrens
+
+Runes:
+7 Chaos Rune
+5 Fury Rune
+
+Sideboard:
+1 Decree of Rage
+1 An Offer You Can't Refuse
+1 Bilgewater Tracker
+2 Ravenbloom Prefect
+2 Vex, Apathetic
+1 Thermo Beam
+1 Ferrous Forerunner
+1 Baron Nashor

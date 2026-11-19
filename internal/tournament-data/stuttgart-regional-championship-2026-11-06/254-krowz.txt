@@ -1,0 +1,54 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 254th place
+# player: krowz
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-254/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+3 Bedeviling Stranger
+3 Tideturner
+2 Traveling Merchant
+3 Reckless Innovator
+3 Stellacorn Herder
+2 Blitzcrank, Impassive
+3 Astral Heron
+1 Baron Nashor
+3 Zhonya's Hourglass
+3 Blade of the Exile
+3 Defy
+2 Gust
+2 Battle Preparations
+3 Discipline
+1 Rebuke
+1 Switcheroo
+1 Star-Crossed
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 Decree of Focus
+1 Hunker Down
+1 Hush
+1 Ki Burst
+1 An Offer You Can't Refuse
+1 Disarming Rake
+2 Ravenbloom Prefect
+1 Star-Crossed

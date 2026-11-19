@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 194th place
+# player: Matthew Lee
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-194/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Bedeviling Stranger
+2 Boots of Swiftness
+2 Edge of Night
+3 Ember Monk
+2 Graves, Blasting Through
+3 Gutter Guardian
+2 K'Sante, Courageous
+3 Momentary Companion
+3 Punch First
+3 Pyke, Returned
+2 Rampage
+3 Rengar, Trophy Hunter
+2 Ride the Wind
+2 Star-Crossed
+2 Switcheroo
+3 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Packed Amphitheater
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+3 An Offer You Can't Refuse
+3 Repulse
+1 Star-Crossed
+3 Unyielding Spirit

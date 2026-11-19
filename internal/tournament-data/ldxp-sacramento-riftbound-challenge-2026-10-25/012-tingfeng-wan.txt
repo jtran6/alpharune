@@ -1,0 +1,53 @@
+# event: LDXP Sacramento - Riftbound Challenge
+# date: October 25, 2026
+# placement: 12th place
+# player: Tingfeng Wan
+# record: 3-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-riftbound-challenge-2026-10-25-12/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-riftbound-challenge-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lux, Lady of Luminosity
+
+Champion:
+1 Lux, Crownguard
+
+MainDeck:
+3 Hidden Blade
+3 Honest Broker
+1 Pickpocket
+2 Plundering Poro
+1 Progress Day
+3 Seal of Insight
+2 Singularity
+3 Sprite Burst
+2 Sprite Fountain
+3 Stupefy
+1 Temporal Breach
+3 The Empyrean
+2 The Ruination
+3 Time Warp
+3 Trifarian Captain
+3 Wages of Pain
+1 Zaun Punk
+
+Battlefields:
+1 Rockfall Path
+1 Sigil of the Storm
+1 Vilemaw's Lair
+
+Runes:
+7 Mind Rune
+5 Order Rune
+
+Sideboard:
+2 Cull the Weak
+1 Deadly Flourish
+1 Drag Under
+2 Pickpocket
+1 Salvage
+1 Temporal Breach
+1 Unchecked Power
+1 Zaun Punk

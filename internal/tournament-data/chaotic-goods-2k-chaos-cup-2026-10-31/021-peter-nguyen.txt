@@ -1,0 +1,54 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 21st place
+# player: Peter Nguyen
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-21/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+3 Bellows Breath
+1 Blood Money
+3 Carrion Dredger
+2 Concert Poster
+3 Cull the Weak
+3 Hidden Blade
+3 Imperial Decree
+2 Plundering Poro
+1 Salvage
+1 Shadow's Call
+1 Singularity
+1 Sprite Burst
+3 Sprite Fountain
+3 Stupefy
+1 Thousand-Tailed Watcher
+1 Trifarian Captain
+1 Vi, Peacekeeper
+3 Wages of Pain
+3 Xin Zhao, Vigilant
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+2 Burn Away
+2 Decree of Insight
+1 Forge of the Future
+1 Raucous Anthem
+1 Safety Inspector
+2 Salvage
+1 Thousand-Tailed Watcher

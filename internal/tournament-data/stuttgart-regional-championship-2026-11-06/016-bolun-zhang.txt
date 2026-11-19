@@ -1,0 +1,48 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 16th place
+# player: Bolun Zhang
+# record: 8-3-1
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-16/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Carrion Dredger
+3 Inferna
+3 Trifarian Captain
+3 Bilgewater Tracker
+3 Faithful Manufactor
+1 Grim Apothecary
+1 Hunting Dog
+3 Rengar, Pouncing
+3 Shimmering Swimmer
+3 Noxus Hopeful
+3 Undertitan
+3 Concert Poster
+1 Long Sword
+3 Cull the Weak
+3 Falling Star
+
+Battlefields:
+1 Hunters' Circle
+1 Ruined Monastery
+1 The Candlelit Sanctum
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+2 Decree of Rage
+1 Brittle Steel
+2 Decree of Unity
+3 Ashe, Focused
+2 Mordekaiser, Dominating

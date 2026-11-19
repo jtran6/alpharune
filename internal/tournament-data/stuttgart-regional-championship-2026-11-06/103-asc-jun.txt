@@ -1,0 +1,57 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 103rd place
+# player: ASC JUN
+# record: 3-2-1
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-103/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+1 Bedeviling Stranger
+1 Evelynn, Entrancing
+3 Irresistible Faefolk
+3 Shadow Order Disciple
+1 Traveling Merchant
+3 Fizz, Trickster
+3 Reckless Innovator
+1 Tail-Cloaked Matriarch
+2 Vex, Apathetic
+2 Rengar, Trophy Hunter
+2 Zed, Without a Sound
+1 Edge of Night
+2 Gust
+3 Punch First
+1 Sabotage
+1 An Offer You Can't Refuse
+1 Grim Resolve
+1 Switcheroo
+3 Void Assault
+2 Rampage
+2 Star-Crossed
+
+Battlefields:
+1 Packed Amphitheater
+1 Sandswept Tomb
+1 Star Spring
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+2 Decree of Strength
+2 Sabotage
+1 Unyielding Spirit
+1 An Offer You Can't Refuse
+1 Switcheroo
+1 Rampage
+2 Ravenbloom Prefect

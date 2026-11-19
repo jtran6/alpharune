@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 484th place
+# player: Ryo Colglazier
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-484/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+2 Concert Poster
+3 Demacian Standard
+2 Dockside Lock-Up
+3 Kinkou Initiate
+3 Nidalee, Cat Form
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+3 Rampage
+3 Rengar, Trophy Hunter
+1 Salvage
+1 Sett, Brawler
+2 Skystrike Squadron
+2 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Sunken Temple
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+1 Decree of Strength
+2 Repulse
+3 Ruin Runner
+2 Sabotage
+2 Salvage

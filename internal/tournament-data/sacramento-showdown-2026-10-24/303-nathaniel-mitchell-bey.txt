@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 303rd place
+# player: Nathaniel Mitchell-Bey
+# record: 3-2-2
+# source: https://riftwatch.gg/decks/sacramento-303/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+2 Alpha Strike
+1 Arachnoid Horror
+3 Back Off
+2 Concentrate
+3 Defy
+3 Discipline
+1 Emperor's Divide
+3 Gemhand Hunter
+2 Grim Resolve
+2 Herald of Spring
+1 Master Yi, Tempered
+3 Master Yi, Unstoppable
+3 Punch First
+3 Scuttle Crab
+1 Voracious Gromp
+3 Wuju Apprentice
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Gardens of Becoming
+1 Reckoner's Arena
+1 Targon's Peak
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+2 Disarming Rake
+2 Rampage
+2 Sabotage

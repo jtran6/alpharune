@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 425th place
+# player: George Perrenod
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-425/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Baron Nashor
+2 Edge of Night
+3 Elnuk Herd
+1 First Mate
+1 Flash
+1 Graves, Blasting Through
+3 Grim Resolve
+3 Here to Help
+3 Jayce, Hammer in Hand
+3 Nidalee, Cat Form
+3 Pakaa Cub
+3 Punch First
+3 Pyke, Returned
+3 Rengar, Trophy Hunter
+2 Siren's Song
+3 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Bandle Tree
+1 Packed Amphitheater
+
+Runes:
+7 Body Rune
+5 Chaos Rune
+
+Sideboard:
+2 Decree of Discord
+3 Decree of Strength
+3 Gust
+2 Sabotage

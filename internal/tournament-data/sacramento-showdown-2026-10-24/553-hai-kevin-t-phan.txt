@@ -1,0 +1,62 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 553rd place
+# player: hai kevin t phan
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-553/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+1 Bellows Breath
+3 Bilgewater Tracker
+2 Card Sharp
+1 Darius, Trifarian
+1 Deadly Flourish
+1 Eager Drakehound
+1 Ekko, Revolutionary
+2 Falling Star
+1 Frigid Touch
+1 Gemcraft Seer
+3 Inferna
+1 Kai'Sa, Survivor
+1 Legion Rearguard
+3 Plundering Poro
+1 Riptide Mage
+1 Riptide Rex
+1 Seal of Insight
+1 Seal of Rage
+3 Shock Blast
+1 Singularity
+1 Smite
+1 Smoke Screen
+1 Stupefy
+2 Temporal Breach
+1 Thousand-Tailed Watcher
+1 Unlicensed Armory
+2 Vayne, Hunter
+
+Battlefields:
+1 Emperor's Dais
+1 Frozen Fortress
+1 Rockfall Path
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Brittle Steel
+2 Brynhir Thundersong
+2 Convergent Mutation
+2 Decree of Rage
+1 Thermo Beam
+1 Unchecked Power

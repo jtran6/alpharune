@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 505th place
+# player: Goose
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-505/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+2 Astral Heron
+2 Back Off
+1 Charm
+3 Defy
+3 Discipline
+2 Kennen, Keeper of Balance
+2 Ki Barrier
+3 Life from Stone
+3 Mournful Witness
+1 Salvage
+3 Scuttle Crab
+2 Shadow Dash
+2 Shepherd's Heirloom
+2 Solari Sunhawk
+3 Sona, Harmonious
+1 Vengeance
+2 Vi, Peacekeeper
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Grove of the God-Willow
+1 Hallowed Tomb
+1 Kinkou Temple
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Decree of Focus
+2 Decree of Unity
+2 Forge of the Future
+1 Not So Fast
+2 Salvage
+1 Shen, Leader of the Kinkou Order
+1 Vilemaw

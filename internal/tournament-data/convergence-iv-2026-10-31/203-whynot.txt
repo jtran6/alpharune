@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 203rd place
+# player: WhyNot
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-203/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Miss Fortune, Bounty Hunter
+
+Champion:
+1 Miss Fortune, Buccaneer
+
+MainDeck:
+2 Bedeviling Stranger
+2 First Mate
+2 Grim Resolve
+2 Hard Bargain
+2 Invert Timelines
+3 Irresistible Faefolk
+2 Kha'Zix, Mutating Horror
+2 Kinkou Initiate
+2 Nidalee, Cat Form
+2 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+2 Ride the Wind
+2 Siren's Song
+2 Spirit Wheel
+2 Switcheroo
+2 The Good Stuff
+3 Treasure Hunter
+
+Battlefields:
+1 Hunters' Circle
+1 Sandswept Tomb
+1 Targon's Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+3 An Offer You Can't Refuse
+2 Decree of Strength
+3 Lucian, Merciless
+2 Ruin Runner

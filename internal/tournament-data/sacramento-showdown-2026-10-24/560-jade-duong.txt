@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 560th place
+# player: Jade Duong
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-560/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+3 Block
+2 Charm
+3 Defy
+3 Discipline
+3 Irresistible Faefolk
+2 Kinkou Initiate
+3 Mutated Mouser
+2 Nidalee, Cat Form
+2 Portable Portal
+2 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+2 Sabotage
+3 Stalwart Poro
+2 Vilemaw
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Amateur Recital
+1 Seat of Power
+1 The Papertree
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+1 Avalanche
+2 Decree of Focus
+1 Decree of Strength
+1 Hush
+1 Rampage
+2 Tomb-Raider Barbara
+2 Unyielding Spirit

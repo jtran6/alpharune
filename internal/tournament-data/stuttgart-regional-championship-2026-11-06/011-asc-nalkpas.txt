@@ -1,0 +1,57 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 11th place
+# player: ASC nalkpas
+# record: 8-2-2
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-11/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+1 Bedeviling Stranger
+2 Tideturner
+3 Traveling Merchant
+3 Trifarian Captain
+1 Fizz, Trickster
+2 Reckless Innovator
+3 Nocturne, Horrifying
+3 Rhasa the Sunderer
+3 Seal of Discord
+2 Edge of Night
+2 Last Rites
+2 Gust
+3 Lightning Rush
+1 An Offer You Can't Refuse
+1 Hard Bargain
+1 Hidden Blade
+1 Rebuke
+1 Ride the Wind
+2 Switcheroo
+2 Star-Crossed
+
+Battlefields:
+1 Minefield
+1 Veiled Temple
+1 Zaun Warrens
+
+Runes:
+9 Chaos Rune
+3 Order Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Decree of Unity
+1 Lacerate
+1 Ride the Wind
+2 Ravenbloom Prefect
+1 The Good Stuff
+1 Tail-Cloaked Matriarch

@@ -1,0 +1,48 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 12th place
+# player: Peter Do
+# record: 5-3-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-12/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Bilgewater Tracker
+2 Blood Rush
+3 Carrion Dredger
+2 Cleave
+3 Cull the Weak
+3 Faithful Manufactor
+3 Falling Star
+3 Hunting Dog
+3 Imperial Decree
+3 Inferna
+2 Lingering Animus
+3 Noxian Emissary
+3 Noxus Hopeful
+3 Undertitan
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 The Candlelit Sanctum
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+2 Decree of Rage
+3 Decree of Unity
+1 Long Sword
+1 Piercing Light
+2 Salvage

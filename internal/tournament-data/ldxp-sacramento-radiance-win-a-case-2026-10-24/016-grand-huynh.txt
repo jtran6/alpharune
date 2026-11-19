@@ -1,0 +1,57 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 24, 2026
+# placement: 16th place
+# player: Grand Huynh
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-24-16/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+2 Abandon
+1 Acceptable Losses
+1 An Offer You Can't Refuse
+1 Bedeviling Stranger
+1 Fizz, Trickster
+1 Flash
+2 Gust
+3 Hwei, Brooding Painter
+3 Moonfall
+2 Ravenbloom Student
+1 Rebuke
+2 Ride the Wind
+2 Smoke Screen
+2 Sprite Fountain
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+3 Tideturner
+2 Traveling Merchant
+3 Vex, Apathetic
+1 Vex, Cheerless
+
+Battlefields:
+1 Abandoned Hall
+1 Seat of Power
+1 Targon's Peak
+
+Runes:
+7 Chaos Rune
+5 Mind Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+2 Decree of Insight
+1 Eclipse
+1 Gust
+2 Ravenbloom Prefect
+1 Star-Crossed
+1 Tail-Cloaked Matriarch
+1 Up from the Deep

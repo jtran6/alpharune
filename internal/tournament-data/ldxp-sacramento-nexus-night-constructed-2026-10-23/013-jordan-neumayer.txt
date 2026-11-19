@@ -1,0 +1,57 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 13th place
+# player: Jordan Neumayer
+# record: 2-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-13/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+3 Bilgewater Tracker
+2 Deathgrip
+2 Falling Star
+2 Ferrous Forerunner
+3 Gem Jammer
+1 Grim Apothecary
+3 Hextech Gauntlets
+2 Hidden Blade
+3 Inferna
+3 Kai'Sa, Survivor
+1 Kennen, Keeper of Balance
+1 Long Sword
+1 Noxus Saboteur
+1 Perfect Execution
+1 Pyke, Dockside Butcher
+2 Rek'Sai, Breacher
+1 Rengar, Pouncing
+1 Seal of Rage
+1 Tactical Retreat
+3 Trifarian Captain
+2 Vault Breaker
+
+Battlefields:
+1 Forge of the Fluft
+1 Star Spring
+1 Vilemaw's Lair
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Decree of Unity
+1 Forge of the Future
+1 Grim Apothecary
+2 Salvage
+1 Solari Sunhawk
+1 Vi, Destructive

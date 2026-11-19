@@ -1,0 +1,60 @@
+# event: LDXP Sacramento - Riftbound Challenge
+# date: October 25, 2026
+# placement: 35th place
+# player: Jackson Sipila
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-riftbound-challenge-2026-10-25-35/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-riftbound-challenge-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+1 Adaptatron
+1 An Offer You Can't Refuse
+2 Boots of Swiftness
+1 Charm
+3 Defiant Dance
+3 Defy
+3 Discipline
+2 En Garde
+1 Guardian Angel
+1 Hard Bargain
+2 Life from Stone
+1 Not So Fast
+2 Ride the Wind
+3 Scuttle Crab
+1 Siren's Song
+1 Star-Crossed
+3 Stellacorn Herder
+3 Tideturner
+1 Twilight Shroud
+2 Vex, Apathetic
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Abandoned Hall
+1 Sunken Temple
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 Abandon
+1 Adaptatron
+1 Charm
+1 Crumbling Sands
+1 Gust
+1 Helm of Suppression
+1 Not So Fast
+1 Ravenbloom Prefect
+1 Switcheroo
+1 Twilight Shroud

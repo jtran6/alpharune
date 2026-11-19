@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 445th place
+# player: Rheayanna Galat
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-445/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+2 Akali, Silent
+2 Bellows Breath
+2 Charm
+2 Defy
+3 Discipline
+1 Heart of Dark Ice
+1 Hush
+2 Lilting Lullaby
+3 Mask of Foresight
+2 Not So Fast
+2 Petal Pixie
+3 Ravenbloom Student
+2 Scuttle Crab
+3 Sprite Burst
+3 Sprite Fountain
+3 Thousand-Tailed Watcher
+1 Unchecked Power
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Black Flame Altar
+1 Dusk Rose Lab
+1 Seat of Power
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+2 Disarming Rake
+2 Frigid Touch
+1 Hush
+1 Janna, Savior
+2 Ruined Rex

@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 605th place
+# player: Eric Jiang
+# record: 1-3-1
+# source: https://riftwatch.gg/decks/sacramento-605/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+1 Back Off
+3 Bellows Breath
+3 Defy
+3 Discipline
+3 Find Your Center
+2 Lonely Poro
+1 Not So Fast
+3 Ravenbloom Student
+3 Scuttle Crab
+3 Sprite Burst
+2 Steel Paws
+3 Stupefy
+2 Tasty Faefolk
+2 Temporal Breach
+1 The Empyrean
+3 Thousand-Tailed Watcher
+1 Time Warp
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 Vilemaw's Lair
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+1 Decree of Focus
+2 Decree of Insight
+1 Eclipse
+1 Hush
+1 Singularity
+2 Tomb-Raider Barbara
+1 Unchecked Power
+1 Vilemaw

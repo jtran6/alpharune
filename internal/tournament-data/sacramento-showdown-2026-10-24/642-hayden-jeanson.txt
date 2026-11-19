@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 642nd place
+# player: Hayden Jeanson
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-642/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+2 Baron Nashor
+2 Battle Preparations
+3 Bedeviling Stranger
+3 Blade of the Exile
+3 Defy
+3 Discipline
+2 Evelynn, Entrancing
+1 Ki Burst
+1 Rebuke
+3 Reckless Innovator
+1 Star-Crossed
+3 Stellacorn Herder
+3 Tideturner
+1 Tomb-Raider Barbara
+1 Vex, Apathetic
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Akali, Silent
+1 An Offer You Can't Refuse
+1 Decree of Focus
+1 Gust
+2 Hush
+1 Not So Fast
+1 Ravenbloom Prefect
+1 Rebuke
+1 Vex, Apathetic

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 249th place
+# player: Jerome Daniels
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-249/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+1 Battle Preparations
+3 Defy
+3 Desert's Call
+3 Discipline
+3 En Garde
+3 Life from Stone
+3 Mask of Foresight
+3 Ravenbloom Student
+1 Sprite Burst
+3 Sprite Fountain
+3 Stupefy
+2 The Empyrean
+3 Thousand-Tailed Watcher
+3 Tomb-Raider Barbara
+1 Twilight Shroud
+1 Unchecked Power
+
+Battlefields:
+1 Dusk Rose Lab
+1 Rockfall Path
+1 Seat of Power
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Akali, Silent
+2 Disarming Rake
+1 Flurry of Feathers
+2 Singularity
+1 Sprite Burst
+1 The Empyrean
+1 Unchecked Power

@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 333rd place
+# player: Brandon Hom
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-333/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Akali, Silent
+2 Back Off
+2 Battle Preparations
+2 Blossoming Dreamroot
+1 Charm
+1 Cloth Armor
+3 Defy
+3 Discipline
+2 Forgotten Signpost
+3 Frigid Jewel
+3 Mask of Foresight
+3 Pit Crew
+2 Scuttle Crab
+1 Singularity
+3 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+1 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Bellows Breath
+1 Charm
+2 Decree of Insight
+3 Disarming Rake
+1 Hush
+1 Singularity

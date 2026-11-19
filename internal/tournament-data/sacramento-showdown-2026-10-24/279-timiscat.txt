@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 279th place
+# player: TimIsCat
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-279/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+1 Charm
+3 Consult the Heavens
+3 Defy
+3 Discipline
+2 First Mate
+1 Graves, Blasting Through
+3 Lonely Poro
+3 Nazuman Ntofo
+2 Ntofo Strikes
+3 Punch First
+2 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Sabotage
+3 Scuttle Crab
+2 Stalwart Poro
+2 Tomb-Raider Barbara
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Decree of Strength
+1 Disposal Order
+1 Graves, Blasting Through
+2 Not So Fast
+1 Onslaught
+2 Rampage
+1 Rengar, Trophy Hunter
+1 Sabotage

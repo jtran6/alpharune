@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 457th place
+# player: Willow A
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-457/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+3 Charm
+3 Cloth Armor
+2 Command: Attack
+3 Defy
+3 Discipline
+3 Frigid Jewel
+2 Gravity Field
+2 Helm of Suppression
+1 Not So Fast
+3 Plundering Poro
+3 Resource Extractor
+1 Resplendent Rostrum
+3 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+2 Tomb-Raider Barbara
+
+Battlefields:
+1 Hunters' Circle
+1 Ornn's Forge
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Akali, Silent
+1 Gravity Field
+1 Helm of Suppression
+2 Hunting Blind
+2 Turn to Dust
+2 Watchful Curator

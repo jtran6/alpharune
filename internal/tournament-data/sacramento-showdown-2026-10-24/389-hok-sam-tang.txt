@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 389th place
+# player: Hok Sam Tang
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-389/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Akali, Silent
+3 Charm
+3 Defy
+3 Discipline
+3 En Garde
+3 First Mate
+3 Lonely Poro
+1 Onslaught
+3 Pit Rookie
+3 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+1 Sabotage
+3 Scuttle Crab
+1 Steel Paws
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Fortified Position
+1 Grove of the God-Willow
+1 Seat of Power
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Strength
+1 Fiora, Peerless
+1 Repulse
+2 Ruin Runner
+2 Tomb-Raider Barbara

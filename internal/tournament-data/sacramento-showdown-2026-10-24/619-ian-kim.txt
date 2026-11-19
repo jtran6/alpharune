@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 619th place
+# player: Ian kim
+# record: 1-5-1
+# source: https://riftwatch.gg/decks/sacramento-619/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Blacksmith
+
+MainDeck:
+2 Brutalizer
+3 Defy
+2 Dropboarder
+2 Guardian Angel
+3 Helm of Suppression
+3 Mask of Foresight
+2 Ornn, Blacksmith
+1 Ornn, Forge God
+3 Patched Porobot
+3 Pit Crew
+3 Poro Snax
+2 Scuttle Crab
+3 Seal of Focus
+1 Shurelya's Requiem
+3 Sprite Fountain
+3 Sterak's Gage
+
+Battlefields:
+1 Mystic Vortex
+1 Ornn's Forge
+1 Seat of Power
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+3 Command: Attack
+2 Disarming Rake
+2 Hunting Blind
+2 Janna, Savior

@@ -1,0 +1,51 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 171st place
+# player: Pablo Cat 1
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-171/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+1 B.F. Sword
+3 Bellows Breath
+1 Blood Money
+2 Carrion Dredger
+3 Concert Poster
+1 Consult the Past
+3 Cull the Weak
+1 Facebreaker
+3 Hidden Blade
+3 Imperial Decree
+2 Salvage
+3 Shadow's Call
+3 Sprite Burst
+3 Sprite Fountain
+3 Stupefy
+1 Thousand-Tailed Watcher
+3 Wages of Pain
+
+Battlefields:
+1 Forbidding Waste
+1 Ravenbloom Conservatory
+1 Rockfall Path
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Decree of Insight
+1 Decree of Unity
+2 Ravenbloom Student
+1 Salvage
+2 The Empyrean
+1 Unchecked Power

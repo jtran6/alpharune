@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 646th place
+# player: cassidy luu
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-646/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Antagonistic Apparatus
+3 Baited Hook
+1 Bilgewater Tracker
+1 Cleave
+3 Draven, Showboat
+1 Falling Star
+1 Hidden Blade
+3 Honest Broker
+2 Imperial Decree
+1 Kai'Sa, Survivor
+1 Neeko, Blending In
+1 Protector's Shield
+3 Realm of Death
+1 Salvage
+3 Seal of Unity
+3 Spectral Matron
+3 Trifarian Captain
+2 Trifarian Gloryseeker
+3 Vanguard Captain
+
+Battlefields:
+1 Seat of Power
+1 Trifarian War Camp
+1 Zaun Warrens
+
+Runes:
+4 Fury Rune
+8 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+2 Bilgewater Tracker
+2 Decree of Rage
+2 Hunting Dog
+1 Mordekaiser, Twice Slain
+2 Salvage

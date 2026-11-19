@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 678th place
+# player: Kevin
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-678/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+3 Back Off
+2 Concentrate
+3 Defy
+3 Discipline
+2 Emperor's Divide
+3 Gemhand Hunter
+2 Herald of Spring
+1 Hunter's Machete
+3 Master Yi, Unstoppable
+1 Portable Portal
+2 Punch First
+2 Rampage
+2 Scuttle Crab
+3 Voracious Gromp
+3 Wuju Apprentice
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Gardens of Becoming
+1 Reckoner's Arena
+1 Targon's Peak
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+1 Disposal Order
+1 Graves, Blasting Through
+1 Punch First
+2 Sabotage
+2 Tomb-Raider Barbara
+1 Unyielding Spirit

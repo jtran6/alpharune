@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 41st place
+# player: Juan Ramón Cerrejón Mesa
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-41/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Sett, The Boss
+
+Champion:
+1 Sett, Brawler
+
+MainDeck:
+3 Call to Glory
+3 Fiora, Victorious
+3 First Mate
+3 Graves, Blasting Through
+1 Hidden Blade
+3 Irresistible Faefolk
+1 Kennen, Keeper of Balance
+2 One-Two Punch
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+3 Rampage
+2 Repulse
+3 Showstopper
+3 Trifarian Captain
+
+Battlefields:
+1 Grove of the God-Willow
+1 Monastery of Hirana
+1 Sunken Temple
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Akshan, Mischievous
+2 Decree of Unity
+1 Kennen, Keeper of Balance
+1 Ruin Runner
+2 Sabotage
+2 Salvage

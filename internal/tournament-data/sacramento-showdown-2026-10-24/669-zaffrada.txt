@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 669th place
+# player: Zaffrada
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-669/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Cleave
+1 Darius, Trifarian
+3 Falling Star
+3 Inferna
+3 Kai'Sa, Survivor
+1 Mesmerize
+3 Noxus Hopeful
+3 Plundering Poro
+2 Pyke, Dockside Butcher
+3 Ravenbloom Student
+2 Shock Blast
+3 Sprite Fountain
+3 Stupefy
+2 Temporal Breach
+2 Thousand-Tailed Watcher
+3 Vayne, Hunter
+
+Battlefields:
+1 Rockfall Path
+1 Seat of Power
+1 The Candlelit Sanctum
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Bilgewater Tracker
+2 Brittle Steel
+1 Brynhir Thundersong
+2 Decree of Insight
+2 Decree of Rage
+1 Ekko, Revolutionary

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 489th place
+# player: Kevin Bao
+# record: 2-1-0
+# source: https://riftwatch.gg/decks/sacramento-489/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+1 Bilgewater Tracker
+3 Blood Rush
+3 Carrion Dredger
+2 Cleave
+3 Cull the Weak
+2 Faithful Manufactor
+3 Falling Star
+2 Honest Broker
+3 Hunting Dog
+3 Imperial Decree
+2 Inferna
+1 Lingering Animus
+3 Noxian Emissary
+3 Noxus Hopeful
+3 Undertitan
+2 Void Rush
+
+Battlefields:
+1 Forbidding Waste
+1 The Candlelit Sanctum
+1 Trifarian War Camp
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Bilgewater Tracker
+1 Brittle Steel
+2 Ferrous Forerunner
+3 Forge of the Future
+1 Salvage
+1 Vanguard Armory
+1 Vi, Peacekeeper

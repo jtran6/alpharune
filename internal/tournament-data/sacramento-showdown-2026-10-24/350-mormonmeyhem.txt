@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 350th place
+# player: Mormonmeyhem
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-350/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23; Emperor's Dais from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Revolutionary
+
+MainDeck:
+1 Blood Rush
+1 Brittle Steel
+1 Brynhir Thundersong
+2 Cleave
+2 Darius, Trifarian
+3 Dredge Up
+1 Falling Star
+3 Inferna
+3 Legion Rearguard
+3 Noxus Hopeful
+3 Plundering Poro
+3 Pyke, Dockside Butcher
+3 Shock Blast
+3 Sprite Fountain
+2 Temporal Breach
+3 Thousand-Tailed Watcher
+2 Vayne, Hunter
+
+Battlefields:
+1 Emperor's Dais
+1 Rockfall Path
+1 Seat of Power
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Antagonistic Apparatus
+1 Brittle Steel
+1 Brynhir Thundersong
+2 Decree of Insight
+1 Decree of Rage
+1 Falling Star
+1 Singularity
+1 Temporal Breach
+1 Time Warp

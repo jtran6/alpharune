@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 319th place
+# player: Derrick James McKain
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-319/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Twice Slain
+
+MainDeck:
+3 Atakhan
+3 Black Rose Dignitary
+1 Carrion Dredger
+3 Concert Poster
+3 Faithful Manufactor
+3 Ferrous Forerunner
+3 Forbidden Technique
+3 Kayle, Justified
+3 Ki Barrier
+3 Meticulous Restorationist
+1 Mordekaiser, Dominating
+1 Mordekaiser, Twice Slain
+3 Realm of Death
+3 Soaring Scout
+3 Vi, Peacekeeper
+
+Battlefields:
+1 Minefield
+1 Mystic Vortex
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Brynhir Thundersong
+3 Decree of Rage
+2 Decree of Unity
+3 Dockside Lock-Up
+1 The Ruination

@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 413th place
+# player: Alan Liu
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-413/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Everywhere at Once
+
+MainDeck:
+2 Bellows Breath
+2 Carrion Dredger
+3 Deathgrip
+2 Dredge Up
+1 Eclipse
+1 Hidden Blade
+2 Honest Broker
+3 Hwei, Brooding Painter
+1 Imperial Decree
+1 Kennen, Keeper of Balance
+1 LeBlanc, Fragmented
+3 Lillia, Fae Fawn
+2 Mirror Image
+1 Ravenbloom Student
+1 Salvage
+3 Smoke and Mirrors
+3 Stupefy
+2 Tactical Retreat
+2 Thousand-Tailed Watcher
+1 Vi, Peacekeeper
+2 Watchful Sentry
+
+Battlefields:
+1 Black Flame Altar
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+1 Azir, Sovereign
+1 Bellows Breath
+1 Decree of Insight
+2 Decree of Unity
+1 Dockside Lock-Up
+1 Imperial Decree
+2 Salvage
+1 Vi, Peacekeeper

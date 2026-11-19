@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 45th place
+# player: Falo
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/sacramento-45/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Lonely Poro
+3 Pit Rookie
+3 Scuttle Crab
+2 First Mate
+1 Tomb-Raider Barbara
+1 Graves, Blasting Through
+3 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Charm
+3 Defy
+2 En Garde
+3 Punch First
+3 Discipline
+1 Not So Fast
+1 Alpha Strike
+1 Back Off
+2 Rampage
+1 Onslaught
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Grove of the God-Willow
+1 Vilemaw's Lair
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Disarming Rake
+1 Graves, Blasting Through
+1 Charm
+2 Decree of Focus
+1 Decree of Strength
+1 Hush
+2 Sabotage

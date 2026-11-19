@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 728th place
+# player: Patrick Escorrido
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-728/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+1 Aspiring Engineer
+3 Astral Heron
+2 Back Off
+1 Bellows Breath
+2 Cloth Armor
+2 Command: Attack
+3 Defy
+3 Discipline
+1 Frigid Jewel
+1 Helm of Suppression
+1 Hunting Blind
+2 Mask of Foresight
+1 Not So Fast
+3 Patched Porobot
+1 Resplendent Rostrum
+3 Stupefy
+1 Svellsongur
+3 The Ball
+2 Thousand-Tailed Watcher
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rakelstake
+1 Veiled Temple
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+2 Decree of Focus
+2 Decree of Insight
+1 Gravity Field
+2 Helm of Suppression
+1 Hush
+1 Not So Fast

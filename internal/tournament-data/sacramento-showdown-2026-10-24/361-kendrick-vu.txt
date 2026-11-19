@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 361st place
+# player: Kendrick Vu
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-361/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Zed, Master of Shadows
+
+Champion:
+1 Zed, Without a Sound
+
+MainDeck:
+1 An Offer You Can't Refuse
+3 Baron Nashor
+1 Bedeviling Stranger
+2 Bilgewater Tracker
+2 Detonate
+1 Falling Star
+2 Ferrous Forerunner
+1 Gust
+1 Kai'Sa, Survivor
+3 Noxus Hopeful
+2 Pack of Wonders
+2 Perfect Execution
+2 Ride the Wind
+3 Runeblade Anvil
+3 Tideturner
+3 Traveling Merchant
+2 Treasure Trove
+2 Up from the Deep
+1 Vex, Apathetic
+2 Vi, Destructive
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+5 Chaos Rune
+7 Fury Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+1 Angler Beast
+1 Brynhir Thundersong
+1 Ferrous Forerunner
+1 Gust
+2 Ravenbloom Prefect
+1 Thermo Beam
+1 Vex, Apathetic

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 265th place
+# player: Justin
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-265/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+3 Charm
+3 Defy
+3 Discipline
+1 First Mate
+3 Gemhand Hunter
+3 Grim Resolve
+2 Master Yi, Unstoppable
+2 Portable Portal
+3 Punch First
+2 Rengar, Trophy Hunter
+3 Scuttle Crab
+2 Twilight Shroud
+2 Voracious Gromp
+3 Wuju Apprentice
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Durand Memorial
+1 Reckoner's Arena
+1 Targon's Peak
+
+Runes:
+8 Body Rune
+4 Calm Rune
+
+Sideboard:
+1 Alpha Strike
+2 Back Off
+1 Block
+2 Disarming Rake
+2 Graves, Blasting Through
+2 Sabotage

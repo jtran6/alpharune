@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 447th place
+# player: Wei Yee Goh
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-447/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+3 Astral Heron
+1 Back Off
+2 Card Sharp
+1 Charm
+3 Defy
+3 Discipline
+1 Eclipse
+3 Mask of Foresight
+1 Not So Fast
+2 Patched Porobot
+3 Plundering Poro
+3 Sterak's Gage
+2 Stupefy
+1 Temporal Breach
+3 The Ball
+1 Thousand-Tailed Watcher
+2 Time Warp
+1 Tomb-Raider Barbara
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+2 Akali, Silent
+1 Decree of Focus
+1 Decree of Insight
+1 Eclipse
+1 Hush
+2 Temporal Breach
+1 Tomb-Raider Barbara
+1 Twilight Shroud

@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 112th place
+# player: Shawn Chau
+# record: 6-3-0
+# source: https://riftwatch.gg/decks/sacramento-112/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# printing pinned: Pouty Poro #776
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Bellows Breath
+2 Bilgewater Tracker
+3 Brynhir Thundersong
+3 Falling Star
+3 Hextech Ray
+2 Lecturing Yordle
+1 Lost to the Sands
+2 Noxus Hopeful
+1 Pickpocket
+2 Plundering Poro
+1 Pouty Poro #776
+2 Smoke Screen
+3 Stupefy
+3 Temporal Breach
+1 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Brittle Steel
+1 Decree of Insight
+2 Decree of Rage
+1 Icathian Rain
+1 Pickpocket
+2 Sprite Fountain
+1 The Empyrean
+1 Unchecked Power

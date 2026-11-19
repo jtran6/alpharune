@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 624th place
+# player: John Tran
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-624/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Zed, Master of Shadows
+
+Champion:
+1 Zed, Without a Sound
+
+MainDeck:
+3 Battering Ram
+2 Bedeviling Stranger
+2 Bushwhack
+3 Detonate
+1 Falling Star
+1 Fizz, Trickster
+1 Last Rites
+3 Noxus Hopeful
+3 Pack of Wonders
+3 Rhasa the Sunderer
+1 Ride the Wind
+3 Runeblade Anvil
+3 Seal of Discord
+1 Shadows of the Past
+1 Star-Crossed
+1 The Good Stuff
+3 Traveling Merchant
+3 Treasure Trove
+1 Vi, Destructive
+
+Battlefields:
+1 Sigil of the Storm
+1 Veiled Temple
+1 Zaun Warrens
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+1 Decree of Rage
+1 Downwell
+1 Falling Star
+2 Hard Bargain
+2 Rebuke
+1 Thermo Beam
+1 Vex, Apathetic

@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 161st place
+# player: Vincent Nguyen
+# record: 4-2-1
+# source: https://riftwatch.gg/decks/sacramento-161/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+2 Battle Preparations
+1 Blitzcrank, Impassive
+1 Block
+1 Charm
+3 Defy
+3 Discipline
+3 Falling Star
+1 Hush
+1 Irelia, Fervent
+3 Kai'Sa, Survivor
+3 Long Sword
+3 Scuttle Crab
+3 Shuriken Flip
+3 Stellacorn Herder
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Calm Rune
+6 Fury Rune
+
+Sideboard:
+1 Against the Odds
+1 Akali, Silent
+2 Bilgewater Tracker
+1 Brittle Steel
+1 Decree of Focus
+1 Disarming Rake
+2 Ferrous Forerunner
+1 Not So Fast

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 522nd place
+# player: Kendall Haluch
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-522/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+2 Call to Glory
+3 Fiora, Victorious
+3 First Mate
+3 Irresistible Faefolk
+2 K'Sante, Courageous
+1 Kennen, Keeper of Balance
+3 Kinkou Initiate
+3 Pillaged Armory
+3 Pit Rookie
+2 Portable Portal
+2 Punch First
+2 Rampage
+1 Repulse
+3 Sett, Kingpin
+1 Tactical Retreat
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Monastery of Hirana
+1 Packed Amphitheater
+1 Valley of Idols
+
+Runes:
+6 Body Rune
+6 Order Rune
+
+Sideboard:
+1 Decree of Strength
+2 Dockside Lock-Up
+2 Graves, Blasting Through
+1 Repulse
+1 Sabotage
+3 Salvage

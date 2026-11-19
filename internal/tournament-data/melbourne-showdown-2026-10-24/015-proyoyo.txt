@@ -1,0 +1,57 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 15th place
+# player: Proyoyo
+# record: 7-2-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-15/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+3 Bedeviling Stranger
+2 Scuttle Crab
+3 Tideturner
+3 Reckless Innovator
+3 Stellacorn Herder
+1 Blitzcrank, Impassive
+3 Astral Heron
+2 Baron Nashor
+3 Zhonya's Hourglass
+3 Blade of the Exile
+3 Defy
+1 Gust
+1 Ki Burst
+3 Discipline
+1 Not So Fast
+1 Rebuke
+1 Ride the Wind
+1 Switcheroo
+1 Star-Crossed
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Decree of Focus
+1 Twilight Shroud
+1 An Offer You Can't Refuse
+1 Not So Fast
+2 Ravenbloom Prefect
+1 Star-Crossed
+1 Akali, Silent
+1 Tomb-Raider Barbara
+1 Vex, Apathetic

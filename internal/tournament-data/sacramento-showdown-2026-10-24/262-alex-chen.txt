@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 262nd place
+# player: Alex Chen
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-262/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Mechanical Marvel
+
+MainDeck:
+2 Bellows Breath
+2 Charm
+2 Cloth Armor
+2 Defy
+3 Discipline
+2 Dropboarder
+1 Irelia, Fervent
+3 Mask of Foresight
+3 Ravenbloom Student
+1 Resplendent Rostrum
+1 Singularity
+2 Smoke Screen
+1 Sprite Fountain
+3 Sterak's Gage
+3 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+1 Tomb-Raider Barbara
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Insight
+1 Defy
+1 Hush
+1 Not So Fast
+1 Tomb-Raider Barbara
+1 Twilight Shroud
+1 Unchecked Power

@@ -1,0 +1,58 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 123rd place
+# player: Nikodem
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-123/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 Abandon
+1 Baron Nashor
+1 Bedeviling Stranger
+1 Boots of Swiftness
+2 Ezreal, Prodigy
+1 Fizz, Trickster
+3 Gutter Guardian
+3 Hold 'Em
+2 K'Sante, Courageous
+1 Kha'Zix, Mutating Horror
+3 Kinkou Initiate
+2 Last Rites
+2 Momentary Companion
+1 Portable Portal
+2 Punch First
+3 Pyke, Returned
+2 Rampage
+2 Rengar, Trophy Hunter
+1 Seal of Discord
+1 Seal of Strength
+1 Star-Crossed
+1 Switcheroo
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Grove of the God-Willow
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Angler Beast
+2 Gust
+2 Ravenbloom Prefect
+1 Rebuke
+1 Star-Crossed

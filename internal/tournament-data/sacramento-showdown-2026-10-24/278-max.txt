@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 278th place
+# player: Max
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-278/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Revolutionary
+
+MainDeck:
+2 Bellows Breath
+2 Bilgewater Tracker
+1 Brittle Steel
+1 Darius, Trifarian
+3 Falling Star
+3 Forecaster
+3 Kai'Sa, Survivor
+3 Lecturing Yordle
+2 Noxus Hopeful
+1 Orb of Regret
+2 Plundering Poro
+2 Shock Blast
+1 Singularity
+2 Sprite Fountain
+3 Stupefy
+3 Thousand-Tailed Watcher
+2 Unchecked Power
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Brittle Steel
+1 Brynhir Thundersong
+2 Decree of Insight
+2 Decree of Rage
+2 Pickpocket
+1 Progress Day

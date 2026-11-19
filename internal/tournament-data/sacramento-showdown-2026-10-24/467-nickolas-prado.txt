@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 467th place
+# player: Nickolas Prado
+# record: 2-3-1
+# source: https://riftwatch.gg/decks/sacramento-467/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+1 Bellows Breath
+1 Cloth Armor
+3 Defy
+3 Discipline
+3 Find Your Center
+2 Lecturing Yordle
+1 Not So Fast
+2 Premonition
+3 Ravenbloom Student
+3 Scuttle Crab
+1 Singularity
+1 Siphoning Strike
+3 Stupefy
+3 Thousand-Tailed Watcher
+1 Time Warp
+1 Vilemaw
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Rockfall Path
+1 Sigil of the Storm
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Decree of Focus
+2 Decree of Insight
+1 Hush
+1 Not So Fast
+1 Sterak's Gage
+2 Tomb-Raider Barbara
+1 Turn to Dust

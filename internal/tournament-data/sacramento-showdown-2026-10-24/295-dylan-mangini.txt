@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 295th place
+# player: Dylan Mangini
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-295/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Zed, Master of Shadows
+
+Champion:
+1 Zed, Without a Sound
+
+MainDeck:
+2 Baron Nashor
+3 Bedeviling Stranger
+3 Cleave
+1 Flash
+1 Gust
+3 Gust Monk
+2 Illaoi, Prophet of the Great Kraken
+3 Kai'Sa, Survivor
+1 Kha'Zix, Mutating Horror
+1 Lost to the Sands
+1 Lulu, Whimsical
+2 Perfect Execution
+1 Rebuke
+2 Reckless Innovator
+3 Ride the Wind
+3 Switcheroo
+3 Traveling Merchant
+3 Up from the Deep
+1 Vex, Apathetic
+
+Battlefields:
+1 Ruined Monastery
+1 Treasure Hoard
+1 Zaun Warrens
+
+Runes:
+8 Chaos Rune
+4 Fury Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Existential Dread
+1 Hard Bargain
+2 Ravenbloom Prefect
+1 Rebuke
+1 Star-Crossed
+1 Vex, Apathetic

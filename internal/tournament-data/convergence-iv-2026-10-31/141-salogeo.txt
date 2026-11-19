@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 141st place
+# player: Salogeo
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-141/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+2 Ambessa, The Wolf
+2 Battle Preparations
+3 Charm
+3 Defy
+3 Discipline
+1 En Garde
+2 First Mate
+1 Janna, Savior
+3 Lonely Poro
+3 Pit Rookie
+3 Punch First
+1 Rampage
+2 Rengar, Trophy Hunter
+2 Ruin Runner
+3 Scuttle Crab
+1 Stalwart Goatherd
+2 Trinity Force
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Amateur Recital
+1 Fortified Position
+1 Grove of the God-Willow
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Disarming Rake
+1 Graves, Blasting Through
+1 Hush
+1 Janna, Savior
+2 Not So Fast
+1 Ruin Runner
+2 Sabotage

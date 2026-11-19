@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 444th place
+# player: Shaan Gill
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-444/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mel, Soul's Reflection
+
+Champion:
+1 Mel, Defiant Soul
+
+MainDeck:
+3 Applied Researchers
+2 Bellows Breath
+3 Dredge Up
+1 Flash
+2 Gust
+3 Hwei, Brooding Painter
+2 Patched Porobot
+1 Possession
+1 Questionable Tome
+3 Rebuttal
+3 Ride the Wind
+3 Stupefy
+1 Switcheroo
+1 The Syren
+2 Thousand-Tailed Watcher
+3 Tideturner
+1 Time Warp
+3 Traveling Merchant
+1 Unchecked Power
+
+Battlefields:
+1 Frozen Fortress
+1 Targon's Peak
+1 Threshold of the Gray
+
+Runes:
+5 Chaos Rune
+7 Mind Rune
+
+Sideboard:
+1 Abandon
+2 Acceptable Losses
+1 An Offer You Can't Refuse
+1 Baron Nashor
+1 Mel, Newly Awakened
+2 Ravenbloom Prefect
+2 Star-Crossed

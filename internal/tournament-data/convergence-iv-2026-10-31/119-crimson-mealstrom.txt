@@ -1,0 +1,49 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 119th place
+# player: Crimson Mealstrom
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-119/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Baited Hook
+3 Black Rose Dignitary
+1 Burn Away
+3 Carrion Dredger
+3 Deathgrip
+3 Ferrous Forerunner
+3 Harnessed Dragon
+1 Hidden Blade
+2 Hunting Dog
+3 Karthus, Eternal
+3 Long Sword
+3 Realm of Death
+2 Rift Herald
+3 Soaring Scout
+3 Trifarian Captain
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Atakhan
+2 Decree of Rage
+2 Decree of Unity
+2 Minotaur Reckoner

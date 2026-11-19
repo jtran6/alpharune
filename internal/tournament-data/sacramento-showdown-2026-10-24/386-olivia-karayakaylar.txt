@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 386th place
+# player: Olivia Karayakaylar
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-386/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+1 Akali, Silent
+3 Astral Heron
+2 Back Off
+3 Battle Preparations
+3 Defy
+3 Discipline
+2 Divining Shells
+2 Emperor's Divide
+2 Fiora, Victorious
+3 Kayle, Justified
+2 Kennen, Keeper of Balance
+1 Not So Fast
+3 Scuttle Crab
+3 Shadow Dash
+2 Shepherd's Heirloom
+1 Vi, Peacekeeper
+1 Vilemaw
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Forbidding Waste
+1 Forgotten Monument
+1 Kinkou Temple
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Akali, Silent
+2 Decree of Focus
+2 Decree of Unity
+1 Hush
+1 Not So Fast
+2 Salvage
+1 Vilemaw

@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 426th place
+# player: Erik Khong
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-426/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Bedeviling Stranger
+1 Black Market Broker
+1 Edge of Night
+2 Elnuk Herd
+2 Fizz, Trickster
+2 Graves, Blasting Through
+2 Hold 'Em
+2 Kinkou Initiate
+3 Momentary Companion
+3 Punch First
+2 Pyke, Returned
+2 Rampage
+2 Reckless Innovator
+3 Rengar, Trophy Hunter
+2 Sabotage
+2 Siren's Song
+2 Star-Crossed
+1 Switcheroo
+1 The Waters' Wage
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Grove of the God-Willow
+1 Packed Amphitheater
+
+Runes:
+8 Body Rune
+4 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+2 Decree of Strength
+2 Hard Bargain
+2 Ravenbloom Prefect
+1 Ruin Runner
+1 Sabotage

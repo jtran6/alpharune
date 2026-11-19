@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 519th place
+# player: Youngha Hwang
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-519/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+2 Concert Poster
+3 Demacian Standard
+2 Hold 'Em
+1 Irresistible Faefolk
+3 Kinkou Initiate
+3 Nidalee, Cat Form
+3 Overloaded Traveler
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+1 Rengar, Trophy Hunter
+3 Skystrike Squadron
+3 Trifarian Captain
+3 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Seat of Power
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Dockside Lock-Up
+2 Graves, Blasting Through
+1 Hidden Blade
+2 Rampage
+2 Sabotage
+2 Salvage

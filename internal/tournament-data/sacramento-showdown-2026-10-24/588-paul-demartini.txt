@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 588th place
+# player: Paul Demartini
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-588/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Poppy, Keeper of the Hammer
+
+Champion:
+1 Poppy, Paragon
+
+MainDeck:
+1 Challenge
+3 Demacian Diplomat
+2 Enthralling Protector
+3 First Mate
+3 Grim Resolve
+2 Irresistible Faefolk
+2 Keeper's Verdict
+1 Kennen, Keeper of Balance
+2 Kinkou Initiate
+3 Master Yi, Tempered
+1 Onslaught
+3 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Repulse
+2 Sabotage
+3 Shepherd's Heirloom
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Gardens of Becoming
+1 Sandswept Tomb
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Akshan, Mischievous
+2 Decree of Unity
+1 Graves, Blasting Through
+1 Keeper's Verdict
+1 Repulse
+1 Ruin Runner
+1 Sabotage
+1 Salvage
+1 Vi, Peacekeeper

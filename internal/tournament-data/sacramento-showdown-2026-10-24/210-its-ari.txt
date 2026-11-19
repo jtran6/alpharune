@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 210th place
+# player: It’s Ari :)
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-210/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+3 Carrion Dredger
+1 Cleave
+1 Facebreaker
+2 Falling Star
+1 Ferrous Forerunner
+3 Gem Jammer
+1 Grim Apothecary
+3 Hextech Gauntlets
+2 Hidden Blade
+3 Honest Broker
+3 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Kennen, Keeper of Balance
+2 Ki Barrier
+2 Pyke, Dockside Butcher
+1 Rek'Sai, Breacher
+2 Salvage
+2 Tactical Retreat
+2 Vault Breaker
+
+Battlefields:
+1 Star Spring
+1 The Candlelit Sanctum
+1 Threshold of the Gray
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+1 Brittle Steel
+2 Decree of Rage
+2 Decree of Unity
+2 Inferna
+1 Salvage
+2 Smite

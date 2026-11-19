@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 486th place
+# player: Aaron Ricafrente
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-486/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Zed, Master of Shadows
+
+Champion:
+1 Zed, From the Shadows
+
+MainDeck:
+2 An Offer You Can't Refuse
+2 Death Mark
+1 Ekko, Revolutionary
+2 Ezreal, Prodigy
+3 Fizz, Trickster
+2 Flame Chompers
+1 Flash
+1 Forbidden Technique
+1 Gust
+2 Reckless Innovator
+3 Rhasa the Sunderer
+1 Ride the Wind
+3 Runeblade Anvil
+3 Seal of Discord
+2 Shadows of the Past
+2 Star-Crossed
+2 Tideturner
+3 Traveling Merchant
+3 Treasure Hunter
+
+Battlefields:
+1 Ruined Monastery
+1 Targon's Peak
+1 Zaun Warrens
+
+Runes:
+7 Chaos Rune
+5 Fury Rune
+
+Sideboard:
+1 Abandon
+1 Bushwhack
+1 Forbidden Technique
+2 Gust
+1 Rebuke
+1 Ride the Wind
+2 Switcheroo
+1 Vi, Destructive

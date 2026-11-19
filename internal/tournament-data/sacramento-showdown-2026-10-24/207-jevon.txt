@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 207th place
+# player: Jevon
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-207/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+3 Bellows Breath
+3 Concert Poster
+2 Cull the Weak
+3 Encore
+1 Hidden Blade
+2 Imperial Decree
+3 Jayce, Man of Progress
+3 Plundering Poro
+2 Ravenbloom Student
+1 Safety Inspector
+1 Singularity
+1 Sprite Burst
+3 Sprite Fountain
+2 Stupefy
+2 Thousand-Tailed Watcher
+3 Vanguard Armory
+2 Vi, Peacekeeper
+2 Wages of Pain
+
+Battlefields:
+1 Forbidding Waste
+1 Treasure Hoard
+1 Trifarian War Camp
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+3 Decree of Insight
+1 Decree of Unity
+3 Pickpocket
+2 Salvage
+1 Singularity

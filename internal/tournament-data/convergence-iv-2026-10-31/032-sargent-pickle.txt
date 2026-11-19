@@ -1,0 +1,51 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 32nd place
+# player: Sargent Pickle
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-32/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+3 Battle Preparations
+3 Bedeviling Stranger
+2 Boots of Swiftness
+3 Clockwork Keeper
+2 Defy
+3 Discipline
+3 Evelynn, Entrancing
+2 Gust
+1 Not So Fast
+2 Seal of Discord
+2 Star-Crossed
+2 Switcheroo
+3 The Good Stuff
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Targon's Peak
+1 Threshold of the Gray
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+3 An Offer You Can't Refuse
+1 Charm
+2 Decree of Focus
+1 Gust
+1 Vex, Apathetic
+2 Vilemaw

@@ -1,0 +1,52 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 15th place
+# player: AnnoyingTag
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-15/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+1 Akali, Silent
+3 Battle Preparations
+3 Boots of Swiftness
+1 Charm
+3 Defiant Dance
+3 Defy
+3 Discipline
+3 Guardian Angel
+2 Hunker Down
+1 Hush
+2 Lonely Poro
+1 Not So Fast
+3 Ride the Wind
+3 Scuttle Crab
+3 Stellacorn Herder
+2 Tideturner
+2 Vex, Apathetic
+
+Battlefields:
+1 Abandoned Hall
+1 Sandswept Tomb
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 Adaptatron
+2 En Garde
+1 Gust
+2 Hush
+2 Star-Crossed
+1 Twilight Shroud

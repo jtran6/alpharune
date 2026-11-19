@@ -1,0 +1,56 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 129th place
+# player: John riftbound
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-129/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Rengar, Pridestalker
+
+Champion:
+1 Rengar, Trophy Hunter
+
+MainDeck:
+1 Inferna
+3 Irresistible Faefolk
+1 Mischievous Marai
+3 Pit Rookie
+3 First Mate
+3 Grim Apothecary
+3 Kinkou Initiate
+1 Nidalee, Cat Form
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+1 Stalwart Goatherd
+1 Darius, Trifarian
+1 Brynhir Thundersong
+3 Elnuk Herd
+3 Punch First
+1 Sabotage
+2 Thrill of the Hunt
+3 Rampage
+
+Battlefields:
+1 Sandswept Tomb
+1 Seat of Power
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Fury Rune
+
+Sideboard:
+1 Decree of Strength
+1 Repulse
+1 Sabotage
+1 Thrill of the Hunt
+1 Nidalee, Cat Form
+1 Stalwart Goatherd
+1 Graves, Blasting Through
+1 Brynhir Thundersong
+2 Ferrous Forerunner

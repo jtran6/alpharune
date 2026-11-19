@@ -1,0 +1,51 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 118th place
+# player: HXN Pandanaconda
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-118/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Sett, The Boss
+
+Champion:
+1 Sett, Kingpin
+
+MainDeck:
+3 Irresistible Faefolk
+3 Pit Rookie
+3 Trifarian Captain
+2 First Mate
+2 Kinkou Initiate
+2 Lucian, Merciless
+1 Nidalee, Cat Form
+2 Akshan, Mischievous
+3 Fiora, Victorious
+2 Rengar, Trophy Hunter
+2 Vi, Peacekeeper
+3 Pillaged Armory
+3 Punch First
+3 Showstopper
+3 Call to Glory
+2 Rampage
+
+Battlefields:
+1 Monastery of Hirana
+1 Packed Amphitheater
+1 Valley of Idols
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+1 Decree of Strength
+2 Repulse
+2 Sabotage
+1 Decree of Unity
+2 Salvage
+1 Rampage
+1 Ruin Runner

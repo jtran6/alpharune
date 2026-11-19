@@ -1,0 +1,47 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 739th place
+# player: Anthony Mulder
+# record: 0-1-0
+# source: https://riftwatch.gg/decks/sacramento-739/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+2 Block
+3 Defy
+3 Discipline
+2 En Garde
+2 Grim Resolve
+2 Hush
+3 K'Sante, Courageous
+3 Lonely Poro
+2 Not So Fast
+2 Onslaught
+3 Punch First
+3 Rengar, Trophy Hunter
+3 Staunch Survivor
+3 Stoic Ferryman
+3 Wrath of the Freljord
+
+Battlefields:
+1 Fortified Position
+1 Grove of the God-Willow
+1 Windswept Hillock
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+3 Decree of Focus
+3 Decree of Strength
+3 Disarming Rake
+1 Vilemaw

@@ -1,0 +1,53 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 169th place
+# player: LadySapphire1015
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-169/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+1 Akali, Silent
+2 Battle Preparations
+3 Boots of Swiftness
+3 Defiant Dance
+3 Defy
+3 Discipline
+2 En Garde
+1 Flash
+2 Guardian Angel
+2 Irelia, Fervent
+2 Reckless Innovator
+3 Ride the Wind
+3 Scuttle Crab
+2 Star-Crossed
+3 Stellacorn Herder
+3 Tideturner
+1 Zhonya's Hourglass
+
+Battlefields:
+1 Abandoned Hall
+1 Sandswept Tomb
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 Adaptatron
+1 Akali, Silent
+2 Charm
+1 Hush
+1 Not So Fast
+1 Star-Crossed
+2 Vex, Apathetic

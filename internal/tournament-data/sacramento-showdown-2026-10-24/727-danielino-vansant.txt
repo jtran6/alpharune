@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 727th place
+# player: Danielino Vansant
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-727/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Hammer in Hand
+
+MainDeck:
+3 Bellows Breath
+3 Catalyst of Aeons
+2 Clairvoyance
+3 Dazzling Aurora
+3 Dredge Up
+3 Elder Dragon
+3 Flurry of Blades
+2 Garbage Grabber
+2 Gutter Palace
+3 Mobilize
+2 Promising Future
+2 Sabotage
+2 Sprite Burst
+2 Stupefy
+2 Temporal Breach
+1 Time Warp
+1 Wages of Pain
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Vilemaw's Lair
+
+Runes:
+6 Body Rune
+6 Mind Rune
+
+Sideboard:
+1 Rampage
+2 Rengar, Trophy Hunter
+1 Rocket Barrage
+1 Sabotage
+2 Turn to Dust
+2 Unchecked Power
+1 Wages of Pain

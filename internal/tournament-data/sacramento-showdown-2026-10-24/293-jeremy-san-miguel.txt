@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 293rd place
+# player: Jeremy San Miguel
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-293/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Zed, Master of Shadows
+
+Champion:
+1 Zed, From the Shadows
+
+MainDeck:
+2 Baron Nashor
+1 Blood Rush
+2 Cleave
+1 Falling Star
+1 Ferrous Forerunner
+1 Gust
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+3 Pack of Wonders
+1 Perfect Execution
+1 Rebuke
+2 Ride the Wind
+3 Runeblade Anvil
+2 Shadow Order Disciple
+1 Siren's Song
+1 Star-Crossed
+2 The Harrowing
+3 Tideturner
+3 Traveling Merchant
+2 Treasure Trove
+1 Vi, Destructive
+
+Battlefields:
+1 Minefield
+1 Rakelstake
+1 Zaun Warrens
+
+Runes:
+8 Chaos Rune
+4 Fury Rune
+
+Sideboard:
+1 Abandon
+2 An Offer You Can't Refuse
+1 Brynhir Thundersong
+1 Falling Star
+1 Ferrous Forerunner
+1 Gust
+1 Thermo Beam
+2 Vex, Apathetic

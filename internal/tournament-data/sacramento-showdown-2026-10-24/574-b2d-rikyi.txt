@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 574th place
+# player: B2D Rikyi
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-574/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+2 Akali, Silent
+3 Astral Heron
+2 Back Off
+1 Charm
+3 Defy
+3 Discipline
+2 En Garde
+3 Kayle, Justified
+2 Neeko, Blending In
+2 Not So Fast
+1 Salvage
+3 Scuttle Crab
+3 Steel Paws
+2 Stellacorn Herder
+2 Svellsongur
+2 Tactical Retreat
+1 Twilight Shroud
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Risen Altar
+1 The Papertree
+
+Runes:
+7 Calm Rune
+5 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+1 Charm
+2 Cull the Weak
+1 Dockside Lock-Up
+2 Hush
+1 Salvage
+1 Twilight Shroud

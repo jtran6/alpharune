@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 666th place
+# player: Michael Dao
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-666/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+1 Akshan, Mischievous
+2 Block
+2 Charm
+1 Consult the Heavens
+3 Defy
+3 Discipline
+3 First Mate
+3 Mutated Mouser
+1 Not So Fast
+3 Ntofo Strikes
+1 Onslaught
+3 Punch First
+3 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Sabotage
+2 Scuttle Crab
+3 Stalwart Poro
+1 Trinity Force
+
+Battlefields:
+1 Amateur Recital
+1 Grove of the God-Willow
+1 Vilemaw's Lair
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Akshan, Mischievous
+2 Ambessa, The Wolf
+1 Charm
+1 Decree of Focus
+1 Decree of Strength
+1 Hush
+1 Not So Fast
+1 Ruin Runner
+1 Sabotage

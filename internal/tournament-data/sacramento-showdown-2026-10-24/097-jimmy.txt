@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 97th place
+# player: Jimmy
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-97/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+2 Call to Glory
+3 Demacian Standard
+1 Dockside Lock-Up
+2 Kinkou Initiate
+2 Lucian, Merciless
+2 Nidalee, Cat Form
+3 Overloaded Traveler
+3 Pillaged Armory
+2 Pit Rookie
+1 Portable Portal
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Sabotage
+1 Sett, Brawler
+3 Skystrike Squadron
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Monastery of Hirana
+1 Ornn's Forge
+1 Rakelstake
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Burn Away
+2 Decree of Strength
+1 Decree of Unity
+1 Dockside Lock-Up
+1 Graves, Blasting Through
+1 Repulse
+1 Ruin Runner
+2 Salvage

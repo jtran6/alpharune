@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 176th place
+# player: Vismantas
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-176/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+1 Akali, Silent
+2 Astral Heron
+1 Charm
+3 Defy
+1 Disarming Rake
+3 Discipline
+3 Keeper of Masks
+2 LeBlanc, Everywhere at Once
+1 Not So Fast
+2 Petal Pixie
+2 Premonition
+3 Ravenbloom Student
+2 Scuttle Crab
+3 Smoke and Mirrors
+1 Smoke Screen
+3 Sprite Call
+3 Stupefy
+1 The Empyrean
+1 Thousand-Tailed Watcher
+1 Unchecked Power
+
+Battlefields:
+1 Black Flame Altar
+1 Dusk Rose Lab
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Akali, Silent
+2 Brutalizer
+2 Disarming Rake
+2 Hunker Down
+2 Lilting Lullaby
+1 Unchecked Power

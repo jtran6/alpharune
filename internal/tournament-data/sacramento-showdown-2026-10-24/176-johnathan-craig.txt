@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 176th place
+# player: Johnathan Craig
+# record: 4-2-1
+# source: https://riftwatch.gg/decks/sacramento-176/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+1 An Offer You Can't Refuse
+2 Eclipse
+1 Fizz, Trickster
+1 Flash
+2 Gust
+2 Hard Bargain
+3 Hwei, Brooding Painter
+3 Moonfall
+3 Ravenbloom Student
+1 Rebuke
+2 Ride the Wind
+2 Singularity
+1 Smoke Screen
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+2 The Empyrean
+3 Tideturner
+2 Traveling Merchant
+2 Vex, Apathetic
+
+Battlefields:
+1 Abandoned Hall
+1 Seat of Power
+1 Targon's Peak
+
+Runes:
+7 Chaos Rune
+5 Mind Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+2 Decree of Insight
+1 Existential Dread
+1 Fizz, Trickster
+1 Ravenbloom Prefect
+1 Star-Crossed
+1 Tail-Cloaked Matriarch
+2 Vex, Cheerless

@@ -1,0 +1,49 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 24, 2026
+# placement: 20th place
+# player: Quentin Wilebski
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-24-20/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+3 Baited Hook
+2 Black Rose Dignitary
+2 Carrion Dredger
+1 Deathgrip
+3 Glasc Mixologist
+3 Harnessed Dragon
+2 Hidden Blade
+3 Karthus, Eternal
+1 Mirror Image
+3 Rift Herald
+3 Ruined Rex
+3 Sacrifice
+3 Soaring Scout
+1 Thousand-Tailed Watcher
+3 Vi, Peacekeeper
+3 Watchful Sentry
+
+Battlefields:
+1 Black Flame Altar
+1 Trifarian War Camp
+1 Windswept Hillock
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+3 Decree of Insight
+3 Decree of Unity
+2 Pickpocket
+2 Salvage

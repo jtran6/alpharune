@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 639th place
+# player: Shino
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-639/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+1 Ashe, Focused
+3 Bilgewater Tracker
+1 Cull the Weak
+1 Dockside Lock-Up
+2 Falling Star
+3 Forge of the Future
+3 Kai'Sa, Survivor
+1 LeBlanc, Fragmented
+2 Meticulous Restorationist
+2 Mordekaiser, Twice Slain
+2 Pyke, Dockside Butcher
+3 Realm of Death
+2 Remember the Fallen
+1 Salvage
+1 Shadow's Call
+3 Soaring Scout
+2 The Ruination
+2 War Scout
+2 Whirling Twirligig
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Black Market
+1 Rockfall Path
+1 Sigil of the Storm
+
+Runes:
+5 Fury Rune
+7 Order Rune
+
+Sideboard:
+1 Decree of Rage
+1 Decree of Unity
+2 Ferrous Forerunner
+1 Hidden Blade
+1 Imperial Decree
+2 Solari Sunhawk
+1 Thermo Beam

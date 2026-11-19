@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 731st place
+# player: Brayan Madrigal
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-731/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Zed, Master of Shadows
+
+Champion:
+1 Zed, Without a Sound
+
+MainDeck:
+3 Battering Ram
+1 Bushwhack
+2 Death Mark
+3 Detonate
+3 Ezreal, Prodigy
+1 Fizz, Trickster
+2 Last Rites
+3 Noxus Hopeful
+3 Pack of Wonders
+1 Rebuke
+3 Rhasa the Sunderer
+3 Runeblade Anvil
+3 Seal of Discord
+1 Star-Crossed
+1 Tideturner
+3 Traveling Merchant
+3 Treasure Trove
+
+Battlefields:
+1 Minefield
+1 Shadow Temple
+1 Zaun Warrens
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+2 Brittle Steel
+1 Bushwhack
+2 Decree of Rage
+2 Ferrous Forerunner
+2 Ravenbloom Prefect
+1 Star-Crossed

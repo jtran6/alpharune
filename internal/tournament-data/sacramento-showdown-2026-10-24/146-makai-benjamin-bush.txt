@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 146th place
+# player: Makai Benjamin Bush
+# record: 5-6-0
+# source: https://riftwatch.gg/decks/sacramento-146/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+2 Lonely Poro
+3 Mutated Mouser
+3 Scuttle Crab
+2 First Mate
+1 Stalwart Goatherd
+1 Graves, Blasting Through
+2 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Charm
+2 Consult the Heavens
+3 Defy
+3 Punch First
+1 Sabotage
+1 Block
+3 Discipline
+3 Ntofo Strikes
+1 Back Off
+2 Nazuman Ntofo
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Grove of the God-Willow
+1 Sandswept Tomb
+1 Seat of Power
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Disarming Rake
+1 Graves, Blasting Through
+1 K'Sante, Courageous
+1 Ruin Runner
+2 Decree of Focus
+1 Hush
+1 Sabotage
+1 Zhonya's Hourglass

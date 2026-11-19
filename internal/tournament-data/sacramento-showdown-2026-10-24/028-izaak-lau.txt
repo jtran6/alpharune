@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 28th place
+# player: Izaak lau
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/sacramento-28/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+2 Bedeviling Stranger
+2 Scuttle Crab
+1 Tideturner
+2 Treasure Hunter
+2 Reckless Innovator
+3 Stellacorn Herder
+3 Astral Heron
+1 Vilemaw
+1 Baron Nashor
+1 Charm
+3 Defy
+1 Gust
+1 Ki Burst
+3 Discipline
+1 Not So Fast
+1 Ride the Wind
+2 Switcheroo
+1 Back Off
+2 Star-Crossed
+3 Zhonya's Hourglass
+3 Blade of the Exile
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+3 Sneaky Deckhand
+1 Vex, Apathetic
+1 Gust
+1 Hush
+2 An Offer You Can't Refuse
+1 Not So Fast
+1 Rebuke

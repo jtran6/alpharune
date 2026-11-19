@@ -1,0 +1,51 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 51st place
+# player: Annie Adler
+# record: 0-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-51/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+3 Bedeviling Stranger
+2 Boots of Swiftness
+2 Gust
+2 Gutter Guardian
+1 Hard Bargain
+2 Kharox
+3 Momentary Companion
+3 Punch First
+3 Pyke, Returned
+2 Rampage
+3 Rengar, Trophy Hunter
+3 Sneaky Deckhand
+1 Star-Crossed
+2 Switcheroo
+2 The Good Stuff
+2 Tornado Warrior
+3 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Hunters' Circle
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+3 An Offer You Can't Refuse
+1 Baron Nashor
+1 Evelynn, In Control
+1 Graves, Blasting Through
+2 Repulse
+2 Star-Crossed

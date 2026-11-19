@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 569th place
+# player: Andrea Faaeteete
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-569/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Sett, The Boss
+
+Champion:
+1 Sett, Kingpin
+
+MainDeck:
+2 Ambessa, Respected and Feared
+1 Arena Bar
+3 Call to Glory
+2 Cataclysm
+3 Cithria of Cloudfield
+3 Fiora, Victorious
+3 Graves, Blasting Through
+2 Jayce, Hammer in Hand
+3 Ki Barrier
+3 One-Two Punch
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+1 Sett, Brawler
+3 Showstopper
+1 The Ruination
+
+Battlefields:
+1 Heisho, Shell of the World
+1 Valley of Idols
+1 Windswept Hillock
+
+Runes:
+6 Body Rune
+6 Order Rune
+
+Sideboard:
+2 Rengar, Trophy Hunter
+2 Repulse
+2 Sabotage
+2 Salvage
+2 Vi, Peacekeeper

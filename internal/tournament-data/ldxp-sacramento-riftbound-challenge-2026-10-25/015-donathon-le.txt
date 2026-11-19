@@ -1,0 +1,52 @@
+# event: LDXP Sacramento - Riftbound Challenge
+# date: October 25, 2026
+# placement: 15th place
+# player: Donathon Le
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-riftbound-challenge-2026-10-25-15/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-riftbound-challenge-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Bellows Breath
+3 Catalyst of Aeons
+2 Clairvoyance
+3 Dazzling Aurora
+3 Dredge Up
+3 Elder Dragon
+2 Flurry of Blades
+3 Garbage Grabber
+2 Gutter Palace
+3 Mobilize
+3 Platewyrm Egg
+3 Promising Future
+1 Sprite Burst
+3 Stupefy
+1 Temporal Breach
+1 Time Warp
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 The Papertree
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+1 Deadbloom Predator
+2 Deadly Flourish
+1 Flurry of Blades
+2 Repulse
+2 Sprite Burst
+1 Temporal Breach
+1 Turn to Dust

@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 733rd place
+# player: Kaitlyn
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-733/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+3 Bedeviling Stranger
+1 Edge of Night
+3 Ember Monk
+2 Evelynn, Consuming
+2 Hold 'Em
+1 Last Caress
+2 Momentary Companion
+2 Nidalee, Cat Form
+1 Onslaught
+2 Punch First
+1 Pyke, Returned
+1 Rampage
+2 Reckless Innovator
+3 Rengar, Trophy Hunter
+2 Sabotage
+2 Siren's Song
+1 Star-Crossed
+2 Switcheroo
+2 The Good Stuff
+2 Tideturner
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Bandle Tree
+1 Grove of the God-Willow
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Acceptable Losses
+2 Decree of Strength
+1 Factory Recall
+1 Onslaught
+1 Pyke, Returned
+1 Sabotage
+1 Star-Crossed
+1 Vex, Apathetic
+1 Windsinger

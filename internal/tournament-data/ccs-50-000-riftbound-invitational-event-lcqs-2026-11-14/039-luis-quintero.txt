@@ -1,0 +1,57 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 39th place
+# player: Luis Quintero
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-39/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+1 An Offer You Can't Refuse
+1 Bedeviling Stranger
+2 Edge of Night
+1 Fizz, Trickster
+1 Flash
+2 Gust
+1 Hidden Blade
+2 Last Rites
+3 Lightning Rush
+3 Nocturne, Horrifying
+2 Reckless Innovator
+3 Rhasa the Sunderer
+2 Ride the Wind
+3 Seal of Discord
+1 Shadow Order Disciple
+2 Star-Crossed
+2 Switcheroo
+1 Tideturner
+3 Traveling Merchant
+3 Trifarian Captain
+
+Battlefields:
+1 Minefield
+1 Shadow Temple
+1 Zaun Warrens
+
+Runes:
+9 Chaos Rune
+3 Order Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Decree of Unity
+1 Fizz, Trickster
+2 Ravenbloom Prefect
+1 Rebuke
+1 Ride the Wind
+1 The Good Stuff

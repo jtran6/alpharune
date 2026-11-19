@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 89th place
+# player: Christian Mukai
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-89/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Carrion Dredger
+3 Honest Broker
+3 Trifarian Captain
+2 Bilgewater Tracker
+2 Shen, Kinkou
+3 Vanguard Captain
+2 Xin Zhao, Vigilant
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+3 Spectral Matron
+2 Vi, Peacekeeper
+2 Hidden Blade
+3 Realm of Death
+2 Imperial Decree
+3 Long Sword
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Safety Inspector
+1 Ferrous Forerunner
+2 Decree of Rage
+2 Decree of Unity
+1 Falling Star
+2 Salvage

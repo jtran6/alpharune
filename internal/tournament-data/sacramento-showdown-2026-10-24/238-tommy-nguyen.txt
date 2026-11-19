@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 238th place
+# player: Tommy Nguyen
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-238/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+1 Bilgewater Tracker
+2 Cleave
+3 Coalesced Energy
+3 Darius, Trifarian
+3 Falling Star
+1 Ferrous Forerunner
+3 First Mate
+3 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Mischievous Marai
+3 Nidalee, Cat Form
+3 Noxus Hopeful
+2 Punch First
+1 Sabotage
+2 Stalwart Goatherd
+
+Battlefields:
+1 Black Market
+1 Seat of Power
+1 Star Spring
+
+Runes:
+4 Body Rune
+8 Fury Rune
+
+Sideboard:
+1 Against the Odds
+2 Bilgewater Tracker
+2 Brynhir Thundersong
+2 Ferrous Forerunner
+2 Sabotage
+1 Stalwart Goatherd

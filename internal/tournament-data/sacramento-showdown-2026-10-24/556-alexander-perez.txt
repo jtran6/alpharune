@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 556th place
+# player: Alexander Perez
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-556/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Bellows Breath
+3 Defy
+3 Discipline
+2 Eclipse
+3 Find Your Center
+1 Hush
+3 Lonely Poro
+1 Not So Fast
+3 Ravenbloom Student
+3 Scuttle Crab
+3 Sprite Burst
+2 Sprite Queen
+3 Stupefy
+2 Tasty Faefolk
+3 Thousand-Tailed Watcher
+1 Time Warp
+1 Tomb-Raider Barbara
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Decree of Focus
+2 Decree of Insight
+3 Disarming Rake
+1 Singularity
+1 Unchecked Power
+1 Vilemaw

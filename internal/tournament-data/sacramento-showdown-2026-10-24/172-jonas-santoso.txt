@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 172nd place
+# player: jonas santoso
+# record: 4-2-1
+# source: https://riftwatch.gg/decks/sacramento-172/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Astral Heron
+3 Back Off
+2 Baron Nashor
+2 Bedeviling Stranger
+1 Blitzcrank, Impassive
+2 Block
+2 Defy
+3 Discipline
+2 Emperor's Divide
+1 Enthusiastic Promoter
+2 Hard Bargain
+1 Last Rites
+1 Life from Stone
+2 Mutated Mouser
+3 Scuttle Crab
+3 Sona, Harmonious
+2 Star-Crossed
+2 Switcheroo
+1 Tianna Crownguard
+1 Tomb-Raider Barbara
+
+Battlefields:
+1 Grove of the God-Willow
+1 Startipped Peak
+1 The Academy
+
+Runes:
+7 Calm Rune
+5 Chaos Rune
+
+Sideboard:
+3 Decree of Focus
+1 Emperor's Divide
+1 Hard Bargain
+1 Last Rites
+1 Not So Fast
+2 Ravenbloom Prefect
+1 Tomb-Raider Barbara

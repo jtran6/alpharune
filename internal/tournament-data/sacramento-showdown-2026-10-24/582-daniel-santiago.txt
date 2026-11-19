@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 582nd place
+# player: Daniel Santiago
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-582/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ambessa, Matriarch of War
+
+Champion:
+1 Ambessa, The Wolf
+
+MainDeck:
+2 Dragonsoul Sage
+3 Guttural Roar
+1 Hidden Blade
+1 Jarvan IV, Royal Heir
+3 Kayle, Justified
+3 Legion Marauder
+1 Lucian, Merciless
+1 Nidalee, Cat Form
+1 Pillaged Armory
+2 Public Execution
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Repulse
+1 Salvage
+3 Seal of Strength
+2 Solari Sunhawk
+3 Tactical Retreat
+2 Trifarian Captain
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Grove of the God-Willow
+1 Risen Altar
+1 Sandswept Tomb
+
+Runes:
+9 Body Rune
+3 Order Rune
+
+Sideboard:
+3 Brutal Hunter
+1 Carnivorous Snapvine
+1 Ki Barrier
+1 Noxian Demolitionist
+1 Public Execution
+2 Ruin Runner
+1 Unyielding Spirit

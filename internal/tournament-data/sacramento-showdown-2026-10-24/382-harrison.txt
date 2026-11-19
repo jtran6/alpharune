@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 382nd place
+# player: Harrison
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-382/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+3 Coalesced Energy
+1 Dominus
+1 Elnuk Herd
+3 Falling Star
+1 Ferrous Forerunner
+2 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+2 Long Sword
+2 Nidalee, Cat Form
+3 Noxus Hopeful
+3 Pit Rookie
+2 Punch First
+1 Pyke, Dockside Butcher
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Sabotage
+
+Battlefields:
+1 Black Market
+1 Protective Sands
+1 Seat of Power
+
+Runes:
+5 Body Rune
+7 Fury Rune
+
+Sideboard:
+2 Brittle Steel
+2 Decree of Rage
+1 Ferrous Forerunner
+2 Graves, Blasting Through
+2 Repulse
+1 Sabotage

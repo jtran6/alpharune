@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 656th place
+# player: Erik Schreiner
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-656/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+2 Black Rose Dignitary
+3 Clocktower Guardian
+3 Deathgrip
+2 Escaped Grayback
+2 Honest Broker
+1 Hunting Dog
+3 Karthus, Eternal
+2 Mordekaiser, Dominating
+3 Rift Herald
+2 Sacrifice
+3 Shady Spectacles
+3 Soaring Scout
+3 Sprite Burst
+3 Time Warp
+1 Trifarian Captain
+3 Watchful Sentry
+
+Battlefields:
+1 Black Rose Sanctum
+1 Dusk Rose Lab
+1 The Candlelit Sanctum
+
+Runes:
+7 Mind Rune
+5 Order Rune
+
+Sideboard:
+3 Cull the Weak
+2 Dragon Form
+2 Hidden Blade
+1 Mordekaiser, Dominating
+2 Spectral Centaur

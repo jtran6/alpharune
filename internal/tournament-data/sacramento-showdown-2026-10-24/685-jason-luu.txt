@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 685th place
+# player: Jason Luu
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-685/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Concert Poster
+3 Dazzling Aurora
+1 Deadbloom Predator
+1 Dockside Lock-Up
+3 Elder Dragon
+3 Forge of the Future
+3 Mobilize
+1 Mordekaiser, Dominating
+3 Portable Portal
+3 Rampage
+3 Rengar, Trophy Hunter
+3 Rift Herald
+3 Sacrifice
+2 Shadow's Call
+1 Trinity Force
+3 Yone, Blademaster
+
+Battlefields:
+1 Forgotten Monument
+1 Ornn's Forge
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Akshan, Mischievous
+1 Dockside Lock-Up
+2 Lucian, Merciless
+2 Punch First
+3 Skystrike Squadron

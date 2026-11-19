@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 256th place
+# player: Joshua Hinkle
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-256/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+3 Concert Poster
+3 Demacian Standard
+2 Graves, Blasting Through
+3 Irresistible Faefolk
+3 Kinkou Initiate
+2 Lucian, Merciless
+1 Nidalee, Cat Form
+3 Pillaged Armory
+3 Pit Rookie
+2 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+2 Skystrike Squadron
+2 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Ornn's Forge
+1 Sunken Temple
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+1 Battlefield Armorer
+2 Repulse
+2 Sabotage
+3 Salvage
+2 Unyielding Spirit

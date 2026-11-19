@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 411th place
+# player: Tingfeng Wan
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-411/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Bilgewater Tracker
+2 Brynhir Thundersong
+2 Cleave
+2 Falling Star
+2 Inferna
+2 Kai'Sa, Survivor
+3 Mordekaiser, Twice Slain
+3 Plundering Poro
+2 Pyke, Dockside Butcher
+2 Sky Splitter
+3 Stupefy
+3 Temporal Breach
+3 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Forbidding Waste
+1 Ripper's Bay
+1 Rockfall Path
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+2 Minotaur Reckoner
+3 Pickpocket
+3 Turn to Dust

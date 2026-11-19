@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 327th place
+# player: Hino
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-327/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+1 Against the Odds
+2 Cleave
+2 Deathgrip
+1 Ekko, Revolutionary
+2 Falling Star
+3 Gem Jammer
+1 Grim Apothecary
+3 Hextech Gauntlets
+2 Hidden Blade
+3 Honest Broker
+3 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+1 Kennen, Keeper of Balance
+2 Long Sword
+1 Perfect Execution
+2 Rengar, Pouncing
+1 Salvage
+2 Seal of Rage
+3 Trifarian Captain
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Back-Alley Bar
+1 Trapping Grounds
+1 Vilemaw's Lair
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+2 Decree of Unity
+1 Ferrous Forerunner
+2 Forge of the Future
+1 Salvage

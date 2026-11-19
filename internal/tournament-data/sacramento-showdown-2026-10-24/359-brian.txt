@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 359th place
+# player: Brian
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-359/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Innovator
+
+MainDeck:
+3 Bellows Breath
+3 Blood Money
+1 Chemtech Cask
+1 Concert Poster
+3 Cull the Weak
+3 Deadly Flourish
+3 Eclipse
+1 Frigid Touch
+2 Hidden Blade
+3 Imperial Decree
+1 Salvage
+2 Shadow's Call
+2 Singularity
+1 Sprite Burst
+3 Stupefy
+1 Tactical Retreat
+1 Temporal Breach
+2 Vanguard Armory
+3 Wages of Pain
+
+Battlefields:
+1 Ravenbloom Conservatory
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+1 Concert Poster
+2 Decree of Insight
+2 Decree of Unity
+1 Forge of the Future
+2 Pickpocket
+2 Salvage

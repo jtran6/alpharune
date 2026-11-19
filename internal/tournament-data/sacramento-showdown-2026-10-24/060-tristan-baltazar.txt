@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 60th place
+# player: Tristan Baltazar
+# record: 7-2-2
+# source: https://riftwatch.gg/decks/sacramento-60/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+1 Blast Corps Cadet
+1 Blastcone Fae
+1 Legion Rearguard
+3 Plundering Poro
+3 Bilgewater Tracker
+1 Pyke, Dockside Butcher
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+1 Vayne, Hunter
+2 Ekko, Revolutionary
+2 Brynhir Thundersong
+2 Thousand-Tailed Watcher
+2 Blood Rush
+3 Stupefy
+1 Brittle Steel
+1 Chronobreak
+3 Falling Star
+1 Frigid Touch
+2 Temporal Breach
+2 Shock Blast
+1 Time Warp
+
+Battlefields:
+1 Firelights' Hideout
+1 Ripper's Bay
+1 Rockfall Path
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+1 Noxus Saboteur
+2 Antagonistic Apparatus
+2 Decree of Insight
+2 Decree of Rage
+1 Brittle Steel
+2 Unchecked Power

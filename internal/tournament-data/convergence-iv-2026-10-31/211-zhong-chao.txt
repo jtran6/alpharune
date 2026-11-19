@@ -1,0 +1,53 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 211th place
+# player: zhong chao
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-211/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Astral Heron
+2 Bellows Breath
+3 Defy
+3 Discipline
+1 Emperor's Divide
+2 Find Your Center
+1 Janna, Savior
+2 Lecturing Yordle
+2 Life from Stone
+1 Premonition
+3 Ravenbloom Student
+3 Retreat
+3 Scuttle Crab
+3 Stupefy
+2 Temporal Breach
+3 Thousand-Tailed Watcher
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Frozen Fortress
+1 Ripper's Bay
+1 Sigil of the Storm
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+1 Esteemed Hierophant
+1 Hush
+1 Not So Fast
+2 Singularity
+2 Tomb-Raider Barbara
+1 Vilemaw

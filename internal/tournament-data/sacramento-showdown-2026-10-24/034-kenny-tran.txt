@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 34th place
+# player: Kenny Tran
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/sacramento-34/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Guardian of Knowledge
+
+MainDeck:
+3 Lonely Poro
+3 Ravenbloom Student
+3 Scuttle Crab
+1 Tomb-Raider Barbara
+3 Thousand-Tailed Watcher
+3 The Empyrean
+3 Bellows Breath
+3 Defy
+1 Hush
+3 Life from Stone
+3 Stupefy
+3 Discipline
+2 Temporal Breach
+2 Find Your Center
+1 Sprite Burst
+1 Unchecked Power
+1 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Ruined Monastery
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+1 Tomb-Raider Barbara
+2 Vilemaw
+1 Crumbling Sands
+2 Decree of Focus
+2 Decree of Insight
+1 Hush
+1 Twilight Shroud

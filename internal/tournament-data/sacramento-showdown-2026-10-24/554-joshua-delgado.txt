@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 554th place
+# player: Joshua Delgado
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-554/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+3 Applied Researchers
+3 Bellows Breath
+3 Carrion Dredger
+3 Concert Poster
+1 Dragon Form
+2 Eclipse
+3 Encore
+2 Faithful Manufactor
+2 Hidden Blade
+3 Imperial Decree
+3 Shadow's Call
+3 Shock Blast
+1 Singularity
+3 Stupefy
+2 Time Warp
+2 Trifarian Captain
+
+Battlefields:
+1 Forbidding Waste
+1 Trifarian War Camp
+1 Void Gate
+
+Runes:
+7 Mind Rune
+5 Order Rune
+
+Sideboard:
+1 Deadly Flourish
+1 Decree of Insight
+2 Decree of Unity
+3 Salvage
+1 Singularity
+1 The Ruination
+1 Thousand-Tailed Watcher

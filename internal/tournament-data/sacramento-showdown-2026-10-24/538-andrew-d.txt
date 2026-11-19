@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 538th place
+# player: Andrew D
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-538/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Bellows Breath
+2 Card Sharp
+3 Concert Poster
+2 Consult the Past
+1 Eclipse
+2 Encore
+1 Facebreaker
+1 Hidden Blade
+2 Honest Broker
+3 Jayce, Man of Progress
+2 Mordekaiser, Dominating
+3 Plundering Poro
+2 Rift Herald
+3 Shady Spectacles
+1 Sprite Burst
+1 Temporal Breach
+1 The Empyrean
+2 Thousand-Tailed Watcher
+2 Vanguard Armory
+3 Wages of Pain
+
+Battlefields:
+1 Ruined Monastery
+1 The Papertree
+1 Treasure Hoard
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Decree of Insight
+2 Dockside Lock-Up
+2 Safety Inspector
+2 Salvage
+1 The Ruination
+1 Unchecked Power

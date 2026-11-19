@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 546th place
+# player: Mark Miller
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-546/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Leona, Radiant Dawn
+
+Champion:
+1 Leona, Determined
+
+MainDeck:
+3 Back Off
+2 Call to Glory
+2 Charm
+2 Defy
+2 Discipline
+2 Hidden Blade
+3 Ki Burst
+1 Leona, Zealot
+3 Lonely Poro
+1 Mordekaiser, Dominating
+2 Mutated Mouser
+2 Nami, Headstrong
+2 Neeko, Blending In
+3 Riven, Broken Blade
+1 Salvage
+1 Solari Chief
+2 Stellacorn Herder
+2 Vex, Mocking
+3 Zenith Blade
+
+Battlefields:
+1 Amateur Recital
+1 Grove of the God-Willow
+1 Star Spring
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Kennen, Keeper of Balance
+1 Mordekaiser, Dominating
+2 Raucous Anthem
+2 Salvage
+1 Solari Chief
+2 Wind Wall

@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 717th place
+# player: Richard Tran
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-717/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 An Offer You Can't Refuse
+2 Bedeviling Stranger
+2 Edge of Night
+2 Existential Dread
+3 Ezreal, Prodigy
+2 Fizz, Trickster
+2 Graves, Blasting Through
+2 Gutter Guardian
+1 Hard Bargain
+2 Hold 'Em
+1 Onslaught
+2 Portable Portal
+2 Punch First
+1 Pyke, Returned
+3 Rampage
+2 Reckless Innovator
+2 Rengar, Trophy Hunter
+2 Repulse
+1 Sabotage
+2 Star-Crossed
+1 The Good Stuff
+1 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Hunters' Circle
+1 Packed Amphitheater
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Akshan, Mischievous
+1 An Offer You Can't Refuse
+1 Angler Beast
+2 Decree of Strength
+1 Rebuke
+2 Ruin Runner
+1 The Good Stuff
+1 Vex, Apathetic

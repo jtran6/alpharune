@@ -1,0 +1,56 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 9th place
+# player: Slickk
+# record: 7-2-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-9/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+2 Mischievous Marai
+3 Mournful Witness
+3 Kai'Sa, Survivor
+2 Noxus Hopeful
+3 Stellacorn Herder
+1 Tomb-Raider Barbara
+1 Blitzcrank, Impassive
+1 Darius, Trifarian
+3 Astral Heron
+2 Long Sword
+3 Zhonya's Hourglass
+3 Defy
+3 Shuriken Flip
+1 Block
+3 Discipline
+2 Falling Star
+1 Not So Fast
+2 Back Off
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Calm Rune
+6 Fury Rune
+
+Sideboard:
+1 Charm
+2 Decree of Focus
+1 Hush
+1 Brittle Steel
+1 Falling Star
+1 Disarming Rake
+1 Janna, Savior
+1 Akali, Silent
+1 Ferrous Forerunner

@@ -1,0 +1,49 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 93rd place
+# player: SomethingMustWrk
+# record: 3-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-93/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Bilgewater Tracker
+3 Blood Rush
+3 Carrion Dredger
+3 Cull the Weak
+3 Faithful Manufactor
+3 Falling Star
+2 Hunting Dog
+3 Imperial Decree
+3 Inferna
+2 Legion Rearguard
+1 Long Sword
+2 Noxian Emissary
+3 Noxus Hopeful
+2 Rengar, Pouncing
+3 Trifarian Captain
+
+Battlefields:
+1 Forbidding Waste
+1 Mystic Vortex
+1 Rockfall Path
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+1 Decree of Rage
+2 Decree of Unity
+2 Ferrous Forerunner
+1 Long Sword
+2 Salvage
+2 Vi, Peacekeeper

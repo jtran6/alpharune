@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 244th place
+# player: Dane Acusar
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-244/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+2 Concert Poster
+3 Demacian Standard
+2 Graves, Blasting Through
+1 Imperial Decree
+3 Irresistible Faefolk
+3 Nidalee, Cat Form
+3 Pillaged Armory
+2 Pit Rookie
+2 Portable Portal
+2 Punch First
+3 Rampage
+3 Skystrike Squadron
+3 Trifarian Captain
+2 Vi, Peacekeeper
+2 Yone, Blademaster
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Decree of Strength
+2 Decree of Unity
+1 Imperial Decree
+2 Sabotage
+2 Salvage
+1 Unyielding Spirit

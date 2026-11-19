@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 673rd place
+# player: Christian Archbold
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-673/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mel, Soul's Reflection
+
+Champion:
+1 Mel, Newly Awakened
+
+MainDeck:
+2 An Offer You Can't Refuse
+3 Bedeviling Stranger
+1 Chakram Dancer
+1 Cloth Armor
+1 Edge of Night
+3 Evelynn, Entrancing
+3 Evelynn, In Control
+2 Gust
+3 Hwei, Brooding Painter
+1 Momentary Companion
+1 Questionable Tome
+3 Rebuttal
+1 Reckless Innovator
+1 Ride the Wind
+1 Shock Blast
+2 Siren's Song
+1 Star-Crossed
+3 Stupefy
+1 Switcheroo
+1 The Good Stuff
+1 Tideturner
+1 Treasure Hunter
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Frozen Fortress
+1 Packed Amphitheater
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+2 Decree of Insight
+2 Ravenbloom Prefect
+1 Singularity
+1 Siren's Song
+2 Star-Crossed
+1 Unchecked Power

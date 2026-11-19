@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 658th place
+# player: Shaun Fisher
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-658/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Draven, Glorious Executioner
+
+Champion:
+1 Draven, Showboat
+
+MainDeck:
+2 Bedeviling Stranger
+1 Evelynn, Entrancing
+2 Inferna
+3 Overzealous Fan
+2 Tideturner
+2 Gutter Guardian
+1 Pyke, Dockside Butcher
+1 Evelynn, In Control
+3 Kai'Sa, Survivor
+2 Kha'Zix, Mutating Horror
+2 Noxus Hopeful
+3 Vex, Apathetic
+1 Blood Rush
+2 Falling Star
+3 Rebuke
+1 Switcheroo
+3 Up from the Deep
+3 Spinning Axe
+2 Edge of Night
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Forge of the Fluft
+1 Star Spring
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+2 Ravenbloom Prefect
+1 Brynhir Thundersong
+2 Ferrous Forerunner
+2 Brittle Steel
+2 Siren's Song
+1 Blighted Battleaxe

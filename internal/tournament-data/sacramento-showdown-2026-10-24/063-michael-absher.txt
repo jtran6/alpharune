@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 63rd place
+# player: Michael Absher
+# record: 7-3-1
+# source: https://riftwatch.gg/decks/sacramento-63/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+3 Shadow Order Disciple
+2 Tideturner
+3 Traveling Merchant
+2 Fizz, Trickster
+3 Kennen, Storm of Shuriken
+3 Hwei, Brooding Painter
+3 Rhasa the Sunderer
+2 Gust
+3 Stupefy
+1 An Offer You Can't Refuse
+1 Flash
+2 Hard Bargain
+3 Ride the Wind
+1 Smoke Screen
+1 Eclipse
+3 Moonfall
+2 Star-Crossed
+1 Last Rites
+
+Battlefields:
+1 Minefield
+1 Rockfall Path
+1 Targon's Peak
+
+Runes:
+8 Chaos Rune
+4 Mind Rune
+
+Sideboard:
+1 Tail-Cloaked Matriarch
+2 Vex, Apathetic
+1 Gust
+2 An Offer You Can't Refuse
+1 Rebuke
+1 Switcheroo
+1 Star-Crossed
+1 Unchecked Power

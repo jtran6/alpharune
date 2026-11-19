@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 391st place
+# player: Uno
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-391/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+2 Concert Poster
+2 Deathgrip
+3 Demacian Standard
+3 First Mate
+3 Lucian, Merciless
+2 Nidalee, Cat Form
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+3 Skystrike Squadron
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Seat of Power
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Graves, Blasting Through
+1 Noxian Demolitionist
+1 Rampage
+2 Ruin Runner
+2 Sabotage
+2 Salvage

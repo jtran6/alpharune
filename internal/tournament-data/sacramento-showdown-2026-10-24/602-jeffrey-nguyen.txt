@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 602nd place
+# player: Jeffrey Nguyen
+# record: 1-2-1
+# source: https://riftwatch.gg/decks/sacramento-602/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Akali, Silent
+2 Back Off
+2 Bellows Breath
+1 Cloth Armor
+1 Command: Attack
+2 Consult the Past
+3 Defy
+3 Discipline
+3 Frigid Jewel
+3 Guardian Angel
+2 Hunting Blind
+3 Mask of Foresight
+1 Ornn, Forge God
+1 Singularity
+1 Sterak's Gage
+2 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Hunters' Circle
+1 Ornn's Forge
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+1 Astral Heron
+1 Battle Preparations
+2 Helm of Suppression
+2 Hush
+1 Resplendent Rostrum
+1 Unchecked Power
+1 Vilemaw
+1 Wind Wall

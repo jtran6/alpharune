@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 223rd place
+# player: Austin Zhou
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-223/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+3 Bellows Breath
+3 Carrion Dredger
+3 Cull the Weak
+1 Dragon Form
+2 Eclipse
+2 Escaped Grayback
+3 Hidden Blade
+3 Honest Broker
+3 Imperial Decree
+2 Singularity
+3 Sprite Fountain
+3 Stupefy
+3 Vi, Peacekeeper
+3 Wages of Pain
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Insight
+3 Pickpocket
+2 Salvage
+2 Temporal Breach
+1 Thousand-Tailed Watcher

@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 734th place
+# player: Isekaichow
+# record: 0-7-0
+# source: https://riftwatch.gg/decks/sacramento-734/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+1 Alpha Wildclaw
+3 Defy
+3 Discipline
+3 Eye of the Herald
+1 Fallen Feline
+3 Find Your Center
+2 Guardian Angel
+2 Hunker Down
+1 Not So Fast
+2 Resonating Strike
+2 Scuttle Crab
+3 Seal of Unity
+3 Soraka, Wanderer
+3 Stellacorn Herder
+3 Trusty Ramhound
+3 Vanguard Captain
+1 Vilemaw
+
+Battlefields:
+1 Fortified Position
+1 Star Spring
+1 Trifarian War Camp
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+1 Crumbling Sands
+2 Decree of Focus
+2 Decree of Unity
+1 Grand Strategem
+1 Not So Fast
+2 Salvage

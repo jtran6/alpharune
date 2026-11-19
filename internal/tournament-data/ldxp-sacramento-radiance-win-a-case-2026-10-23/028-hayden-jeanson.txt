@@ -1,0 +1,54 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 28th place
+# player: Hayden Jeanson
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-28/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+2 Baron Nashor
+2 Battle Preparations
+3 Bedeviling Stranger
+3 Blade of the Exile
+3 Defy
+3 Discipline
+2 Evelynn, Entrancing
+2 Hunker Down
+2 Irelia, Fervent
+1 Ki Burst
+1 Rebuke
+3 Reckless Innovator
+1 Star-Crossed
+3 Tideturner
+1 Tomb-Raider Barbara
+2 Vex, Apathetic
+
+Battlefields:
+1 Abandoned Hall
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Decree of Focus
+1 Gust
+2 Hush
+2 Not So Fast
+2 Ravenbloom Prefect
+1 Rebuke
+1 Switcheroo

@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 113th place
+# player: Glorp Honkmimimi
+# record: 6-5-0
+# source: https://riftwatch.gg/decks/sacramento-113/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Bellows Breath
+1 Consult the Past
+1 Deadly Flourish
+2 Defy
+3 Discipline
+3 Find Your Center
+3 Life from Stone
+3 Lonely Poro
+2 Not So Fast
+3 Scuttle Crab
+3 Steel Paws
+2 Temporal Breach
+3 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+1 Tomb-Raider Barbara
+1 Whiteflame Protector
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 The Papertree
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+1 Defy
+1 Hush
+2 Pickpocket
+1 Singularity
+2 Sprite Burst
+1 Tomb-Raider Barbara
+2 Unchecked Power

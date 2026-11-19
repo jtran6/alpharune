@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 616th place
+# player: Kipory
+# record: 1-5-1
+# source: https://riftwatch.gg/decks/sacramento-616/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Baited Hook
+2 Blade of the Ruined King
+1 Chakram Dancer
+2 Dune Devourer
+3 Encore
+1 Galio, Indefatigable
+2 Honest Broker
+1 Jarvan IV, Royal Heir
+3 Meticulous Restorationist
+3 Mordekaiser, Dominating
+1 Neeko, Blending In
+2 Rift Herald
+3 Seal of Unity
+2 Shady Spectacles
+2 Sprite Fountain
+2 The Empyrean
+1 Thousand-Tailed Watcher
+3 Trifarian Captain
+2 Vanguard Captain
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Ruined Monastery
+1 The Papertree
+1 Treasure Hoard
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+1 Atakhan
+1 Divine Judgment
+2 Forge of the Future
+1 Shen, Kinkou
+1 Sprite Burst
+2 Zaun Punk

@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 535th place
+# player: MERC nack
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-535/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Rumble, Mechanized Menace
+
+Champion:
+1 Rumble, Hotheaded
+
+MainDeck:
+3 Forecaster
+3 Gem Jammer
+3 Patched Porobot
+3 Bubble Bot
+3 Incorrigible Construct
+3 Antagonistic Apparatus
+3 Brynhir Thundersong
+1 Ferrous Forerunner
+2 Cleave
+3 Stupefy
+3 Falling Star
+3 Temporal Breach
+3 Time Warp
+1 Cloth Armor
+2 Long Sword
+
+Battlefields:
+1 Seat of Power
+1 Star Spring
+1 Zaun Warrens
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+2 Ferrous Forerunner
+2 Decree of Insight
+2 Decree of Rage
+1 Against the Odds
+2 Brittle Steel
+1 Thermo Beam

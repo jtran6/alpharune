@@ -1,0 +1,54 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 5th place
+# player: TM2
+# record: 9-2-1
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-5/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+2 Bedeviling Stranger
+2 Scuttle Crab
+3 Tideturner
+1 Traveling Merchant
+2 Reckless Innovator
+3 Stellacorn Herder
+2 Blitzcrank, Impassive
+3 Astral Heron
+3 Zhonya's Hourglass
+3 Blade of the Exile
+3 Defy
+3 Gust
+1 Battle Preparations
+3 Discipline
+1 Not So Fast
+1 Rebuke
+2 Switcheroo
+1 Star-Crossed
+
+Battlefields:
+1 Emperor's Dais
+1 Rakelstake
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+2 Decree of Focus
+2 An Offer You Can't Refuse
+1 Not So Fast
+1 Rebuke
+1 Star-Crossed
+2 Tomb-Raider Barbara
+1 Baron Nashor

@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 117th place
+# player: William Garcia
+# record: 6-2-0
+# source: https://riftwatch.gg/decks/sacramento-117/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+2 Bilgewater Tracker
+1 Dockside Lock-Up
+2 Falling Star
+1 Ferrous Forerunner
+2 Hidden Blade
+3 Honest Broker
+2 Hunting Dog
+2 Inferna
+2 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Long Sword
+3 Realm of Death
+1 Rengar, Pouncing
+2 Rengar, Unseen
+2 Shen, Kinkou
+3 Trifarian Captain
+2 Vanguard Captain
+2 Vi, Peacekeeper
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Decree of Unity
+1 Dockside Lock-Up
+1 Ferrous Forerunner
+2 Minotaur Reckoner
+2 Salvage

@@ -1,0 +1,56 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 132nd place
+# player: Thewolfcore
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-132/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+# source printing VEN-SP3 is not in the engine; Ahri, Inquisitive loads #119
+
+Legend:
+1 Ahri, Nine-Tailed Fox
+
+Champion:
+1 Ahri, Confident
+
+MainDeck:
+2 Astral Heron
+2 Bellows Breath
+1 Blitzcrank, Impassive
+2 Defy
+3 Discipline
+1 Hush
+2 Neeko, Blending In
+1 Not So Fast
+3 Scuttle Crab
+2 Sprite Fountain
+3 Stalwart Poro
+3 Stellacorn Herder
+2 Stupefy
+3 Temporal Breach
+2 Thousand-Tailed Watcher
+2 Time Warp
+1 Vilemaw
+2 Wages of Pain
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Adaptatron
+1 Ahri, Inquisitive
+2 Decree of Focus
+1 Decree of Insight
+1 Helm of Suppression
+2 Hunker Down
+1 Not So Fast
