@@ -46,6 +46,12 @@ protected:
     static constexpr CardDefId kCloth = 387;
     static constexpr CardDefId kHelm = 832;
     static constexpr CardDefId kFiller = 48;
+    static constexpr CardDefId kZhonya = 77;
+    static constexpr CardDefId kBoss = 264;
+    static constexpr CardDefId kAltar = 762;
+    static constexpr CardDefId kArmory = 23;
+    static constexpr CardDefId kMordekaiser = 970;
+    static constexpr CardDefId kElderDragon = 680;
 
     GameObject& o(GameObjectId id) { return state.getObject(id); }
 
@@ -65,12 +71,62 @@ protected:
     }
     void play(GameObjectId card, AgentInterface* agent, bool pay = true,
               std::vector<GameObjectId> targets = {}) {
+        play(card, agent, nullptr, pay, std::move(targets));
+    }
+    void play(GameObjectId card, AgentInterface* agent, AgentInterface* opponent, bool pay,
+              std::vector<GameObjectId> targets = {}) {
         if (pay) fund(card);
         Intent intent = playOf(card, std::move(targets));
         withEngine([&](GameEngine& e) {
             e.testHook_executeIntent(intent);
             settleLikeTheEngine(e);
-        }, agent, nullptr, state.getObject(card).controller);
+        }, agent, opponent, state.getObject(card).controller);
+    }
+    /// Split the strike across every enemy unit the prompts offer, one point
+    /// each before any further point, and decline a "may".
+    static EnginePathAgent::Picker splitAndDecline() {
+        auto given = std::make_shared<std::vector<GameObjectId>>();
+        return [given](const std::vector<Intent>& legal) {
+            for (const auto& i : legal)
+                if (i.choice_label.rfind("No \xE2\x80\x94 ", 0) == 0) return i;
+            const Intent* best = nullptr;
+            int least = 1000;
+            for (const auto& i : legal) {
+                if (i.chosen_objects.empty()) continue;
+                const int n = static_cast<int>(std::count(given->begin(), given->end(),
+                                                          i.chosen_objects.front()));
+                if (n < least) { least = n; best = &i; }
+            }
+            if (best) {
+                given->push_back(best->chosen_objects.front());
+                return *best;
+            }
+            for (const auto& i : legal)
+                if (i.chosen_objects.empty() && i.chosen_value.has_value() &&
+                    *i.chosen_value == 0)
+                    return i;
+            return legal.front();
+        };
+    }
+    GameObjectId legend(PlayerId who, CardDefId def) {
+        auto id = state.createObject();
+        auto& lo = o(id);
+        lo.owner = lo.controller = who;
+        lo.card_type = CardType::Legend;
+        lo.card_def_id = def;
+        lo.name = card_db.get(def).name;
+        lo.zone = ZoneType::LegendZone;
+        state.player(who).legend_zone = id;
+        return id;
+    }
+    void battlefieldCard(int bf, CardDefId def) {
+        auto id = state.createObject();
+        auto& b = o(id);
+        b.card_type = CardType::Battlefield;
+        b.card_def_id = def;
+        b.name = card_db.get(def).name;
+        b.owner = b.controller = P2;
+        state.battlefields[bf].card_object_id = id;
     }
     /// The first time the opponent has priority, `probe` sees the live state.
     /// The chain then runs on, so the spell resolves after the probe returns.
@@ -851,6 +907,212 @@ TEST_F(SignatureDefectTest, AlphaStrike_AnElderDragonKillGrantsXp) {
     play(spell, &agent, true, {striker});
     EXPECT_FALSE(o(victim).location.has_value());
     EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// One Zhonya's Hourglass, two units this spell leaves lethal. The gear saves
+// one. The other dies in that cleanup and grants 1 XP.
+TEST_F(SignatureDefectTest, AlphaStrike_ZhonyasSecondUnitGrantsXp) {
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto first = addUnit(P2, kInvalidId, 1, 0);
+    auto second = addUnit(P2, kInvalidId, 1, 1);
+    auto glass = gear(P2, kZhonya);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2;
+    play(spell, &p1, &p2, true, {striker});
+    int dead = 0, saved = 0;
+    for (auto id : {first, second}) {
+        if (o(id).location.has_value()) ++saved;
+        else ++dead;
+    }
+    EXPECT_EQ(saved, 1) << "the gear saves one";
+    EXPECT_EQ(dead, 1) << "the other dies";
+    EXPECT_EQ(o(glass).zone.get(), ZoneType::Trash);
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// Saving the first buffed unit exhausts The Boss. The second then dies and
+// grants 1 XP.
+TEST_F(SignatureDefectTest, AlphaStrike_TheBossSecondUnitGrantsXp) {
+    legend(P2, kBoss);
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto first = addUnit(P2, kInvalidId, 1, 0);
+    auto second = addUnit(P2, kInvalidId, 1, 1);
+    for (auto id : {first, second}) {
+        o(id).base_might = 0;
+        o(id).buff_count = 1;
+        o(id).recomputeMight();
+    }
+    state.player(P2).rune_pool.power[static_cast<int>(Domain::Order)] = 1;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2(EnginePathAgent::accepting());
+    play(spell, &p1, &p2, true, {striker});
+    int dead = 0, saved = 0;
+    for (auto id : {first, second}) {
+        if (o(id).location.has_value()) ++saved;
+        else ++dead;
+    }
+    EXPECT_EQ(saved, 1);
+    EXPECT_EQ(dead, 1);
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// A declined "may" still kills the unit, and that kill grants XP.
+TEST_F(SignatureDefectTest, AlphaStrike_ADeclinedMayGrantsXp) {
+    legend(P2, kBoss);
+    auto striker = addUnit(P1, kInvalidId, 1);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    o(victim).base_might = 0;
+    o(victim).buff_count = 1;
+    o(victim).recomputeMight();
+    state.player(P2).rune_pool.power[static_cast<int>(Domain::Order)] = 1;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2;
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_FALSE(p2.prompts.empty()) << "the may was offered";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// Altar of Blood kills with no prompt when [A][A][A] cannot be paid, and
+// that kill grants XP.
+TEST_F(SignatureDefectTest, AlphaStrike_AnUnpaidMayGrantsXp) {
+    battlefieldCard(0, kAltar);
+    combatInProgress(0, P1);
+    auto striker = addUnit(P1, kInvalidId, 1);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2(EnginePathAgent::accepting());
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_TRUE(p2.prompts.empty()) << "no prompt when the cost cannot be paid";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// Altar can be paid and the may is declined. The unit dies and grants XP.
+TEST_F(SignatureDefectTest, AlphaStrike_ADeclinedAltarGrantsXp) {
+    battlefieldCard(0, kAltar);
+    combatInProgress(0, P1);
+    state.player(P2).rune_pool.universal_power = 3;
+    auto striker = addUnit(P1, kInvalidId, 1);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2;
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_FALSE(p2.prompts.empty()) << "the may was offered";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// Unlicensed Armory's pending replacement is a candidate before the [C]
+// check. Unpaid, there is no prompt, the unit dies, and that kill grants XP.
+TEST_F(SignatureDefectTest, AlphaStrike_AnUnpaidArmoryGrantsXp) {
+    auto striker = addUnit(P1, kInvalidId, 1);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto armory = gear(P2, kArmory);
+    o(victim).pending_death_replacements.push_back(
+        {kArmory, P2, armory, state.turn.turn_number});
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2(EnginePathAgent::accepting());
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_TRUE(p2.prompts.empty()) << "no prompt when the cost cannot be paid";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+TEST_F(SignatureDefectTest, AlphaStrike_ADeclinedArmoryGrantsXp) {
+    auto striker = addUnit(P1, kInvalidId, 1);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto armory = gear(P2, kArmory);
+    o(victim).pending_death_replacements.push_back(
+        {kArmory, P2, armory, state.turn.turn_number});
+    state.player(P2).rune_pool.power[static_cast<int>(Domain::Fury)] = 1;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2;
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_FALSE(p2.prompts.empty()) << "the may was offered";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// No other friendly unit: Mordekaiser returns false with no prompt. He dies
+// and that kill grants XP.
+TEST_F(SignatureDefectTest, AlphaStrike_MordekaiserWithNoFriendGrantsXp) {
+    auto striker = addUnit(P1, kInvalidId, 5);
+    auto mord = addUnit(P2, kMordekaiser, 0, 0);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2(EnginePathAgent::accepting());
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(mord).location.has_value());
+    EXPECT_TRUE(p2.prompts.empty());
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+TEST_F(SignatureDefectTest, AlphaStrike_ADeclinedMordekaiserGrantsXp) {
+    auto striker = addUnit(P1, kInvalidId, 5);
+    auto mord = addUnit(P2, kMordekaiser, 0, 0);
+    auto ally = addUnit(P2, kInvalidId, 1);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2;
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(mord).location.has_value());
+    EXPECT_TRUE(o(ally).location.has_value());
+    EXPECT_FALSE(p2.prompts.empty()) << "the may was offered";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// The same decline on a kill that is short of Might under Elder Dragon.
+TEST_F(SignatureDefectTest, AlphaStrike_ADeclinedElderDragonKillGrantsXp) {
+    addUnit(P1, kElderDragon, 8);
+    legend(P2, kBoss);
+    auto striker = addUnit(P1, kInvalidId, 1);
+    auto victim = addUnit(P2, kInvalidId, 4, 0);
+    o(victim).buff_count = 1;
+    o(victim).recomputeMight();
+    state.player(P2).rune_pool.power[static_cast<int>(Domain::Order)] = 1;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2;
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_FALSE(o(victim).location.has_value());
+    EXPECT_FALSE(p2.prompts.empty()) << "the may was offered";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// A replacement that does happen grants no XP.
+TEST_F(SignatureDefectTest, AlphaStrike_GuardianAngelGrantsNoXp) {
+    // The gear's Might bonus is on the bearer, so the strike has to clear it.
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto angel = gear(P2, 374);
+    resolveThroughEngine([&](EffectExecutor& ex, GameState&) {
+        ASSERT_TRUE(ex.attachGear(angel, victim));
+    });
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    play(spell, &p1, true, {striker});
+    EXPECT_TRUE(o(victim).location.has_value());
+    EXPECT_EQ(o(angel).zone.get(), ZoneType::Trash);
+    EXPECT_EQ(state.player(P1).xp, 0);
+}
+
+TEST_F(SignatureDefectTest, AlphaStrike_SorakaGrantsNoXp) {
+    auto striker = addUnit(P1, kInvalidId, 1);
+    addUnit(P2, 550, 0, 0);
+    auto victim = addUnit(P2, kInvalidId, 1, 0);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    play(spell, &p1, true, {striker});
+    EXPECT_TRUE(o(victim).location.has_value());
+    EXPECT_EQ(state.player(P1).xp, 0);
 }
 
 }  // namespace

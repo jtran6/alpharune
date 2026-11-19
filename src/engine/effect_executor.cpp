@@ -1573,8 +1573,13 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
                 sources.push_back(bf.card_object_id);
     std::vector<GameObjectId> in_play;
     for (const auto& [id, other] : state.objects.inPlay()) {
-        if (other.controller != controller || id == unit_id) continue;
-        if (!other.location.has_value() && other.zone != ZoneType::LegendZone) continue;
+        if (other.controller != controller) continue;
+        // The dying unit too: it can replace its own death (Mordekaiser,
+        // Twice Slain). replacementApplies drops a card that does not
+        // (Soraka: "another unit").
+        if (id != unit_id && !other.location.has_value() &&
+            other.zone != ZoneType::LegendZone)
+            continue;
         in_play.push_back(id);
     }
     openspiel::sortObjectsAsSeen(state, in_play, controller);
@@ -1591,6 +1596,12 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
 
 bool EffectExecutor::couldReplaceDeath(GameObjectId unit) const {
     return !deathReplacementCandidates(state_, *this, unit).empty();
+}
+
+void EffectExecutor::armReflexiveIfCleanupKills(GameObjectId source, PlayerId controller,
+                                                int index, GameObjectId unit) {
+    state_.cleanup_kill_reflexives.push_back(
+        {source, controller, index, unit, state_.cleanup_generation + 1});
 }
 
 bool EffectExecutor::applyDeathReplacements(GameObjectId unit_id) {

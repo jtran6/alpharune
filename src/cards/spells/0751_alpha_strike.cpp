@@ -78,20 +78,30 @@ public:
         // The damage is only marked. The kill is the cleanup after the spell
         // (CR 142.4.a). XP is for a unit that cleanup kills: damageKills,
         // including an Elder Dragon kill short of Might (CR 142.4.c), and not
-        // a death a replacement keeps from happening.
+        // a death a replacement keeps from happening. A candidate may still
+        // not apply — a declined or unpaid "may", or a gear or legend already
+        // used on another unit of that cleanup — so that unit is armed and
+        // the reflexive is queued only if the cleanup kills it.
         int kills = 0;
+        int pending = 0;
         for (auto id : damaged) {
             if (!ctx.executor.damageKills(id)) continue;
-            if (ctx.executor.couldReplaceDeath(id)) continue;
+            if (ctx.executor.couldReplaceDeath(id)) {
+                ctx.executor.armReflexiveIfCleanupKills(ctx.source, ctx.controller, 0, id);
+                ++pending;
+                continue;
+            }
             ++kills;
         }
         // "Then for each unit this kills, do this: Gain 1 XP." — one
         // reflexive trigger per unit killed (CR 388.1.a, 389.2), each a chain
-        // item of its own.
+        // item of its own. A unit nothing could save is known now; the others
+        // wait for the cleanup.
         for (int i = 0; i < kills; ++i)
             ctx.executor.queueReflexiveTrigger(ctx.source, ctx.controller, 0);
-        if (kills > 0)
-            RIFT_TRACE(ctx.events, "ALPHA STRIKE: " + std::to_string(kills) + " kill(s)");
+        if (kills > 0 || pending > 0)
+            RIFT_TRACE(ctx.events, "ALPHA STRIKE: " + std::to_string(kills) + " kill(s)" +
+                                   (pending > 0 ? ", " + std::to_string(pending) + " pending" : ""));
     }
     bool hasReflexiveTrigger() const override { return true; }
     void onReflexiveTrigger(CardContext& ctx, int /*index*/,

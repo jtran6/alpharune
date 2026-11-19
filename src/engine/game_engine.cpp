@@ -9380,6 +9380,13 @@ uint64_t GameEngine::cleanupShape() const {
             (bf.combat_in_progress ? 16u : 0u));
         mix(bf.facedown.size());
     }
+    // A reflexive waiting on this Cleanup's kills: skipping the Cleanup would
+    // leave it armed for a later one.
+    mix(state_.cleanup_kill_reflexives.size());
+    for (const auto& r : state_.cleanup_kill_reflexives) {
+        mix(r.unit.raw());
+        mix(r.due_generation);
+    }
     return h;
 }
 
@@ -9404,6 +9411,9 @@ void GameEngine::cleanup() {
     }
 #endif
     quiet_cleanup_valid_ = false;
+    // One generation per Cleanup that runs. A reflexive armed for "the unit
+    // this kills" names the next one (EffectExecutor::armReflexiveIfCleanupKills).
+    ++state_.cleanup_generation;
     const uint64_t activity_at_start = events_.activity();
     const size_t chain_at_start = state_.chain.items.size();
     const bool game_over_at_start = state_.game_over;
@@ -9657,6 +9667,13 @@ void GameEngine::processLethalDamage() {
         killUnit(id);
     }
     effect_executor_->endDeathBatch(to_kill, batch);
+    // Armed for this Cleanup and not queued from a death above: this Cleanup
+    // did not kill that unit. A later death does not grant it.
+    auto& armed = state_.cleanup_kill_reflexives;
+    armed.erase(std::remove_if(armed.begin(), armed.end(),
+        [&](const GameState::CleanupKillReflexive& r) {
+            return r.due_generation <= state_.cleanup_generation;
+        }), armed.end());
 }
 
 void GameEngine::updateBattlefieldControl() {
@@ -10986,7 +11003,12 @@ void GameEngine::moveUnit(GameObjectId unit_id, LocationId destination) {
 }
 
 void GameEngine::killUnit(GameObjectId unit_id) {
+    if (!state_.objectExists(unit_id)) return;
     auto& unit = state_.getObject(unit_id);
+    // Already off the board: a replacement in this batch killed it first
+    // (Mordekaiser killing a friend who was dying too). That death was the
+    // one. Killing it again would put it in the trash twice.
+    if (!unit.location.has_value()) return;
     // Its death was replaced when the batch it dies in began (CR 373.1.a,
     // EffectExecutor::beginDeathBatch): nothing to kill.
     if (unit.last_known.batch_replaced) return;

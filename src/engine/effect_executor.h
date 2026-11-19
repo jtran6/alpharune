@@ -770,6 +770,12 @@ public:
         queue_reflexive_(source, controller, index, std::move(data));
         return true;
     }
+    /// Queue `source`'s reflexive trigger only if the next Cleanup kills
+    /// `unit`. A death replacement may still keep it (CR 142.4.a: the kill is
+    /// that Cleanup). The item is created when the unit dies there, not while
+    /// the ability that armed it is resolving.
+    void armReflexiveIfCleanupKills(GameObjectId source, PlayerId controller,
+                                    int index, GameObjectId unit);
     void queueTriggeredAbility(GameObjectId source, PlayerId controller, TriggerType trigger,
                                GameObjectId subject = kInvalidId) {
         if (queue_trigger_) queue_trigger_(source, controller, trigger, subject);

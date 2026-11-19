@@ -1158,6 +1158,23 @@ struct GameState {
     // Delayed abilities (Phase 5, CR 389-392)
     std::vector<DelayedAbility> delayed_abilities;
 
+    /// How many Cleanups have run (GameEngine::cleanup increments it once per
+    /// Cleanup that is not skipped). A reflexive armed for "the unit this
+    /// kills" names the next one.
+    uint32_t cleanup_generation = 0;
+    /// A reflexive trigger to queue only if Cleanup `due_generation` kills
+    /// `unit` (Alpha Strike: the kill is that Cleanup, and a death replacement
+    /// may still keep the unit). Emptied at the end of that Cleanup's lethal
+    /// pass: a unit it did not kill does not grant the reflexive later.
+    struct CleanupKillReflexive {
+        GameObjectId source = kInvalidId;
+        PlayerId controller = PlayerId::None;
+        int index = 0;
+        GameObjectId unit = kInvalidId;
+        uint32_t due_generation = 0;
+    };
+    std::vector<CleanupKillReflexive> cleanup_kill_reflexives;
+
     /// "It gains [Keyword N] this combat": a continuous effect a resolved
     /// ability created (EffectExecutor::giveKeywordThisCombat). It lasts while
     /// the combat at `battlefield` that was going on when it was made goes on
