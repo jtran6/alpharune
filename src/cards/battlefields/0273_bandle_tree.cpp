@@ -14,9 +14,11 @@ namespace {
 class BandleTree : public BattlefieldCard {
 public:
     const CardDef& def() const override { return def_; }
-    // "You may hide an additional card here." Raise this BF's facedown
-    // capacity from the default 1 to 2. Idempotent (set, not increment), so
-    // re-running the aura recalc is safe.
+    // "You may hide an additional card here." The aura pass resets every
+    // battlefield's facedown occupancy to 1, then this raises the one this
+    // card is in to 2. When this card leaves, the next pass leaves it at 1
+    // and a zone that then holds more cards trashes the difference
+    // (CR 107.3.b.1, 107.3.b.2).
     void applyPassiveAura(GameState& state, PlayerId /*controller*/) const override {
         for (auto& bf : state.battlefields) {
             if (!state.objectExists(bf.card_object_id)) continue;

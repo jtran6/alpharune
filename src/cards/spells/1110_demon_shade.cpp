@@ -22,12 +22,21 @@ public:
         return friendlyUnitChoice(state, player, object);
     }
     bool hasLegalTargets(const GameState& state, PlayerId player) const override {
-        return !chooseableUnits(state, player, [&](const GameObject& u) {
-            return u.controller == player;
-        }).empty();
+        return !friendly(state, player).empty();
+    }
+    // From facedown the friendly unit is at the battlefield the spell was
+    // hidden at (CR 811.1.d.2). With none there the spell cannot be played.
+    bool hasLegalChoicesHiddenAt(const GameState& state, PlayerId player, const CardDB&,
+                                 BattlefieldId battlefield) const override {
+        for (auto id : friendly(state, player)) {
+            if (!state.objectExists(id)) continue;
+            if (state.getObject(id).battlefieldId() == std::optional<BattlefieldId>{battlefield})
+                return true;
+        }
+        return false;
     }
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) { return u.controller == ctx.controller; });
+        auto units = atHiddenBattlefield(ctx.state, ctx.source, friendly(ctx.state, ctx.controller));
         auto t = pickTarget(ctx, "Demon Shade: a friendly unit", units);
         if (finalizingChoices(ctx)) return;
         if (t == kInvalidId) return;
@@ -47,6 +56,12 @@ public:
     }
 
 private:
+    static std::vector<GameObjectId> friendly(const GameState& state, PlayerId player) {
+        return chooseableUnits(state, player, [&](const GameObject& u) {
+            return u.controller == player;
+        });
+    }
+
     const CardDef def_ = [] {
         CardDef d;
         d.id = 1110;

@@ -20,10 +20,9 @@ public:
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (ctx.state.battlefields.empty()) { if (finalizingChoices(ctx)) return; return; }
-        std::vector<std::string> labels;
-        for (const auto& bf : ctx.state.battlefields)
-            labels.push_back(battlefieldLabel(ctx.state, bf));
-        int mode = pickMode(ctx, "Bedeviling Stranger: a battlefield", static_cast<int>(labels.size()), labels);
+        // Choosing the battlefield is the target (CR 355.10.b). Played from
+        // facedown, that battlefield is the one she was played to (CR 811.1.d.3).
+        int mode = pickBattlefield(*this, ctx, "Bedeviling Stranger: a battlefield");
         if (mode < 0) return;
         if (finalizingChoices(ctx)) return;
         LocationId there{BattlefieldLocation{ctx.state.battlefields[mode].id}};

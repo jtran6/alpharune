@@ -747,6 +747,9 @@ private:
     void executePassFocus(const Intent& intent);
     void executeHideCard(const Intent& intent);
     void executePlayFromHidden(const Intent& intent);
+    /// Hide (CR 811.1.b) during an Open State on the hider's turn: the Main
+    /// Phase and, while that player has Focus, a Showdown Open state.
+    void generateHideActions(PlayerId player, std::vector<Intent>& actions) const;
 
     // ── Chain ──
     void runChain();
@@ -847,6 +850,9 @@ private:
     /// CR 323.6.a / 468.5.c: hidden cards at `bf` whose controller does not
     /// control it go to their owner's trash.
     void removeForeignHiddenCards(BattlefieldId bf);
+    /// CR 107.3.b.2: facedown occupancy fell below the cards there. The
+    /// controller of that zone trashes the difference. True if a card moved.
+    bool trashExcessFacedown();
     void processContestedBattlefields();
     /// CR 323.11 / 323.12: the battlefield where the next staged showdown (or,
     /// with none, combat) begins — the turn player's choice when there are
@@ -1247,6 +1253,13 @@ private:
     /// (a copy of the game being tried); false if it cannot be paid.
     bool payCardCostQuietly(PlayerId player, GameObjectId card, const Card::PlayCostAdjust& adj,
                             int extra_any, int extra_energy = 0, int extra_base_power = 0);
+    /// A play that ignores its base cost (facedown, CR 811.1.b; "ignoring its
+    /// cost", CR 356.1.b) still pays cost increases (356.3), a granted
+    /// [Repeat] (820) and binds a pending spell-damage rider. The card stays
+    /// where it is. False when the increase cannot be paid.
+    bool payIgnoredBase(PlayerId player, GameObjectId card,
+                        const std::vector<GameObjectId>& targets, bool target_chosen_at_play,
+                        int& repeats, std::vector<ChainItem::ExecutionChoices>& choices);
     /// What the accepted tranches add to the cost step, split by where
     /// their Power may come from (relative to `base_mask`, the Domains of the
     /// play's own Power): Energy and Power of exactly those Domains are paid

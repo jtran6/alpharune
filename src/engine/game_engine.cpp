@@ -286,6 +286,31 @@ void GameEngine::initSubsystems() {
         ignoring.ignore_cost = true;
         maybePayOptionalAdditionalCost(p, card, 0, ignoring);
     });
+    effect_executor_->setCanPayIgnoredCost([this](PlayerId p, GameObjectId card) {
+        Card::PlayCostAdjust ignoring;
+        ignoring.ignore_cost = true;
+        return canAffordWith(p, card, 0, ignoring);
+    });
+    effect_executor_->setPayIgnoredCost([this](PlayerId p, GameObjectId card) {
+        int repeats = 0;
+        std::vector<ChainItem::ExecutionChoices> choices;
+        std::vector<GameObjectId> targets;
+        bool chosen = false;
+        if (effect_played_spell_ && effect_played_spell_->card == card) {
+            targets = effect_played_spell_->targets;
+            chosen = effect_played_spell_->target_chosen_at_play;
+        }
+        if (!payIgnoredBase(p, card, targets, chosen, repeats, choices)) return false;
+        if (!state_.objectExists(card) || !state_.getObject(card).isSpell()) return true;
+        if (!effect_played_spell_ || effect_played_spell_->card != card) {
+            EffectPlayedSpell eps;
+            eps.card = card;
+            effect_played_spell_ = std::move(eps);
+        }
+        effect_played_spell_->repeats = repeats;
+        effect_played_spell_->repeat_choices = std::move(choices);
+        return true;
+    });
     chain_manager_->setEffectExecutor(effect_executor_.get());
     // CR 334: the chain's loop handles outstanding tasks — the Cleanup —
     // before it finalizes, after every finalization and after every
@@ -5813,40 +5838,62 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
     auto bf_id = card.hidden_at;
     auto& bf = getBattlefield(bf_id);
 
-    // Remove from facedown zone
-    auto it = std::find(bf.facedown.begin(), bf.facedown.end(), intent.card);
-    if (it != bf.facedown.end()) bf.facedown.erase(it);
-
-    card.is_hidden = false;
-    card.hidden_at = kInvalidId;
-    // Lets the card's own "When you play me from face down" tell this play
-    // apart from a play from hand. Cleared when it next enters a hand/trash.
-    card.card_counters["__played_from_facedown"] = 1;
-    // Where and when, for a hidden SPELL's own text (CR 811.1.d: its choices
-    // are tied to that battlefield; "if you played this from your hand").
-    // Turn-stamped, so a stale value never reads as this play.
-    card.card_counters["__facedown_play_bf"] = static_cast<int>(bf_id.raw()) + 1;
-    card.card_counters["__facedown_play_turn"] = state_.turn.turn_number;
-
-    // "When you play a card from face down" (Katarina, Reckless).
-    events_.emit(PlayedFromFacedownEvent{intent.card, intent.player});
-
     // A play from face down ignores the card's base cost (CR 811.1.b), not
     // its additional costs: "you may pay [R] as an additional cost to play
     // me" is still offered (CR 356.1.b and its example; testing phase U7,
     // Pyke, Dockside Butcher). Its "As you play me" choices come first (CR
     // 355.1). No [Hidden] card prints a mandatory additional cost
     // (Batch8Test.U7_NoHiddenCardPrintsAMandatoryAdditionalCost).
+    // A cost increase still applies (CR 356.1.b.3, 356.3) and is paid while
+    // the card is still hidden, so "(Hidden cards have [Reaction].)" is true
+    // for that payment. A failure leaves the card facedown.
     Card::PlayCostAdjust ignoring_base;
     ignoring_base.ignore_cost = true;
-    // A facedown play ignores the base cost (CR 811). An optional cost paid
-    // after this is added on top.
-    events_.notePlayCost(intent.card, 0, 0, true, true);
+    if (card.isPermanent())
+        effect_executor_->makeAsYouPlayChoices(intent.player, intent.card);
+    maybePayOptionalAdditionalCost(intent.player, intent.card, 0, ignoring_base);
+
+    // The facedown stamp, before the payment's [Repeat] choices: a spell's
+    // extra execution is still tied to this battlefield (CR 811.1.d.2). The
+    // card stays hidden until the increase is paid.
+    card.card_counters["__played_from_facedown"] = 1;
+    card.card_counters["__facedown_play_bf"] = static_cast<int>(bf_id.raw()) + 1;
+    card.card_counters["__facedown_play_turn"] = state_.turn.turn_number;
+    const Card* played_card = card.card_def_id != kInvalidId
+        ? card_registry_.get(card.card_def_id) : nullptr;
+    const bool chosen_at_play = played_card && played_card->needsPlayTimeTarget() &&
+                                !intent.targets.empty();
+    int repeats = 0;
+    std::vector<ChainItem::ExecutionChoices> repeat_choices;
+    if (!payIgnoredBase(intent.player, intent.card, intent.targets, chosen_at_play,
+                        repeats, repeat_choices)) {
+        card.card_counters.erase("__played_from_facedown");
+        card.card_counters.erase("__facedown_play_bf");
+        card.card_counters.erase("__facedown_play_turn");
+        card.card_counters.erase("__energy_charged");
+        events_.clearPlayCost(intent.card);
+        return;
+    }
+
+    // Remove from facedown zone
+    auto it = std::find(bf.facedown.begin(), bf.facedown.end(), intent.card);
+    if (it != bf.facedown.end()) bf.facedown.erase(it);
+
+    card.is_hidden = false;
+    card.hidden_at = kInvalidId;
+
+    // "When you play a card from face down" (Katarina, Reckless).
+    events_.emit(PlayedFromFacedownEvent{intent.card, intent.player});
+
+    int charged = 0;
+    if (auto it_charged = card.card_counters.find("__energy_charged");
+        it_charged != card.card_counters.end()) {
+        charged = it_charged->second;
+        card.card_counters.erase("__energy_charged");
+    }
 
     // Play ignoring base cost — permanents go to the BF they were hidden at
     if (card.isPermanent()) {
-        effect_executor_->makeAsYouPlayChoices(intent.player, intent.card);   // CR 355.1
-        maybePayOptionalAdditionalCost(intent.player, intent.card, 0, ignoring_base);
         // Ordinarily the battlefield it was hidden at (CR 811.1.d.1). Last
         // Caress names another legal battlefield, and that play spends the
         // permission when the unit enters (resolvePermanent).
@@ -5872,38 +5919,41 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         // A facedown gear is still a gear played (Ornn's Forge). The cost was
         // ignored, so this is the play that spends the first discount.
         if (card.isGear() && !card.isToken()) ps.gears_played_this_turn++;
-        // Hidden play is "ignoring its base cost" (CR 811) — energy_spent = 0.
         // Announced once it has entered (CR 383.4.a.2; resolvePermanent).
-        // Played from face down = from somewhere other than hand.
+        // Played from face down = from somewhere other than hand. The energy
+        // is what the increase charged, the base having been ignored.
         card.card_counters["__announce_play"] = ps.cards_played_this_turn;
-        card.card_counters["__announce_energy"] = 0;
+        card.card_counters["__announce_energy"] = charged;
         card.card_counters["__announce_not_hand"] = 1;
         chain_manager_->addPermanent(intent.card, intent.player);
         runChain();
     } else if (card.isSpell()) {
-        maybePayOptionalAdditionalCost(intent.player, intent.card, 0, ignoring_base);
         auto& ps = state_.player(intent.player);
         ps.cards_played_this_turn++;
+        ps.last_spell_energy_spent = charged;
+        ps.max_spell_spent_this_turn = std::max(ps.max_spell_spent_this_turn, charged);
         // Played from face down = from somewhere other than hand; announced as
         // the spell resolves (CR 420.4.a; finding G12).
         card.card_counters[Card::kPlayedNotFromHand] = 1;
         events_.emit(CardPlayedEvent{intent.card, intent.player,
-            card.card_type, ps.cards_played_this_turn, /*energy_spent=*/0});
+            card.card_type, ps.cards_played_this_turn, charged});
         const auto chain_id =
             chain_manager_->addSpell(intent.card, intent.player, intent.targets);
-        // A spell that takes its target through Card::pickTarget was played
-        // with that target already chosen (the hidden-play intent names it):
-        // tell pickTarget, as executePlaySpell does, or the card asks again
-        // and the unit the Deflect was paid for is not the one affected.
-        const Card* hc = card.card_def_id != kInvalidId
-            ? card_registry_.get(card.card_def_id) : nullptr;
-        if (hc && hc->needsPlayTimeTarget() && !intent.targets.empty())
-            for (auto& added : state_.chain.items) {
-                if (added.id != chain_id) continue;
+        for (auto& added : state_.chain.items) {
+            if (added.id != chain_id) continue;
+            added.total_energy_spent = charged;
+            added.repeats_paid = repeats;
+            added.repeat_choices = std::move(repeat_choices);
+            // A spell that takes its target through Card::pickTarget was played
+            // with that target already chosen (the hidden-play intent names it):
+            // tell pickTarget, as executePlaySpell does, or the card asks again
+            // and the unit the Deflect was paid for is not the one affected.
+            if (chosen_at_play) {
                 while (added.resume_data.size() < 6) added.resume_data.push_back(0);
                 added.resume_data[5] = 1;
-                break;
             }
+            break;
+        }
         runChain();
     }
 }
@@ -6353,9 +6403,19 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
     // Showdowns" and includes every other timing (CR 813.2) — its controller's
     // own Main Phase too (testing phase D25).
     generateHiddenPlayActions(player, IntentType::PlayActionCard, actions);
+    generateHideActions(player, actions);
 
-    // Hide cards with [Hidden] keyword facedown at controlled battlefields
-    // (CR 811.1.b: "While this card is in your hand or in your Champion Zone").
+    return actions;
+}
+
+void GameEngine::generateHideActions(PlayerId player, std::vector<Intent>& actions) const {
+    // CR 811.1.b: while the card is in your hand or Champion Zone, on your
+    // turn, during an Open State. Showdown Open is an Open State (CR 310.3)
+    // and Focus is the permission to take the action (CR 313.1, 422.2). Not
+    // on the opponent's turn, and not in a Closed State — the caller is the
+    // Main Phase or the turn player's Focus.
+    if (player != state_.turn.turn_player) return;
+    const auto& ps = state_.player(player);
     std::vector<GameObjectId> hide_sources = ps.hand;
     if (ps.champion_zone != kInvalidId && state_.objectExists(ps.champion_zone) &&
         state_.getObject(ps.champion_zone).zone == ZoneType::ChampionZone)
@@ -6368,7 +6428,6 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
         // lets Energy be paid instead — by the gate executeHideCard pays by.
         if (!canPayHideCost(player)) continue;
 
-        // Can hide at any controlled BF with available facedown slot
         for (auto& bf : state_.battlefields) {
             if (!bf.controller.has_value() || *bf.controller != player) continue;
             if (static_cast<int>(bf.facedown.size()) >=
@@ -6382,8 +6441,6 @@ std::vector<Intent> GameEngine::generateMainPhaseActions(PlayerId player) const 
             actions.push_back(hide);
         }
     }
-
-    return actions;
 }
 
 std::vector<Intent> GameEngine::generateMulliganActions(PlayerId player) const {
@@ -6506,6 +6563,10 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
     // Hidden cards have [Reaction] from the turn after they were hidden
     // (CR 811.1.b), and [Reaction] includes [Action] timing (CR 813.1.b).
     generateHiddenPlayActions(player, IntentType::PlayActionCard, actions);
+
+    // Hide, on the turn player's turn only (CR 811.1.b "on your turn"), while
+    // they have Focus in this Showdown Open state (CR 313.1, 422.2).
+    if (player == state_.turn.turn_player) generateHideActions(player, actions);
 
     // Activated abilities with [Action] or [Reaction] timing (CR 806,
     // 813.1.b), a unit's own and those an aura grants it.
@@ -6756,14 +6817,16 @@ std::vector<std::vector<GameObjectId>> spellTargetSets(
 }
 }  // namespace
 
+// Defined with the cost functions. A facedown play ignores its base cost and
+// still owes this (CR 356.1.b.3): a spell tax and, while the card is hidden,
+// a [Reaction] tax during an open showdown.
+static int extraAnyPowerCost(const GameState& state, PlayerId player, const GameObject& card);
+
 // CR 811: `player`'s facedown cards. A permanent goes to the battlefield it
 // was hidden at (executePlayFromHidden / ChainManager); a spell's targets are
 // tied to that battlefield, target by target (CR 811.1.d.2, .4).
-// A card played from facedown is played ignoring its base cost (CR 811;
-// executePlayFromHidden charges nothing), so there is no cost gate here and no
-// discount can matter: what a target adds — its Deflect — is the whole price,
-// and Card::enumerateLegalTargets already leaves out a target whose Deflect
-// the player cannot pay.
+// The base cost is ignored (CR 811.1.b). A cost increase is not (CR 356.1.b.3,
+// 356.3), and a target's Deflect is paid on top of that increase.
 void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_type,
                                            std::vector<Intent>& actions) const {
     const auto& ps = state_.player(player);
@@ -6794,6 +6857,11 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
             if (card.isUnit() && ps.units_play_base_only) continue;
             if (card.isUnit() && bf.blocks_unit_play && ps.next_unit_any_battlefield <= 0)
                 continue;
+            // The base is ignored. What remains — a cost increase — must be
+            // payable or the card is not played (CR 356.1.b.3).
+            Card::PlayCostAdjust ignored_base;
+            ignored_base.ignore_cost = true;
+            if (!canAffordWith(player, card_id, 0, ignored_base)) continue;
 
             if (card.card_def_id != kInvalidId && card.isSpell()) {
                 Card* card_obj = card_registry_.get(card.card_def_id);
@@ -6836,6 +6904,16 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
                                     !card_obj->hiddenTargetFreeOfBattlefield(
                                         static_cast<int>(slot))) { ok = false; break; }
                             if (!ok) continue;
+                            // The increase is paid before the targets' Deflect
+                            // (executePlayFromHidden, then addSpell). A target
+                            // whose Deflect does not fit on top of it is not
+                            // an option.
+                            int deflect = 0;
+                            for (auto t : tset) deflect += deflectCostFor(state_, player, t);
+                            const int increase = extraAnyPowerCost(state_, player, card);
+                            const int payable = resource::payablePower(
+                                state_, player, Domain::Count, SpendFor::Spell);
+                            if (deflect + increase > payable) continue;
                             Intent play;
                             play.type = intent_type;
                             play.player = player;
@@ -7670,6 +7748,7 @@ std::optional<PlayerId> GameEngine::resolveShowdownDecision(
         case IntentType::PlayActionCard:     // Action spells + Ambush units
         case IntentType::PlayReaction:       // Pouncing units, Quick-Draw gear, Reaction spells in showdown
         case IntentType::PlayCard:           // generic play (safety)
+        case IntentType::HideCard:           // Hide during Showdown Open (CR 811.1.b, 313.1)
         case IntentType::ActivateActionAbility: // [Action] [E]: abilities
         case IntentType::ActivateReactionAbility: // [Reaction] [E]: abilities
         case IntentType::ActivateAbility: {  // generic activate (safety)
@@ -8762,6 +8841,7 @@ void GameEngine::recalculateAuras() {
     for (auto& bf : state_.battlefields) {
         bf.multi_move_tax[0] = bf.multi_move_tax[1] = 0;   // Mageseeker Investigator
         bf.extra_facedown = 0;                             // Bushwhack Trap
+        bf.facedown_max_occupancy = 1;                     // Bandle Tree raises it again
         bf.arrival_energy = bf.arrival_power = 0;          // Gravity Field
         bf.arrival_exempt = -1;
         bf.opp_hidden_unrevealable[0] = bf.opp_hidden_unrevealable[1] = false;
@@ -9147,6 +9227,12 @@ void GameEngine::recalculateAuras() {
                         b.empower_cost_reduction[playerIndex(obj.controller)];
         }
     }
+
+    // CR 107.3.b.2: occupancy is final for this pass (the reset above, then
+    // the cards that raise it). A zone holding more cards than that trashes
+    // the difference. The fold is what the Cleanup's checksum compares, so
+    // a card that moved is folded again.
+    if (trashExcessFacedown()) foldAuras();
 
     refreshFlowGrants();
 }
@@ -9697,6 +9783,66 @@ void GameEngine::updateBattlefieldControl() {
     }
 }
 
+bool GameEngine::trashExcessFacedown() {
+    bool moved = false;
+    for (auto& bf : state_.battlefields) {
+        const int cap = std::max(0, bf.facedown_max_occupancy + bf.extra_facedown);
+        while (static_cast<int>(bf.facedown.size()) > cap) {
+            const int excess = static_cast<int>(bf.facedown.size()) - cap;
+            const bool no_choice = excess >= static_cast<int>(bf.facedown.size()) ||
+                                   bf.facedown.size() <= 1 || !bf.controller.has_value();
+            const bool can_ask = bf.controller.has_value() &&
+                                 agents_[playerIndex(*bf.controller)] != nullptr &&
+                                 !events_.quiet();
+            GameObjectId victim = bf.facedown.back();
+            if (!no_choice && can_ask) {
+                std::vector<Intent> opts;
+                for (auto id : bf.facedown) {
+                    if (!state_.objectExists(id)) continue;
+                    Intent o;
+                    o.type = IntentType::MakeChoice;
+                    o.player = *bf.controller;
+                    o.chosen_objects = {id};
+                    // The controller hid these cards and knows them. The public
+                    // question names none of them (CR 422.4 reveals a card as
+                    // it is trashed, not as it is offered).
+                    o.choice_label = state_.getObject(id).name.get();
+                    opts.push_back(std::move(o));
+                }
+                if (opts.size() > 1) {
+                    const auto chosen = decideNow(*bf.controller, opts, PromptKind::ChooseObject,
+                                                  bf.card_object_id, "trash a facedown card here");
+                    if (!chosen.chosen_objects.empty()) victim = chosen.chosen_objects.front();
+                    else victim = opts.front().chosen_objects.front();
+                } else if (!opts.empty()) {
+                    victim = opts.front().chosen_objects.front();
+                }
+            }
+            if (!state_.objectExists(victim)) {
+                bf.facedown.pop_back();
+                continue;
+            }
+            auto& card = state_.getObject(victim);
+            // A facedown card that changes zones is revealed first (CR 422.4).
+            events_.emit(CardRevealedEvent{victim, card.card_def_id, card.owner,
+                                           /*revealed_to_all=*/true, PlayerId::None,
+                                           ZoneType::FacedownZone});
+            bf.facedown.erase(std::remove(bf.facedown.begin(), bf.facedown.end(), victim),
+                              bf.facedown.end());
+            card.is_hidden = false;
+            card.hidden_at = kInvalidId;
+            card.zone = ZoneType::Trash;
+            card.location = std::nullopt;
+            state_.player(card.owner).trash.push_back(victim);
+            settleInTrash(state_, events_, victim);
+            RIFT_TRACE(events_, std::string("HIDDEN: ") + card.name +
+                             " trashed — facedown occupancy fell (CR 107.3.b.2)");
+            moved = true;
+        }
+    }
+    return moved;
+}
+
 void GameEngine::removeForeignHiddenCards(BattlefieldId bf_id) {
     auto& bf = getBattlefield(bf_id);
     // Remove facedown cards that belong to a player who doesn't control
@@ -10096,7 +10242,8 @@ void GameEngine::maybePayOptionalAdditionalCost(PlayerId player, GameObjectId ca
         forgetCleanupFacts();
         payOptionalCost(player, cost.energy, cost.power, domains, spend_for, card_id,
                         "optional additional cost");
-        if (!base.ignore_cost && !canAffordWith(player, card_id, extra_any_power, base)) return;
+        // An ignored base can still be raised by a cost increase (CR 356.1.b.3).
+        if (!canAffordWith(player, card_id, extra_any_power, base)) return;
     }
 
     // Optional ("you may") -> yes/no agent decision. Mirrors the Accelerate flow.
@@ -11471,6 +11618,67 @@ void GameEngine::detachAllGear(GameObjectId unit_id) {
 }
 
 
+bool GameEngine::payIgnoredBase(PlayerId player, GameObjectId card_id,
+                                const std::vector<GameObjectId>& targets,
+                                bool target_chosen_at_play, int& repeats,
+                                std::vector<ChainItem::ExecutionChoices>& choices) {
+    repeats = 0;
+    choices.clear();
+    if (!state_.objectExists(card_id)) return false;
+    Card::PlayCostAdjust adj;
+    adj.ignore_cost = true;
+    if (!canAffordWith(player, card_id, 0, adj)) return false;
+
+    RepeatPlan plan;
+    auto& card = state_.getObject(card_id);
+    if (card.isSpell() && card.card_def_id != kInvalidId) {
+        const std::string spell_name = card.name.get();
+        const auto base_mask = resource::maskOf(card_db_.get(card.card_def_id).domains);
+        const auto net = netCardCost(player, card_id, adj);
+        plan = planRepeats(player, card_id, base_mask,
+            [this, player, card_id, adj](const TrancheCost& tc) {
+                return payCardCostQuietly(player, card_id, adj, 0, tc.energy, tc.base_power);
+            },
+            {net.first, net.second}, targets, target_chosen_at_play);
+        if (!plan.accepted.empty()) {
+            const int e_total = net.first + plan.cost.energy;
+            const int p_total = net.second + plan.cost.base_power;
+            const std::function<bool()> rest = [this, player, e_total, p_total, base_mask]() {
+                return resource::canPayIn(state_, player, e_total, p_total, base_mask,
+                                          SpendFor::Spell);
+            };
+            if (!payTranchePartsAhead(player, plan.cost, base_mask, &rest))
+                throw std::logic_error("GameEngine::payIgnoredBase: the [Repeat] costs of " +
+                                       spell_name + " were offered as payable and could not be paid");
+            if (plan.cost.discards > 0)
+                effect_executor_->discardCards(player, plan.cost.discards);
+        }
+        cost_step_tranches_ = plan.accepted.empty() ? nullptr : &plan.cost;
+    }
+    const bool paid = payCardCost(player, card_id, adj);
+    cost_step_tranches_ = nullptr;
+    if (!paid) return false;
+
+    repeats = static_cast<int>(plan.accepted.size());
+    choices = std::move(plan.choices);
+    if (!state_.objectExists(card_id)) return true;
+    auto& played = state_.getObject(card_id);
+    auto& ps = state_.player(player);
+    // The one-shot granted [Repeat] is spent by the spell that received the
+    // instance (CR 820.3). A spell with no base cost gains nothing.
+    if (played.isSpell() && ps.grant_repeat_base_to_next_spell &&
+        played.card_def_id != kInvalidId) {
+        const auto& base = card_db_.get(played.card_def_id);
+        if (base.energy_cost > 0 || base.power_cost > 0)
+            ps.grant_repeat_base_to_next_spell = false;
+    }
+    if (played.isSpell() && ps.next_spell_bonus_damage > 0) {
+        played.spell_bonus_damage = ps.next_spell_bonus_damage;
+        ps.next_spell_bonus_damage = 0;
+    }
+    return true;
+}
+
 bool GameEngine::payCardCostQuietly(PlayerId player, GameObjectId card_obj,
                                     const Card::PlayCostAdjust& adj, int extra_any,
                                     int extra_energy, int extra_base_power) {
@@ -11479,7 +11687,9 @@ bool GameEngine::payCardCostQuietly(PlayerId player, GameObjectId card_obj,
     if (card.card_def_id == kInvalidId) return false;
     const SpendFor f = spendForPlay(card);
     {
-        auto net = adj.ignore_cost ? std::pair<int, int>{0, 0} : netCardCost(player, card_obj, adj);
+        // ignore_cost zeros the printed cost inside netCardCost and leaves a
+        // cost increase in place (CR 356.1.b, 356.1.b.3).
+        auto net = netCardCost(player, card_obj, adj);
         net.first += extra_energy;
         net.second += extra_base_power;
         const auto mask = resource::maskOf(card_db_.get(card.card_def_id).domains);
