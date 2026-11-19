@@ -276,6 +276,14 @@ DeathBatchMark EffectExecutor::beginDeathBatch(const std::vector<GameObjectId>& 
     // one batch of simultaneous triggers (CR 383.3.d). Closed in endDeathBatch.
     if (state_.chain.trigger_batch_holds++ == 0)
         state_.chain.current_trigger_batch = ++state_.chain.trigger_batch_counter;
+    // A replacement that kills one of these (Mordekaiser) may replace that
+    // death instead. killObject marks it, and this list is gone when the
+    // batch's own kills run.
+    open_death_batch_ = units;
+    struct ClearOpenBatch {
+        std::vector<GameObjectId>& ids;
+        ~ClearOpenBatch() { ids.clear(); }
+    } clear_open_batch{open_death_batch_};
     auto on_board = [&](GameObjectId id) {
         return state_.objectExists(id) && state_.getObject(id).location.has_value();
     };
@@ -294,6 +302,9 @@ DeathBatchMark EffectExecutor::beginDeathBatch(const std::vector<GameObjectId>& 
     // such unit, or none, there is nothing to decide.
     auto settle = [&](GameObjectId id) {
         if (!on_board(id)) return;                   // left through another one's replacement
+        // Already kept, by a kill this batch made of it (Mordekaiser chose a
+        // friend whose recall saved them). The mark is what killUnit reads.
+        if (state_.getObject(id).last_known.batch_replaced) return;
         auto& lk = state_.getObject(id).last_known;
         lk.batch_pending = false;
         lk.batch_replaced = false;
@@ -602,7 +613,16 @@ void EffectExecutor::killObject(GameObjectId target) {
         // battlefield, among its controller's cards — in the order its
         // controller chooses (CR 372). GameEngine::killUnit makes the same call.
         // (Already done for a unit of a death batch, before any of them died.)
-        if (!replacements_settled && applyDeathReplacements(target)) return;
+        if (!replacements_settled && applyDeathReplacements(target)) {
+            // A member of the open batch whose death this kill replaced
+            // (recalled: still on the board; banished: not). The batch's
+            // killUnit must not take that back.
+            if (state_.objectExists(target) &&
+                std::find(open_death_batch_.begin(), open_death_batch_.end(), target) !=
+                    open_death_batch_.end())
+                state_.getObject(target).last_known.batch_replaced = true;
+            return;
+        }
         // Its gear is shed (CR 719.5) after the death is announced, so abilities
         // that trigger on it see the unit as it died — including what it was
         // a copy of while an Equipment made it one.
@@ -1573,8 +1593,13 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
                 sources.push_back(bf.card_object_id);
     std::vector<GameObjectId> in_play;
     for (const auto& [id, other] : state.objects.inPlay()) {
-        if (other.controller != controller || id == unit_id) continue;
-        if (!other.location.has_value() && other.zone != ZoneType::LegendZone) continue;
+        if (other.controller != controller) continue;
+        // The dying unit too: it can replace its own death (Mordekaiser,
+        // Twice Slain). replacementApplies drops a card that does not
+        // (Soraka: "another unit").
+        if (id != unit_id && !other.location.has_value() &&
+            other.zone != ZoneType::LegendZone)
+            continue;
         in_play.push_back(id);
     }
     openspiel::sortObjectsAsSeen(state, in_play, controller);
@@ -1591,6 +1616,12 @@ deathReplacementCandidates(const GameState& state, const EffectExecutor& exec,
 
 bool EffectExecutor::couldReplaceDeath(GameObjectId unit) const {
     return !deathReplacementCandidates(state_, *this, unit).empty();
+}
+
+void EffectExecutor::armReflexiveIfCleanupKills(GameObjectId source, PlayerId controller,
+                                                int index, GameObjectId unit) {
+    state_.cleanup_kill_reflexives.push_back(
+        {source, controller, index, unit, state_.cleanup_generation + 1});
 }
 
 bool EffectExecutor::applyDeathReplacements(GameObjectId unit_id) {

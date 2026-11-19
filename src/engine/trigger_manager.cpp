@@ -1422,6 +1422,21 @@ void TriggerManager::onUnitDied(const UnitDiedEvent& e) {
     checkDelayedAbilities(TriggerType::WhenIDie, e.controller, e.object);
     checkDelayedAbilities(TriggerType::WhenIDie,
                            opponent(e.controller), e.object);
+
+    // A reflexive armed for this unit, only when this Cleanup is the one that
+    // was going to kill it. A later death is another death and does not grant it.
+    std::vector<GameState::CleanupKillReflexive> firing;
+    auto& pending = state_.cleanup_kill_reflexives;
+    for (auto it = pending.begin(); it != pending.end(); ) {
+        if (it->unit == e.object && it->due_generation == state_.cleanup_generation) {
+            firing.push_back(*it);
+            it = pending.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (const auto& r : firing)
+        queueReflexive(r.source, r.controller, r.index, {});
 }
 
 // "When I die" / [Deathknell] on the object that died. It triggers like any

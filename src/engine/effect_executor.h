@@ -770,6 +770,12 @@ public:
         queue_reflexive_(source, controller, index, std::move(data));
         return true;
     }
+    /// Queue `source`'s reflexive trigger only if the next Cleanup kills
+    /// `unit`. A death replacement may still keep it (CR 142.4.a: the kill is
+    /// that Cleanup). The item is created when the unit dies there, not while
+    /// the ability that armed it is resolving.
+    void armReflexiveIfCleanupKills(GameObjectId source, PlayerId controller,
+                                    int index, GameObjectId unit);
     void queueTriggeredAbility(GameObjectId source, PlayerId controller, TriggerType trigger,
                                GameObjectId subject = kInvalidId) {
         if (queue_trigger_) queue_trigger_(source, controller, trigger, subject);
@@ -936,6 +942,10 @@ private:
     AddProbeFn add_probe_;
     std::optional<OwedCost> owed_;
     std::vector<GameObjectId> hypothetical_unpaid_;
+    // The units of the death batch beginDeathBatch is applying. A kill of one
+    // of them whose replacement keeps them (recall, banish) marks that death
+    // replaced, so the batch's later kill does not undo it.
+    std::vector<GameObjectId> open_death_batch_;
     bool adding_for_payment_ = false;   // an [Add] paid for inside addForPayment
     bool optional_discount_declinable_ = true;
     std::function<bool(const GameState&)> payment_goal_;   // set inside addForPayment
