@@ -85,7 +85,6 @@ public:
         // no longer one that may be chosen, or a new object since (CR
         // 359.3.e.4) — is a mistarget and deals nothing (CR 359.3.e.5).
         const auto legal = anyUnit(ctx.state, ctx.controller);
-        std::vector<GameObjectId> hit;
         for (auto raw_id : ri.resume_data) {
             if (raw_id == kLost) continue;
             const auto id = GameObjectId::fromRaw(raw_id);
@@ -95,15 +94,8 @@ public:
                 continue;
             }
             ctx.executor.dealDamage(id, 2, ctx.source);
-            hit.push_back(id);
         }
-        {   // Units already lethally damaged die with these (CR 142.4.a, 383.2.c.2).
-            for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
-                if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
-                if (std::find(hit.begin(), hit.end(), id) == hit.end()) hit.push_back(id);
-            }
-            ctx.executor.killLethallyDamagedTogether(hit);
-        }
+        // Lethal damage kills in the cleanup after the spell (CR 142.4.a).
     }
 private:
     static constexpr size_t kInstances = 6;

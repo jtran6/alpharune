@@ -34,7 +34,6 @@ public:
         if (ctx.state.objectExists(ctx.source))
             x = ctx.state.getObject(ctx.source).card_counters["__chrono_x"];
         if (x < 0) x = 0;
-        if (x > 20) x = 20;
         // The Power is paid ahead of the spell's [2] Energy. A ready rune is
         // exhausted for that Energy before it is recycled, so paying X equal
         // to the number of ready runes still leaves the spell payable.
@@ -59,10 +58,24 @@ public:
         ensure(12);
         // Progress lives on the chain item. A later cast of this object starts
         // with an empty item, so a previous banish cannot be replayed.
+        // The banish picks occupy 220+2*i. The play-back order prompts,
+        // location prompts, done-flags and the saved units each follow that
+        // in their own span, so the 21st unit is not stored in the first
+        // order prompt (cells 120 and 121) and a longer list does not run
+        // into the location prompt or the done-flags.
+        auto playBack = [](int count) {
+            struct Span { int order, location, done, store; };
+            Span s;
+            s.order = 220 + 2 * count;
+            s.location = s.order + 2 * count;
+            s.done = s.location + 2 * count;
+            s.store = s.done + count;
+            return s;
+        };
         if (ri.resume_data[8] == 0) {
             int x = 0;
             if (ri.finalizing) {
-                const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 20, SpendFor::Spell);
+                const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 100000, SpendFor::Spell);
                 x = pickXAmount(ctx, "Chronobreak: pay any amount of Power", 0, cap);
                 if (x < 0) return;
                 if (ctx.state.objectExists(ctx.source))
@@ -93,24 +106,31 @@ public:
                 picked.push_back(*one);
             }
             if (finalizingChoices(ctx)) return;
-            ensure(80 + static_cast<std::size_t>(2 * static_cast<int>(picked.size()) + 2));
-            int n = 0;
+            struct Saved { int32_t id; int code; };
+            std::vector<Saved> saved;
             for (auto id : picked) {
                 if (!ctx.state.stillTheChosenObject(ri, id)) continue;
                 if (!ctx.state.objectExists(id)) continue;
                 const auto& unit = ctx.state.getObject(id);
                 if (!unit.location.has_value()) continue;
-                ri.resume_data[80 + 2 * n] = static_cast<int32_t>(id.raw());
-                ri.resume_data[81 + 2 * n] = encodeChronoLocation(*unit.location);
+                saved.push_back({static_cast<int32_t>(id.raw()),
+                                 encodeChronoLocation(*unit.location)});
                 ctx.executor.banishObject(id);
-                ++n;
+            }
+            const int n = static_cast<int>(saved.size());
+            const auto span = playBack(n);
+            ensure(static_cast<std::size_t>(span.store + 2 * n + 2));
+            for (int i = 0; i < n; ++i) {
+                ri.resume_data[span.store + 2 * i] = saved[i].id;
+                ri.resume_data[span.store + 2 * i + 1] = saved[i].code;
             }
             ri.resume_data[9] = n;
             ri.resume_data[8] = 1;
             ri.resume_data[11] = 0;
         }
         const int n = ri.resume_data[9];
-        ensure(200 + static_cast<std::size_t>(n) + 2);
+        const auto span = playBack(n);
+        ensure(static_cast<std::size_t>(span.store + 2 * n + 2));
         const std::vector<PlayerId> order{ctx.state.turn.turn_player,
                                           opponent(ctx.state.turn.turn_player)};
         while (ri.resume_data[11] < n) {
@@ -120,14 +140,14 @@ public:
             for (PlayerId owner : order) {
                 std::vector<int> idx;
                 for (int i = 0; i < n; ++i) {
-                    if (ri.resume_data[200 + i] != 0) continue;
-                    const GameObjectId id = GameObjectId::fromRaw(ri.resume_data[80 + 2 * i]);
+                    if (ri.resume_data[span.done + i] != 0) continue;
+                    const GameObjectId id = GameObjectId::fromRaw(ri.resume_data[span.store + 2 * i]);
                     if (!ctx.state.objectExists(id) || ctx.state.getObject(id).owner != owner) continue;
                     // A token banished this way has ceased to exist (CR 186.1)
                     // and is not played back. One that is already gone is the
                     // same.
                     if (ctx.state.getObject(id).isToken()) {
-                        ri.resume_data[200 + i] = 1;
+                        ri.resume_data[span.done + i] = 1;
                         continue;
                     }
                     idx.push_back(i);
@@ -140,18 +160,18 @@ public:
                 }
                 std::vector<GameObjectId> opts;
                 for (int i : idx)
-                    opts.push_back(GameObjectId::fromRaw(ri.resume_data[80 + 2 * i]));
+                    opts.push_back(GameObjectId::fromRaw(ri.resume_data[span.store + 2 * i]));
                 auto next = selectObjectAs(ctx, who, "Chronobreak: play this unit next",
-                                           opts, static_cast<std::size_t>(120 + 2 * step));
+                                           opts, static_cast<std::size_t>(span.order + 2 * step));
                 if (!next) return;
                 for (int i : idx)
-                    if (GameObjectId::fromRaw(ri.resume_data[80 + 2 * i]) == *next) chosen = i;
+                    if (GameObjectId::fromRaw(ri.resume_data[span.store + 2 * i]) == *next) chosen = i;
                 if (chosen < 0) chosen = idx.front();
                 break;
             }
             if (chosen < 0) break;
-            const GameObjectId id = GameObjectId::fromRaw(ri.resume_data[80 + 2 * chosen]);
-            const int code = ri.resume_data[81 + 2 * chosen];
+            const GameObjectId id = GameObjectId::fromRaw(ri.resume_data[span.store + 2 * chosen]);
+            const int code = ri.resume_data[span.store + 2 * chosen + 1];
             // "The same location" only when the owner can play a unit there.
             // Another player's base, a battlefield units can't be played to,
             // and "units only to base" are not that choice. A failed play is
@@ -162,7 +182,7 @@ public:
             places.push_back("Your base");
             auto where = pickValueAs(ctx, who, "Chronobreak: play it to the same location or your base",
                                      places, PromptKind::Location,
-                                     static_cast<std::size_t>(160 + 2 * step));
+                                     static_cast<std::size_t>(span.location + 2 * step));
             if (!where) return;
             const bool picked_same = same_ok && *where == 0;
             LocationId dest = picked_same
@@ -172,7 +192,7 @@ public:
             if (ctx.state.objectExists(id) && !ctx.state.getObject(id).isToken())
                 played = ctx.executor.playIgnoringCost(who, id, dest);
             (void)played;
-            ri.resume_data[200 + chosen] = 1;
+            ri.resume_data[span.done + chosen] = 1;
             ri.resume_data[11] = step + 1;
         }
     }

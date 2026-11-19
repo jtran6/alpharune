@@ -2756,8 +2756,8 @@ TEST_F(ReflexiveCardsTest, BoneSkewer) {
 }
 
 // Death from Below 747 — the rule book's example (CR 388.4): the trigger is on
-// the chain with the spell already in the trash, the may and the [A] settled
-// at its finalization; then the card is played from the trash.
+// the chain with the spell already in the trash and the may settled at its
+// finalization. The [A] is paid as the replay resolves (CR 356.1.a, 356.3).
 TEST_F(ReflexiveCardsTest, DeathFromBelow) {
     auto a = addUnit(P2, kInvalidId, 1, 0);
     auto b = addUnit(P2, kInvalidId, 1, 0);
@@ -2787,7 +2787,8 @@ TEST_F(ReflexiveCardsTest, DeathFromBelow) {
     });
     EXPECT_TRUE(in_trash_then) << "the spell had resolved and was in the trash";
     EXPECT_TRUE(b_alive_then);
-    EXPECT_EQ(power_then, 0) << "[A] paid as the trigger was finalized";
+    EXPECT_EQ(power_then, 1) << "the [A] is still unspent while a response is open";
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 0) << "paid as the replay resolved";
     EXPECT_FALSE(obj(a).location.has_value());
     EXPECT_FALSE(obj(b).location.has_value()) << "played again from the trash";
     const auto& trash = state.player(P1).trash;

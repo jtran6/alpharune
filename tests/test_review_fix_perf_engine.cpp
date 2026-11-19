@@ -2278,7 +2278,7 @@ TEST_F(PerfEngineDeathBatch, ALethalOnlyBatchLeavesTheUnitsThatDoNotDieAlone) {
 
 TEST_F(PerfEngineDeathBatch, EveryCardBatchSaysWhoDies) {
     // Source scan. A card that kills "what the damage killed" calls
-    // EffectExecutor::killLethallyDamagedTogether (21 sites) and has no loop
+    // EffectExecutor::killLethallyDamagedTogether (18 sites) and has no loop
     // or lethal test of its own; a DeathBatch in card code is followed by a
     // loop that kills every listed unit (10 sites in 9 files: Safety Inspector
     // and Acceptable Losses joined in batch 6, R3 / R4; Thermo Beam in batch
@@ -2305,7 +2305,10 @@ TEST_F(PerfEngineDeathBatch, EveryCardBatchSaysWhoDies) {
                     << " — a lethal test of its own after a DeathBatch";
         }
     }
-    EXPECT_EQ(helper, 22);   // + Falling Star (D20: both instructions, then the kills)
+    // Icathian Rain, Dragon's Rage, Stormbringer and Alpha Strike mark the
+    // damage and leave the kill to the cleanup (CR 142.4.a), as Final Spark
+    // and Super Mega Death Rocket do.
+    EXPECT_EQ(helper, 18);   // + Falling Star (D20: both instructions, then the kills)
     EXPECT_EQ(everyone, 10);
 }
 

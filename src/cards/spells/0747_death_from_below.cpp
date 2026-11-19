@@ -75,28 +75,20 @@ public:
                    ctx.state.getObject(ctx.source).zone == ZoneType::Trash;
         };
         // "[A]" replaces the printed cost. Spell-cost increases still apply
-        // (CR 356.1), and the payment is a spell's (SpendFor::Spell).
+        // (CR 356.1.a, 356.3). The "may" is the reflexive's choice (CR 388.4).
+        // The cost is paid as the replay resolves, so a response can raise it
+        // and a spell that leaves the trash is not paid for.
         const EffectPlayCost replay{.replace_energy = 0, .replace_power = 1};
         const int again = confirmOptional(ctx, "Death from Below: play it from your trash for [A]",
             [&]() {
                 return in_trash() &&
                        !enumerateLegalTargets(ctx.state, ctx.controller).empty() &&
-                       (costAlreadyPaid(ctx) ||
-                        ctx.executor.canPlayPayingCost(ctx.controller, ctx.source, replay));
+                       ctx.executor.canPlayPayingCost(ctx.controller, ctx.source, replay);
             });
         if (again == -1) return;
-        // The [A], and any spell-cost increase on top of it, is paid as the
-        // reflexive trigger is finalized (CR 388.4, 356.1). The card is played
-        // when the trigger resolves.
-        if (again == 1 && costDueNow(ctx)) {
-            const auto cost = ctx.executor.stagedNetCost(ctx.controller, ctx.source, replay);
-            if (!ctx.executor.payResources(ctx.controller, cost.first, cost.second,
-                                           resource::kAnyDomain, SpendFor::Spell))
-                return;
-        }
-        if (finalizingChoices(ctx)) return;   // the "may" and the cost end here (CR 388.4)
+        if (finalizingChoices(ctx)) return;   // the "may" only (CR 388.4)
         if (again < 1 || !in_trash()) return; // declined, or it left the trash in response
-        ctx.executor.playIgnoringCost(ctx.controller, ctx.source);
+        if (!ctx.executor.playPayingCost(ctx.controller, ctx.source, std::nullopt, replay)) return;
         RIFT_TRACE(ctx.events, "DEATH FROM BELOW: paid [A] -> played from the trash");
     }
 private:

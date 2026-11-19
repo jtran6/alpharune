@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 #include <numeric>
 #include <set>
 #include <sstream>
@@ -5620,8 +5621,11 @@ bool canTakeCombatDamage(const GameObject& t) {
 
 /// Minimum ASSIGNED amount that deals lethal damage to `t` (CR 467.2.c.4.a).
 /// `any_damage_lethal`: the assigning player's damage kills in any amount
-/// (CR 142.4.c — Elder Dragon).
+/// (CR 142.4.c — Elder Dragon). Preventing the next instance (Counter Strike,
+/// CR 467.2.c.5) deals nothing, so no assigned amount is lethal and the whole
+/// remainder stays on this unit (CR 467.2.c.3). The unit is not exempt.
 int combatDamageNeededForLethal(const GameObject& t, bool any_damage_lethal) {
+    if (t.prevent_next_damage_this_turn) return std::numeric_limits<int>::max();
     int lethal = any_damage_lethal ? 1 : std::max(1, t.current_might - t.damage_marked);
     if (t.damage_doubled_this_turn) lethal = (lethal + 1) / 2;
     return lethal + t.prevent_damage_remaining;
