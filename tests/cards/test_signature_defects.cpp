@@ -1055,6 +1055,90 @@ TEST_F(SignatureDefectTest, AlphaStrike_MordekaiserWithNoFriendGrantsXp) {
     EXPECT_EQ(state.player(P1).xp, 1);
 }
 
+// Mordekaiser is taken first. The friend's recall saves them inside his
+// kill. The batch must leave that friend saved, and the spell grants no XP
+// for a death the recall already replaced. He did not kill them, so he dies.
+TEST_F(SignatureDefectTest, AlphaStrike_ARecalledFriendIsNotKilledAfterward) {
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto mord = addUnit(P2, kMordekaiser, 1, 0);
+    auto ally = addUnit(P2, kInvalidId, 1, 1);
+    o(ally).death_replacement_recall_pending = true;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2([mord, ally](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == mord) return i;
+        for (const auto& i : legal)
+            if (i.choice_label.rfind("Yes", 0) == 0) return i;
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == ally) return i;
+        return legal.front();
+    });
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_TRUE(o(ally).location.has_value()) << "the recall already saved the friend";
+    EXPECT_EQ(o(ally).zone.get(), ZoneType::Base);
+    EXPECT_FALSE(o(mord).location.has_value()) << "a replaced kill is not the cost";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// The friend is taken first and the recall saves them. Mordekaiser's kill
+// then kills nobody, so he must not live.
+TEST_F(SignatureDefectTest, AlphaStrike_MordekaiserDoesNotLiveWhenTheFriendWasAlreadySaved) {
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto mord = addUnit(P2, kMordekaiser, 1, 0);
+    auto ally = addUnit(P2, kInvalidId, 1, 1);
+    o(ally).death_replacement_recall_pending = true;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2([ally](const std::vector<Intent>& legal) {
+        for (const auto& i : legal)
+            if (!i.chosen_objects.empty() && i.chosen_objects.front() == ally) return i;
+        for (const auto& i : legal)
+            if (i.choice_label.rfind("Yes", 0) == 0) return i;
+        return legal.front();
+    });
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_TRUE(o(ally).location.has_value()) << "the recall saved the friend";
+    EXPECT_FALSE(o(mord).location.has_value()) << "he lived without the kill";
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// A friend he actually kills, with nothing to replace it, is trashed once
+// and he is saved. That death is the spell's XP.
+TEST_F(SignatureDefectTest, AlphaStrike_AFriendMordekaiserKillsIsTrashedOnce) {
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto mord = addUnit(P2, kMordekaiser, 1, 0);
+    auto ally = addUnit(P2, kInvalidId, 1, 1);
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2(EnginePathAgent::accepting());
+    play(spell, &p1, &p2, true, {striker});
+    int times = 0;
+    for (auto id : state.player(P2).trash)
+        if (id == ally) ++times;
+    EXPECT_EQ(times, 1);
+    EXPECT_EQ(o(ally).zone.get(), ZoneType::Trash);
+    EXPECT_TRUE(o(mord).location.has_value());
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
+// Smite banishes the friend. The location guard leaves them there, and a
+// banish is not the kill, so Mordekaiser dies.
+TEST_F(SignatureDefectTest, AlphaStrike_ABanishedFriendStaysBanished) {
+    auto striker = addUnit(P1, kInvalidId, 2);
+    auto mord = addUnit(P2, kMordekaiser, 1, 0);
+    auto ally = addUnit(P2, kInvalidId, 1, 1);
+    o(ally).banish_if_would_die_this_turn = true;
+    auto spell = addToHand(P1, kAlpha);
+    EnginePathAgent p1(splitAndDecline());
+    EnginePathAgent p2(EnginePathAgent::accepting());
+    play(spell, &p1, &p2, true, {striker});
+    EXPECT_EQ(o(ally).zone.get(), ZoneType::Banishment);
+    EXPECT_FALSE(o(ally).location.has_value());
+    EXPECT_FALSE(o(mord).location.has_value());
+    EXPECT_EQ(state.player(P1).xp, 1);
+}
+
 TEST_F(SignatureDefectTest, AlphaStrike_ADeclinedMordekaiserGrantsXp) {
     auto striker = addUnit(P1, kInvalidId, 5);
     auto mord = addUnit(P2, kMordekaiser, 0, 0);

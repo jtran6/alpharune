@@ -31,8 +31,11 @@ public:
             return false;
         auto id = ctx.executor.chooseObjectNow(ctx.controller, friends, "Mordekaiser: kill");
         if (id == kInvalidId) return false;
+        // A recall, a banish instead, or a death this batch already replaced
+        // is not the kill. He stays to die.
+        if (!killAsCost(ctx, id, /*record_failure=*/false)) return false;
+        if (!ctx.state.objectExists(dying)) return false;
         ctx.state.getObject(dying).card_counters["__mord_replaced"] = 1;
-        ctx.executor.killObject(id);
         ctx.executor.healExhaustRecall(dying);
         return true;
     }

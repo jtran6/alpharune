@@ -942,6 +942,10 @@ private:
     AddProbeFn add_probe_;
     std::optional<OwedCost> owed_;
     std::vector<GameObjectId> hypothetical_unpaid_;
+    // The units of the death batch beginDeathBatch is applying. A kill of one
+    // of them whose replacement keeps them (recall, banish) marks that death
+    // replaced, so the batch's later kill does not undo it.
+    std::vector<GameObjectId> open_death_batch_;
     bool adding_for_payment_ = false;   // an [Add] paid for inside addForPayment
     bool optional_discount_declinable_ = true;
     std::function<bool(const GameState&)> payment_goal_;   // set inside addForPayment
