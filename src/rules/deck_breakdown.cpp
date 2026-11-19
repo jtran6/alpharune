@@ -6,11 +6,13 @@
 /// so it is classified and not drawn. Battlefields, runes, and the sideboard
 /// stay out of both the roles and the chances.
 ///
-/// With no draw, Predict, recycle, or tutor on the main deck or the champion,
-/// each chance is the plain hypergeometric draw: pile size, copies, cards
-/// seen. Those four effects change it. Each copy among the cards already seen
-/// shows its printed extra cards once; an effect found only in those extra
-/// cards is not followed. That is a count, not a played game.
+/// With no draw, Predict, recycle from the deck, or tutor on the main deck or
+/// the champion, each chance is the plain hypergeometric draw: pile size,
+/// copies, cards seen. Those effects change it. Each copy among the cards
+/// already seen shows its printed extra cards once; an effect found only in
+/// those extra cards is not followed. A champion's extra cards are counted
+/// from the first turn, not in the opening hand. A recycle from a trash is
+/// not cards seen in the main deck. That is a count, not a played game.
 
 #include "rules/deck_breakdown.h"
 
@@ -160,8 +162,14 @@ Selection readSelection(const CardDef& card) {
     for (size_t i = 0; i + 4 <= text.size(); ++i) {
         if (text.compare(i, 4, "draw") != 0) continue;
         if (i > 0 && !boundary(text[i - 1])) continue;
-        if (i + 4 < text.size() && !boundary(text[i + 4])) continue;
-        const size_t after = i + 4;
+        // [Quick-Draw] is a keyword. The hyphen is a boundary, so the four
+        // letters are not the verb that takes a card.
+        if (i >= 6 && text.compare(i - 6, 6, "quick-") == 0) continue;
+        // "draws" is the same verb. "drawer" is not.
+        size_t end = i + 4;
+        if (end < text.size() && text[end] == 's') ++end;
+        if (end < text.size() && !boundary(text[end])) continue;
+        const size_t after = end;
         size_t digits = skipSpace(text, after);
         if (digits + 5 <= text.size() && text.compare(digits, 5, "up to") == 0 &&
             (digits + 5 == text.size() || boundary(text[digits + 5])))
@@ -206,12 +214,16 @@ Selection readSelection(const CardDef& card) {
     if (look > 0) s.is_tutor = true;
 
     int recycle_n = 0;
+    bool recycle_from_trash = false;
     if (hasStem(text, "recycle")) {
         s.is_recycle = true;
         const bool already_seen = containsPhrase(text, "recycle the rest") ||
                                   containsPhrase(text, "recycle them") ||
                                   containsPhrase(text, "then recycle");
-        if (!already_seen) {
+        // "Recycle N from trashes" puts cards back. Those cards are not in
+        // the main deck, so they are not an extra look at the pile.
+        recycle_from_trash = containsPhrase(text, "trash");
+        if (!already_seen && !recycle_from_trash) {
             recycle_n = numberAfter(text, "recycle");
             if (recycle_n == 0) recycle_n = 1;
         }
@@ -230,8 +242,10 @@ Selection readSelection(const CardDef& card) {
     // "Draw it" takes one of the cards the look already counted.
     if (look == 0 && predict == 0) dig += from_look;
     if (look == 0 && predict == 0) dig += recycle_n;
-    // A recycle that was not already part of a counted look still changes the pile.
-    if (s.is_recycle && dig == 0 && !s.finds_any) dig += recycle_n > 0 ? recycle_n : 1;
+    // A recycle from the deck that was not already part of a counted look
+    // still changes the pile. A trash is a different zone.
+    if (s.is_recycle && dig == 0 && !s.finds_any && !recycle_from_trash)
+        dig += recycle_n > 0 ? recycle_n : 1;
 
     s.dig = capDig(dig);
     s.is_draw = blind_draw + from_look > 0;
@@ -286,9 +300,16 @@ bool dealsDamage(const std::string& text) {
     return false;
 }
 
+/// [Shield 2] / [Assault] / [Disarm] stay after the parenthetical "+N [M]"
+/// reminder is stripped. That reminder is not the only place the keyword lives.
+bool printedFightMight(const std::string& text) {
+    return containsPhrase(text, "[shield") || containsPhrase(text, "[assault") ||
+           containsPhrase(text, "[disarm");
+}
+
 bool changesMight(const CardDef& card, const std::string& text) {
     if (card.keywords.has(Keyword::Assault) || card.keywords.has(Keyword::Shield) ||
-        card.keywords.has(Keyword::Disarm))
+        card.keywords.has(Keyword::Disarm) || printedFightMight(text))
         return true;
     if (card.might_bonus != 0) return true;
     if (hasWord(text, "buff")) return true;
@@ -327,7 +348,7 @@ bool readiesUnit(const std::string& text) {
 bool duringFight(const CardDef& card, const std::string& text) {
     if (card.keywords.has(Keyword::Action) || card.keywords.has(Keyword::Reaction) ||
         card.keywords.has(Keyword::Assault) || card.keywords.has(Keyword::Shield) ||
-        card.keywords.has(Keyword::Disarm))
+        card.keywords.has(Keyword::Disarm) || printedFightMight(text))
         return true;
     return hasStem(text, "attack") || hasStem(text, "defend") || hasStem(text, "combat") ||
            hasStem(text, "showdown") || hasStem(text, "conquer");
@@ -342,6 +363,10 @@ bool isCombatTrick(const CardDef& card, const std::string& text) {
 }
 
 bool isRamp(const std::string& text) {
+    // [Add] is the printed energy or power symbol. The words "add resources"
+    // live in the reminder, which is already stripped, so the brackets are
+    // what the card still says.
+    if (containsPhrase(text, "[add]")) return true;
     const bool cost = hasWord(text, "cost") || hasWord(text, "costs");
     if (cost && hasWord(text, "less")) return true;
     if (cost && containsPhrase(text, "reduc")) return true;
@@ -683,7 +708,8 @@ DeckReport analyzeDeck(const DeckSubmission& deck, const CardDB& db) {
         }
         counted << ". ";
         if (champion_dig > 0 || champion_finds)
-            counted << "The champion's effect is counted at every stage. ";
+            counted << "The champion's effect is counted from the first turn, not in the "
+                       "opening hand. ";
         counted << "Battlefields, runes, and the sideboard are not counted. ";
     }
     counted << "This does not play a game.";
@@ -693,10 +719,14 @@ DeckReport analyzeDeck(const DeckSubmission& deck, const CardDB& db) {
     for (const CardRow& row : rows)
         if (row.main > 0) pile_ids.push_back(row.def->id);
 
-    auto stage_at = [&](const std::string& name, int natural) {
+    auto stage_at = [&](const std::string& name, int natural, bool count_champion) {
         DeckStage stage;
         stage.name = name;
         stage.natural = std::min(natural, report.draw_pile);
+        // The opening hand is dealt before the champion is played, so its
+        // printed dig is not cards already seen in that hand.
+        const int dig = count_champion ? champion_dig : 0;
+        const bool finds = count_champion && champion_finds;
         for (const DeckRole& role : report.roles) {
             std::vector<CardDefId> hits;
             for (const DeckCardLine& line : role.cards) {
@@ -705,14 +735,14 @@ DeckReport analyzeDeck(const DeckSubmission& deck, const CardDB& db) {
             }
             const auto groups = digGroups(rows, hits);
             const double p = chanceAtLeast(report.draw_pile, role.draw_copies, stage.natural, groups,
-                                            champion_dig, champion_finds);
+                                            dig, finds);
             stage.roles.emplace_back(role.title, p);
         }
         for (CardDefId id : pile_ids) {
             const CardRow& row = by_id[id];
             const auto groups = digGroups(rows, {id});
             const double p = chanceAtLeast(report.draw_pile, row.main, stage.natural, groups,
-                                            champion_dig, champion_finds);
+                                            dig, finds);
             stage.cards.emplace_back(displayName(*row.def, rows), p);
         }
         std::sort(stage.cards.begin(), stage.cards.end(),
@@ -721,9 +751,9 @@ DeckReport analyzeDeck(const DeckSubmission& deck, const CardDB& db) {
     };
 
     if (report.draw_pile > 0) {
-        stage_at("Opening hand", kOpeningHand);
+        stage_at("Opening hand", kOpeningHand, false);
         for (int turn = 1; turn <= kFirstTurns; ++turn)
-            stage_at("Turn " + std::to_string(turn), kOpeningHand + turn);
+            stage_at("Turn " + std::to_string(turn), kOpeningHand + turn, true);
     }
     return report;
 }

@@ -226,20 +226,16 @@ TEST_F(DeckBreakdownTest, DrawChanceMovesWhenTheListContainsADrawSpell) {
 TEST_F(DeckBreakdownTest, PredictRecycleAndTutorMoveTheChance) {
     const double plain = chanceOf(loadReport(listWith(baseMain())), "Opening hand", "First Mate");
     const DeckReport predict = loadReport(listWith(swapOneSteadfast("Eclipse")));
-    const DeckReport recycle = loadReport(listWith(swapOneSteadfast("Forge of the Future")));
     const DeckReport tutor = loadReport(listWith(swapOneSteadfast("Command: Attack")));
     EXPECT_FALSE(predict.plain_draw);
-    EXPECT_FALSE(recycle.plain_draw);
     EXPECT_FALSE(tutor.plain_draw);
     EXPECT_GT(chanceOf(predict, "Opening hand", "First Mate"), plain);
-    EXPECT_GT(chanceOf(recycle, "Opening hand", "First Mate"), plain);
     const DeckReport dig = loadReport(listWith(swapOneSteadfast("Dazzling Aurora")));
     EXPECT_GT(chanceOf(tutor, "Opening hand", "First Mate"), plain);
     EXPECT_FALSE(dig.plain_draw);
     EXPECT_GT(chanceOf(dig, "Opening hand", "First Mate"), plain);
     EXPECT_NE(dig.counted.find("looks through the top"), std::string::npos);
     EXPECT_NE(predict.counted.find("Predict"), std::string::npos);
-    EXPECT_NE(recycle.counted.find("recycles"), std::string::npos);
     EXPECT_NE(tutor.counted.find("looks at 5"), std::string::npos);
     // Eclipse is a fight-timed Might spell, and it is not a 2-drop (it costs 3).
     EXPECT_EQ(copiesIn(predict, "Combat tricks", "Eclipse"), 1);
@@ -269,6 +265,88 @@ TEST_F(DeckBreakdownTest, ReportNamesCopiesAndDoesNotPlayAGame) {
     EXPECT_EQ(text.find(" fail"), std::string::npos);
     EXPECT_EQ(text.find("Pass"), std::string::npos);
     EXPECT_EQ(text.find("Fail"), std::string::npos);
+}
+
+TEST_F(DeckBreakdownTest, AddSymbolIsRampOnATwoDrop) {
+    const DeckReport report = loadReport(listWith({
+        {"Dragonsoul Sage", 2},
+        {"Honeyfruit", 2},
+        {"Sneaky Zeebles", 2},
+        {"Steadfast Outrider", 4},
+    }));
+    for (const char* name : {"Dragonsoul Sage", "Honeyfruit", "Sneaky Zeebles"}) {
+        EXPECT_EQ(copiesIn(report, "2-drops", name), 2) << name;
+        EXPECT_EQ(copiesIn(report, "Ramp", name), 2) << name;
+    }
+    const DeckRole* ramp = roleNamed(report, "Ramp");
+    ASSERT_NE(ramp, nullptr);
+    EXPECT_EQ(ramp->copies, 6);
+}
+
+TEST_F(DeckBreakdownTest, DrawsVerbMovesTheChance) {
+    const double plain = chanceOf(loadReport(listWith(baseMain())), "Opening hand", "First Mate");
+    for (const char* name : {"Invert Timelines", "Minah Swiftfoot", "Hidden Blade", "Detonate"}) {
+        const DeckReport drawing = loadReport(listWith(swapOneSteadfast(name)));
+        EXPECT_FALSE(drawing.plain_draw) << name;
+        EXPECT_EQ(copiesIn(drawing, "Card draw", name), 1) << name;
+        EXPECT_GT(chanceOf(drawing, "Opening hand", "First Mate"), plain) << name;
+        EXPECT_NE(drawing.counted.find("draws"), std::string::npos) << name;
+    }
+    // "Draw 2" is the same verb without the s.
+    const DeckReport concentrate = loadReport(listWith(swapOneSteadfast("Concentrate")));
+    EXPECT_NEAR(chanceOf(concentrate, "Opening hand", "First Mate"), 191.0 / 210.0, 1e-9);
+    EXPECT_NE(concentrate.counted.find("draws 2"), std::string::npos);
+}
+
+TEST_F(DeckBreakdownTest, QuickDrawIsNotADraw) {
+    const DeckReport plain = loadReport(listWith(baseMain()));
+    const double opening = chanceOf(plain, "Opening hand", "First Mate");
+    const double turn1 = chanceOf(plain, "Turn 1", "First Mate");
+    for (const char* name : {"Long Sword", "Spinning Axe", "Cloth Armor"}) {
+        const DeckReport gear = loadReport(listWith(swapOneSteadfast(name)));
+        EXPECT_TRUE(gear.plain_draw) << name;
+        EXPECT_EQ(copiesIn(gear, "Card draw", name), 0) << name;
+        EXPECT_DOUBLE_EQ(chanceOf(gear, "Opening hand", "First Mate"), opening) << name;
+        EXPECT_DOUBLE_EQ(chanceOf(gear, "Turn 1", "First Mate"), turn1) << name;
+    }
+
+    const DeckReport unmatched = loadReport(listWith(baseMain(), "Jax, Unmatched"));
+    EXPECT_TRUE(unmatched.plain_draw);
+    EXPECT_EQ(copiesIn(unmatched, "Card draw", "Jax, Unmatched"), 0);
+    EXPECT_DOUBLE_EQ(chanceOf(unmatched, "Opening hand", "First Mate"), opening);
+    EXPECT_DOUBLE_EQ(chanceOf(unmatched, "Turn 1", "First Mate"), turn1);
+
+    // "pay [1] to draw 1" is a real dig. The champion is not in the opening hand.
+    const DeckReport jax = loadReport(listWith(baseMain(), "Jax, Unrelenting"));
+    EXPECT_FALSE(jax.plain_draw);
+    EXPECT_EQ(copiesIn(jax, "Card draw", "Jax, Unrelenting"), 1);
+    EXPECT_DOUBLE_EQ(chanceOf(jax, "Opening hand", "First Mate"), opening);
+    EXPECT_GT(chanceOf(jax, "Turn 1", "First Mate"), turn1);
+    EXPECT_NEAR(chanceOf(jax, "Turn 1", "First Mate"), 29.0 / 30.0, 1e-9);
+    EXPECT_NE(jax.counted.find("not in the opening hand"), std::string::npos);
+    EXPECT_NE(jax.counted.find("draws 1"), std::string::npos);
+}
+
+TEST_F(DeckBreakdownTest, TrashRecycleIsNotCardsSeenFromTheDeck) {
+    const DeckReport plain = loadReport(listWith(baseMain()));
+    const DeckReport forge = loadReport(listWith(swapOneSteadfast("Forge of the Future")));
+    const double opening = chanceOf(plain, "Opening hand", "First Mate");
+    EXPECT_EQ(copiesIn(forge, "Recycle", "Forge of the Future"), 1);
+    EXPECT_EQ(copiesIn(forge, "2-drops", "Forge of the Future"), 1);
+    EXPECT_TRUE(forge.plain_draw);
+    EXPECT_DOUBLE_EQ(chanceOf(forge, "Opening hand", "First Mate"), opening);
+    // A 4-card look at the remaining deck would be 195/210. The trash is not that look.
+    EXPECT_LT(chanceOf(forge, "Opening hand", "First Mate"), 195.0 / 210.0 - 1e-6);
+}
+
+TEST_F(DeckBreakdownTest, ShieldOutsideTheReminderIsACombatTrick) {
+    const DeckReport report = loadReport(listWith(swapOneSteadfast("Cloth Armor")));
+    // [Shield 2] stays after "(+2 [M] while I'm a defender.)" is stripped.
+    EXPECT_EQ(copiesIn(report, "Combat tricks", "Cloth Armor"), 1);
+    EXPECT_EQ(copiesIn(report, "Might", "Cloth Armor"), 1);
+    EXPECT_EQ(copiesIn(report, "2-drops", "Cloth Armor"), 0);
+    EXPECT_EQ(copiesIn(report, "Card draw", "Cloth Armor"), 0);
+    EXPECT_TRUE(report.plain_draw);
 }
 
 }  // namespace riftbound::test::deck_breakdown
