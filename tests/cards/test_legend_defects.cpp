@@ -8,9 +8,11 @@
 // The Exile: a unit token played to a battlefield that player controls enters
 // ready. The line does not reduce energy.
 // Pride of Nazumah: Assault equals Shield this turn, including 0, and follows
-// a later Shield change. Shield from an aura or an Equipment counts. The
-// grant ends when the unit leaves the board, a second activation does not
-// add another Assault, and a control change does not freeze the old number.
+// a later Shield change. Shield from an aura or an Equipment counts, and so
+// does Shield a Might-dependent hook adds in the same cleanup, including the
+// extra copy Svellsongur applies after that list. The grant ends when the
+// unit leaves the board, a second activation does not add another Assault,
+// and a control change does not freeze the old number.
 // Iron Revenant: the ability is not offered, and the legend is not exhausted,
 // when the trash has no unit or gear.
 // Agony's Embrace: the ability is queued only for a facedown play, and only
@@ -132,6 +134,29 @@ protected:
         obj.zone = ZoneType::Base;
         obj.location = BaseLocation{owner};
         return id;
+    }
+
+    // Shield as the aura fold counts it: the unit's own value, plus each aura
+    // instance (a bare [Shield] is 1).
+    int shieldNow(GameObjectId unit) {
+        const auto& u = state.getObject(unit);
+        int n = std::max(0, u.shield_value);
+        for (const auto& ae : u.aura_effects)
+            if (ae.keyword == Keyword::Shield) n += std::max(1, ae.keyword_value);
+        return n;
+    }
+
+    // Fiora, Victorious at 5 [M] (her 4, plus a buff), attacking.
+    // `legend_after_her` creates the legend second. The object table visits a
+    // later id first, so that is the order where Pride's hook runs before hers.
+    GameObjectId mightyFiora(bool legend_after_her) {
+        if (!legend_after_her) legend(P1, 1067);
+        auto fiora = addUnit(P1, 232, 4, 0);
+        if (legend_after_her) legend(P1, 1067);
+        state.battlefields[0].controller = P1;
+        state.getObject(fiora).buff_count = 1;
+        combatInProgress(0, P1);
+        return fiora;
     }
 
     void activatePride(GameObjectId unit) {
@@ -459,6 +484,50 @@ TEST_F(LegendDefects, PrideAssaultFollowsShieldAfterControlChanges) {
     withEngine([&](GameEngine& e) { e.testHook_expirationStep(); });
     EXPECT_EQ(state.getObject(unit).assault_value, 0);
     EXPECT_FALSE(state.getObject(unit).hasKeyword(Keyword::Assault));
+}
+
+// Fiora, Victorious has [Shield] while she is Mighty, and that grant is a
+// Might-dependent aura. The legend is the later object, so Pride's hook runs
+// before hers. She still ends the cleanup with [Assault] equal to that [Shield].
+TEST_F(LegendDefects, PrideAssaultEqualsFiorasShieldWhileMighty) {
+    auto fiora = mightyFiora(/*legend_after_her=*/true);
+    ASSERT_LT(fiora.raw(), state.player(P1).legend_zone.raw());
+    activatePride(fiora);
+    EXPECT_TRUE(state.getObject(fiora).hasKeyword(Keyword::Shield));
+    EXPECT_EQ(shieldNow(fiora), 1);
+    EXPECT_EQ(state.getObject(fiora).assault_value, 1);
+    EXPECT_TRUE(state.getObject(fiora).hasKeyword(Keyword::Assault));
+    EXPECT_EQ(state.getObject(fiora).current_might, 6);
+}
+
+// The other table order, where her hook runs first, ends the same way.
+TEST_F(LegendDefects, PrideAssaultEqualsFiorasShieldWhenHerHookRunsFirst) {
+    auto fiora = mightyFiora(/*legend_after_her=*/false);
+    ASSERT_LT(state.player(P1).legend_zone.raw(), fiora.raw());
+    activatePride(fiora);
+    EXPECT_TRUE(state.getObject(fiora).hasKeyword(Keyword::Shield));
+    EXPECT_EQ(shieldNow(fiora), 1);
+    EXPECT_EQ(state.getObject(fiora).assault_value, 1);
+    EXPECT_EQ(state.getObject(fiora).current_might, 6);
+}
+
+// Svellsongur's extra copy of her Might-dependent ability is applied after
+// the whole list. That [Shield] counts too: Assault is not short by one.
+// Her hook runs first, so the miss is that extra copy and not her own.
+TEST_F(LegendDefects, PrideAssaultIncludesSvellsongursCopiedShield) {
+    auto fiora = mightyFiora(/*legend_after_her=*/false);
+    ASSERT_LT(state.player(P1).legend_zone.raw(), fiora.raw());
+    auto sword = gearOnBoard(P1, 382);
+    withEngine([&](GameEngine& e) {
+        ASSERT_TRUE(e.testHook_executor().attachGear(sword, fiora));
+        e.testHook_cleanup();
+    });
+    activatePride(fiora);
+    EXPECT_TRUE(state.getObject(fiora).hasKeyword(Keyword::Shield));
+    EXPECT_EQ(shieldNow(fiora), 2);
+    EXPECT_EQ(state.getObject(fiora).assault_value, 2);
+    EXPECT_TRUE(state.getObject(fiora).hasKeyword(Keyword::Assault));
+    EXPECT_EQ(state.getObject(fiora).current_might, 7);
 }
 
 TEST_F(LegendDefects, IronRevenantIsNotOfferedWithNothingToBanish) {

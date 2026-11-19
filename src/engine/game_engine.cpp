@@ -8864,8 +8864,11 @@ void GameEngine::recalculateAuras() {
     } give_back{aura_applied, aura_applied_buffer_};
     bool piles_reached = false;   // a hook below gives cards in the piles an effect
     // Cards whose continuous effect is conditional on Might: they get a second
-    // hook after the fold below (Card::applyMightDependentAura).
+    // hook after the fold below (Card::applyMightDependentAura). A card that
+    // reads what those hooks granted is asked after that list and its text
+    // copies (Card::applyAfterMightDependentAuras).
     std::vector<std::pair<const Card*, PlayerId>> might_dependent;
+    std::vector<std::pair<const Card*, PlayerId>> after_might;
     // untargetable_by_enemy was reset for every object in Step 1, before any
     // hook: a hook below may set the flag on ANOTHER object ("Your units here
     // ... can't be chosen by enemy spells and abilities"), which a reset
@@ -8905,6 +8908,8 @@ void GameEngine::recalculateAuras() {
             }
             card->applyPassiveAura(state_, obj.controller);
             if (card->hasMightDependentAura()) might_dependent.emplace_back(card, obj.controller);
+            if (card->appliesAfterMightDependentAuras())
+                after_might.emplace_back(card, obj.controller);
         }
     }
 
@@ -9077,8 +9082,10 @@ void GameEngine::recalculateAuras() {
     // produced from every ordinary aura — not on what the previous pass left
     // in current_might, so the answer does not depend on the order the hooks
     // ran in, and such an effect never counts toward its own condition. What
-    // they add is folded in afterwards.
-    if (!might_dependent.empty()) {
+    // they add is folded in afterwards. A hook that reads those grants runs
+    // after the list and after a text copy of it, so it sees every one of
+    // them whichever hook ran first.
+    if (!might_dependent.empty() || !after_might.empty()) {
         for (const auto& [card, controller] : might_dependent)
             card->applyMightDependentAura(state_, controller);
         for (auto id : text_copied) {
@@ -9088,12 +9095,15 @@ void GameEngine::recalculateAuras() {
             const PlayerId controller = state_.getObject(id).controller;
             asTextCopy(id, *card, [&]() { card->applyMightDependentAura(state_, controller); });
         }
+        for (const auto& [card, controller] : after_might)
+            card->applyAfterMightDependentAuras(state_, controller);
         foldAuras();
     }
 
     // Step 6: "... have [Keyword] if they didn't already" (AuraEffect::
-    // only_if_absent). Decided here, after EVERY hook of the pass — ordinary
-    // and Might-dependent — has added what it adds, so the answer does not
+    // only_if_absent). Decided here, after EVERY hook of the pass — ordinary,
+    // Might-dependent, and a hook that reads those grants — has added what it
+    // adds, so the answer does not
     // depend on the order the hooks ran in: such an effect is dropped from an
     // object that has the keyword printed or "this turn" (GameObject::keywords;
     // a [Deflect N] value given this turn), or from any other continuous

@@ -68,11 +68,14 @@ public:
         u.card_counters["__pride_life"] = static_cast<int>(u.zone.incarnation());
         syncAssault(u);
     }
-    // After every ordinary aura, so Shield from an aura or from Equipment is
-    // already on the unit. A later change this turn moves the Assault. The
-    // ability is the unit's: a control change does not freeze the old number.
-    bool hasMightDependentAura() const override { return true; }
-    void applyMightDependentAura(GameState& state, PlayerId) const override {
+    // After every Might-dependent hook of this pass, including a text copy
+    // applied once that list is done, so [Shield] one of those grants is
+    // already on the unit whichever hook ran first. Ordinary auras and
+    // Equipment were applied before that list. A later change this turn moves
+    // the Assault. The ability is the unit's: a control change does not
+    // freeze the old number.
+    bool appliesAfterMightDependentAuras() const override { return true; }
+    void applyAfterMightDependentAuras(GameState& state, PlayerId) const override {
         std::vector<GameObjectId> units;
         for (auto& [id, u] : state.objects.onBoard()) {
             if (!u.isUnit() || !u.location.has_value()) continue;
