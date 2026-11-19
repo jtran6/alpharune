@@ -50,6 +50,7 @@
 #include "io/play_server.h"
 #include "io/replay_writer.h"
 #include "io/state_renderer.h"
+#include "rules/deck_breakdown.h"
 #include "rules/deck_validator.h"
 
 #include <boost/asio/ip/address.hpp>
@@ -377,6 +378,8 @@ int main(int argc, char* argv[]) {
         "                    other decision at random.\n"
         "\n"
         "Common invocations:\n"
+        "  ./riftbound --deck-breakdown D.txt\n"
+        "      (print that deck's roles and draw chances, then exit)\n"
         "  ./riftbound --deck1 D1.txt --deck2 D2.txt\n"
         "      (default: random vs random, one game, stdout only)\n"
         "  ./riftbound --deck1 ... --deck2 ... --agent1 human\n"
@@ -392,6 +395,11 @@ int main(int argc, char* argv[]) {
         ("version,v", "Print engine version + git commit")
         ("deck1", po::value<std::string>()->required(), "Player 1 deck list (.txt)")
         ("deck2", po::value<std::string>()->required(), "Player 2 deck list (.txt)")
+        ("deck-breakdown", po::value<std::string>(),
+         "Read one deck list and print its roles and draw chances, then exit. "
+         "A deck path is enough: no second deck and no game. The main deck and "
+         "the champion are analyzed. Battlefields and runes are listed on their "
+         "own. The sideboard is recorded and left out of the draw chance.")
         ("registry,r", po::value<std::string>()->default_value("cards/registry.json"),
          "Deprecated/ignored — card data and ban status are compiled into the engine")
         ("dump-registry", po::value<std::string>(),
@@ -468,6 +476,20 @@ int main(int argc, char* argv[]) {
             auto out_path = vm["dump-registry"].as<std::string>();
             dumpRegistry(db, out_path);
             std::cout << "Dumped " << db.size() << " cards to " << out_path << "\n";
+            return 0;
+        }
+        if (vm.count("deck-breakdown")) {
+            // Before notify: --deck1 and --deck2 stay required for a game, and
+            // are not required to read one list.
+            try {
+                const CardDB& db = openspiel::sharedCards().db;
+                const auto path = vm["deck-breakdown"].as<std::string>();
+                const DeckSubmission deck = DeckValidator::loadFromDeckList(path, db);
+                std::cout << formatDeckReport(analyzeDeck(deck, db));
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to read deck: " << e.what() << "\n";
+                return 1;
+            }
             return 0;
         }
         po::notify(vm);

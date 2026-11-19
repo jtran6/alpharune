@@ -458,6 +458,7 @@ add_library(riftbound_core
     src/core/events.cpp
     src/core/keyed_slots.cpp
     src/rules/deck_validator.cpp
+    src/rules/deck_breakdown.cpp
     src/rules/random_deck.cpp
     src/rules/deck_model.cpp
     src/engine/game_engine.cpp
