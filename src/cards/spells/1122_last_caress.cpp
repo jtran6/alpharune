@@ -17,16 +17,31 @@ public:
     const CardDef& def() const override { return def_; }
 
     void onResolve(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        ctx.state.player(ctx.controller).next_unit_any_battlefield = 1;
-        if (ctx.state.objectExists(ctx.source)) ctx.state.getObject(ctx.source).card_counters["__caress"] = 1;
+        auto& ps = ctx.state.player(ctx.controller);
+        ps.next_unit_any_battlefield = 1;
+        ps.next_unit_buff = 1;
+    }
+    // The spell is in the trash when the unit is played. "When you play it"
+    // still triggers from there.
+    bool triggersWhileInTrash(TriggerType t) const override {
+        return t == TriggerType::WhenYouPlayAUnit;
     }
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayAUnit; }
+    bool triggerCondition(const GameState& state, GameObjectId source, PlayerId controller,
+                          TriggerType trigger, GameObjectId) const override {
+        if (trigger != TriggerType::WhenYouPlayAUnit) return false;
+        if (!state.objectExists(source) || state.getObject(source).zone != ZoneType::Trash)
+            return false;
+        return state.player(controller).next_unit_buff > 0;
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        if (!ctx.state.objectExists(ctx.source) || ctx.state.getObject(ctx.source).card_counters["__caress"] != 1) return;
-        ctx.state.getObject(ctx.source).card_counters["__caress"] = 0;
+        // The grant was spent when this unit was played (announceUnitPlayed),
+        // so the ability buffs that unit even though the flag is already 0. A
+        // later unit is not queued, and a counter does not hand the buff on.
         if (!ctx.state.chain.resuming) return;
-        auto sub = ctx.state.chain.resuming->triggering_subject;
-        if (sub != kInvalidId) ctx.executor.buffUnit(sub);
+        const auto sub = ctx.state.chain.resuming->triggering_subject;
+        if (sub == kInvalidId) return;
+        ctx.executor.buffUnit(sub);
     }
 
 private:

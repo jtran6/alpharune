@@ -1561,7 +1561,24 @@ bool playTokensChoosingLocations(CardContext& ctx, const std::string& label, int
                                  std::optional<BattlefieldId> only_bf = std::nullopt,
                                  std::source_location asked_at = std::source_location::current()) {
     made.clear();
-    const auto where = playLocations(ctx.state, ctx.controller, only_bf);
+    auto where = playLocations(ctx.state, ctx.controller, only_bf);
+    // The same destinations tokenPlayDests offers. A facedown spell stays on
+    // its battlefield (only_bf / hiddenBinding); the grant does not lift that.
+    if (!only_bf.has_value() && !hiddenBinding(ctx.state, ctx.source).bound &&
+        ctx.state.player(ctx.controller).next_unit_any_battlefield > 0) {
+        for (const auto& bf : ctx.state.battlefields) {
+            if (where.locations.size() >= 32) break;
+            if (!battlefieldTakesUnitsFrom(ctx.state, ctx.controller, bf)) continue;
+            const LocationId loc{BattlefieldLocation{bf.id}};
+            if (std::find(where.locations.begin(), where.locations.end(), loc) !=
+                where.locations.end())
+                continue;
+            where.locations.push_back(loc);
+            where.labels.push_back(ctx.state.objectExists(bf.card_object_id)
+                ? ctx.state.getObject(bf.card_object_id).name.get()
+                : "Battlefield #" + std::to_string(static_cast<int>(bf.id.raw())));
+        }
+    }
     if (count <= 0 || where.count() == 0) return true;
     auto& ri_opt = ctx.state.chain.resuming;
     if (!ri_opt.has_value()) {
@@ -1650,10 +1667,15 @@ inline bool moveTo(CardContext& ctx, GameObjectId u, int dest) {
 /// is left out (battlefieldTakesUnitsFrom).
 inline std::vector<int> tokenPlayDests(const GameState& state, PlayerId player) {
     std::vector<int> out{0};
-    for (const auto& bf : state.battlefields)
-        if (bf.controller.has_value() && *bf.controller == player &&
-            battlefieldTakesUnitsFrom(state, player, bf))
-            out.push_back(1 + static_cast<int>(bf.id.raw()));
+    // Last Caress: the next unit, a token included, may be played to any
+    // battlefield that does not block unit plays.
+    const bool any_bf = state.player(player).next_unit_any_battlefield > 0;
+    for (const auto& bf : state.battlefields) {
+        if (!battlefieldTakesUnitsFrom(state, player, bf)) continue;
+        const bool controlled = bf.controller.has_value() && *bf.controller == player;
+        if (!controlled && !any_bf) continue;
+        out.push_back(1 + static_cast<int>(bf.id.raw()));
+    }
     return out;
 }
 /// The same for the token a resolving card plays: when that card was played
