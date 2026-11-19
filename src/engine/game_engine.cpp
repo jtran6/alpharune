@@ -6358,8 +6358,11 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
             // A battlefield where the player has units, or (Rengar, Trophy
-            // Hunter) one with enemy units.
-            if (!ambushLocation(amb, player, bf)) continue;
+            // Hunter) one with enemy units. Last Caress names any battlefield
+            // that does not block unit plays, and an Ambush unit is that unit.
+            if (state_.player(player).next_unit_any_battlefield <= 0 &&
+                !ambushLocation(amb, player, bf))
+                continue;
             // A discount that applies only at this battlefield (Hunters' Circle).
             CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
             if (!canAfford(player, card_id)) continue;
@@ -6385,8 +6388,12 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
-            if (!bf.combat_in_progress) continue;
-            if (!bf.attacker.has_value() || *bf.attacker != player) continue;
+            // The battlefield being attacked, or — Last Caress — any
+            // battlefield that does not block unit plays.
+            const bool attacking_here = bf.combat_in_progress && bf.attacker.has_value() &&
+                                        *bf.attacker == player;
+            if (!attacking_here && state_.player(player).next_unit_any_battlefield <= 0)
+                continue;
             CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
             if (!canAfford(player, card_id)) continue;
             Intent pounce;
@@ -6394,6 +6401,14 @@ std::vector<Intent> GameEngine::generateShowdownActions(PlayerId player) const {
             pounce.player = player;
             pounce.card = card_id;
             pounce.play_location = BattlefieldLocation{bf.id};
+            // A [Reaction] unit is also offered this battlefield below. While
+            // the permission is live, do not add that play a second time.
+            if (state_.player(player).next_unit_any_battlefield > 0 &&
+                std::any_of(actions.begin(), actions.end(), [&](const Intent& have) {
+                    return have.type == pounce.type && have.card == pounce.card &&
+                           have.play_location == pounce.play_location;
+                }))
+                continue;
             actions.push_back(pounce);
         }
     }
@@ -6529,7 +6544,10 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
-            if (!ambushLocation(amb, player, bf)) continue;
+            // Last Caress: any battlefield that does not block unit plays.
+            if (state_.player(player).next_unit_any_battlefield <= 0 &&
+                !ambushLocation(amb, player, bf))
+                continue;
             CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
             if (!canAfford(player, card_id)) continue;
             Intent ambush;
@@ -6553,8 +6571,12 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
         for (auto& bf : state_.battlefields) {
             if (bf.blocks_unit_play) continue;  // Rockfall Path
             if (state_.player(player).units_play_base_only) continue;  // Mageseeker Warden
-            if (!bf.combat_in_progress) continue;
-            if (!bf.attacker.has_value() || *bf.attacker != player) continue;
+            // The battlefield being attacked, or — Last Caress — any
+            // battlefield that does not block unit plays.
+            const bool attacking_here = bf.combat_in_progress && bf.attacker.has_value() &&
+                                        *bf.attacker == player;
+            if (!attacking_here && state_.player(player).next_unit_any_battlefield <= 0)
+                continue;
             CostingAt at(*this, LocationId{BattlefieldLocation{bf.id}});
             if (!canAfford(player, card_id)) continue;
             Intent pounce;
@@ -6562,6 +6584,15 @@ std::vector<Intent> GameEngine::generateClosedStateActions(
             pounce.player = player;
             pounce.card = card_id;
             pounce.play_location = BattlefieldLocation{bf.id};
+            // generateReactionPermanentActions already offered a [Reaction]
+            // unit this battlefield. While the permission is live, do not
+            // add that play a second time.
+            if (state_.player(player).next_unit_any_battlefield > 0 &&
+                std::any_of(actions.begin(), actions.end(), [&](const Intent& have) {
+                    return have.type == pounce.type && have.card == pounce.card &&
+                           have.play_location == pounce.play_location;
+                }))
+                continue;
             actions.push_back(pounce);
         }
     }

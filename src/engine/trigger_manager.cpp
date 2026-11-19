@@ -625,6 +625,19 @@ void TriggerManager::announceUnitPlayed(GameObjectId unit, PlayerId player) {
         if (!watcher || !watcher->triggersWhileInTrash(TriggerType::WhenYouPlayAUnit)) continue;
         fireTrigger(id, player, 0, TriggerType::WhenYouPlayAUnit, /*subject=*/unit);
     }
+
+    // This play is the next unit, wherever it came from: the chain, an effect,
+    // or a token. The buff ability above was queued while the flag was set;
+    // spending it here means a unit played in that ability's priority window
+    // is not buffed, and countering the ability does not leave the buff for
+    // someone else. The destination and [Accelerate] were already offered for
+    // this play. Entering from the chain clears those two as well
+    // (resolvePermanent); an effect play and a token do not, so they are
+    // spent here.
+    auto& played = state_.player(player);
+    played.next_unit_buff = 0;
+    played.next_unit_accelerate = 0;
+    played.next_unit_any_battlefield = 0;
 }
 
 // A token is PLAYED (CR 350.2: "Tokens are not cards, but can still be

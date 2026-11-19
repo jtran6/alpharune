@@ -25,6 +25,7 @@ protected:
     static constexpr CardDefId kRakelstake = 1082;
     static constexpr CardDefId kHideout = 1079;
     static constexpr CardDefId kCaress = 1122;
+    static constexpr CardDefId kInferna = 560;      // [Ambush], [2]
     static constexpr CardDefId kSongstress = 1070;
     static constexpr CardDefId kHighNote = 1098;    // [3], choices in the finalize pass
     static constexpr CardDefId kShen = 241;         // [3][A], [Reaction]
@@ -755,6 +756,281 @@ TEST_F(EngineFixLines, LastCaress_AnyBattlefieldEndsWhenTheNextTurnStarts) {
     playThroughEngine(unit, nullptr, LocationId{BaseLocation{P1}}, nullptr, false);
     EXPECT_EQ(state.getObject(unit).buff_count, 0);
     EXPECT_EQ(state.getObject(unit).current_might, printed);
+}
+
+// Plays `second` (a facedown unit) in the priority window of the buff ability
+// the play of `first` just queued. `counter` removes that ability first, the
+// way a counter does (EffectExecutor::removeChainItem): no printed card
+// counters an ability that never chose a unit.
+class PlayWhileTheBuffHasPriority : public EnginePathAgent {
+public:
+    GameEngine* engine = nullptr;
+    GameObjectId first = kInvalidId;
+    GameObjectId second = kInvalidId;
+    CardDefId spell = kInvalidId;
+    bool counter = false;
+    bool did = false;
+
+    Intent selectAction(const GameState& st, const std::vector<Intent>& legal) override {
+        if (!did && engine && st.objectExists(first) &&
+            st.getObject(first).location.has_value()) {
+            ChainItemId buff = kInvalidId;
+            for (const auto& ci : st.chain.items) {
+                if (!ci.is_ability || ci.triggering_subject != first) continue;
+                if (!st.objectExists(ci.source) || st.getObject(ci.source).card_def_id != spell)
+                    continue;
+                buff = ci.id;
+                break;
+            }
+            if (buff != kInvalidId) {
+                if (counter) engine->testHook_executor().removeChainItem(buff);
+                for (const auto& intent : legal) {
+                    if (intent.card != second) continue;
+                    if (intent.type != IntentType::PlayReaction &&
+                        intent.type != IntentType::PlayActionCard)
+                        continue;
+                    did = true;
+                    return intent;
+                }
+            }
+        }
+        return EnginePathAgent::selectAction(st, legal);
+    }
+};
+
+// The buff belongs to the unit that was played. A unit played while that
+// ability still has priority does not take it.
+TEST_F(EngineFixLines, LastCaress_ThePlayedUnitKeepsTheBuff) {
+    threeBattlefields();
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+
+    auto first = addToHand(P1, kUnit);
+    auto hidden = addToHand(P1, kUnit);
+    faceDown(hidden, 0);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    const LocationId enemy{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+
+    PlayWhileTheBuffHasPriority agent;
+    agent.first = first;
+    agent.second = hidden;
+    agent.spell = kCaress;
+    withEngine([&](GameEngine& e) {
+        agent.engine = &e;
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = first;
+        play.play_location = enemy;
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+    }, &agent);
+    ASSERT_TRUE(agent.did) << "the facedown unit was played while the buff had priority";
+
+    const int printed = card_db.get(kUnit).might;
+    EXPECT_EQ(state.getObject(first).location, enemy);
+    EXPECT_EQ(state.getObject(first).buff_count, 1);
+    EXPECT_EQ(state.getObject(first).current_might, printed + 1);
+    EXPECT_EQ(state.getObject(hidden).buff_count, 0);
+    EXPECT_EQ(state.getObject(hidden).current_might, printed);
+    EXPECT_EQ(state.player(P1).next_unit_buff, 0);
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+}
+
+// Countering the buff does not hand it to a later unit.
+TEST_F(EngineFixLines, LastCaress_ACounteredBuffDoesNotMove) {
+    threeBattlefields();
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+
+    auto first = addToHand(P1, kUnit);
+    auto hidden = addToHand(P1, kUnit);
+    faceDown(hidden, 0);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+
+    PlayWhileTheBuffHasPriority agent;
+    agent.first = first;
+    agent.second = hidden;
+    agent.spell = kCaress;
+    agent.counter = true;
+    withEngine([&](GameEngine& e) {
+        agent.engine = &e;
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = first;
+        play.play_location = LocationId{BaseLocation{P1}};
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+    }, &agent);
+    ASSERT_TRUE(agent.did);
+
+    const int printed = card_db.get(kUnit).might;
+    EXPECT_EQ(state.getObject(first).buff_count, 0);
+    EXPECT_EQ(state.getObject(first).current_might, printed);
+    EXPECT_EQ(state.getObject(hidden).buff_count, 0);
+    EXPECT_EQ(state.getObject(hidden).current_might, printed);
+    EXPECT_EQ(state.player(P1).next_unit_buff, 0);
+
+    auto later = addToHand(P1, kUnit);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    playThroughEngine(later, nullptr, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_EQ(state.getObject(later).buff_count, 0);
+    EXPECT_EQ(state.getObject(later).current_might, printed);
+}
+
+// An effect play is the next unit: it is buffed, it can pay [Accelerate], and
+// it spends the destination too. The unit after it has none of the three.
+TEST_F(EngineFixLines, LastCaress_AnEffectPlaySpendsEveryGrant) {
+    threeBattlefields();
+    auto hideout = battlefieldCard(0, kHideout, P1);
+    fireTriggerThroughEngine(hideout, TriggerType::WhenYouConquerHere);
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+    ASSERT_EQ(state.player(P1).next_unit_accelerate, 1);
+    ASSERT_EQ(state.player(P1).next_unit_any_battlefield, 1);
+    ASSERT_EQ(state.player(P1).next_unit_buff, 1);
+
+    auto unit = addToHand(P1, kUnit);
+    fundPrintedPlusAccelerate();
+    EnginePathAgent pay(EnginePathAgent::script({1}));
+    resolveThroughEngine([&](EffectExecutor& ex, GameState&) {
+        ex.playIgnoringCost(P1, unit, LocationId{BaseLocation{P1}});
+    }, &pay);
+
+    const int printed = card_db.get(kUnit).might;
+    EXPECT_FALSE(state.getObject(unit).is_exhausted);
+    EXPECT_EQ(state.getObject(unit).buff_count, 1);
+    EXPECT_EQ(state.getObject(unit).current_might, printed + 1);
+    EXPECT_EQ(state.player(P1).next_unit_accelerate, 0);
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+    EXPECT_EQ(state.player(P1).next_unit_buff, 0);
+
+    auto second = addToHand(P1, kUnit);
+    fundPrintedPlusAccelerate();
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), second, IntentType::PlayCard);
+        EXPECT_TRUE(spots.base);
+        EXPECT_TRUE(spots.bf[0]);
+        EXPECT_FALSE(spots.bf[1]);
+        EXPECT_FALSE(spots.bf[2]);
+    });
+    EnginePathAgent payAgain(EnginePathAgent::script({1}));
+    playThroughEngine(second, &payAgain, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_TRUE(state.getObject(second).is_exhausted);
+    EXPECT_EQ(state.player(P1).rune_pool.energy, 1);
+    EXPECT_EQ(state.player(P1).rune_pool.universal_power, 1);
+    EXPECT_EQ(state.getObject(second).buff_count, 0);
+    EXPECT_EQ(state.getObject(second).current_might, printed);
+}
+
+// A token is that same next unit: any battlefield that does not block unit
+// plays, then the buff, [Accelerate], and the destination are all spent.
+TEST_F(EngineFixLines, LastCaress_ATokenIsOfferedAnyBattlefieldAndSpendsTheGrants) {
+    threeBattlefields();
+    auto hideout = battlefieldCard(0, kHideout, P1);
+    fireTriggerThroughEngine(hideout, TriggerType::WhenYouConquerHere);
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+
+    const auto dests = tokenPlayDests(state, P1);
+    EXPECT_NE(std::find(dests.begin(), dests.end(), 0), dests.end());
+    EXPECT_NE(std::find(dests.begin(), dests.end(), 1), dests.end());
+    EXPECT_NE(std::find(dests.begin(), dests.end(), 2), dests.end());
+    EXPECT_EQ(std::find(dests.begin(), dests.end(), 3), dests.end());
+
+    state.player(P1).rune_pool.energy = 1;
+    state.player(P1).rune_pool.universal_power = 1;
+    GameObjectId token = kInvalidId;
+    const LocationId enemy{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    EnginePathAgent pay(EnginePathAgent::script({1}));
+    resolveThroughEngine([&](EffectExecutor& ex, GameState&) {
+        token = ex.createToken(P1, CardType::Unit, "Recruit", 1, {"Recruit"}, KeywordSet{},
+                               enemy, /*enter_ready=*/false);
+    }, &pay);
+    ASSERT_NE(token, kInvalidId);
+    EXPECT_EQ(state.getObject(token).location, enemy);
+    EXPECT_FALSE(state.getObject(token).is_exhausted);
+    EXPECT_EQ(state.getObject(token).buff_count, 1);
+    EXPECT_EQ(state.getObject(token).current_might, 2);
+    EXPECT_EQ(state.player(P1).next_unit_accelerate, 0);
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+    EXPECT_EQ(state.player(P1).next_unit_buff, 0);
+
+    auto later = addToHand(P1, kUnit);
+    fundPrintedPlusAccelerate();
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), later, IntentType::PlayCard);
+        EXPECT_FALSE(spots.bf[1]);
+        EXPECT_FALSE(spots.bf[2]);
+    });
+    EnginePathAgent payAgain(EnginePathAgent::script({1}));
+    playThroughEngine(later, &payAgain, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_TRUE(state.getObject(later).is_exhausted);
+    EXPECT_EQ(state.getObject(later).buff_count, 0);
+}
+
+// Showdown and closed-state Ambush offer the battlefields the spell names.
+TEST_F(EngineFixLines, LastCaress_AnAmbushUnitIsOfferedAnyBattlefield) {
+    threeBattlefields();
+    auto spell = addToHand(P1, kCaress);
+    playThroughEngine(spell);
+    auto ambush = addToHand(P1, kInferna);
+    state.player(P1).rune_pool.energy = card_db.get(kInferna).energy_cost;
+
+    std::optional<Intent> to_enemy;
+    withEngine([&](GameEngine& e) {
+        auto& st = e.mutableState();
+        st.turn.phase = TurnPhase::MainPhase;
+        st.turn.turn_player = P1;
+        st.turn.ns_state = NeutralShowdownState::Showdown;
+        st.turn.oc_state = OpenClosedState::Open;
+        st.turn.focus_holder = P1;
+        const auto showdown = spotsFor(e.generateLegalActions(), ambush, IntentType::PlayActionCard);
+        EXPECT_TRUE(showdown.bf[0]);
+        EXPECT_TRUE(showdown.bf[1]);
+        EXPECT_FALSE(showdown.bf[2]);
+        EXPECT_FALSE(showdown.base);
+
+        st.turn.ns_state = NeutralShowdownState::Neutral;
+        st.turn.oc_state = OpenClosedState::Closed;
+        st.turn.priority_holder = P1;
+        const auto closed = spotsFor(e.generateLegalActions(), ambush, IntentType::PlayReaction);
+        EXPECT_TRUE(closed.bf[0]);
+        EXPECT_TRUE(closed.bf[1]);
+        EXPECT_FALSE(closed.bf[2]);
+        EXPECT_FALSE(closed.base);
+        for (const auto& intent : e.generateLegalActions()) {
+            if (intent.card != ambush || intent.type != IntentType::PlayReaction) continue;
+            if (!intent.play_location) continue;
+            if (const auto* bf = std::get_if<BattlefieldLocation>(&*intent.play_location))
+                if (bf->id == BattlefieldId::fromRaw(1)) to_enemy = intent;
+        }
+    });
+    ASSERT_TRUE(to_enemy.has_value());
+
+    withEngine([&](GameEngine& e) {
+        e.mutableState().turn.oc_state = OpenClosedState::Closed;
+        e.mutableState().turn.priority_holder = P1;
+        e.testHook_executeIntent(*to_enemy);
+        settleLikeTheEngine(e);
+    });
+    const int printed = card_db.get(kInferna).might;
+    const LocationId enemy{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    EXPECT_EQ(state.getObject(ambush).location, enemy);
+    EXPECT_EQ(state.getObject(ambush).buff_count, 1);
+    EXPECT_EQ(state.getObject(ambush).current_might, printed + 1);
+    EXPECT_EQ(state.player(P1).next_unit_any_battlefield, 0);
+    EXPECT_EQ(state.player(P1).next_unit_buff, 0);
+
+    auto later = addToHand(P1, kUnit);
+    state.player(P1).rune_pool.energy = card_db.get(kUnit).energy_cost;
+    withEngine([&](GameEngine& e) {
+        const auto spots = spotsFor(e.testHook_mainPhaseActions(P1), later, IntentType::PlayCard);
+        EXPECT_FALSE(spots.bf[1]);
+    });
+    playThroughEngine(later, nullptr, LocationId{BaseLocation{P1}}, nullptr, false);
+    EXPECT_EQ(state.getObject(later).buff_count, 0);
 }
 
 }  // namespace test_engine_fix_lines

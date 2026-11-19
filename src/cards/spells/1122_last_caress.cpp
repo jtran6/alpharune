@@ -35,12 +35,12 @@ public:
         return state.player(controller).next_unit_buff > 0;
     }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        auto& ps = ctx.state.player(ctx.controller);
-        if (ps.next_unit_buff <= 0) return;
+        // The grant was spent when this unit was played (announceUnitPlayed),
+        // so the ability buffs that unit even though the flag is already 0. A
+        // later unit is not queued, and a counter does not hand the buff on.
         if (!ctx.state.chain.resuming) return;
         const auto sub = ctx.state.chain.resuming->triggering_subject;
         if (sub == kInvalidId) return;
-        ps.next_unit_buff = 0;
         ctx.executor.buffUnit(sub);
     }
 
