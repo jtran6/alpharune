@@ -1,0 +1,49 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 50th place
+# player: 再未得见
+# record: not stated
+# deck name: Z字卡组
+# source: https://riftdecks.com/riftbound-metagame/deck-z-zi-ka-zu-354199
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Twice Slain
+
+MainDeck:
+3 Carrion Dredger
+3 Noxian Emissary
+3 Escaped Grayback
+3 Undying Legion
+3 Vanguard Captain
+3 Noxus Hopeful
+2 Vi, Peacekeeper
+2 Ferrous Forerunner
+3 Long Sword
+3 Cleave
+2 Cull the Weak
+3 Falling Star
+3 Hidden Blade
+3 Realm of Death
+
+Battlefields:
+1 Altar to Unity
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+3 Decree of Rage
+1 Brittle Steel
+3 Decree of Unity
+3 Salvage

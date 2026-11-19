@@ -183,10 +183,12 @@ real hidden cards instead.
 ## Tournament lists
 
 `internal/tournament-data/` holds one file per deck from the completed
-constructed events Riftwatch published with a start date from the Radiance
-release (2026-10-23) through 2026-11-19. Pulled at 12:28 PM ET on November
-19, 2026. Twelve events, 1,283 lists. The folder's `README.md` is the event
-table, the source URLs, and where the published top-cut scores are.
+constructed events with a start date from the Radiance release (2026-10-23)
+through 2026-11-19. Riftwatch is 12 events and 1,283 lists, pulled at 12:28
+PM ET on November 19, 2026. RiftDecks adds the S5 Shanghai City Challenge,
+64 lists, pulled at 2:54 PM ET the same day. Thirteen events, 1,347 lists.
+The folder's `README.md` is the event table, the source URLs, and where the
+published top-cut scores are. Shanghai does not publish who beat whom.
 
 A path works as `--deck1`, `--deck2`, or `--deck-breakdown`. `matchups.txt`
 is the published top cut for Stuttgart and Orlando. It is not a deck file.

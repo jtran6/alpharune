@@ -1,0 +1,57 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 36th place
+# player: Alex隆
+# record: not stated
+# deck name: 皇子测试版本
+# source: https://riftdecks.com/riftbound-metagame/deck-huang-zi-ce-shi-ban-ben-354185
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# source spells this card Jarvaniv, Exemplar of Demacia; written as Jarvan IV, Exemplar of Demacia
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Overloaded Traveler
+2 Pit Rookie
+3 Trifarian Captain
+1 Hunting Dog
+2 Kinkou Initiate
+3 Nidalee, Cat Form
+1 Graves, Blasting Through
+3 Rengar, Trophy Hunter
+2 Skystrike Squadron
+1 Ruin Runner
+2 Concert Poster
+3 Pillaged Armory
+3 Demacian Standard
+1 Portable Portal
+3 Punch First
+1 Sabotage
+2 Call to Glory
+2 Rampage
+1 Onslaught
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Seat of Power
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+1 Sabotage
+2 Decree of Unity
+3 Salvage
+1 Tactical Retreat
+2 Dockside Lock-Up
+1 Ruin Runner

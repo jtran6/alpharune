@@ -1,0 +1,62 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 31st place
+# player: ssss
+# record: not stated
+# deck name: 叠q
+# source: https://riftdecks.com/riftbound-metagame/deck-dieq-354180
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+# RiftDecks does not name a printing; Plundering Poro loads #392 (also ##778)
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Steel Paws
+1 Plundering Poro
+2 Ravenbloom Student
+2 Scuttle Crab
+1 Frostcoat Mother
+1 Irelia, Fervent
+2 Sprite Queen
+1 Tasty Faefolk
+2 Thousand-Tailed Watcher
+1 The Empyrean
+2 Zhonya's Hourglass
+1 Resplendent Rostrum
+2 Bellows Breath
+2 Charm
+3 Defy
+1 En Garde
+1 Life from Stone
+3 Stupefy
+3 Discipline
+2 Temporal Breach
+3 Find Your Center
+1 Sprite Burst
+
+Battlefields:
+1 Rockfall Path
+1 Sunken Temple
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Decree of Focus
+2 Decree of Insight
+1 Hush
+2 Not So Fast
+2 Tomb-Raider Barbara
+1 Singularity
+1 Vilemaw

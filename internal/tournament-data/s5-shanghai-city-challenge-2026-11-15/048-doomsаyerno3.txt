@@ -1,0 +1,61 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 48th place
+# player: DoomsаyerNo3
+# record: not stated
+# deck name: 表前熊
+# source: https://riftdecks.com/riftbound-metagame/deck-biao-qian-xiong-354197
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+
+Legend:
+1 Volibear, Relentless Storm
+
+Champion:
+1 Volibear, Furious
+
+MainDeck:
+3 Dragonsoul Sage
+1 Bilgewater Tracker
+1 Raving Witness
+2 Herald of Scales
+3 Blazing Scorcher
+3 Minotaur Reckoner
+1 Poppy, Paragon
+1 Rengar, Trophy Hunter
+2 Seraphic Wyvern
+3 Gentle Gemdragon
+2 Kadregrin the Infernal
+3 Elder Dragon
+1 Portable Portal
+1 Repulse
+1 Sabotage
+1 Unyielding Spirit
+2 Challenge
+3 Mobilize
+2 Show of Strength
+1 Lost to the Sands
+2 Sky Splitter
+
+Battlefields:
+1 Black Market
+1 Dragon Roost
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Fury Rune
+
+Sideboard:
+2 Decree of Strength
+1 Repulse
+1 Unyielding Spirit
+1 Confront
+1 Bilgewater Tracker
+1 Raving Witness
+1 Poppy, Paragon
+1 Rengar, Trophy Hunter
+1 Thermo Beam

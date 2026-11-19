@@ -1,0 +1,59 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 26th place
+# player: 卜泽龍汐
+# record: not stated
+# deck name: 修罗的牌浪
+# source: https://riftdecks.com/riftbound-metagame/deck-xiu-luo-de-pai-lang-354175
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# RiftDecks does not name a printing; Lonely Poro loads #359 (also ##777)
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+1 Lonely Poro
+3 Ravenbloom Student
+1 Disarming Rake
+1 Janna, Savior
+1 Akali, Silent
+1 Cloth Armor
+2 Brutalizer
+3 Mask of Foresight
+3 Sprite Fountain
+3 Charm
+3 Defy
+3 En Garde
+3 Stupefy
+2 Battle Preparations
+3 Discipline
+1 Smoke and Mirrors
+1 Smoke Screen
+3 Sprite Burst
+1 Unchecked Power
+
+Battlefields:
+1 Abandoned Hall
+1 Dusk Rose Lab
+1 Seat of Power
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+1 Decree of Focus
+2 Decree of Insight
+1 Hush
+1 Blastcone Fae
+1 Back Off
+1 Pickpocket
+2 Tomb-Raider Barbara
+1 Singularity

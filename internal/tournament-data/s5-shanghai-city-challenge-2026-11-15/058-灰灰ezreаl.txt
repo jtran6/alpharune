@@ -1,0 +1,62 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 58th place
+# player: 灰灰Ezreаl
+# record: not stated
+# deck name: 锐雯
+# source: https://riftdecks.com/riftbound-metagame/deck-rui-wen-354208
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+2 Bedeviling Stranger
+2 Scuttle Crab
+2 Tideturner
+1 Traveling Merchant
+2 Reckless Innovator
+1 Akali, Silent
+3 Stellacorn Herder
+1 Vex, Apathetic
+1 Blitzcrank, Impassive
+3 Astral Heron
+3 Zhonya's Hourglass
+3 Blade of the Exile
+3 Defy
+2 Gust
+1 Battle Preparations
+3 Discipline
+1 Not So Fast
+1 Rebuke
+1 Ride the Wind
+2 Switcheroo
+1 Star-Crossed
+
+Battlefields:
+1 Hunters' Circle
+1 Rakelstake
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Decree of Focus
+1 Hush
+1 Ki Burst
+2 An Offer You Can't Refuse
+1 Tomb-Raider Barbara
+1 Angler Beast
+1 Vilemaw
+1 Whiteflame Protector
+1 Baron Nashor

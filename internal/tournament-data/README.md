@@ -1,9 +1,12 @@
 # Tournament lists
 
-1,283 constructed deck lists from 12 completed events, pulled from
-[Riftwatch](https://riftwatch.gg/tournaments/) at 12:28 PM ET on November 19,
-2026. The window is a start date on or after the Radiance release (2026-10-23)
-through that day. The Piltover Archive tournament page
+1,347 constructed deck lists from 13 completed events. 1,283 are from
+[Riftwatch](https://riftwatch.gg/tournaments/), pulled at 12:28 PM ET on
+November 19, 2026. 64 more are from
+[RiftDecks](https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014),
+the published lists for the S5 Shanghai City Challenge, pulled at 2:54 PM ET
+the same day. The window is a start date on or after the Radiance release
+(2026-10-23) through that day. The Piltover Archive tournament page
 (`https://piltoverarchive.com/tournaments`) had no event rows, so nothing was
 taken from it.
 
@@ -39,12 +42,18 @@ No list was marked illegal by the source. Every saved list is the constructed
 shape: 1 legend, 1 champion, 39 main-deck cards, 3 battlefields, 12 runes, and
 a sideboard of at most 10. One Orlando list (190th, cheeserdude) has no record
 on the page. Place numbers that are missing were not published: Stuttgart has
-no 6th, and Melbourne has no 3rd through 7th.
+no 6th, and Melbourne has no 3rd through 7th. Shanghai's pages do not state a
+win-loss record. One Shanghai list (42nd, 懒狗) has the 8 sideboard cards the
+page published. The 36th-place legend is printed "Jarvaniv, Exemplar of
+Demacia" there and written as Jarvan IV, Exemplar of Demacia. RiftDecks does
+not name a printing, so a shared name loads the first one and the header says
+which id that is.
 
 ## Events
 
 | Event | Date | Lists | Top cut |
 | --- | --- | --- | --- |
+| [S5 Shanghai City Challenge](https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014) | 2026-11-15 | 64 | not published |
 | [CCS $50,000 Invitational + LCQs](https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/) | 2026-11-14 | 70 | not published |
 | [Stuttgart Regional Championship](https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/) | 2026-11-06 | 43 | `stuttgart-regional-championship-2026-11-06/matchups.txt` (7 matches) |
 | [Convergence IV](https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/) | 2026-10-31 | 232 | not published |
@@ -67,6 +76,8 @@ Stuttgart and Orlando are the only events whose live payload
 published a top cut. Each file has the quarterfinals, semifinals, and final:
 who beat whom, the score as winner's games then opponent's games, and the
 deck path when that player published a list. Swiss rounds are not in either
-payload. The other ten events publish standings and lists only.
+payload. The other ten Riftwatch events publish standings and lists only.
+Shanghai's RiftDecks stats tab is a legend-presence table. It does not say
+who beat whom, so that folder has no `matchups.txt`.
 
 Showdown Los Angeles (November 21–22, 2026) had not been played.

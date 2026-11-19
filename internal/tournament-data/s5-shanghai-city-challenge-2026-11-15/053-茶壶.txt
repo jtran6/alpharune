@@ -1,0 +1,58 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 53rd place
+# player: 茶壶
+# record: not stated
+# deck name: 哈
+# source: https://riftdecks.com/riftbound-metagame/deck-ha-354202
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# RiftDecks does not name a printing; Seal of Insight loads #120 (also #541)
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Meticulous Killer
+
+MainDeck:
+1 Keeper of Masks
+3 Brynhir Thundersong
+3 Seal of Insight
+1 Sumpworks Map
+2 Energy Conduit
+2 Hextech Anomaly
+2 Gutter Palace
+3 Downstage Dramatics
+3 Consult the Past
+3 Curtain Call
+3 Deadly Flourish
+2 Falling Comet
+3 Promising Future
+1 Sprite Burst
+3 Progress Day
+1 Clairvoyance
+3 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Heisho, Shell of the World
+1 Void Gate
+
+Runes:
+2 Fury Rune
+10 Mind Rune
+
+Sideboard:
+1 Sumpworks Map
+1 Vi, Destructive
+2 Iterative Design
+1 Jhin, Meticulous Killer
+1 Falling Comet
+2 Sprite Burst
+1 Thousand-Tailed Watcher
+1 Unchecked Power

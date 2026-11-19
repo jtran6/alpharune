@@ -1,0 +1,57 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 41st place
+# player: ATW-桑之槐
+# record: not stated
+# deck name: 卡
+# source: https://riftdecks.com/riftbound-metagame/deck-ka-354190
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# RiftDecks does not name a printing; Plundering Poro loads #392 (also #778)
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Plundering Poro
+3 Bilgewater Tracker
+3 Lecturing Yordle
+3 Noxus Hopeful
+3 Brynhir Thundersong
+3 Thousand-Tailed Watcher
+2 The Empyrean
+1 Bellows Breath
+3 Hextech Ray
+3 Stupefy
+1 Brittle Steel
+3 Falling Star
+2 Smoke Screen
+3 Temporal Breach
+2 Singularity
+2 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Decree of Insight
+3 Decree of Rage
+1 Brittle Steel
+1 Plundering Poro
+1 Pickpocket
+1 Ferrous Forerunner
+1 The Empyrean

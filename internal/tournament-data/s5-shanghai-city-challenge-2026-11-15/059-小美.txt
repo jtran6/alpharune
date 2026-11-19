@@ -1,0 +1,58 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 59th place
+# player: 小美
+# record: not stated
+# deck name: 剑圣
+# source: https://riftdecks.com/riftbound-metagame/deck-jian-sheng-354209
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+# RiftDecks does not name a printing; Lonely Poro loads #359 (also #777)
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Lonely Poro
+2 Pit Rookie
+3 Scuttle Crab
+3 First Mate
+2 Tomb-Raider Barbara
+3 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Zhonya's Hourglass
+3 Charm
+3 Defy
+2 En Garde
+3 Punch First
+2 Sabotage
+3 Discipline
+2 Rampage
+1 Onslaught
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Decree of Focus
+1 Decree of Strength
+1 Disposal Order
+1 Not So Fast
+1 Alpha Strike
+1 Akali, Silent
+1 Tomb-Raider Barbara
+2 Irelia, Fervent
+1 Ruin Runner

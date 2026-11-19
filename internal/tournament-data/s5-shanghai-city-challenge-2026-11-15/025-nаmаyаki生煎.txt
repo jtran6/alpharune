@@ -1,0 +1,53 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 25th place
+# player: NаmаYаki生煎
+# record: not stated
+# deck name: 一起拉大便
+# source: https://riftdecks.com/riftbound-metagame/deck-yi-qi-la-da-bian-354174
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# RiftDecks does not name a printing; Seal of Rage loads #40 (also #536)
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+3 Bewitching Spirit
+3 Bilgewater Tracker
+3 Fizz, Trickster
+3 Shimmering Swimmer
+2 Vex, Apathetic
+3 Seal of Rage
+3 Runeblade Anvil
+2 The List
+3 Pack of Wonders
+3 Treasure Trove
+3 Detonate
+3 Falling Star
+2 Piercing Light
+1 Star-Crossed
+2 Void Seeker
+
+Battlefields:
+1 Rockfall Path
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+4 Chaos Rune
+8 Fury Rune
+
+Sideboard:
+3 Decree of Rage
+2 An Offer You Can't Refuse
+2 Ravenbloom Prefect
+1 Star-Crossed
+1 Whirlwind
+1 Baron Nashor
