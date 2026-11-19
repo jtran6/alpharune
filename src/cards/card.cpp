@@ -121,6 +121,8 @@ void Card::forgetPlayPayments(GameState& state, const Card* card, PlayerId playe
     counters.erase("__scorched_bf");
     counters.erase("__ft_banish");
     counters.erase("__chrono_x");
+    counters.erase("curtain_call_used_mask");
+    counters.erase("curtain_call_play");
     counters.erase("__chrono_banished");
     counters.erase("__cn");
     counters.erase("__encore_applied");

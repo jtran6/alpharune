@@ -41,13 +41,11 @@ public:
         if (finalizingChoices(ctx)) return;  // choices end here (CR 355)
         const BattlefieldId bf_id = bfs[mode].id;
 
-        // "Pay any amount of [A]": up to all the Power the controller can
-        // pay — floating Power plus every rune in base, ready or exhausted
-        // (CR 164.2.b). pickXAmount publishes one int-coded MakeChoice per X
-        // and the action vocabulary has 16 int slots (0..15), so X is capped
-        // at 15.
+        // "Pay any amount of [A]": every point the controller can pay, not a
+        // cap of 15. Values past the action vocabulary's 16 int slots share
+        // one slot and are told apart by their twin.
         // [Add] abilities count: the payment may use them (CR 357.1.a; M2).
-        const int max_x = ctx.executor.maxPayableAnyPower(ctx.controller, 15);
+        const int max_x = ctx.executor.maxPayableAnyPower(ctx.controller, 100000);
         int x = pickXAmount(ctx, "Bullet Time: X power", 0, max_x);
         if (x < 0) return;  // pending choice
         if (x == 0) {

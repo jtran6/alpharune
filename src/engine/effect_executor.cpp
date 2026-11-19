@@ -1496,8 +1496,10 @@ void EffectExecutor::moveToBase(GameObjectId target) {
     obj.zone = ZoneType::Base;
     carryAttachments(state_, obj);
 
+    const PlayerId performed = state_.chain.resuming.has_value()
+        ? state_.chain.resuming->controller : PlayerId::None;
     events_.emit(UnitMovedEvent{target, obj.controller,
-        old_loc.value_or(BaseLocation{obj.controller}), dest, false});
+        old_loc.value_or(BaseLocation{obj.controller}), dest, false, performed});
 }
 
 void EffectExecutor::recallToBase(GameObjectId target) {
@@ -1822,7 +1824,7 @@ bool EffectExecutor::moveToBattlefield(GameObjectId target, BattlefieldId bf,
     carryAttachments(state_, obj);
 
     events_.emit(UnitMovedEvent{target, obj.controller,
-        old_loc.value_or(BaseLocation{obj.controller}), dest, false});
+        old_loc.value_or(BaseLocation{obj.controller}), dest, false, performer});
     return true;
 }
 

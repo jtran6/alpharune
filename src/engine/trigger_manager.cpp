@@ -1732,7 +1732,7 @@ void TriggerManager::onUnitMoved(const UnitMovedEvent& e) {
         std::optional<ChainItem::Move> outer;
         Announcing(ChainState& c, const UnitMovedEvent& ev)
             : chain(c), outer(c.move_being_announced) {
-            chain.move_being_announced = ChainItem::Move{ev.from, ev.to};
+            chain.move_being_announced = ChainItem::Move{ev.from, ev.to, ev.performed_by};
         }
         ~Announcing() { chain.move_being_announced = outer; }
     } announcing(state_.chain, e);

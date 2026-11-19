@@ -35,6 +35,7 @@ public:
         da.controller = ctx.controller;
         da.trigger = TriggerType::WhenAUnitTakesDamage;
         da.target_filter = tgt;
+        da.subject = tgt;   // leaving the board ends it (CR 124.1, 391.5.a)
         da.expires_on_turn = ctx.state.turn.turn_number;
         ctx.state.delayed_abilities.push_back(da);
         RIFT_TRACE(ctx.events, "NOXIAN GUILLOTINE: kills " + ctx.state.getObject(tgt).name +

@@ -92,6 +92,8 @@ public:
         da.controller = ctx.state.getObject(unit).controller;
         da.trigger = TriggerType::WhenIConquer;
         da.target_filter = unit;
+        da.subject = unit;     // a new object does not keep the rider (CR 391.5.a)
+        da.repeats = true;     // declining one conquer does not spend it (CR 403.1)
         da.expires_on_turn = ctx.state.turn.turn_number;
         ctx.state.delayed_abilities.push_back(da);
     }

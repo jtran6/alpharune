@@ -2384,20 +2384,20 @@ TEST_F(VerifyCardsTest, BulletTime_TheBattlefieldIsNamedBeforeTheOpponentCanResp
     EXPECT_EQ(o(enemy).damage_marked, 1);
 }
 
-TEST_F(VerifyCardsTest, BulletTime_XIsCappedAtTheFifteenTheActionVocabularyEncodes) {
-    // pickXAmount publishes one int-coded choice per X; the action vocabulary
-    // has 16 int slots (openspiel::kNumIntChoices): 0..15.
+TEST_F(VerifyCardsTest, BulletTime_AnyAmountIsNotCappedAtFifteen) {
+    // "Pay any amount of [A]". Values past the action vocabulary's 16 int
+    // slots share one slot and are told apart by their twin; 20 is payable
+    // here, so it is offered and dealt.
     auto spell = addToHand(P1, kBulletTime);
     auto enemy = addUnit(P2, kInvalidId, 99, 0);
     ps(P1).rune_pool.universal_power = 20;
-    EnginePathAgent agent(EnginePathAgent::script({0, 15}));
+    EnginePathAgent agent(EnginePathAgent::script({0, 20}));
     playThroughEngine(spell, &agent);
     ASSERT_EQ(agent.prompts.size(), 2u);
-    EXPECT_EQ(agent.prompts[1].size(), 16u) << "X = 0..15";
-    EXPECT_TRUE(promptOffersValue(agent, 1, 15));
-    EXPECT_FALSE(promptOffersValue(agent, 1, 16));
-    EXPECT_EQ(o(enemy).damage_marked, 15);
-    EXPECT_EQ(ps(P1).rune_pool.universal_power, 5);
+    EXPECT_TRUE(promptOffersValue(agent, 1, 16));
+    EXPECT_TRUE(promptOffersValue(agent, 1, 20));
+    EXPECT_EQ(o(enemy).damage_marked, 20);
+    EXPECT_EQ(ps(P1).rune_pool.universal_power, 0);
 }
 
 // ── 3. Promising Future 115: only one of the top five can be banished ──

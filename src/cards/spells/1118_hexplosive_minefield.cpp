@@ -29,15 +29,16 @@ public:
         auto picked = selectSeveral(ctx, "Hexplosive Minefield: kill friendly Bombs", bombs, static_cast<int>(bombs.size()));
         if (!picked) return;
         if (finalizingChoices(ctx)) return;
-        int n = static_cast<int>(picked->size());
+        const int n = static_cast<int>(picked->size());
         for (auto id : *picked) ctx.executor.killObject(id);
-        if (ctx.state.objectExists(ctx.source)) ctx.state.getObject(ctx.source).card_counters["__mines"] = n;
-        atEndOfTurnAbout(ctx, cardDefId(), ctx.source, 0);
+        // The count is this play's. A second play of the same card must not
+        // overwrite it (the delayed ability carries the number).
+        atEndOfTurnAbout(ctx, cardDefId(), ctx.source, n);
     }
     TriggerType triggerType() const override { return TriggerType::AtEndOfTurn; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
-        int n = 0;
-        if (ctx.state.objectExists(ctx.source)) n = ctx.state.getObject(ctx.source).card_counters["__mines"];
+        const int n = ctx.state.chain.resuming.has_value()
+            ? ctx.state.chain.resuming->ability_index : 0;
         if (n <= 0 || ctx.state.battlefields.empty()) return;
         const int mode = pickBattlefield(*this, ctx, "Hexplosive Minefield: a battlefield");
         if (mode < 0 || mode >= static_cast<int>(ctx.state.battlefields.size())) return;

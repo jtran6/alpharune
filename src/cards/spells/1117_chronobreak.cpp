@@ -20,17 +20,21 @@ public:
                                           GameObjectId) const override {
         return {.exists = true, .mandatory = true, .payable = true, .best = {}};
     }
+    // The units are targets, chosen as the spell is played (CR 355.5). X is
+    // chosen then too; this pays the amount that pass stored. Neither choice
+    // reduces the spell's cost.
+    unsigned choicesAtFinalization() const override { return kFinalizeResolve; }
+    FinalizeChoice mayChooseAtFinalization(const GameState&, PlayerId,
+                                           GameObjectId) const override {
+        return FinalizeChoice::No;
+    }
     PlayCostAdjust payAdditionalPlayCost(
         CardContext& ctx, const std::function<bool(const PlayCostAdjust&)>&) override {
-        const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 20, SpendFor::Spell);
-        std::vector<std::string> labels;
-        labels.reserve(static_cast<std::size_t>(cap) + 1);
-        for (int i = 0; i <= cap; ++i)
-            labels.push_back("Pay " + std::to_string(i) + " Power");
-        int x = ctx.executor.chooseValueNow(ctx.controller, labels,
-                                            "Chronobreak: pay any amount of Power",
-                                            PromptKind::XAmount);
-        if (x < 0 || x > cap) x = 0;
+        int x = 0;
+        if (ctx.state.objectExists(ctx.source))
+            x = ctx.state.getObject(ctx.source).card_counters["__chrono_x"];
+        if (x < 0) x = 0;
+        if (x > 20) x = 20;
         // The Power is paid ahead of the spell's [2] Energy. A ready rune is
         // exhausted for that Energy before it is recycled, so paying X equal
         // to the number of ready runes still leaves the spell payable.
@@ -57,8 +61,15 @@ public:
         // with an empty item, so a previous banish cannot be replayed.
         if (ri.resume_data[8] == 0) {
             int x = 0;
-            if (ctx.state.objectExists(ctx.source))
+            if (ri.finalizing) {
+                const int cap = ctx.executor.maxPayableAnyPower(ctx.controller, 20, SpendFor::Spell);
+                x = pickXAmount(ctx, "Chronobreak: pay any amount of Power", 0, cap);
+                if (x < 0) return;
+                if (ctx.state.objectExists(ctx.source))
+                    ctx.state.getObject(ctx.source).card_counters["__chrono_x"] = x;
+            } else if (ctx.state.objectExists(ctx.source)) {
                 x = ctx.state.getObject(ctx.source).card_counters["__chrono_x"];
+            }
             if (x < 0) x = 0;
             auto units = chooseableUnits(ctx.state, ctx.controller, [&](const GameObject& u) {
                 return u.controller == ctx.controller;
@@ -75,11 +86,17 @@ public:
                                        left, static_cast<std::size_t>(220 + 2 * i), false);
                 if (!one) return;
                 if (*one == kInvalidId) break;
+                if (ri.finalizing &&
+                    std::find(ri.chosen_objects.begin(), ri.chosen_objects.end(), *one) ==
+                        ri.chosen_objects.end())
+                    commitChosenObject(ctx, *one);
                 picked.push_back(*one);
             }
+            if (finalizingChoices(ctx)) return;
             ensure(80 + static_cast<std::size_t>(2 * static_cast<int>(picked.size()) + 2));
             int n = 0;
             for (auto id : picked) {
+                if (!ctx.state.stillTheChosenObject(ri, id)) continue;
                 if (!ctx.state.objectExists(id)) continue;
                 const auto& unit = ctx.state.getObject(id);
                 if (!unit.location.has_value()) continue;

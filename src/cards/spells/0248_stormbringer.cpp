@@ -66,8 +66,12 @@ public:
             hit.push_back(id);
         }
         for (auto id : hit) ctx.executor.dealDamage(id, dmg, ctx.source);
-        {   // the batch is for these kills only
-            ctx.executor.killLethallyDamagedTogether(hit);   // they die at the same time
+        {   // Units already lethally damaged die with these (CR 142.4.a, 383.2.c.2).
+            for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
+                if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
+                if (std::find(hit.begin(), hit.end(), id) == hit.end()) hit.push_back(id);
+            }
+            ctx.executor.killLethallyDamagedTogether(hit);
         }
         // Then move your unit there.
         ctx.executor.moveToBattlefield(mover, bf);

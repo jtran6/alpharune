@@ -77,10 +77,19 @@ public:
 
         // Kill lethally-damaged units (after all damage is marked); gain 1 XP
         // per unit this kills.
-        int kills = 0;
-        {   // the batch is for these kills only
-            kills += static_cast<int>(ctx.executor.killLethallyDamagedTogether(damaged).size());   // they die at the same time
+        // Units already lethally damaged die with these, so they do not see
+        // the deaths (CR 142.4.a, 383.2.c.2). XP is only for a unit this
+        // spell's damage killed.
+        std::vector<GameObjectId> batch = damaged;
+        for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
+            if (!obj.isUnit() || !obj.hasLethalDamage()) continue;
+            if (std::find(batch.begin(), batch.end(), id) == batch.end())
+                batch.push_back(id);
         }
+        const auto died = ctx.executor.killLethallyDamagedTogether(std::move(batch));
+        int kills = 0;
+        for (auto id : damaged)
+            if (std::find(died.begin(), died.end(), id) != died.end()) ++kills;
         // "Then for each unit this kills, do this: Gain 1 XP." — one
         // reflexive trigger per unit killed (CR 388.1.a, 389.2), each a chain
         // item of its own.

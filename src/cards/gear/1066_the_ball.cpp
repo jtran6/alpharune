@@ -17,6 +17,15 @@ public:
     const CardDef& def() const override { return def_; }
 
     std::vector<TriggerType> triggerTypes() const override { return {TriggerType::WhenYouPlayMe, TriggerType::WhenIMove}; }
+    // "When you play or move this." A move is "you" only when this player
+    // performed it (CR 412.4). An untagged move is the object's controller's.
+    bool triggerCondition(const GameState& state, GameObjectId, PlayerId controller,
+                          TriggerType trigger, GameObjectId) const override {
+        if (trigger != TriggerType::WhenIMove) return true;
+        const auto* mv = triggeringMove(state);
+        if (!mv || mv->performed_by == PlayerId::None) return true;
+        return mv->performed_by == controller;
+    }
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         int mode = pickMode(ctx, "The Ball", 2, {"Draw 1", "Deal 2 to enemy units here"});
