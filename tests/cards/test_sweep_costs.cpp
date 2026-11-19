@@ -1094,6 +1094,29 @@ TEST_F(SweepCostsTest, UndyingLegion_IsPlayedFromTheTrashForItsLegionCost) {
     EXPECT_EQ(state.player(P1).rune_pool.power[static_cast<int>(Domain::Fury)], 0);
 }
 
+// CR 812.1.c: Legion turns on when a different card was finalized this turn.
+// Playing Undying Legion, then killing it, must not count that play.
+TEST_F(SweepCostsTest, UndyingLegion_ItsOwnPlayDoesNotTurnOnTheTrashReplay) {
+    auto legion = addToHand(P1, kUndyingLegion);
+    setPool(P1, 3, 0);
+    play(legion);
+    ASSERT_TRUE(onBoard(legion));
+    EXPECT_EQ(state.player(P1).cards_played_this_turn, 1);
+    withEngine([&](GameEngine& e) { e.testHook_executor().killObject(legion); });
+    ASSERT_TRUE(inTrash(P1, legion));
+    setPool(P1, 3, 0);
+    state.player(P1).rune_pool.power[static_cast<int>(Domain::Fury)] = 1;
+    auto trashPlay = [&]() -> std::optional<Intent> {
+        for (const auto& i : legal())
+            if (i.card == legion && i.play_source == Intent::PlaySource::Trash) return i;
+        return std::nullopt;
+    };
+    EXPECT_FALSE(trashPlay().has_value())
+        << "the play that moved it into the trash is not another card";
+    state.player(P1).cards_played_this_turn = 2;
+    EXPECT_TRUE(trashPlay().has_value()) << "a different card this turn turns [Legion] on";
+}
+
 TEST_F(SweepCostsTest, DeathMark_FlowPaysTwoAnyPowerFromTwoDomains) {
     auto mark = addToTrash(P1, kDeathMark);          // [Flow] [1][A][A]
     for (int i = 0; i < 3; ++i) addToDeck(P1, kPoutyPoro);

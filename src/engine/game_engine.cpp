@@ -4573,9 +4573,15 @@ void GameEngine::finishPlaySpell(const Intent& intent, std::vector<GameObjectId>
         ps.current_play_source = Intent::PlaySource::Hand;
     }
     payDeferredSpellCost(intent.card);   // CR 357.2 (testing phase F6)
-    // The one-shot granted [Repeat] ("your next spell this turn") is used up
-    // by this spell whether or not it applied.
-    if (card.isSpell()) ps.grant_repeat_base_to_next_spell = false;
+    // The one-shot granted [Repeat] is spent by the spell that received the
+    // instance (CR 820.3). A spell with no base cost gains nothing, so the
+    // grant stays for a later spell.
+    if (card.isSpell() && ps.grant_repeat_base_to_next_spell &&
+        card.card_def_id != kInvalidId) {
+        const auto& base = card_db_.get(card.card_def_id);
+        if (base.energy_cost > 0 || base.power_cost > 0)
+            ps.grant_repeat_base_to_next_spell = false;
+    }
     const int repeats = static_cast<int>(accepted_repeats.size());
     if (repeats > 0) {
         RIFT_TRACE(events_, "REPEAT: paid " + std::to_string(repeats) +
@@ -4656,12 +4662,14 @@ std::vector<GameEngine::RepeatTranche> GameEngine::repeatTranchesFor(PlayerId pl
             for (const auto& rc : sc->repeatCosts())
                 out.push_back({rc.energy, rc.power, resource::maskOf(rc.power_domain),
                                rc.discard_cards});
-    // GRANTED [Repeat] (when the spell has none of its own printed):
+    // GRANTED [Repeat] is another instance (CR 820.3), paid on its own, even
+    // when the spell already prints one. Each instance the player pays
+    // executes the spell once more.
     //   The Academy (772) / Temporal Portal (401): "next spell gets [Repeat]
     //   equal to its (base) cost" (one-shot).
     //   Syndra, Transcendent (708): "your spells have [Repeat] [2][P]" (continuous
     //   while she's in a showdown). The one-shot grant takes precedence.
-    if (card.isSpell() && out.empty()) {
+    if (card.isSpell()) {
         if (ps.grant_repeat_base_to_next_spell && card.card_def_id != kInvalidId) {
             // "[Repeat] equal to its base cost": Energy and Power both, the
             // Power payable in any of the spell's own Domains, as its base
@@ -7873,6 +7881,48 @@ void GameEngine::combatDamageStep(BattlefieldId bf_id) {
     if (def_assigned) resolveCombatDamageDecision(*def_assigned);
 }
 
+// CR 467.2.c.8-9. A unit with both [Tank] and [Backline] (class 3) is assigned
+// as one or the other, chosen by who is assigning, and never between the two.
+// Class 0 is [Tank] only, 1 is neither, 2 is [Backline] only. `taken(k)` is
+// true for a unit already assigned. While a pure [Tank] remains, the open set
+// is those tanks and any flex unit still being read as [Tank]. Once a unit
+// that is neither (or a pure [Backline]) has been assigned, every flex unit
+// still waiting is [Backline] and waits its turn.
+template <class Taken>
+std::vector<size_t> combatDamageOpen(const std::vector<int>& cls, Taken&& taken) {
+    const size_t n = cls.size();
+    bool tank_left = false, mid_left = false, back_left = false, flex_left = false;
+    bool passed = false;
+    for (size_t k = 0; k < n; ++k) {
+        if (taken(k)) {
+            if (cls[k] == 1 || cls[k] == 2) passed = true;
+        } else if (cls[k] == 0) tank_left = true;
+        else if (cls[k] == 1) mid_left = true;
+        else if (cls[k] == 2) back_left = true;
+        else flex_left = true;
+    }
+    const bool flex_as_tank = flex_left && !passed;
+    std::vector<size_t> open;
+    auto consider = [&](int want) {
+        for (size_t k = 0; k < n; ++k)
+            if (!taken(k) && cls[k] == want) open.push_back(k);
+    };
+    if (tank_left) {
+        consider(0);
+        if (flex_as_tank) consider(3);
+    } else if (flex_as_tank && (mid_left || back_left)) {
+        consider(3);
+        if (mid_left) consider(1);
+        else consider(2);
+    } else if (mid_left) {
+        consider(1);
+    } else {
+        consider(2);
+        consider(3);
+    }
+    return open;
+}
+
 std::optional<Intent> GameEngine::assignCombatDamage(PlayerId assigner, int total_damage,
                                                     const std::vector<GameObjectId>& targets) {
     auto adv = advanceCombatDamage(assigner, total_damage, targets);
@@ -7884,9 +7934,10 @@ std::optional<Intent> GameEngine::assignCombatDamage(PlayerId assigner, int tota
         return chosen;
     }
     // Step by step (testing phase B7): more distinct assignments than one
-    // decision offers. The assigner names, in the tier order, the unit that
-    // takes lethal damage next (CR 460.2.c.3, 460.2.c.6); the last one named
-    // takes what is left (460.2.c.4). Every legal assignment is reachable.
+    // decision offers. The assigner names the unit that takes lethal damage
+    // next, among the units the rules currently allow (CR 467.2.c.3, 467.2.c.6,
+    // 467.2.c.8); the last one named takes what is left (467.2.c.4). Every
+    // legal assignment is reachable.
     const bool any_damage_lethal = anyDamageIsLethalFor(assigner);
     std::vector<GameObjectId> flat;
     std::vector<int> tier_of;
@@ -7895,13 +7946,10 @@ std::optional<Intent> GameEngine::assignCombatDamage(PlayerId assigner, int tota
     std::vector<DamageAssignment> cur;
     int remaining = total_damage;
     while (remaining > 0) {
-        int tier = -1;
-        for (size_t k = 0; k < flat.size(); ++k)
-            if (!taken[k]) { tier = tier_of[k]; break; }
-        if (tier < 0) break;
-        std::vector<size_t> open;
-        for (size_t k = 0; k < flat.size(); ++k)
-            if (!taken[k] && tier_of[k] == tier) open.push_back(k);
+        const auto open = combatDamageOpen(tier_of, [&](size_t k) {
+            return static_cast<bool>(taken[k]);
+        });
+        if (open.empty()) break;
         size_t pick = open.front();
         if (open.size() > 1) {
             std::vector<Intent> options;
@@ -7947,16 +7995,22 @@ void GameEngine::combatDamageTiers(PlayerId assigner, const std::vector<GameObje
             for (const auto& b : state_.battlefields)
                 if (b.id == *tbf) ignore_tank = b.ignore_tank[playerIndex(assigner)];
     }
-    std::vector<GameObjectId> tiers[3];
+    std::vector<GameObjectId> tiers[4];
     for (auto tid : targets) {
         const auto& obj = state_.getObject(tid);
-        if (obj.hasKeyword(Keyword::Tank) && !ignore_tank) tiers[0].push_back(tid);
-        else if (obj.hasKeyword(Keyword::Backline)) tiers[2].push_back(tid);
-        else                                        tiers[1].push_back(tid);
+        // CR 467.2.c.8: [Tank] and [Backline] on one unit are exclusionary.
+        // She is her own class, and the assigner chooses which one applies.
+        const bool tank = obj.hasKeyword(Keyword::Tank) && !ignore_tank;
+        const bool back = obj.hasKeyword(Keyword::Backline);
+        int g = 1;
+        if (tank && back) g = 3;
+        else if (tank) g = 0;
+        else if (back) g = 2;
+        tiers[g].push_back(tid);
     }
     flat.clear();
     tier_of.clear();
-    for (int bi = 0; bi < 3; ++bi) {
+    for (int bi = 0; bi < 4; ++bi) {
         std::sort(tiers[bi].begin(), tiers[bi].end());
         for (auto id : tiers[bi]) {
             if (!canTakeCombatDamage(state_.getObject(id))) continue;   // CR 467.2.c.10
@@ -7990,14 +8044,12 @@ GameEngine::CombatDamageAdvance GameEngine::advanceCombatDamage(
         return lethalCascade(state_, targets, total_damage, any_damage_lethal);
     };
 
-    // CR 460.2.c.3 (strict lethality) + 460.2.c.4 (no over-assign) + CR 815
-    // (Tank first) + CR 826 (Backline last): the only CR-legal damage
-    // allocations are greedy-lethal cascades, varying only by the WITHIN-
-    // bucket order of targets (CR 460.2.c.6 — any order within tied
-    // priority). We partition into Tank / non-Tank-non-Backline / Backline
-    // buckets, enumerate permutations within each, concatenate, and run
-    // greedy-lethal on every ordering. Identical resulting allocations
-    // are deduped.
+    // CR 467.2.c.3 (strict lethality) + 467.2.c.4 (no over-assign) + 467.2.c.8
+    // ([Tank] and [Backline] on one unit: the assigner chooses which) +
+    // [Tank] first + [Backline] last. The legal allocations are the
+    // greedy-lethal cascades over the units that reading leaves open
+    // (467.2.c.6: any order within one priority). Identical resulting
+    // allocations are deduped.
 
     // The key is the sorted (target, damage) list itself (it used to be that
     // list printed into a string — plans/06 item 6.11).
@@ -8049,18 +8101,16 @@ GameEngine::CombatDamageAdvance GameEngine::advanceCombatDamage(
                 too_many = true;
                 return;
             }
-            // Current bucket = the first one that still has an untaken unit.
-            int bucket = -1;
-            for (size_t k = 0; k < flat.size(); ++k)
-                if (!(taken >> k & 1)) { bucket = bucket_of[k]; break; }
-            if (remaining <= 0 || bucket < 0) {
+            const auto open = combatDamageOpen(bucket_of, [&](size_t k) {
+                return (taken >> k & 1) != 0;
+            });
+            if (remaining <= 0 || open.empty()) {
                 auto da = cur;
                 if (remaining > 0 && !da.empty()) da.back().damage += remaining;
                 if (!da.empty()) emitIfNew(std::move(da));
                 return;
             }
-            for (size_t k = 0; k < flat.size(); ++k) {
-                if ((taken >> k & 1) || bucket_of[k] != bucket) continue;
+            for (size_t k : open) {
                 const auto& t = state_.getObject(flat[k]);
                 const int assigned =
                     std::min(remaining, combatDamageNeededForLethal(t, any_damage_lethal));

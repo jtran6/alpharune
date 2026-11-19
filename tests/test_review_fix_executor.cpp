@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <random>
 
 namespace riftbound::test {
 namespace test_review_fix_executor {  // file-unique: test sources are unity-built
@@ -267,6 +268,58 @@ TEST_F(ExecutorReviewFixTest, Predict_RecyclingFiresWhenYouRecycle) {
     EXPECT_EQ(s().getObject(karma).buff_count, 1)
         << "Karma, Channeler: a Predict recycle is a recycle to the Main Deck";
     EXPECT_TRUE(knowledge::check(s()).empty());
+}
+
+// CR 437.1.a and 417.5: two or more cards a Predict recycles go to the bottom
+// together, in a random order, not the order they were looked at.
+TEST_F(ExecutorReviewFixTest, Predict_RecycledCardsGoToTheBottomInARandomOrder) {
+    const GameObjectId low = onDeck(P1, kVanillaUnit);          // card 1, bottom of the look
+    const GameObjectId mid = onDeck(P1, kBlindMonk);            // card 254
+    const GameObjectId high = onDeck(P1, kFrigidTouch);         // card 389, top
+    // FirstChoiceAgent recycles each looked-at card. The peek order, top
+    // first, is high, mid, low. Putting each on the bottom as it is chosen
+    // leaves `high` nearest the top of that group.
+    std::vector<GameObjectId> shuffled = {low, mid, high};
+    std::sort(shuffled.begin(), shuffled.end(), [&](GameObjectId a, GameObjectId b) {
+        return s().getObject(a).card_def_id < s().getObject(b).card_def_id;
+    });
+    std::mt19937_64 rng = engine_->rngState();
+    std::shuffle(shuffled.begin(), shuffled.end(), rng);
+
+    exec().predict(P1, 3);
+
+    const auto& deck = s().player(P1).main_deck;
+    ASSERT_EQ(deck.size(), 3u);
+    // The deck's back is the top. The shuffled vector is nearer-the-top first,
+    // which is how recycleCards inserts a group (front of the vector lands
+    // nearest the old deck).
+    std::vector<GameObjectId> nearer_top_first(deck.rbegin(), deck.rend());
+    EXPECT_EQ(nearer_top_first, shuffled);
+    const std::vector<GameObjectId> peek_order = {high, mid, low};
+    EXPECT_NE(nearer_top_first, peek_order);
+}
+
+// CR 417.5.a: two or more runes recycled together go to the bottom of the
+// Rune Deck in the order their owner chooses, not in card-id order.
+TEST_F(ExecutorReviewFixTest, RuneRecycle_OwnerChoosesTheOrder) {
+    auto fury = card(P1, /*Fury Rune*/ 7);
+    auto calm = card(P1, /*Calm Rune*/ 42);
+    for (auto id : {fury, calm}) {
+        auto& rune = s().getObject(id);
+        rune.zone = ZoneType::Base;
+        rune.location = BaseLocation{P1};
+    }
+    // Card-id order would put Fury (7) nearer the top than Calm (42). The
+    // owner names Calm instead.
+    EnginePathAgent owner(EnginePathAgent::choosing(calm));
+    engine_->testHook_setAgents(&owner, &a2_);
+    exec().recycleCards(P1, {calm, fury});
+    exec().channelRunes(P1, 1);
+
+    ASSERT_FALSE(owner.prompts.empty()) << "the owner is asked for the order";
+    EXPECT_TRUE(owner.wasOffered(fury));
+    EXPECT_EQ(s().getObject(calm).zone, ZoneType::Base) << "the rune the owner put nearest the top";
+    EXPECT_EQ(s().getObject(fury).zone, ZoneType::RuneDeck);
 }
 
 TEST_F(ExecutorReviewFixTest, Predict_KeepingEveryCardRecyclesNothing) {
