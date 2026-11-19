@@ -478,6 +478,7 @@ TEST(PlayByPlayText, QuietProbeWritesNothing) {
     const auto quiet = bus.beginQuiet();
     bus.emit(PhaseChangedEvent{TurnPhase::Mulligan, TurnPhase::AwakenPhase, PlayerId::Player1});
     bus.emit(CardPlayedEvent{unit, PlayerId::Player1, CardType::Unit, 1});
+    bus.emit(PredictEvent{PlayerId::Player1, 1});
     chronicle.noteDecision(state, Intent::mulligan(PlayerId::Player1, {smoke}));
     bus.endQuiet(quiet);
 
@@ -487,6 +488,7 @@ TEST(PlayByPlayText, QuietProbeWritesNothing) {
     EXPECT_EQ(text.find("Lecturing Yordle"), std::string::npos) << text;
     EXPECT_EQ(text.find("Smoke Screen"), std::string::npos) << text;
     EXPECT_EQ(text.find("plays "), std::string::npos) << text;
+    EXPECT_EQ(text.find("Predicts"), std::string::npos) << text;
     EXPECT_NE(text.find("Mulligan: neither player was asked."), std::string::npos) << text;
 
     bus.emit(PhaseChangedEvent{TurnPhase::Mulligan, TurnPhase::AwakenPhase, PlayerId::Player1});

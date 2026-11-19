@@ -3,6 +3,7 @@
 
 #include "tests/cards/card_test_fixture.h"
 #include "cards/card_helpers.h"
+#include "io/play_by_play.h"
 
 #include <gtest/gtest.h>
 
@@ -23,6 +24,8 @@ protected:
     static constexpr CardDefId kCircle = 1080;
     static constexpr CardDefId kAmphitheater = 1081;
     static constexpr CardDefId kRakelstake = 1082;
+    static constexpr CardDefId kExile = 1068;
+    static constexpr CardDefId kInnovator = 1034;   // [3], [Accelerate]
     static constexpr CardDefId kHideout = 1079;
     static constexpr CardDefId kCaress = 1122;
     static constexpr CardDefId kInferna = 560;      // [Ambush], [2]
@@ -599,6 +602,75 @@ TEST_F(EngineFixLines, Rakelstake_AGearHerePredictsAndUsesTheSamePermission) {
     EXPECT_EQ(p1.predict_kept_by_default, 1);
     playThroughEngine(unit, &p1, here);
     EXPECT_EQ(p1.predict_kept_by_default, 1);
+}
+
+// The Exile reads "Units you play to battlefields you control enter ready."
+// That readies the unit. It does not change what the unit costs. Reckless
+// Innovator is [3] with [Accelerate] ([1][P] to enter ready), so paying
+// Accelerate is 4 energy and 1 power. Rakelstake reads "For each player, the
+// first time they play a unit or gear here each turn, they Predict." This is
+// that first play: the battlefield is already controlled, and nothing has
+// been played there this turn.
+TEST_F(EngineFixLines, Exile_RecklessInnovatorAtRakelstakePredictsOnce) {
+    legend(P2, kExile);
+    battlefieldCard(0, kRakelstake, P2);
+    addUnit(P2, kUnit, 1, 0);
+    battlefieldCard(1, kAmphitheater, P2);
+    addUnit(P2, kUnit, 1, 1);
+    addToDeck(P2, kUnit);
+    auto innovator = addToHand(P2, kInnovator);
+    auto gear = addToHand(P2, kDeployGear);
+    auto elsewhere = addToHand(P2, kUnit);
+    // 4 for the Innovator with Accelerate, 1 for the gear, 2 for the Poro.
+    state.player(P2).rune_pool.energy = 7;
+    state.player(P2).rune_pool.universal_power = 1;
+    const LocationId here{BattlefieldLocation{BattlefieldId::fromRaw(0)}};
+    const LocationId other{BattlefieldLocation{BattlefieldId::fromRaw(1)}};
+    EnginePathAgent p2(EnginePathAgent::script({1, EnginePathAgent::kRest}));
+
+    std::string account;
+    withEngine([&](GameEngine& e) {
+        PlayByPlay chronicle(e.state(), events);
+        e.testHook_cleanup();
+        ASSERT_TRUE(e.mutableState().player(P2).units_enter_ready_at_your_bf);
+        playAt(e, innovator, here);
+        settleLikeTheEngine(e);
+        EXPECT_EQ(e.mutableState().player(P2).rune_pool.energy, 3);
+        EXPECT_EQ(e.mutableState().player(P2).rune_pool.universal_power, 0);
+        EXPECT_EQ(e.mutableState().getObject(innovator).location, here);
+        EXPECT_FALSE(e.mutableState().getObject(innovator).is_exhausted);
+
+        playAt(e, gear, here);
+        settleLikeTheEngine(e);
+        EXPECT_EQ(e.mutableState().getObject(gear).location, here);
+        EXPECT_EQ(e.mutableState().player(P2).rune_pool.energy, 2);
+
+        playAt(e, elsewhere, other);
+        settleLikeTheEngine(e);
+        EXPECT_EQ(e.mutableState().getObject(elsewhere).location, other);
+        EXPECT_EQ(e.mutableState().player(P2).rune_pool.energy, 0);
+        account = chronicle.text();
+    }, nullptr, &p2, P2);
+
+    int looked = 0;
+    for (const auto& prompt : p2.prompts) {
+        if (prompt.size() == 2 && prompt[1].choice_label == "Keep it") ++looked;
+    }
+    EXPECT_EQ(looked, 1) << "the first unit here Predicts; the gear here and the "
+                            "unit at the other battlefield do not";
+    const auto play = account.find(
+        "P2 plays Reckless Innovator to Rakelstake for 4 energy and 1 power.");
+    const std::string predicted_line = "P2 Predicts.";
+    const auto predicted = account.find(predicted_line);
+    EXPECT_NE(play, std::string::npos) << account;
+    EXPECT_NE(predicted, std::string::npos) << account;
+    EXPECT_LT(play, predicted) << account;
+    EXPECT_EQ(account.find(predicted_line, predicted + predicted_line.size()),
+              std::string::npos) << account;
+    EXPECT_NE(account.find("P2 plays Bushwhack Trap to Rakelstake for 1 energy."),
+              std::string::npos) << account;
+    EXPECT_NE(account.find("P2 plays Pouty Poro to Packed Amphitheater for 2 energy."),
+              std::string::npos) << account;
 }
 
 // Firelights' Hideout and Last Caress. The expiry, the buff, and the facedown

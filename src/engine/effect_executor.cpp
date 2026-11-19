@@ -2892,6 +2892,7 @@ void EffectExecutor::predict(PlayerId player, int count) {
     int actual = std::min(count, static_cast<int>(ps.main_deck.size()));
     if (actual <= 0) return;
 
+    events_.emit(PredictEvent{player, actual});
     RIFT_TRACE(events_, std::string("PREDICT: ") + toString(player) +
                      " looks at top " + std::to_string(actual) + " cards");
 
