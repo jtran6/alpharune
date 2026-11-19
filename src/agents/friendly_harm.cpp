@@ -30,6 +30,9 @@ struct SpellShape {
     bool rider = false;
     // "Banish a unit, then its owner plays it": the replay is the line.
     bool replays = false;
+    // "Give a unit +N [M]": any unit is a legal target. A friendly one is
+    // the line that is scored while one is legal.
+    bool buffs_any_unit = false;
 
     bool harms() const {
         return damage > 0 || might_delta < 0 || bounce || banishes || kills;
@@ -59,6 +62,22 @@ bool hasWord(const std::string& text, const char* word) {
         const size_t end = i + n;
         if (end == text.size() || !std::isalpha(static_cast<unsigned char>(text[end])))
             return true;
+    }
+    return false;
+}
+
+// "Give a unit +2 [M]". Not "a friendly unit" and not "an enemy unit":
+// those name who the printed card wants.
+bool givesAnyUnitMight(const std::string& text) {
+    static constexpr char kPhrase[] = "give a unit +";
+    const size_t n = sizeof(kPhrase) - 1;
+    for (size_t i = 0; (i = text.find(kPhrase, i)) != std::string::npos; i += n) {
+        size_t j = i + n;
+        if (j >= text.size() || !std::isdigit(static_cast<unsigned char>(text[j]))) continue;
+        while (j < text.size() && std::isdigit(static_cast<unsigned char>(text[j]))) ++j;
+        while (j < text.size() && text[j] == ' ') ++j;
+        if (text.compare(j, 3, "[m]") == 0) return true;
+        if (atWord(text, j) && text.compare(j, 5, "might") == 0) return true;
     }
     return false;
 }
@@ -125,6 +144,7 @@ SpellShape shapeOf(const Card& card) {
     if (card.getTargetRequirements().must_be_at_battlefield) s.at_battlefield = true;
     s.rider = hasWord(text, "draw") || hasWord(text, "predict");
     s.replays = s.banishes && text.find("plays it") != std::string::npos;
+    s.buffs_any_unit = s.might_delta > 0 && !s.harms() && givesAnyUnitMight(text);
     for (size_t p = 0; (p = text.find(" or less", p)) != std::string::npos; p += 8) {
         size_t j = p;
         while (j > 0 && text[j - 1] == ' ') --j;
@@ -174,7 +194,12 @@ bool isActivation(IntentType type) {
 const Card* cardOf(const GameState& state, const Intent& intent, const CardRegistry& cards) {
     if (isPlay(intent.type) || isActivation(intent.type))
         return cardFor(state, intent.card, cards);
-    if (intent.type == IntentType::MakeChoice) return askingCard(state, cards);
+    if (intent.type == IntentType::MakeChoice) {
+        // A spell's target is chosen before the spell is on the chain.
+        if (const Card* choosing = cardFor(state, state.choosing_spell, cards))
+            return choosing;
+        return askingCard(state, cards);
+    }
     return nullptr;
 }
 
@@ -206,6 +231,33 @@ bool siblingNamesEnemy(const GameState& state, const Intent& intent,
         }
     }
     return false;
+}
+
+bool siblingNamesFriendly(const GameState& state, const Intent& intent,
+                          const std::vector<Intent>& legal) {
+    for (const auto& other : legal) {
+        if (!sameSpell(intent, other)) continue;
+        for (auto id : namedUnits(state, other)) {
+            if (state.getObject(id).controller == intent.player) return true;
+        }
+    }
+    return false;
+}
+
+/// "Give a unit +N [M]". The opponent's unit is not the ordinary line while
+/// a friendly unit is also a legal target. It stays when it is the only one,
+/// and the rules engine still offers it either way. A choice that names a
+/// friendly unit, or names nobody, is kept.
+bool dropBuffOnEnemy(const GameState& state, const Intent& intent,
+                     const std::vector<Intent>& legal, const SpellShape& shape,
+                     const Card& card) {
+    if (!shape.buffs_any_unit) return false;
+    if (card.getTargetRequirements().must_be_enemy) return false;
+    const auto units = namedUnits(state, intent);
+    if (units.empty()) return false;
+    for (auto id : units)
+        if (state.getObject(id).controller == intent.player) return false;
+    return siblingNamesFriendly(state, intent, legal);
 }
 
 bool harmKills(const GameObject& unit, const SpellShape& shape) {
@@ -317,6 +369,8 @@ bool dropIntent(const GameState& state, const Intent& intent,
     const Card* card = cardOf(state, intent, cards);
     if (!card) return false;
     const SpellShape shape = shapeOf(*card);
+    if (shape.buffs_any_unit)
+        return dropBuffOnEnemy(state, intent, legal, shape, *card);
     if (!shape.harms()) return false;
     const auto units = namedUnits(state, intent);
     if (units.empty()) {

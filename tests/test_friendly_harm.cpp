@@ -511,4 +511,110 @@ TEST_F(FriendlyHarmTest, EnGardeOnAFriendlyStays) {
     });
 }
 
+// "Give a unit +2 [M] this turn. Draw 1." Any unit is a legal target. The
+// line that is scored is the one that is played. While the opponent's unit
+// is still scored, that is the play — the logged game took it while Master
+// Yi, Tempered was also legal. Once that line is not scored, his unit is
+// the play. The names are not the rule: the opponent here is not that champion.
+class DisciplineTargetAgent : public AgentInterface {
+public:
+    GameObjectId own = kInvalidId;
+    GameObjectId enemy = kInvalidId;
+    const CardRegistry* cards = nullptr;
+    bool saw = false;
+    bool own_legal = false;
+    bool enemy_legal = false;
+    bool own_scored = false;
+    bool enemy_scored = false;
+    GameObjectId chosen = kInvalidId;
+
+    Intent selectAction(const GameState& state, const std::vector<Intent>& legal) override {
+        if (legal.empty()) return Intent{};
+        auto names = [](const Intent& intent, GameObjectId id) {
+            return std::find(intent.chosen_objects.begin(), intent.chosen_objects.end(), id) !=
+                       intent.chosen_objects.end() ||
+                   std::find(intent.targets.begin(), intent.targets.end(), id) != intent.targets.end();
+        };
+        bool object_choice = false;
+        for (const auto& intent : legal)
+            if (intent.type == IntentType::MakeChoice && !intent.chosen_objects.empty())
+                object_choice = true;
+        if (object_choice && !saw) {
+            for (const auto& intent : legal) {
+                if (names(intent, own)) own_legal = true;
+                if (names(intent, enemy)) enemy_legal = true;
+            }
+            if (own_legal || enemy_legal) {
+                saw = true;
+                const auto kept = searchCandidates(state, legal, *cards);
+                for (const auto& intent : kept) {
+                    if (names(intent, own)) own_scored = true;
+                    if (names(intent, enemy)) enemy_scored = true;
+                }
+                if (enemy_scored) chosen = enemy;
+                else if (own_scored) chosen = own;
+                if (chosen != kInvalidId)
+                    for (const auto& intent : legal)
+                        if (names(intent, chosen)) return intent;
+            }
+        }
+        for (const auto& intent : legal)
+            if (intent.type == IntentType::PassPriority || intent.type == IntentType::PassFocus ||
+                intent.type == IntentType::EndTurn)
+                return intent;
+        return legal.front();
+    }
+};
+
+// Yi has his own unit and the opponent has a unit. Both are legal targets.
+// On current scoring the played target is the opponent. The ordinary play
+// is his unit. The opponent stays in the engine's list.
+TEST_F(FriendlyHarmTest, DisciplinePlaysOnHisOwnUnitFirst) {
+    constexpr CardDefId kMasterYiTempered = 675;
+    constexpr CardDefId kDiscipline = 58;
+    const auto enemy = addUnit(P2, 87);
+    const auto yi = addUnit(P1, kMasterYiTempered);
+    ASSERT_EQ(state.getObject(yi).current_might, 4);
+    ASSERT_EQ(state.getObject(enemy).current_might, 2);
+    addToDeck(P1, 12);
+    const auto spell = addToHand(P1, kDiscipline);
+
+    DisciplineTargetAgent agent;
+    agent.own = yi;
+    agent.enemy = enemy;
+    agent.cards = &card_registry;
+    playThroughEngine(spell, &agent);
+
+    EXPECT_TRUE(agent.saw);
+    EXPECT_TRUE(agent.own_legal);
+    EXPECT_TRUE(agent.enemy_legal);
+    EXPECT_TRUE(agent.own_scored);
+    EXPECT_FALSE(agent.enemy_scored);
+    EXPECT_EQ(agent.chosen, yi);
+    EXPECT_EQ(state.getObject(yi).temp_might_bonus, 2);
+    EXPECT_EQ(state.getObject(enemy).temp_might_bonus, 0);
+}
+
+// No unit of his own. The opponent's unit is still a legal target and is
+// still the one that is played.
+TEST_F(FriendlyHarmTest, DisciplinePlaysOnTheOpponentWhenHeHasNoUnit) {
+    constexpr CardDefId kDiscipline = 58;
+    const auto enemy = addUnit(P2, 87);
+    ASSERT_EQ(state.getObject(enemy).current_might, 2);
+    addToDeck(P1, 12);
+    const auto spell = addToHand(P1, kDiscipline);
+
+    DisciplineTargetAgent agent;
+    agent.enemy = enemy;
+    agent.cards = &card_registry;
+    playThroughEngine(spell, &agent);
+
+    EXPECT_TRUE(agent.saw);
+    EXPECT_FALSE(agent.own_legal);
+    EXPECT_TRUE(agent.enemy_legal);
+    EXPECT_TRUE(agent.enemy_scored);
+    EXPECT_EQ(agent.chosen, enemy);
+    EXPECT_EQ(state.getObject(enemy).temp_might_bonus, 2);
+}
+
 }  // namespace riftbound::test::friendly_harm

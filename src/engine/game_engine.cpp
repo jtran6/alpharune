@@ -4088,6 +4088,16 @@ namespace {
 std::vector<std::vector<GameObjectId>> spellTargetSets(
     const Card* card, const GameState& state, PlayerId player,
     const TargetRequirements& req, const std::vector<GameObjectId>& legal);
+
+// The spell is not on the chain yet. Name it while its target is chosen so
+// search can read the printed line, and clear it when the choice returns.
+struct ChoosingSpell {
+    GameState& state;
+    explicit ChoosingSpell(GameState& s, GameObjectId spell) : state(s) {
+        state.choosing_spell = spell;
+    }
+    ~ChoosingSpell() { state.choosing_spell = kInvalidId; }
+};
 }  // namespace
 
 bool GameEngine::chooseSpellBeforeItsCost(PlayerId player, GameObjectId card_id,
@@ -4143,6 +4153,7 @@ bool GameEngine::chooseSpellBeforeItsCost(PlayerId player, GameObjectId card_id,
                     i.chosen_objects = {t};
                     options.push_back(std::move(i));
                 }
+                ChoosingSpell choosing(state_, card_id);
                 const Intent chosen = decideNow(player, options, PromptKind::Target, card_id,
                                                 "choose a target for " + card.name);
                 GameObjectId t = legal.front();
@@ -4193,6 +4204,7 @@ bool GameEngine::chooseSpellBeforeItsCost(PlayerId player, GameObjectId card_id,
                 options.push_back(std::move(none));
             }
             // Asked even with one set, as every play-time target is.
+            ChoosingSpell choosing(state_, card_id);
             const Intent chosen = decideNow(player, options, PromptKind::Target, card_id,
                                             "choose the targets for " + card.name);
             play_targets = chosen.chosen_objects;

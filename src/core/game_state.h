@@ -1151,6 +1151,10 @@ struct GameState {
     // Chain
     ChainState chain;
 
+    // The spell whose target is being chosen before that spell is on the
+    // chain (its choices come before its cost). kInvalidId otherwise.
+    GameObjectId choosing_spell = kInvalidId;
+
     // What each player has learned about hidden cards. Written only through
     // engine/knowledge_tracker.h, read only through KnowledgeView.
     KnowledgeState knowledge;
