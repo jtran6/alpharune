@@ -1117,6 +1117,57 @@ TEST_F(SweepCostsTest, UndyingLegion_ItsOwnPlayDoesNotTurnOnTheTrashReplay) {
     EXPECT_TRUE(trashPlay().has_value()) << "a different card this turn turns [Legion] on";
 }
 
+// CR 812.1.c: playing her, bouncing her, and playing her again is still this
+// card. Two plays of her, and no other card, do not turn the trash replay on.
+TEST_F(SweepCostsTest, UndyingLegion_ASecondPlayOfHerIsStillNotAnotherCard) {
+    auto legion = addToHand(P1, kUndyingLegion);
+    setPool(P1, 3, 0);
+    play(legion);
+    ASSERT_TRUE(onBoard(legion));
+    withEngine([&](GameEngine& e) { e.testHook_executor().bounceToHand(legion); });
+    ASSERT_TRUE(inHand(P1, legion));
+    setPool(P1, 3, 0);
+    play(legion);
+    ASSERT_TRUE(onBoard(legion));
+    EXPECT_EQ(state.player(P1).cards_played_this_turn, 2);
+    withEngine([&](GameEngine& e) { e.testHook_executor().killObject(legion); });
+    ASSERT_TRUE(inTrash(P1, legion));
+    setPool(P1, 3, 0);
+    state.player(P1).rune_pool.power[static_cast<int>(Domain::Fury)] = 1;
+    auto trashPlay = [&]() -> std::optional<Intent> {
+        for (const auto& i : legal())
+            if (i.card == legion && i.play_source == Intent::PlaySource::Trash) return i;
+        return std::nullopt;
+    };
+    EXPECT_FALSE(trashPlay().has_value())
+        << "both plays were this card; [Legion] stays off";
+}
+
+// A different card between two plays of her is another card, so the replay is on.
+TEST_F(SweepCostsTest, UndyingLegion_AnotherCardBetweenTwoPlaysOfHerTurnsLegionOn) {
+    auto legion = addToHand(P1, kUndyingLegion);
+    auto poro = addToHand(P1, kPoutyPoro);
+    setPool(P1, 3, 0);
+    play(legion);
+    withEngine([&](GameEngine& e) { e.testHook_executor().bounceToHand(legion); });
+    ASSERT_TRUE(inHand(P1, legion));
+    setPool(P1, 2, 0);
+    play(poro);
+    ASSERT_TRUE(onBoard(poro));
+    setPool(P1, 3, 0);
+    play(legion);
+    ASSERT_TRUE(onBoard(legion));
+    EXPECT_EQ(state.player(P1).cards_played_this_turn, 3);
+    withEngine([&](GameEngine& e) { e.testHook_executor().killObject(legion); });
+    ASSERT_TRUE(inTrash(P1, legion));
+    setPool(P1, 3, 0);
+    state.player(P1).rune_pool.power[static_cast<int>(Domain::Fury)] = 1;
+    bool offered = false;
+    for (const auto& i : legal())
+        if (i.card == legion && i.play_source == Intent::PlaySource::Trash) offered = true;
+    EXPECT_TRUE(offered);
+}
+
 TEST_F(SweepCostsTest, DeathMark_FlowPaysTwoAnyPowerFromTwoDomains) {
     auto mark = addToTrash(P1, kDeathMark);          // [Flow] [1][A][A]
     for (int i = 0; i < 3; ++i) addToDeck(P1, kPoutyPoro);

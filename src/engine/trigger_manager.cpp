@@ -785,8 +785,17 @@ void TriggerManager::onCardPlayed(const CardPlayedEvent& e) {
     // turn", "your second card"): kept on the card, because a spell's play
     // triggers fire only when it resolves — by then later plays have moved
     // PlayerState::cards_played_this_turn on. Turn-stamped (turn + 1).
+    // `__play_count` is how many times THIS object was played this turn.
+    // Legion subtracts all of them: bouncing a card and playing it again is
+    // still that card (CR 812.1.c), and the ordinal alone is only the latest.
+    const int turn_stamp = state_.turn.turn_number + 1;
+    auto prev_turn = obj.card_counters.find("__play_ordinal_turn");
+    if (prev_turn == obj.card_counters.end() || prev_turn->second != turn_stamp)
+        obj.card_counters["__play_count"] = 1;
+    else
+        obj.card_counters["__play_count"] += 1;
     obj.card_counters["__play_ordinal"] = e.cards_played_this_turn;
-    obj.card_counters["__play_ordinal_turn"] = state_.turn.turn_number + 1;
+    obj.card_counters["__play_ordinal_turn"] = turn_stamp;
 
     // "When you play a card" (any type) on the player's other cards + legend,
     // and "When an opponent plays a gear" on the other player's cards.

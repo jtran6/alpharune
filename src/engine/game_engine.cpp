@@ -228,7 +228,6 @@ void GameEngine::initSubsystems() {
                 effect_played_spell_->repeats = static_cast<int>(plan.accepted.size());
                 effect_played_spell_->repeat_energy = plan.energy;
                 effect_played_spell_->repeat_choices = std::move(plan.choices);
-                state_.player(p).grant_repeat_base_to_next_spell = false;
             }
             bool paid = true;
             if (!plan.accepted.empty()) {
@@ -263,6 +262,17 @@ void GameEngine::initSubsystems() {
                 effect_played_spell_.reset();
                 prefinalized_spell_.reset();
                 return false;
+            }
+            // The one-shot granted [Repeat] is spent only by the spell that
+            // gained the instance (CR 820.3). A failed payment, above, did
+            // not. A spell with no base cost gains nothing, so the grant
+            // stays — the same test finishPlaySpell uses.
+            if (state_.objectExists(card) && state_.getObject(card).isSpell() &&
+                state_.player(p).grant_repeat_base_to_next_spell &&
+                state_.getObject(card).card_def_id != kInvalidId) {
+                const auto& base = card_db_.get(state_.getObject(card).card_def_id);
+                if (base.energy_cost > 0 || base.power_cost > 0)
+                    state_.player(p).grant_repeat_base_to_next_spell = false;
             }
             payDeferredSpellCost(card);   // CR 357.2 (testing phase F6)
             return true;
@@ -4697,7 +4707,9 @@ std::vector<GameEngine::RepeatTranche> GameEngine::repeatTranchesFor(PlayerId pl
     //   The Academy (772) / Temporal Portal (401): "next spell gets [Repeat]
     //   equal to its (base) cost" (one-shot).
     //   Syndra, Transcendent (708): "your spells have [Repeat] [2][P]" (continuous
-    //   while she's in a showdown). The one-shot grant takes precedence.
+    //   while she's in a showdown). Each grant is its own instance (CR 820.3),
+    //   so a spell can pay the one-shot and Syndra's tranche as well as its
+    //   printed [Repeat].
     if (card.isSpell()) {
         if (ps.grant_repeat_base_to_next_spell && card.card_def_id != kInvalidId) {
             // "[Repeat] equal to its base cost": Energy and Power both, the
@@ -4707,7 +4719,8 @@ std::vector<GameEngine::RepeatTranche> GameEngine::repeatTranchesFor(PlayerId pl
             if (base.energy_cost > 0 || base.power_cost > 0)
                 out.push_back({base.energy_cost, base.power_cost,
                                resource::maskOf(base.domains), 0});
-        } else if (ps.spells_have_repeat_energy > 0 || ps.spells_have_repeat_power > 0) {
+        }
+        if (ps.spells_have_repeat_energy > 0 || ps.spells_have_repeat_power > 0) {
             out.push_back({ps.spells_have_repeat_energy, ps.spells_have_repeat_power,
                            resource::maskOf(ps.spells_have_repeat_domain), 0});
         }
@@ -7855,14 +7868,20 @@ void GameEngine::combatDamageStep(BattlefieldId bf_id) {
                          " ATK=[" + att_str + "] DEF=[" + def_str + "]");
     }
 
-    // Reorder targets: Tank first, Backline last (CR 460.2.c)
-    auto sortByTankBackline = [&](std::vector<GameObjectId>& units) {
+    // Reorder targets: Tank first, Backline last (CR 460.2.c). Dune Surfer's
+    // "you ignore [Tank]" is the assigner's flag: a unit with both keywords
+    // is then Backline only, and is not sorted first (CR 467.2.c.8).
+    const bool attacker_ignores_tank =
+        getBattlefield(bf_id).ignore_tank[playerIndex(attacker)];
+    const bool defender_ignores_tank =
+        getBattlefield(bf_id).ignore_tank[playerIndex(defender)];
+    auto sortByTankBackline = [&](std::vector<GameObjectId>& units, bool ignore_tank) {
         std::stable_sort(units.begin(), units.end(),
             [&](GameObjectId a, GameObjectId b) {
                 auto& oa = state_.getObject(a);
                 auto& ob = state_.getObject(b);
-                bool a_tank = oa.hasKeyword(Keyword::Tank);
-                bool b_tank = ob.hasKeyword(Keyword::Tank);
+                bool a_tank = oa.hasKeyword(Keyword::Tank) && !ignore_tank;
+                bool b_tank = ob.hasKeyword(Keyword::Tank) && !ignore_tank;
                 bool a_back = oa.hasKeyword(Keyword::Backline);
                 bool b_back = ob.hasKeyword(Keyword::Backline);
                 // Tank before non-Tank, non-Backline before Backline
@@ -7871,8 +7890,9 @@ void GameEngine::combatDamageStep(BattlefieldId bf_id) {
                 return false;
             });
     };
-    sortByTankBackline(att_units);
-    sortByTankBackline(def_units);
+    // The defender assigns to the attackers, and the attacker to the defenders.
+    sortByTankBackline(att_units, defender_ignores_tank);
+    sortByTankBackline(def_units, attacker_ignores_tank);
 
     // Sum attacker might (CR 460.2.a) — stunned units contribute 0 (CR 423)
     int att_might = 0;
@@ -8073,11 +8093,31 @@ GameEngine::CombatDamageAdvance GameEngine::advanceCombatDamage(
         return adv;
     }
 
-    // Build default assignment (greedy lethal, respecting caller's
-    // Tank/Backline ordering on `targets`).
+    // Build default assignment (greedy lethal, respecting Tank/Backline
+    // ordering on `targets`). When this assigner ignores [Tank] (Dune
+    // Surfer), a unit that also has [Backline] is Backline only: the seed
+    // must not walk her first just because the caller listed her first
+    // (CR 467.2.c.8). With [Tank] in force the caller's order is kept, so a
+    // normal Tank-and-Backline combat is unchanged.
     const bool any_damage_lethal = anyDamageIsLethalFor(assigner);
+    std::vector<GameObjectId> cascade_order = targets;
+    bool ignore_tank = false;
+    if (!targets.empty() && state_.objectExists(targets.front())) {
+        if (auto tbf = state_.getObject(targets.front()).battlefieldId())
+            for (const auto& b : state_.battlefields)
+                if (b.id == *tbf) ignore_tank = b.ignore_tank[playerIndex(assigner)];
+    }
+    if (ignore_tank) {
+        std::stable_sort(cascade_order.begin(), cascade_order.end(),
+            [&](GameObjectId a, GameObjectId b) {
+                const bool a_back = state_.getObject(a).hasKeyword(Keyword::Backline);
+                const bool b_back = state_.getObject(b).hasKeyword(Keyword::Backline);
+                if (a_back != b_back) return a_back < b_back;
+                return false;
+            });
+    }
     auto buildDefault = [&]() -> std::vector<DamageAssignment> {
-        return lethalCascade(state_, targets, total_damage, any_damage_lethal);
+        return lethalCascade(state_, cascade_order, total_damage, any_damage_lethal);
     };
 
     // CR 467.2.c.3 (strict lethality) + 467.2.c.4 (no over-assign) + 467.2.c.8
