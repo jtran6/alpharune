@@ -2584,6 +2584,7 @@ bool GameEngine::offerAccelerateOnItsOwn(PlayerId player, GameObjectId card_id, 
         return false;
     events_.addPlayEnergy(card_id, half->first);
     events_.addPlayPower(card_id, half->second);
+    events_.noteAccelerate(card_id);
     RIFT_TRACE(events_, "ACCELERATE: " + state_.getObject(card_id).name + " pays [" +
                      std::to_string(half->first) + "] + " + std::to_string(half->second) +
                      " power to enter ready");
@@ -10574,6 +10575,11 @@ GameEngine::CostPaymentAdvance GameEngine::beginCostPayment(
         card.card_counters.find("__ignore_energy") != card.card_counters.end();
     const bool ignore_power = ps.transient_ignore_power || adj.ignore_cost;
     events_.notePlayCost(card_obj, energy_needed, power_needed, ignore_energy, ignore_power);
+    // [Accelerate] paid with this cost (decideAccelerate sets the counter to
+    // 2). The energy and power above already include it; the account names it.
+    if (auto paid = card.card_counters.find(Card::kAccelerateDecided);
+        paid != card.card_counters.end() && paid->second == 2)
+        events_.noteAccelerate(card_obj);
     return beginPaymentOf(player, card_obj, energy_needed, power_needed, def.domains);
 }
 

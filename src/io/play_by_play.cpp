@@ -60,6 +60,17 @@ std::string howEnded(const std::string& reason) {
     return sentence(reason);
 }
 
+std::string withSeat(const std::string& name, PlayerId who) {
+    if (who != PlayerId::Player1 && who != PlayerId::Player2) return name;
+    return name + " (" + std::string(toString(who)) + ")";
+}
+
+PlayerId seatOf(const GameObject& obj) {
+    if (obj.controller == PlayerId::Player1 || obj.controller == PlayerId::Player2)
+        return obj.controller;
+    return obj.owner;
+}
+
 std::string cardLabel(const GameState& state, GameObjectId id) {
     if (id == kInvalidId || !state.objectExists(id)) return "a card";
     const std::string name = state.getObject(id).name.get();
@@ -74,6 +85,7 @@ std::string costSuffix(const PlayCostNote* note) {
     std::vector<std::string> paid;
     if (energy > 0) paid.push_back(std::to_string(energy) + " energy");
     if (power > 0) paid.push_back(std::to_string(power) + " power");
+    if (note->accelerate) paid.push_back("Accelerate");
     for (const auto& extra : note->other) paid.push_back(extra);
     const std::string list = joinList(paid);
     if (note->ignore_energy && note->ignore_power) {
@@ -246,7 +258,10 @@ void PlayByPlay::onPlayed(const CardPlayedEvent& e) {
     if (e.card_type == CardType::Spell) return;
     if (!state_.objectExists(e.object)) return;
     const auto& obj = state_.getObject(e.object);
-    std::string line = std::string(toString(e.player)) + " plays " + obj.name.get();
+    // Units carry their controller. A gear, a legend, a rune, and a
+    // battlefield card stay as the name alone.
+    std::string line = std::string(toString(e.player)) + " plays " +
+                       (obj.isUnit() ? unitLabel(e.object) : obj.name.get());
     if (obj.location.has_value())
         line += " to " + placeName(*obj.location, e.player);
     line += paidFor(e.object);
@@ -284,7 +299,7 @@ void PlayByPlay::onFinalized(const ChainItemFinalizedEvent& e) {
         line += " on ";
         for (size_t i = 0; i < units.size(); ++i) {
             if (i > 0) line += (i + 1 == units.size()) ? " and " : ", ";
-            line += objectName(units[i]);
+            line += unitLabel(units[i]);
         }
     }
     line += paidFor(item->source);
@@ -295,7 +310,7 @@ void PlayByPlay::onFinalized(const ChainItemFinalizedEvent& e) {
 void PlayByPlay::onMoved(const UnitMovedEvent& e) {
     const PlayerId actor = e.controller != PlayerId::None ? e.controller : PlayerId::Player1;
     // Origin and destination are both named. "base" is that player's base.
-    add(std::string(toString(actor)) + " moves " + objectName(e.object) +
+    add(std::string(toString(actor)) + " moves " + unitLabel(e.object) +
         " from " + placeName(e.from, actor) + " to " + placeName(e.to, actor) + ".");
 }
 
@@ -379,7 +394,8 @@ void PlayByPlay::finishCombat() {
     auto side = [&](PlayerId who) {
         std::vector<std::string> names;
         for (const auto& fighter : combat_.fighters)
-            if (fighter.controller == who) names.push_back(fighter.name);
+            if (fighter.controller == who)
+                names.push_back(unitAsOfLine(fighter.id, fighter.controller, fighter.name));
         if (names.empty()) return std::string("no one");
         return std::string(toString(who)) + "'s " + joinList(names);
     };
@@ -393,7 +409,8 @@ void PlayByPlay::finishCombat() {
             std::string who;
             if (hit.controller == PlayerId::Player1 || hit.controller == PlayerId::Player2)
                 who = std::string(toString(hit.controller)) + "'s ";
-            parts.push_back(who + hit.name + " takes " + std::to_string(hit.amount) + " damage");
+            parts.push_back(who + unitAsOfLine(hit.id, hit.controller, hit.name) + " takes " +
+                            std::to_string(hit.amount) + " damage");
         }
         line += joinList(parts) + ".";
     }
@@ -452,6 +469,29 @@ std::string PlayByPlay::objectName(GameObjectId id) const {
     if (id == kInvalidId || !state_.objectExists(id)) return "a unit";
     const std::string name = state_.getObject(id).name.get();
     return name.empty() ? std::string("a unit") : name;
+}
+
+std::string PlayByPlay::unitLabel(GameObjectId id) const {
+    if (id == kInvalidId || !state_.objectExists(id)) return "a unit";
+    const auto& obj = state_.getObject(id);
+    std::string name = obj.name.get();
+    if (name.empty()) name = obj.isUnit() ? std::string("a unit") : std::string("a card");
+    if (!obj.isUnit()) return name;
+    return withSeat(name, seatOf(obj));
+}
+
+std::string PlayByPlay::unitAsOfLine(GameObjectId id, PlayerId seen,
+                                     const std::string& seen_name) const {
+    const std::string fallback = seen_name.empty() ? std::string("a unit") : seen_name;
+    if (id == kInvalidId || !state_.objectExists(id)) return withSeat(fallback, seen);
+    const auto& obj = state_.getObject(id);
+    // Still the unit that was on the board: the controller now, so a control
+    // change made before this line is the parenthetical. Once it has left,
+    // controller is the owner again (forgetBoardState); the line keeps who
+    // had it when the event saw it.
+    if (obj.isUnit() && obj.location.has_value()) return unitLabel(id);
+    const std::string name = obj.name.get().empty() ? fallback : obj.name.get();
+    return withSeat(name, seen);
 }
 
 std::string PlayByPlay::legendName(PlayerId player) const {
