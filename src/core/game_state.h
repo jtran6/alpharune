@@ -235,7 +235,7 @@ struct PlayerState {
     // Turn-scoped riders (NOT aura-derived — reset in resetTurnTracking):
     int max_spell_spent_this_turn = 0;         // most-expensive single spell paid for this turn (Jhin, Meticulous Killer: "spent [4]+ to play a spell")
     int next_spell_bonus_damage = 0;           // Ravenborn Tome: "the next spell you play this turn deals N Bonus Damage" (consumed when that spell deals damage)
-    bool grant_repeat_base_to_next_spell = false; // The Academy (772): the next spell without a printed [Repeat] gets a Repeat cost equal to its base cost (Energy and Power)
+    bool grant_repeat_base_to_next_spell = false; // The Academy (772) / Temporal Portal (401): the next spell gains a [Repeat] instance equal to its base cost, paid on its own even when the spell already has [Repeat] (CR 820.3)
     // "You can look at their facedown cards this turn." (Scuttle Crab): the
     // turn this player may look at the other player's facedown cards, cards
     // hidden later that turn included (TriggerManager::onCardHidden shows

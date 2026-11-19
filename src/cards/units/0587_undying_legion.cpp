@@ -1,4 +1,5 @@
 #include "cards/card.h"
+#include "cards/card_helpers.h"
 #include "cards/card_registry.h"
 #include "core/game_state.h"
 #include "core/events.h"
@@ -18,8 +19,13 @@ public:
     // play-from-trash permission (Card::trashPlayCost) while I am in my
     // owner's trash and they have played another card this turn.
     TrashPlayCost trashPlayCost(const GameState& state, PlayerId owner,
-                                GameObjectId /*self*/) const override {
-        if (state.player(owner).cards_played_this_turn < 1) return {};
+                                GameObjectId self) const override {
+        // CR 812.1.c: Legion is on once a card other than this one was
+        // finalized this turn. The play that moved this card into the trash
+        // is this card, so it does not count.
+        int others = state.player(owner).cards_played_this_turn;
+        if (playOrdinalThisTurn(state, self) > 0) --others;
+        if (others < 1) return {};
         return {.valid = true, .energy = 3, .power = 1, .power_domain = Domain::Fury};
     }
 private:

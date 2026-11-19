@@ -352,5 +352,59 @@ TEST_F(DamageAllocationTest, DistinctOptionsHaveDistinctOutcomes) {
     }
 }
 
+// CR 467.2.c.8: one unit with both [Tank] and [Backline] (Caitlyn, Patrolling
+// who has also been given [Tank]). The assigning player chooses one of the
+// two. She may be assigned first or last, and not between the others.
+TEST_F(DamageAllocationTest, TankAndBacklineOnOneUnit_AssignerChoosesWhich) {
+    makeEngine();
+    KeywordSet both;
+    both.set(Keyword::Tank);
+    both.set(Keyword::Backline);
+    auto caitlyn = placeDefender(3, both);
+    auto vanilla_a = placeDefender(2);
+    auto vanilla_b = placeDefender(2);
+    std::vector<GameObjectId> targets = {caitlyn, vanilla_a, vanilla_b};
+
+    using Mark = std::set<std::pair<GameObjectId, int>>;
+    auto outcomes = [&](const std::vector<GameObjectId>& order, int damage) {
+        std::set<Mark> out;
+        auto adv = engine_->testHook_advanceCombatDamage(P1, damage, order);
+        EXPECT_EQ(adv.kind, GameEngine::CombatDamageAdvance::Kind::NeedDecision);
+        for (const auto& intent : adv.legal) {
+            Mark mark;
+            for (const auto& a : intent.damage_assignments)
+                if (a.damage > 0) mark.insert({a.target_unit, a.damage});
+            out.insert(mark);
+        }
+        return out;
+    };
+
+    // 4 damage. Tank: she takes 3, then 1 lands on one vanilla. Backline: the
+    // two vanillas take 2 each and she is not assigned. Assigning her in the
+    // middle (2 to a vanilla and 2 to her, the other vanilla untouched) is
+    // neither reading.
+    const Mark tank_a = {{caitlyn, 3}, {vanilla_a, 1}};
+    const Mark tank_b = {{caitlyn, 3}, {vanilla_b, 1}};
+    const Mark backline = {{vanilla_a, 2}, {vanilla_b, 2}};
+    const Mark middle_a = {{vanilla_a, 2}, {caitlyn, 2}};
+    const Mark middle_b = {{vanilla_b, 2}, {caitlyn, 2}};
+    const auto four = outcomes(targets, 4);
+    EXPECT_TRUE(four.count(tank_a)) << "choosing [Tank] may kill her before a vanilla";
+    EXPECT_TRUE(four.count(tank_b));
+    EXPECT_TRUE(four.count(backline)) << "choosing [Backline] may leave her for last";
+    EXPECT_FALSE(four.count(middle_a)) << "she cannot be assigned between the vanillas";
+    EXPECT_FALSE(four.count(middle_b));
+    EXPECT_EQ(four.size(), 3u);
+    EXPECT_EQ(outcomes({vanilla_b, vanilla_a, caitlyn}, 4), four);
+
+    // 2 damage is not enough for her 3 Might. [Tank] puts all of it on her.
+    // [Backline] puts it on one vanilla instead.
+    const auto two = outcomes(targets, 2);
+    EXPECT_TRUE(two.count(Mark{{caitlyn, 2}}));
+    EXPECT_TRUE(two.count(Mark{{vanilla_a, 2}}));
+    EXPECT_TRUE(two.count(Mark{{vanilla_b, 2}}));
+    EXPECT_EQ(two.size(), 3u);
+}
+
 }  // namespace
 }  // namespace riftbound::test

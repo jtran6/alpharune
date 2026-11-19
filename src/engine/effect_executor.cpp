@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <random>
 
 namespace riftbound {
 
@@ -2018,8 +2019,10 @@ void EffectExecutor::recycleCards(PlayerId effect_controller,
     }
     // The random order (CR 417.5) is drawn from an order of the cards, not of
     // the list the caller built (which may follow object ids): the deck that
-    // results is a function of which cards go down (batch 5d N1). Runes go
-    // down in their owner's order (CR 417.5.a): by card.
+    // results is a function of which cards go down (batch 5d N1). Runes are
+    // not shuffled. Two or more go to the bottom of their owner's Rune Deck
+    // in the order that owner chooses (CR 417.5.a); one rune, or a group of
+    // one card, keeps card order.
     auto byCard = [&](GameObjectId a, GameObjectId b) {
         return state_.getObject(a).card_def_id < state_.getObject(b).card_def_id;
     };
@@ -2043,16 +2046,61 @@ void EffectExecutor::recycleCards(PlayerId effect_controller,
         }
         deck::putOnBottomTogether(state_, owner, group);
     }
-    for (auto cid : rune_ordered) {
-        auto& obj = state_.getObject(cid);
-        // From the board a rune is public; from the top of its Rune Deck only
-        // who knew it there can tell (T4).
-        const bool from_board = obj.zone != ZoneType::RuneDeck;
-        obj.zone = ZoneType::RuneDeck;
-        obj.location = std::nullopt;
-        state_.player(obj.owner).rune_deck.insert(
-            state_.player(obj.owner).rune_deck.begin(), cid);
-        knowledge::runeToBottom(state_, cid, from_board ? knowledge::everyone() : knowledge::nobody());
+    // Runes, per owner. The vector is nearer-the-top first: inserting each at
+    // the bottom (the front) in that order leaves the first one nearest the
+    // top of the group. Options are in card order, so the first option is the
+    // order a player who is not asked already got.
+    for (PlayerId owner : {PlayerId::Player1, PlayerId::Player2}) {
+        std::vector<GameObjectId> group;
+        for (auto cid : rune_ordered) {
+            PlayerId to = state_.getObject(cid).owner;
+            if (to == PlayerId::None) to = effect_controller;
+            if (to != owner) continue;
+            group.push_back(cid);
+        }
+        bool distinct = false;
+        if (group.size() > 1) {
+            const auto first = state_.getObject(group.front()).card_def_id;
+            for (auto cid : group)
+                if (state_.getObject(cid).card_def_id != first) { distinct = true; break; }
+        }
+        if (distinct && agent_query_ && !events_.quiet()) {
+            std::vector<GameObjectId> nearer_top;
+            while (group.size() > 1) {
+                std::vector<Intent> choices;
+                for (auto rid : group) {
+                    Intent c;
+                    c.type = IntentType::MakeChoice;
+                    c.player = owner;
+                    c.chosen_objects = {rid};
+                    c.choice_label = "Recycle: this rune nearer the top";
+                    choices.push_back(std::move(c));
+                }
+                auto chosen = ask(owner, std::move(choices),
+                                  "Recycle: which rune is nearer the top of your Rune Deck",
+                                  PromptKind::DeckOrder, std::source_location::current());
+                GameObjectId pick = group.front();
+                if (!chosen.chosen_objects.empty()) {
+                    auto it = std::find(group.begin(), group.end(), chosen.chosen_objects.front());
+                    if (it != group.end()) pick = *it;
+                }
+                nearer_top.push_back(pick);
+                group.erase(std::remove(group.begin(), group.end(), pick), group.end());
+            }
+            if (!group.empty()) nearer_top.push_back(group.front());
+            group = std::move(nearer_top);
+        }
+        for (auto cid : group) {
+            auto& obj = state_.getObject(cid);
+            // From the board a rune is public; from the top of its Rune Deck only
+            // who knew it there can tell (T4).
+            const bool from_board = obj.zone != ZoneType::RuneDeck;
+            obj.zone = ZoneType::RuneDeck;
+            obj.location = std::nullopt;
+            state_.player(obj.owner).rune_deck.insert(
+                state_.player(obj.owner).rune_deck.begin(), cid);
+            knowledge::runeToBottom(state_, cid, from_board ? knowledge::everyone() : knowledge::nobody());
+        }
     }
     for (const auto& l : left_board)
         events_.emit(LeftBoardEvent{l.id, l.controller, l.type, l.was_at,
@@ -2933,8 +2981,10 @@ void EffectExecutor::predict(PlayerId player, int count) {
     // The player decides, card by card, whether to recycle it (CR 437.1), and
     // then the order of the cards that stay.
     if (agent_query_) {
-        // Offer choice: recycle each card or keep it
-        GameObjectId recycled = kInvalidId;
+        // Offer choice: recycle each card or keep it. The ones that are
+        // recycled wait, and then go to the bottom together in a random order
+        // (CR 437.1.a, 417.5) — not the order they were looked at.
+        std::vector<GameObjectId> recycled;
         std::vector<GameObjectId> kept;   // in the order they were on the deck, top first
         for (auto card_id : peeked) {
             std::vector<Intent> choices;
@@ -2958,15 +3008,23 @@ void EffectExecutor::predict(PlayerId player, int count) {
             auto chosen = ask(player, choices, "Predict: recycle the top card or keep it",
                               PromptKind::LookTop, std::source_location::current());
             if (!chosen.chosen_objects.empty()) {
-                // Recycle: put on bottom
-                deck::putOnBottom(state_, player, card_id, deck::Place::Held, looker);
+                recycled.push_back(card_id);
                 RIFT_TRACE_PRIVATE(events_, player, "PREDICT: recycled " +
                                                 state_.getObject(card_id).name);
-                recycled = card_id;
             } else {
                 kept.push_back(card_id);
             }
         }
+        if (recycled.size() > 1) {
+            std::stable_sort(recycled.begin(), recycled.end(), [&](GameObjectId a, GameObjectId b) {
+                return state_.getObject(a).card_def_id < state_.getObject(b).card_def_id;
+            });
+            if (rng_) std::shuffle(recycled.begin(), recycled.end(), *rng_);
+        }
+        // Nearer the top first. putOnBottom inserts at the bottom, so the
+        // first of these ends nearest the top of the recycled group.
+        for (auto card_id : recycled)
+            deck::putOnBottom(state_, player, card_id, deck::Place::Held, looker);
         // The cards that stay go back "in any order": with two or more the
         // player names the one that ends up on top, then the next one down.
         // (Taking the first option each time puts them back as they were.)
@@ -2996,8 +3054,8 @@ void EffectExecutor::predict(PlayerId player, int count) {
         // CR 437.1: the cards a Predict puts on the bottom are Recycled, so
         // "When you recycle one or more cards to your Main Deck" sees them —
         // once for the whole Predict, as recycleCards announces it.
-        if (recycled != kInvalidId)
-            events_.emit(ObjectStateChangedEvent{recycled, "recycled_main"});
+        if (!recycled.empty())
+            events_.emit(ObjectStateChangedEvent{recycled.front(), "recycled_main"});
     } else {
         // No agent query — put all back on top (no recycling)
         for (int i = static_cast<int>(peeked.size()) - 1; i >= 0; --i) {
