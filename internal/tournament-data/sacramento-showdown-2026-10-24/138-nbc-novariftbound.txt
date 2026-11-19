@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 138th place
+# player: NBC NovaRiftbound
+# record: 5-3-0
+# source: https://riftwatch.gg/decks/sacramento-138/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+1 Bedeviling Stranger
+1 Edge of Night
+2 Fizz, Trickster
+1 Flash
+2 Gust
+2 Last Rites
+3 Lightning Rush
+3 Nocturne, Horrifying
+2 Reckless Innovator
+3 Rhasa the Sunderer
+2 Ride the Wind
+3 Seal of Discord
+1 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+1 Tideturner
+2 Tornado Warrior
+3 Traveling Merchant
+3 Trifarian Captain
+
+Battlefields:
+1 Minefield
+1 The Candlelit Sanctum
+1 Zaun Warrens
+
+Runes:
+9 Chaos Rune
+3 Order Rune
+
+Sideboard:
+1 Abandon
+2 Burn Away
+2 Decree of Unity
+1 Rebuke
+1 Salvage
+1 Star-Crossed
+1 Switcheroo
+1 Vex, Apathetic

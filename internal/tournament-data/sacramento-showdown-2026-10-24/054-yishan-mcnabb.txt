@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 54th place
+# player: Yishan McNabb
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/sacramento-54/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Back Off
+3 Bedeviling Stranger
+1 Blossoming Dreamroot
+3 Boots of Swiftness
+3 Charm
+3 Defy
+3 Discipline
+3 Evelynn, Entrancing
+2 Evelynn, In Control
+3 Ki Burst
+3 Mournful Witness
+3 Pyke, Returned
+1 Rebuke
+1 Star-Crossed
+2 Switcheroo
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Fortified Position
+1 Packed Amphitheater
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Allay, Eager Admirer
+2 An Offer You Can't Refuse
+1 Decree of Focus
+2 Disarming Rake
+1 Hush
+2 Not So Fast
+1 Star-Crossed

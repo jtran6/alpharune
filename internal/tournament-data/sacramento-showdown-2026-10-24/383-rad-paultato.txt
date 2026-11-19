@@ -1,0 +1,60 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 383rd place
+# player: RaD PaulTato
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-383/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+2 Back Off
+1 Charm
+2 Consult the Heavens
+3 Defy
+1 Disciple of Shen
+3 Discipline
+1 Emperor's Divide
+2 Hidden Blade
+1 Irelia, Fervent
+1 Kennen, Keeper of Balance
+1 Ki Barrier
+2 Ki Burst
+1 Meditation
+3 Mournful Witness
+2 Mutated Mouser
+1 Riven, Broken Blade
+1 Salvage
+1 Scuttle Crab
+2 Sona, Harmonious
+2 Stalwart Poro
+2 Stoic Ferryman
+2 Tasty Faefolk
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Grove of the God-Willow
+1 Hallowed Tomb
+1 Kinkou Temple
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Charm
+1 Cull the Weak
+2 Decree of Focus
+1 Decree of Unity
+1 Hush
+1 Mageseeker Warden
+1 Not So Fast
+2 Salvage

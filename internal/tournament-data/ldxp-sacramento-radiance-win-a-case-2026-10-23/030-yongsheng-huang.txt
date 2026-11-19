@@ -1,0 +1,55 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 30th place
+# player: Yongsheng Huang
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-30/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+1 Abandon
+1 Akali, Silent
+3 Astral Heron
+1 Baron Nashor
+2 Bedeviling Stranger
+3 Blade of the Exile
+1 Blitzcrank, Impassive
+3 Defy
+3 Discipline
+2 Ki Burst
+2 Rebuke
+3 Reckless Innovator
+1 Ride the Wind
+3 Scuttle Crab
+2 Star-Crossed
+3 Stellacorn Herder
+1 Switcheroo
+1 The Good Stuff
+1 Tideturner
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 Akali, Silent
+2 An Offer You Can't Refuse
+3 Decree of Focus
+2 Gust
+1 Ravenbloom Prefect
+1 Vex, Apathetic

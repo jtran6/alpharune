@@ -1,0 +1,51 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 199th place
+# player: matthew rose
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-199/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+3 Baited Hook
+3 Black Rose Dignitary
+2 Deathgrip
+2 Divine Judgment
+3 Karthus, Eternal
+1 Ki Barrier
+3 Mirror Image
+1 Mordekaiser, Dominating
+3 Rift Herald
+3 Ruined Rex
+3 Sacrifice
+3 Soaring Scout
+3 Thousand-Tailed Watcher
+2 Trifarian Captain
+3 Vi, Peacekeeper
+1 Zero Point Inflection
+
+Battlefields:
+1 Dusk Rose Lab
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+2 Decree of Insight
+2 Decree of Unity
+1 Ki Barrier
+1 Mordekaiser, Dominating
+3 Salvage
+1 Zero Point Inflection

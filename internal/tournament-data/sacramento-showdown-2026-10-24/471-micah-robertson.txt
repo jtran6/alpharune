@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 471st place
+# player: Micah Robertson
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-471/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+2 Burn Away
+1 Darius, Trifarian
+2 Deathgrip
+3 Escaped Grayback
+1 Forbidden Technique
+2 Harnessed Dragon
+2 Honest Broker
+2 Kai'Sa, Survivor
+2 Kayle, Justified
+2 LeBlanc, Fragmented
+3 Noxus Hopeful
+1 Perfect Execution
+2 Realm of Death
+2 Rengar, Pouncing
+2 Rift Herald
+3 Sacrifice
+1 Shadow's Call
+3 Soaring Scout
+3 Trifarian Captain
+
+Battlefields:
+1 Black Market
+1 Rockfall Path
+1 Ruined Monastery
+
+Runes:
+4 Fury Rune
+8 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+1 Decree of Rage
+1 Decree of Unity
+1 Mordekaiser, Twice Slain
+2 Scorched Earth
+2 The Ruination
+1 Undying Legion

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 328th place
+# player: kooj
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-328/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Mechanical Marvel
+
+MainDeck:
+3 Astral Heron
+3 Back Off
+2 Battle Preparations
+1 Blitzcrank, Impassive
+1 Command: Attack
+3 Defy
+3 Discipline
+2 Frigid Jewel
+3 Mask of Foresight
+1 Not So Fast
+3 Patched Porobot
+2 Resplendent Rostrum
+3 Sterak's Gage
+3 Stupefy
+3 The Ball
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Helm of Suppression
+1 Hush
+1 Not So Fast
+2 Temporal Breach
+2 Turn to Dust

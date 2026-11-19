@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 188th place
+# player: Teriki Soliai
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-188/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Carrion Dredger
+2 Deathgrip
+2 Dunebreaker
+3 Escaped Grayback
+2 Falling Star
+2 Ferrous Forerunner
+2 Hidden Blade
+2 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Kayle, Justified
+2 Long Sword
+1 Pyke, Dockside Butcher
+3 Realm of Death
+3 Rek'Sai, Breacher
+2 Rengar, Unseen
+3 Soaring Scout
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Cosmic Vista
+1 Packed Amphitheater
+1 Zaun Warrens
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Decree of Rage
+2 Decree of Unity
+1 Dockside Lock-Up
+1 Falling Star
+1 Ferrous Forerunner
+1 Salvage

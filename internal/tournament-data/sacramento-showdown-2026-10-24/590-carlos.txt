@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 590th place
+# player: Carlos
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-590/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+3 Bedeviling Stranger
+1 Blitzcrank, Impassive
+1 Boots of Swiftness
+1 Consult the Heavens
+3 Defy
+3 Discipline
+1 Edge of Night
+2 Gust
+1 Hard Bargain
+3 Mutated Mouser
+1 Ride the Wind
+3 Scuttle Crab
+2 Siren's Song
+2 Sona, Harmonious
+2 Star-Crossed
+2 Switcheroo
+1 Vex, Apathetic
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Amateur Recital
+1 Startipped Peak
+1 The Papertree
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+1 Baron Nashor
+1 Decree of Focus
+2 Hush
+1 Not So Fast
+2 Ravenbloom Prefect
+1 Rebuke
+1 Vilemaw

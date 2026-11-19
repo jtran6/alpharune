@@ -1,0 +1,47 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 190th place
+# player: cheeserdude
+# record: not stated
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-190/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+3 Carrion Dredger
+3 Trifarian Captain
+2 Escaped Grayback
+3 Faithful Manufactor
+3 Vanguard Captain
+3 Concert Poster
+3 Sprite Fountain
+3 Bellows Breath
+3 Hidden Blade
+3 Shadow's Call
+3 Encore
+3 Imperial Decree
+3 Sprite Burst
+1 Raucous Anthem
+
+Battlefields:
+1 Dusk Rose Lab
+1 Forbidding Waste
+1 Rockfall Path
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+3 Decree of Insight
+2 Decree of Unity
+2 Forge of the Future
+1 Singularity
+2 Raucous Anthem

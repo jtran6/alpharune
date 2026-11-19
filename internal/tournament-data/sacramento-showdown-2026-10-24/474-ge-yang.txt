@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 474th place
+# player: Ge Yang
+# record: 2-3-1
+# source: https://riftwatch.gg/decks/sacramento-474/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mel, Soul's Reflection
+
+Champion:
+1 Mel, Defiant Soul
+
+MainDeck:
+1 Consult the Past
+3 Dredge Up
+1 Eclipse
+2 Fizz, Trickster
+2 Frigid Jewel
+2 Gust
+3 Hwei, Brooding Painter
+1 Lunar Boon
+2 Questionable Tome
+3 Ravenbloom Student
+3 Rebuttal
+2 Ride the Wind
+2 Shock Blast
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+3 Tideturner
+1 Tornado Warrior
+1 Traveling Merchant
+1 Vex, Apathetic
+
+Battlefields:
+1 Abandoned Hall
+1 Frozen Fortress
+1 Rockfall Path
+
+Runes:
+7 Chaos Rune
+5 Mind Rune
+
+Sideboard:
+1 Abandon
+2 An Offer You Can't Refuse
+1 Angler Beast
+1 Annie, Stubborn
+1 Decree of Insight
+2 Temporal Breach
+1 Unchecked Power
+1 Vex, Apathetic

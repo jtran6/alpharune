@@ -1,0 +1,64 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 27th place
+# player: Yuuj
+# record: not stated
+# deck name: 回手掏，走位走位
+# source: https://riftdecks.com/riftbound-metagame/deck-hui-shou-tao-zou-wei-zou-wei-354176
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# RiftDecks does not name a printing; Plundering Poro loads #392 (also ##778)
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+3 Plundering Poro
+3 Bilgewater Tracker
+3 Lecturing Yordle
+1 Pyke, Dockside Butcher
+3 Kai'Sa, Survivor
+1 Riptide Mage
+1 Ekko, Revolutionary
+2 Antagonistic Apparatus
+2 Brynhir Thundersong
+2 Thousand-Tailed Watcher
+2 The Empyrean
+2 Long Sword
+2 Bellows Breath
+1 Cleave
+2 Stupefy
+2 Falling Star
+1 Temporal Breach
+1 Eclipse
+1 Shock Blast
+2 Sprite Burst
+1 Singularity
+1 Time Warp
+
+Battlefields:
+1 Firelights' Hideout
+1 Ripper's Bay
+1 Rockfall Path
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+1 Eclipse
+1 Lost to the Sands
+2 Pickpocket
+1 Sharkling
+1 Thermo Beam
+1 Ferrous Forerunner
+1 Sprite Queen
+1 Unchecked Power
+1 Time Warp

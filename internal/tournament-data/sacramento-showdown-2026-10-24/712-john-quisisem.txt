@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 712th place
+# player: John Quisisem
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/sacramento-712/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# printing pinned: Pouty Poro #776
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+2 Bilgewater Tracker
+1 Blood Rush
+1 Deathgrip
+2 Dunebreaker
+2 Ekko, Revolutionary
+2 Falling Star
+1 Ferrous Forerunner
+2 Flame Chompers
+2 Hidden Blade
+3 Honest Broker
+3 Kai'Sa, Survivor
+3 Long Sword
+3 Noxus Hopeful
+2 Pouty Poro #776
+1 Rage Amplifier
+3 Realm of Death
+1 Rengar, Pouncing
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Ruined Monastery
+1 Seat of Power
+1 Zaun Warrens
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+1 Decree of Rage
+1 Decree of Unity
+2 Dockside Lock-Up
+1 Ferrous Forerunner
+1 Imperial Decree
+2 Minotaur Reckoner
+2 Salvage

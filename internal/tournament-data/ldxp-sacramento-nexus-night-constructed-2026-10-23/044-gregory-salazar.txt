@@ -1,0 +1,51 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 44th place
+# player: Gregory salazar
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-44/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Leona, Radiant Dawn
+
+Champion:
+1 Leona, Zealot
+
+MainDeck:
+3 Astral Heron
+3 Back Off
+1 Blitzcrank, Impassive
+3 Call to Glory
+3 Defy
+3 Discipline
+3 Kayle, Justified
+3 Mournful Witness
+3 Nami, Headstrong
+1 Not So Fast
+3 Riven, Broken Blade
+1 Twilight Shroud
+3 Vi, Peacekeeper
+3 Zenith Blade
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Monastery of Hirana
+1 Risen Altar
+1 Sunken Temple
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Akali, Silent
+2 Decree of Unity
+1 Dockside Lock-Up
+1 Hush
+1 Not So Fast
+2 Salvage
+1 Vilemaw

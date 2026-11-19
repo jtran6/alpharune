@@ -1,0 +1,56 @@
+# event: LDXP Sacramento - Riftbound Challenge
+# date: October 25, 2026
+# placement: 36th place
+# player: Aiden Jung
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-riftbound-challenge-2026-10-25-36/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-riftbound-challenge-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+2 Blitzcrank, Impassive
+1 Block
+3 Defy
+3 Discipline
+1 Double Trouble
+3 Falling Star
+3 Kai'Sa, Survivor
+2 Lonely Poro
+2 Long Sword
+2 Mischievous Marai
+1 Scuttle Crab
+3 Shuriken Flip
+3 Stellacorn Herder
+1 Sterak's Gage
+1 Tomb-Raider Barbara
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Ruined Monastery
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+5 Calm Rune
+7 Fury Rune
+
+Sideboard:
+1 Akali, Silent
+1 Decree of Focus
+1 Decree of Rage
+1 Disarming Rake
+1 En Garde
+2 Ferrous Forerunner
+1 Hush
+1 Irelia, Fervent
+1 Not So Fast

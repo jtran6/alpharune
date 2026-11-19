@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 597th place
+# player: Rockwell Miller
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-597/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+1 Block
+3 Charm
+2 Consult the Heavens
+3 Defy
+3 Discipline
+2 Graves, Blasting Through
+2 Hunting Blind
+2 Nazuman Ntofo
+3 Ntofo Strikes
+3 Punch First
+3 Rengar, Trophy Hunter
+3 Scuttle Crab
+3 Stalwart Poro
+2 Stellacorn Herder
+2 Svellsongur
+2 Trinity Force
+
+Battlefields:
+1 Fortified Position
+1 Grove of the God-Willow
+1 Sandswept Tomb
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Back Off
+1 Cataclysm
+2 Decree of Strength
+2 Disarming Rake
+1 Not So Fast
+1 Sabotage
+1 Trinity Force

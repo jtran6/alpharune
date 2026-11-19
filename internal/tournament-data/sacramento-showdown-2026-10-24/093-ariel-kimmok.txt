@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 93rd place
+# player: Ariel Kimmok
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-93/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+2 Fizz, Trickster
+3 Irresistible Faefolk
+2 Nidalee, Cat Form
+1 Onslaught
+3 Pit Rookie
+3 Punch First
+2 Rampage
+3 Reckless Innovator
+1 Ride the Wind
+2 Riven, Deserter
+2 Sabotage
+2 Sett, Brawler
+3 Shadow Order Disciple
+2 Star-Crossed
+1 Switcheroo
+2 Tail-Cloaked Matriarch
+2 Vex, Apathetic
+3 Void Assault
+
+Battlefields:
+1 Monastery of Hirana
+1 Sandswept Tomb
+1 Star Spring
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+2 Graves, Blasting Through
+1 Gust
+2 Ruin Runner
+1 Sabotage
+2 Unyielding Spirit

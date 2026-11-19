@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 208th place
+# player: Avinash Parampalli
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-208/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Azir, Emperor of the Sands
+
+Champion:
+1 Azir, Sovereign
+
+MainDeck:
+3 Arise!
+3 B.F. Sword
+2 Back Off
+3 Brutalizer
+3 Deathgrip
+3 Defy
+3 Discipline
+3 Doran's Shield
+3 Eye of the Herald
+3 Guards!
+3 Hand Hammer
+3 Hidden Blade
+3 Soul Sword
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Hall of Legends
+1 Ornn's Forge
+1 Trifarian War Camp
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+2 Decree of Focus
+2 Decree of Unity
+1 Hush
+2 Salvage
+1 Tomb-Raider Barbara
+1 Vi, Peacekeeper

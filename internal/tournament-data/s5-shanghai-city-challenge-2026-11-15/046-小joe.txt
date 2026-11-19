@@ -1,0 +1,57 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 46th place
+# player: 小JoE
+# record: not stated
+# deck name: 1
+# source: https://riftdecks.com/riftbound-metagame/deck-1-354195
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+# RiftDecks does not name a printing; Lonely Poro loads #359 (also #777)
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+2 Lonely Poro
+2 Mischievous Marai
+1 Mournful Witness
+3 Kai'Sa, Survivor
+3 Stellacorn Herder
+2 Blitzcrank, Impassive
+3 Astral Heron
+3 Long Sword
+3 Zhonya's Hourglass
+3 Defy
+3 Shuriken Flip
+2 Battle Preparations
+3 Discipline
+3 Falling Star
+2 Not So Fast
+1 Back Off
+
+Battlefields:
+1 Forbidding Waste
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+5 Calm Rune
+7 Fury Rune
+
+Sideboard:
+1 Decree of Focus
+1 Decree of Rage
+1 Hush
+1 Back Off
+2 Bilgewater Tracker
+1 Lost to the Sands
+1 Tomb-Raider Barbara
+2 Darius, Trifarian

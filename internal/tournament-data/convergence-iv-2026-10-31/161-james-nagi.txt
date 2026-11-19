@@ -1,0 +1,48 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 161st place
+# player: james nagi
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-161/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Banner of Conquest
+2 Bilgewater Tracker
+3 Carrion Dredger
+2 Concert Poster
+3 Detonate
+2 Ekko, Revolutionary
+2 Imperial Decree
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+2 Rage Amplifier
+3 Realm of Death
+3 Runeblade Anvil
+3 Trifarian Captain
+3 Vanguard Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Ruined Monastery
+1 Trifarian War Camp
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Dockside Lock-Up
+2 Ferrous Forerunner
+2 Minotaur Reckoner
+2 Salvage

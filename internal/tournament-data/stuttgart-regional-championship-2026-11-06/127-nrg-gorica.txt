@@ -1,0 +1,54 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 127th place
+# player: NRG Gorica
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-127/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+2 Mischievous Marai
+2 Mournful Witness
+3 Kai'Sa, Survivor
+3 Stellacorn Herder
+1 Tomb-Raider Barbara
+2 Blitzcrank, Impassive
+1 Darius, Trifarian
+3 Astral Heron
+2 Long Sword
+3 Zhonya's Hourglass
+1 Sterak's Gage
+3 Defy
+3 Shuriken Flip
+1 Block
+3 Discipline
+3 Falling Star
+1 Not So Fast
+2 Back Off
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+5 Calm Rune
+7 Fury Rune
+
+Sideboard:
+2 Decree of Focus
+1 Decree of Rage
+1 Hush
+2 Scuttle Crab
+1 Akali, Silent
+1 Tomb-Raider Barbara
+2 Irelia, Fervent

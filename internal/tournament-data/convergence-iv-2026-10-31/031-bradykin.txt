@@ -1,0 +1,51 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 31st place
+# player: Bradykin
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-31/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+3 Bellows Breath
+3 Carrion Dredger
+2 Dredge Up
+3 Eclipse
+3 Encore
+1 Hidden Blade
+3 Imperial Decree
+1 Ki Barrier
+2 Raucous Anthem
+3 Ravenbloom Student
+1 Salvage
+2 Soraka, Wanderer
+2 Sprite Burst
+3 Strigian Oracle
+3 Stupefy
+1 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Black Rose Sanctum
+1 Seat of Power
+1 Targon's Peak
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+1 Convergent Mutation
+2 Decree of Insight
+2 Decree of Unity
+1 Ki Barrier
+2 Mel, Newly Awakened
+2 Salvage

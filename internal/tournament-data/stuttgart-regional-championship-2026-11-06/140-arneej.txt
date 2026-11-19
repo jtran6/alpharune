@@ -1,0 +1,55 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 140th place
+# player: Arneej
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-140/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Legion Marauder
+3 Lonely Poro
+3 Pit Rookie
+3 First Mate
+1 Tomb-Raider Barbara
+3 Rengar, Trophy Hunter
+2 Elnuk Herd
+2 Ruin Runner
+2 Zhonya's Hourglass
+3 Charm
+2 Defy
+2 En Garde
+3 Punch First
+1 Sabotage
+3 Discipline
+2 Rampage
+1 Onslaught
+
+Battlefields:
+1 Abandoned Hall
+1 Grove of the God-Willow
+1 Star Spring
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Decree of Focus
+2 Decree of Strength
+1 Hush
+1 Skyward Strike
+1 Alpha Strike
+1 Disarming Rake
+1 Rampage
+1 Onslaught
+1 Irelia, Fervent

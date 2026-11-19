@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 180th place
+# player: Aiden Sam
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-180/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+3 Baited Hook
+3 Black Rose Dignitary
+1 Deathgrip
+3 Glasc Mixologist
+3 Harnessed Dragon
+1 Hidden Blade
+3 Honest Broker
+3 Karthus, Eternal
+1 Mirror Image
+3 Rift Herald
+3 Ruined Rex
+2 Sacrifice
+1 Salvage
+3 Soaring Scout
+1 Thousand-Tailed Watcher
+3 Vi, Peacekeeper
+2 Watchful Sentry
+
+Battlefields:
+1 Dusk Rose Lab
+1 Forgotten Monument
+1 Windswept Hillock
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+1 Bellows Breath
+1 Decree of Insight
+2 Decree of Unity
+1 LeBlanc, Everywhere at Once
+1 Mirror Image
+1 Sacrifice
+1 Salvage
+2 Thousand-Tailed Watcher

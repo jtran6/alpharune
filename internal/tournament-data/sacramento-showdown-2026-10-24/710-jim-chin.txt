@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 710th place
+# player: Jim Chin
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/sacramento-710/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+2 Blitzcrank, Impassive
+1 Block
+1 Darius, Trifarian
+3 Defy
+3 Discipline
+1 En Garde
+3 Falling Star
+3 Kai'Sa, Survivor
+2 Long Sword
+1 Mischievous Marai
+3 Mournful Witness
+1 Noxus Hopeful
+3 Shuriken Flip
+3 Stellacorn Herder
+1 Sterak's Gage
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Calm Rune
+6 Fury Rune
+
+Sideboard:
+1 Against the Odds
+1 Akali, Silent
+1 Decree of Focus
+2 Disarming Rake
+2 Ferrous Forerunner
+2 Not So Fast
+1 Thermo Beam

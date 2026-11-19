@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 562nd place
+# player: Anthony Tipograf
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-562/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+1 Cleave
+1 Darius, Trifarian
+1 Ferrous Forerunner
+3 First Mate
+1 Grim Apothecary
+3 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+3 Nidalee, Cat Form
+3 Noxus Hopeful
+3 Pit Rookie
+3 Punch First
+3 Rampage
+3 Rengar, Trophy Hunter
+2 Sabotage
+
+Battlefields:
+1 Mystic Vortex
+1 Seat of Power
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Fury Rune
+
+Sideboard:
+1 Brittle Steel
+1 Brynhir Thundersong
+2 Decree of Rage
+2 Decree of Strength
+2 Ferrous Forerunner
+1 Sabotage
+1 Thermo Beam

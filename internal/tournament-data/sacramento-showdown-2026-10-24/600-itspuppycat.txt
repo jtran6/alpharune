@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 600th place
+# player: ItsPuppyCat
+# record: 1-4-2
+# source: https://riftwatch.gg/decks/sacramento-600/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+1 Against the Odds
+1 Bilgewater Tracker
+1 Blighted Battleaxe
+1 Brynhir Thundersong
+3 Coalesced Energy
+2 Falling Star
+2 Ferrous Forerunner
+2 Gem Jammer
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+3 Legion Marauder
+2 Long Sword
+1 Lost to the Sands
+3 Noxus Hopeful
+2 Pit Rookie
+3 Punch First
+1 Pyke, Dockside Butcher
+2 Rampage
+1 Sabotage
+2 Shadow Fiend
+
+Battlefields:
+1 Black Market
+1 Protective Sands
+1 Seat of Power
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+1 Bilgewater Tracker
+1 Brynhir Thundersong
+1 Decree of Rage
+1 Decree of Strength
+1 Lost to the Sands
+2 Repulse
+2 Sabotage
+1 Unyielding Spirit

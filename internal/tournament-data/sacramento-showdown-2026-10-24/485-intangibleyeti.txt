@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 485th place
+# player: IntangibleYeti
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-485/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Scourge of Shadows
+
+MainDeck:
+3 Astral Heron
+3 B.F. Sword
+1 Battle Preparations
+2 Charm
+3 Defy
+3 Discipline
+1 Hidden Blade
+3 Kayle, Justified
+1 Ki Barrier
+3 Mournful Witness
+1 Not So Fast
+2 Noxian Emissary
+2 Scuttle Crab
+1 Shadow Dash
+3 Stellacorn Herder
+1 Sterak's Gage
+2 Stoic Ferryman
+1 Tactical Retreat
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Hunters' Circle
+1 Kinkou Temple
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Burn Away
+2 Decree of Unity
+2 Disarming Rake
+2 Dockside Lock-Up
+2 Hush

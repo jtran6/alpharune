@@ -1,0 +1,50 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 67th place
+# player: CATL LuscoLuna
+# record: 7-5-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-67/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+3 Patched Porobot
+3 Scuttle Crab
+1 Card Sharp
+3 Pit Crew
+3 Cloth Armor
+3 Blossoming Dreamroot
+3 Brutalizer
+3 Mask of Foresight
+3 Sprite Fountain
+2 Sterak's Gage
+3 Charm
+3 Defy
+3 Discipline
+2 Sprite Burst
+1 Singularity
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Insight
+1 Hush
+1 Twilight Shroud
+1 Not So Fast
+1 Card Sharp
+2 Disarming Rake

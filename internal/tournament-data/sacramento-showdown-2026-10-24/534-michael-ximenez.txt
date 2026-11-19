@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 534th place
+# player: michael ximenez
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-534/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+2 Acceptable Losses
+3 Amateur Demolitionist
+1 Brynhir Thundersong
+3 Detonate
+1 Detonation Amplifier
+2 Ferrous Forerunner
+2 Gust Monk
+1 Hard Bargain
+2 Hexplosive Minefield
+1 Jinx, Demolitionist
+1 Jinx, Rebel
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+2 Pack of Wonders
+2 Reckless Innovator
+1 Ride the Wind
+2 Satchel Charge
+2 Seal of Rage
+3 Traveling Merchant
+2 Treasure Trove
+
+Battlefields:
+1 Rakelstake
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+5 Chaos Rune
+7 Fury Rune
+
+Sideboard:
+1 Abandon
+2 Gust
+1 Hard Bargain
+2 Morgana, Vindictive
+1 Pack of Wonders
+2 Ravenbloom Prefect
+1 Treasure Trove

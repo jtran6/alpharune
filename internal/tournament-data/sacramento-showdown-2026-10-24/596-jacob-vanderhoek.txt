@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 596th place
+# player: Jacob vanderhoek
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-596/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+2 Bilgewater Tracker
+3 Coalesced Energy
+2 Falling Star
+1 Ferrous Forerunner
+2 Graves, Blasting Through
+3 Inferna
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+2 Long Sword
+2 Mischievous Marai
+3 Noxus Hopeful
+3 Pit Rookie
+2 Portable Portal
+2 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Sabotage
+
+Battlefields:
+1 Black Market
+1 Protective Sands
+1 Seat of Power
+
+Runes:
+5 Body Rune
+7 Fury Rune
+
+Sideboard:
+2 Brittle Steel
+1 Challenge
+1 Decree of Rage
+1 Ferrous Forerunner
+2 Minotaur Reckoner
+1 Ruin Runner
+1 Sabotage
+1 Unyielding Spirit

@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 398th place
+# player: Big Nonsense
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-398/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Antagonistic Apparatus
+2 Bellows Breath
+3 Bilgewater Tracker
+2 Blast Corps Cadet
+3 Blastcone Fae
+2 Brynhir Thundersong
+1 Card Sharp
+1 Chronobreak
+1 Eclipse
+2 Falling Star
+3 Lecturing Yordle
+2 Orb of Regret
+1 Retreat
+1 Riptide Mage
+1 Rocket Barrage
+1 Shock Blast
+1 Singularity
+3 Stupefy
+3 Temporal Breach
+1 The Empyrean
+2 Thousand-Tailed Watcher
+1 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Ripper's Bay
+1 Rockfall Path
+
+Runes:
+5 Fury Rune
+7 Mind Rune
+
+Sideboard:
+1 Brittle Steel
+2 Decree of Insight
+1 Decree of Rage
+2 Ekko, Revolutionary
+1 Thermo Beam
+1 Time Warp
+2 Unchecked Power

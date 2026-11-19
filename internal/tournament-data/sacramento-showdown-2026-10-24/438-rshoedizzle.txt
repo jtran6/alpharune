@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 438th place
+# player: Rshoedizzle
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-438/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Bellows Breath
+3 Concert Poster
+1 Dragon Form
+3 Encore
+2 Faithful Manufactor
+1 Fanfare
+2 Hidden Blade
+3 Honest Broker
+2 Imperial Decree
+3 Jayce, Man of Progress
+3 Plundering Poro
+1 Raucous Anthem
+1 Sprite Burst
+3 Stupefy
+1 Unchecked Power
+3 Vanguard Armory
+3 Vanguard Captain
+2 Wages of Pain
+
+Battlefields:
+1 Black Rose Sanctum
+1 Forbidding Waste
+1 Trifarian War Camp
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+1 Bellows Breath
+1 Dockside Lock-Up
+2 Forge of the Future
+1 Imperial Decree
+2 Salvage
+2 Thousand-Tailed Watcher
+1 Time Warp

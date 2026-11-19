@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 448th place
+# player: Rohan Viajar
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-448/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Beast Below
+3 Bedeviling Stranger
+2 Boots of Swiftness
+1 Demon Shade
+2 Existential Dread
+1 Factory Recall
+2 Gutter Guardian
+3 Last Caress
+3 Momentary Companion
+1 Punch First
+3 Reckless Innovator
+1 Sabotage
+2 Siren's Song
+3 Sivir, Mercenary
+3 Star-Crossed
+2 Switcheroo
+3 The Waters' Wage
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Emperor's Dais
+1 Ripper's Bay
+
+Runes:
+5 Body Rune
+7 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+1 Bone Skewer
+2 Decree of Discord
+2 Evelynn, In Control
+2 Factory Recall
+1 Rampage
+1 Sabotage

@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 88th place
+# player: Anthony brienzo
+# record: 7-3-0
+# source: https://riftwatch.gg/decks/sacramento-88/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Blacksmith
+
+MainDeck:
+3 Clockwork Keeper
+3 Patched Porobot
+3 Scuttle Crab
+1 Aspiring Engineer
+3 Pit Crew
+1 Plaza Guardian
+2 Charm
+3 Defy
+1 Temporal Breach
+3 Seal of Focus
+2 Cloth Armor
+3 Poro Snax
+3 Brutalizer
+1 Guardian Angel
+1 Mask of Foresight
+3 Sprite Fountain
+3 Sterak's Gage
+
+Battlefields:
+1 Ornn's Forge
+1 Seat of Power
+1 Veiled Temple
+
+Runes:
+9 Calm Rune
+3 Mind Rune
+
+Sideboard:
+2 Disarming Rake
+1 Thousand-Tailed Watcher
+1 Decree of Focus
+2 Decree of Insight
+1 En Garde
+1 Hush
+1 Not So Fast
+1 Temporal Breach

@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 504th place
+# player: Alfonso Juarez
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-504/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+1 Bilgewater Tracker
+3 Carrion Dredger
+1 Dockside Lock-Up
+3 Dunebreaker
+3 Falling Star
+2 Ferrous Forerunner
+2 Hidden Blade
+3 Honest Broker
+3 Jhin, Murderous Artist
+3 Kai'Sa, Survivor
+2 Kayle, Justified
+3 Long Sword
+3 Realm of Death
+2 Rengar, Unseen
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Black Rose Sanctum
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+2 Bilgewater Tracker
+2 Decree of Rage
+2 Decree of Unity
+1 Ferrous Forerunner
+1 Imperial Decree
+2 Salvage

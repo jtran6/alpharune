@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 27th place
+# player: Benji302080
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/sacramento-27/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Meticulous Killer
+
+MainDeck:
+3 Forecaster
+3 Plundering Poro
+3 Noxus Hopeful
+2 Ferrous Forerunner
+2 Thousand-Tailed Watcher
+3 Stupefy
+1 Downstage Dramatics
+1 Falling Star
+1 Frigid Touch
+3 Consult the Past
+3 Curtain Call
+3 Deadly Flourish
+2 Rocket Barrage
+2 Sprite Burst
+1 Progress Day
+2 Singularity
+1 Unchecked Power
+2 Time Warp
+1 Orb of Regret
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Sigil of the Storm
+
+Runes:
+5 Fury Rune
+7 Mind Rune
+
+Sideboard:
+2 Bilgewater Tracker
+2 Brynhir Thundersong
+1 Decree of Insight
+1 Decree of Rage
+2 Temporal Breach
+1 Lost to the Sands
+1 Thermo Beam

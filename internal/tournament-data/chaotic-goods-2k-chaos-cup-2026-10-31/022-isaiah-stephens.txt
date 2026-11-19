@@ -1,0 +1,53 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 22nd place
+# player: Isaiah Stephens
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-22/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ezreal, Prodigal Explorer
+
+Champion:
+1 Ezreal, Prodigy
+
+MainDeck:
+2 An Offer You Can't Refuse
+3 Bellows Breath
+3 Bewitching Spirit
+3 Deadly Flourish
+3 Fizz, Trickster
+3 Gust
+3 Pack of Wonders
+1 Singularity
+1 Sprite Fountain
+2 Star-Crossed
+3 Stupefy
+2 The List
+2 Thousand-Tailed Watcher
+2 Treasure Trove
+3 Vex, Apathetic
+3 Wages of Pain
+
+Battlefields:
+1 Frozen Fortress
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+1 Angler Beast
+2 Kha'Zix, Mutating Horror
+1 Pickpocket
+1 Ravenbloom Prefect
+1 Rebuke
+1 Singularity
+1 Star-Crossed
+1 Turn to Dust

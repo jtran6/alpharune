@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 71st place
+# player: David Matej
+# record: 3-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-71/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Forge God
+
+MainDeck:
+2 Aspiring Engineer
+2 Battle Preparations
+3 Brutalizer
+3 Clockwork Keeper
+2 Defy
+1 Disarming Rake
+2 Discipline
+1 Guardian Angel
+1 Helm of Suppression
+1 Mask of Foresight
+3 Patched Porobot
+3 Pit Crew
+3 Poro Snax
+2 Scuttle Crab
+3 Seal of Focus
+3 Sprite Fountain
+3 Sterak's Gage
+1 Twilight Shroud
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+9 Calm Rune
+3 Mind Rune
+
+Sideboard:
+2 Charm
+2 Decree of Focus
+2 Decree of Insight
+1 Disarming Rake
+1 Hush
+2 Not So Fast

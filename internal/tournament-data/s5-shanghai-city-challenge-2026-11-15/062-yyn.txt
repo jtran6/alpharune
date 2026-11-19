@@ -1,0 +1,56 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 62nd place
+# player: YYN
+# record: not stated
+# deck name: 借鉴
+# source: https://riftdecks.com/riftbound-metagame/deck-jie-jian-354212
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+1 Mischievous Marai
+3 Mournful Witness
+3 Kai'Sa, Survivor
+3 Stellacorn Herder
+1 Tomb-Raider Barbara
+2 Blitzcrank, Impassive
+3 Astral Heron
+3 Long Sword
+3 Zhonya's Hourglass
+3 Defy
+3 Shuriken Flip
+1 Block
+3 Discipline
+3 Falling Star
+1 Not So Fast
+3 Back Off
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+5 Calm Rune
+7 Fury Rune
+
+Sideboard:
+1 Decree of Focus
+2 Decree of Rage
+1 Not So Fast
+1 Akali, Silent
+1 Tomb-Raider Barbara
+2 Irelia, Fervent
+1 Thermo Beam
+1 Ferrous Forerunner

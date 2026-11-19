@@ -1,0 +1,47 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 23rd place
+# player: Cory Rodgers
+# record: 2-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-23/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+3 Concert Poster
+3 Demacian Standard
+2 Graves, Blasting Through
+2 Irresistible Faefolk
+3 Kinkou Initiate
+3 Lucian, Merciless
+2 Nidalee, Cat Form
+3 Pillaged Armory
+3 Pit Rookie
+2 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+3 Trifarian Captain
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Ornn's Forge
+1 Sunken Temple
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Repulse
+3 Sabotage
+3 Salvage
+2 Unyielding Spirit

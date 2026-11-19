@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 675th place
+# player: Syrus James
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-675/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Ambessa, Matriarch of War
+
+Champion:
+1 Ambessa, The Wolf
+
+MainDeck:
+1 Ambessa, The Wolf
+2 First Mate
+2 Guttural Roar
+3 Irresistible Faefolk
+2 Kayle, Justified
+2 Kennen, Keeper of Balance
+3 Legion Marauder
+2 Lucian, Merciless
+2 Noxian Emissary
+2 Onslaught
+2 Portable Portal
+1 Primal Strength
+1 Public Execution
+3 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Repulse
+1 Sabotage
+2 Tactical Retreat
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Risen Altar
+1 Sandswept Tomb
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+1 Ambessa, Respected and Feared
+1 Challenge
+2 Decree of Strength
+1 Kayle, Justified
+1 Public Execution
+1 Repulse
+1 Sabotage
+2 Salvage

@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 87th place
+# player: Ryan Saxby
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-87/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ezreal, Prodigal Explorer
+
+Champion:
+1 Ezreal, Prodigy
+
+MainDeck:
+3 Bewitching Spirit
+3 Fizz, Trickster
+3 Vex, Apathetic
+2 Thousand-Tailed Watcher
+3 Bellows Breath
+2 Gust
+3 Stupefy
+2 An Offer You Can't Refuse
+2 Star-Crossed
+3 Wages of Pain
+3 Deadly Flourish
+2 Singularity
+2 The List
+3 Pack of Wonders
+1 Sprite Fountain
+2 Treasure Trove
+
+Battlefields:
+1 Frozen Fortress
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+2 Pickpocket
+1 Ravenbloom Prefect
+2 Kha'Zix, Mutating Horror
+1 Angler Beast
+1 Thousand-Tailed Watcher
+1 An Offer You Can't Refuse
+1 Star-Crossed
+1 Sprite Fountain

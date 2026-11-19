@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 613th place
+# player: Relyk
+# record: 1-2-1
+# source: https://riftwatch.gg/decks/sacramento-613/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+1 An Offer You Can't Refuse
+3 Astral Heron
+2 Back Off
+1 Blitzcrank, Impassive
+2 Charm
+3 Defy
+2 Discipline
+2 Draven, Audacious
+3 Emperor's Divide
+3 Evelynn, Entrancing
+2 Hard Bargain
+1 Last Rites
+3 Overzealous Fan
+1 Ravenbloom Prefect
+3 Scuttle Crab
+2 Sona, Harmonious
+1 Star-Crossed
+1 Vilemaw
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Grove of the God-Willow
+1 Packed Amphitheater
+1 The Papertree
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+1 Disarming Rake
+1 Hunting Blind
+2 Hush
+1 Last Rites
+1 Not So Fast
+1 Ravenbloom Prefect
+1 Star-Crossed
+1 Vilemaw

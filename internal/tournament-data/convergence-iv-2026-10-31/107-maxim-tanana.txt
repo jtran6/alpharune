@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 107th place
+# player: Maxim Tanana
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-107/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+2 Astral Heron
+2 Back Off
+3 Bedeviling Stranger
+2 Boots of Swiftness
+3 Defy
+3 Discipline
+2 Gust
+1 Janna, Savior
+2 Kharox
+3 Scuttle Crab
+2 Sona, Harmonious
+1 Star-Crossed
+3 Steel Paws
+3 Switcheroo
+1 The Good Stuff
+3 Tornado Warrior
+1 Vilemaw
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Ravenbloom Conservatory
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 Abandon
+2 An Offer You Can't Refuse
+1 Blitzcrank, Impassive
+2 Decree of Focus
+1 Hard Bargain
+2 Ravenbloom Prefect
+1 Star-Crossed

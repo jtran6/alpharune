@@ -1,0 +1,53 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 42nd place
+# player: Lavern
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-42/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Ezreal, Prodigy
+2 Fizz, Trickster
+3 Gutter Guardian
+3 Kinkou Initiate
+3 Pyke, Returned
+2 Reckless Innovator
+3 Tornado Warrior
+3 Tail-Cloaked Matriarch
+2 Vex, Apathetic
+2 Rengar, Trophy Hunter
+2 Kharox
+1 Boots of Swiftness
+2 Edge of Night
+2 Punch First
+1 Switcheroo
+2 Hold 'Em
+2 Rampage
+2 Star-Crossed
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Rakelstake
+1 Startipped Peak
+
+Runes:
+5 Body Rune
+7 Chaos Rune
+
+Sideboard:
+2 Gust
+1 Punch First
+2 Abandon
+2 An Offer You Can't Refuse
+1 Switcheroo
+1 Rampage
+1 Graves, Blasting Through

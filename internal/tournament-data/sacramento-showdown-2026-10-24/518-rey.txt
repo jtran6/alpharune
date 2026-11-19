@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 518th place
+# player: Rey
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-518/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+2 Bellows Breath
+3 Concert Poster
+1 Eclipse
+2 Encore
+2 Grand Strategem
+3 Hidden Blade
+1 Imperial Decree
+3 Jayce, Man of Progress
+3 Patched Porobot
+3 Plundering Poro
+2 Raucous Anthem
+2 Sprite Burst
+2 Stupefy
+2 Thousand-Tailed Watcher
+3 Vanguard Armory
+3 Vanguard Captain
+2 Wages of Pain
+
+Battlefields:
+1 Treasure Hoard
+1 Trifarian War Camp
+1 Veiled Temple
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Cull the Weak
+1 Imperial Decree
+1 Mel, Newly Awakened
+2 Salvage
+1 Sprite Burst
+1 Thousand-Tailed Watcher
+1 Time Warp
+1 Unchecked Power

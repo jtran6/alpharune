@@ -1,0 +1,52 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 25th place
+# player: NRW Rocklho
+# record: 7-3-2
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-25/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+3 Plundering Poro
+2 Watchful Sentry
+3 Bilgewater Tracker
+2 Lecturing Yordle
+2 Noxus Hopeful
+3 Brynhir Thundersong
+2 Thousand-Tailed Watcher
+2 The Empyrean
+1 Bellows Breath
+3 Hextech Ray
+3 Stupefy
+3 Falling Star
+2 Smoke Screen
+3 Temporal Breach
+1 Void Seeker
+2 Singularity
+2 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+3 Decree of Rage
+2 Brittle Steel
+2 Ferrous Forerunner
+1 Progress Day
+1 Thousand-Tailed Watcher

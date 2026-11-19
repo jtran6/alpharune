@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 629th place
+# player: Aylin Gaudet
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-629/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+1 Abandon
+2 Bedeviling Stranger
+1 Eclipse
+1 Ekko, Ingenious
+1 Fizz, Trickster
+2 Flash
+2 Gust
+2 Hard Bargain
+3 Hwei, Brooding Painter
+3 Moonfall
+1 Ocean Drake
+3 Ravenbloom Student
+1 Rebuke
+3 Ride the Wind
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+1 The Good Stuff
+1 Thousand-Tailed Watcher
+3 Tideturner
+2 Vex, Apathetic
+
+Battlefields:
+1 Abandoned Hall
+1 Packed Amphitheater
+1 Targon's Peak
+
+Runes:
+7 Chaos Rune
+5 Mind Rune
+
+Sideboard:
+2 Acceptable Losses
+2 Decree of Insight
+2 Ravenbloom Prefect
+1 Star-Crossed
+1 Vex, Apathetic
+2 Vex, Cheerless

@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 187th place
+# player: Mitchell
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-187/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+3 Amateur Demolitionist
+2 Bilgewater Tracker
+2 Brynhir Thundersong
+2 Chronobreak
+3 Kai'Sa, Survivor
+3 Lecturing Yordle
+2 Mordekaiser, Twice Slain
+2 Noxus Hopeful
+1 Pickpocket
+2 Plundering Poro
+3 Pyke, Dockside Butcher
+2 Shock Blast
+2 Smoke Screen
+3 Stupefy
+1 Temporal Breach
+3 Thousand-Tailed Watcher
+3 Watchful Sentry
+
+Battlefields:
+1 Forbidding Waste
+1 Frozen Fortress
+1 Rockfall Path
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Bellows Breath
+2 Brittle Steel
+2 Decree of Insight
+1 Decree of Rage
+1 Pickpocket
+2 Temporal Breach

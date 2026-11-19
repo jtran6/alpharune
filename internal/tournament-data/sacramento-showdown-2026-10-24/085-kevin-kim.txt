@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 85th place
+# player: Kevin Kim
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-85/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+1 Acceptable Losses
+3 Amateur Demolitionist
+1 An Offer You Can't Refuse
+3 Bilgewater Tracker
+1 Boots of Swiftness
+2 Detonate
+2 Detonation Amplifier
+1 Existential Dread
+3 Falling Star
+2 Ferrous Forerunner
+1 Fizz, Trickster
+1 Hard Bargain
+3 Pack of Wonders
+3 Seal of Rage
+3 Shimmering Swimmer
+1 Star-Crossed
+2 The Good Stuff
+2 The List
+3 Treasure Trove
+1 Vex, Apathetic
+
+Battlefields:
+1 Rakelstake
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+5 Chaos Rune
+7 Fury Rune
+
+Sideboard:
+1 Angler Beast
+1 Ferrous Forerunner
+1 Mindsplitter
+3 Ravenbloom Prefect
+1 Star-Crossed
+1 Switcheroo
+1 Vex, Apathetic
+1 Ziggs, Short-Fused

@@ -1,0 +1,51 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 37th place
+# player: TopCutGear Krashy
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-37/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+1 B.F. Sword
+3 Bellows Breath
+3 Carrion Dredger
+1 Consult the Past
+3 Cull the Weak
+2 Faithful Manufactor
+3 Hidden Blade
+2 Hunting Dog
+3 Imperial Decree
+1 Salvage
+3 Seal of Unity
+1 Spectral Matron
+3 Sprite Burst
+2 Stupefy
+1 Thousand-Tailed Watcher
+2 Vanguard Captain
+2 Vi, Peacekeeper
+3 Xin Zhao, Vigilant
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Decree of Insight
+2 Decree of Unity
+1 Machine Evangel
+3 Pickpocket
+2 Salvage

@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 647th place
+# player: GoodNSexy
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-647/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Poppy, Keeper of the Hammer
+
+Champion:
+1 Poppy, Paragon
+
+MainDeck:
+1 Challenge
+3 Demacian Diplomat
+3 First Mate
+2 Graves, Blasting Through
+3 Grim Resolve
+2 Irresistible Faefolk
+2 Keeper's Verdict
+1 Kennen, Keeper of Balance
+1 Ki Barrier
+2 Kinkou Initiate
+3 Master Yi, Tempered
+1 Mordekaiser, Dominating
+1 One-Two Punch
+1 Onslaught
+1 Portable Portal
+3 Punch First
+2 Rampage
+1 Rengar, Trophy Hunter
+1 Repulse
+1 Sabotage
+3 Shepherd's Heirloom
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Gardens of Becoming
+1 Sandswept Tomb
+1 Star Spring
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Akshan, Mischievous
+2 Decree of Unity
+1 Hidden Blade
+1 Rengar, Trophy Hunter
+2 Ruin Runner
+1 Sabotage
+2 Unyielding Spirit

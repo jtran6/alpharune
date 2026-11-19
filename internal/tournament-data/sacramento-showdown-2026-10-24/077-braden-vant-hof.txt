@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 77th place
+# player: Braden Van't Hof
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-77/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Irresistible Faefolk
+3 Pit Rookie
+3 Trifarian Captain
+2 First Mate
+3 Lucian, Merciless
+3 Nidalee, Cat Form
+2 Sett, Kingpin
+3 Rengar, Trophy Hunter
+2 Skystrike Squadron
+2 Punch First
+1 Repulse
+3 Call to Glory
+2 Rampage
+1 Concert Poster
+3 Pillaged Armory
+3 Demacian Standard
+
+Battlefields:
+1 Monastery of Hirana
+1 Packed Amphitheater
+1 Seat of Power
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Ruin Runner
+1 Punch First
+1 Repulse
+1 Sabotage
+2 Decree of Unity
+2 Salvage
+1 Dockside Lock-Up

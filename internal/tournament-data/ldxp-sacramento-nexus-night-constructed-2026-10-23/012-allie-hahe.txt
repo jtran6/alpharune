@@ -1,0 +1,54 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 12th place
+# player: Allie Hahe
+# record: 2-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-12/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Akali, Silent
+2 Brutalizer
+2 Cloth Armor
+2 Command: Attack
+2 Consult the Past
+3 Defy
+3 Discipline
+3 Frigid Jewel
+2 Hunting Blind
+3 Mask of Foresight
+2 Patched Porobot
+2 Plundering Poro
+1 Resplendent Rostrum
+3 Stupefy
+3 The Ball
+1 Thousand-Tailed Watcher
+1 Twilight Shroud
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+2 Disarming Rake
+2 Helm of Suppression
+1 Hush
+1 Not So Fast
+1 Pickpocket
+1 Unchecked Power

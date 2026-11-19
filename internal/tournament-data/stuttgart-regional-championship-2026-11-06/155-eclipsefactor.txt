@@ -1,0 +1,51 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 155th place
+# player: EclipseFactor
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-155/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Blacksmith
+
+MainDeck:
+3 Clockwork Keeper
+3 Patched Porobot
+3 Scuttle Crab
+2 Orianna, Exquisite
+3 Pit Crew
+3 Seal of Focus
+1 Cloth Armor
+3 Poro Snax
+3 Brutalizer
+1 Guardian Angel
+1 Mask of Foresight
+3 Sprite Fountain
+3 Sterak's Gage
+2 Charm
+2 Defy
+2 Twilight Shroud
+1 Not So Fast
+
+Battlefields:
+1 Ornn's Forge
+1 Seat of Power
+1 Veiled Temple
+
+Runes:
+9 Calm Rune
+3 Mind Rune
+
+Sideboard:
+1 Charm
+3 Decree of Focus
+1 Defy
+1 Hush
+2 Aspiring Engineer
+2 Disarming Rake

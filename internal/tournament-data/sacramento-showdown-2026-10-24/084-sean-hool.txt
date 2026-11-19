@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 84th place
+# player: Sean Hool
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-84/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Boots of Swiftness
+2 Edge of Night
+3 Ember Monk
+1 Gust
+3 Gutter Guardian
+3 Hold 'Em
+2 K'Sante, Courageous
+3 Kinkou Initiate
+3 Momentary Companion
+1 Onslaught
+2 Punch First
+3 Pyke, Returned
+1 Rampage
+3 Rengar, Trophy Hunter
+1 Stalwart Goatherd
+2 Star-Crossed
+2 Switcheroo
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Grove of the God-Willow
+1 Packed Amphitheater
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Decree of Strength
+1 Disposal Order
+1 Evelynn, Consuming
+1 Existential Dread
+1 Gust
+2 Ravenbloom Prefect
+2 Repulse
+1 Stalwart Goatherd

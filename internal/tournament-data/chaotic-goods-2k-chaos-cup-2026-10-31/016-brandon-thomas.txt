@@ -1,0 +1,44 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 16th place
+# player: BRANDON THOMAS
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-16/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+3 Carrion Dredger
+1 Eager Drakehound
+2 Falling Star
+2 Forbidden Technique
+3 Fresh Beans
+2 Grim Apothecary
+3 Hunting Dog
+3 Inferna
+2 Ki Barrier
+2 Rage Amplifier
+3 Realm of Death
+2 Rengar, Pouncing
+2 Shadow's Call
+2 Shen, Kinkou
+2 Trifarian Captain
+1 Vanguard Captain
+2 Vengeance
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Black Rose Sanctum
+1 Forgotten Monument
+1 Vilemaw's Lair
+
+Runes:
+6 Fury Rune
+6 Order Rune

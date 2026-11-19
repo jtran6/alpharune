@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 40th place
+# player: Pablo Otero
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-40/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+1 Bilgewater Tracker
+3 Carrion Dredger
+2 Deathgrip
+2 Ferrous Forerunner
+3 Glasc Mixologist
+3 Honest Broker
+3 Kai'Sa, Survivor
+3 Long Sword
+2 Mordekaiser, Twice Slain
+3 Noxus Hopeful
+3 Realm of Death
+3 Rengar, Pouncing
+1 Shen, Kinkou
+3 Trifarian Captain
+1 Vi, Peacekeeper
+3 Xin Zhao, Vigilant
+
+Battlefields:
+1 Minefield
+1 Seat of Power
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Burn Away
+2 Decree of Rage
+3 Decree of Unity
+1 Ferrous Forerunner
+1 Rift Herald
+2 Salvage

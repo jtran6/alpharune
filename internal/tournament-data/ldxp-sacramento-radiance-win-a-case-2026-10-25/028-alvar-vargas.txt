@@ -1,0 +1,54 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 25, 2026
+# placement: 28th place
+# player: Alvar Vargas
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-25-28/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Sett, The Boss
+
+Champion:
+1 Sett, Kingpin
+
+MainDeck:
+1 Akshan, Mischievous
+1 Arena Bar
+3 Call to Glory
+1 Cithria of Cloudfield
+2 Fiora, Victorious
+2 First Mate
+2 Irresistible Faefolk
+2 Lucian, Merciless
+2 Nidalee, Cat Form
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+1 Repulse
+2 Sabotage
+3 Showstopper
+3 Trifarian Captain
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Grove of the God-Willow
+1 Monastery of Hirana
+1 Valley of Idols
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+2 Decree of Strength
+2 Decree of Unity
+1 Repulse
+2 Salvage
+1 Tactical Retreat
+1 Unyielding Spirit

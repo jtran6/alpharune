@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 579th place
+# player: Joel Meza
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-579/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+1 Acceptable Losses
+3 Fizz, Trickster
+1 Grim Resolve
+1 Hard Bargain
+2 Illaoi, Prophet of the Great Kraken
+3 Irresistible Faefolk
+3 Nidalee, Cat Form
+1 Onslaught
+3 Punch First
+3 Qiyana, Victorious
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Ride the Wind
+1 Sabotage
+3 Sneaky Zeebles
+1 Star-Crossed
+3 Traveling Merchant
+1 Up from the Deep
+3 Void Assault
+
+Battlefields:
+1 Sandswept Tomb
+1 Star Spring
+1 Zaun Warrens
+
+Runes:
+8 Body Rune
+4 Chaos Rune
+
+Sideboard:
+1 Angler Beast
+1 Decree of Strength
+1 Existential Dread
+1 Ravenbloom Prefect
+1 Repulse
+1 Ruin Runner
+1 Switcheroo
+1 Unyielding Spirit
+1 Up from the Deep
+1 Vex, Apathetic

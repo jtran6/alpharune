@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 713th place
+# player: Liatra Nyaa
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-713/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+3 Bellows Breath
+2 Carrion Dredger
+3 Concert Poster
+1 Cull the Weak
+2 Eclipse
+3 Encore
+2 Hidden Blade
+3 Imperial Decree
+1 Raucous Anthem
+2 Seal of Unity
+3 Shadow's Call
+2 Spectral Matron
+3 Stupefy
+3 Trifarian Captain
+3 Vanguard Captain
+1 Wages of Pain
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Rockfall Path
+1 Vilemaw's Lair
+1 Void Gate
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+1 Cull the Weak
+2 Decree of Insight
+2 Decree of Unity
+1 Kennen, Keeper of Balance
+1 Mordekaiser, Dominating
+2 Salvage
+1 Thousand-Tailed Watcher

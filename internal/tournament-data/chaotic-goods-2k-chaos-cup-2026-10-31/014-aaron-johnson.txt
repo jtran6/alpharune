@@ -1,0 +1,53 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 14th place
+# player: Aaron Johnson
+# record: 2-2-1
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-14/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+1 Banner of Conquest
+1 Blood Rush
+3 Carrion Dredger
+2 Cleave
+3 Cull the Weak
+2 Escaped Grayback
+3 Faithful Manufactor
+3 Falling Star
+1 Hidden Blade
+2 Honest Broker
+1 Hunting Dog
+2 Inferna
+2 Lingering Animus
+2 Noxian Emissary
+3 Noxus Hopeful
+3 Undertitan
+2 Vanguard Captain
+3 Void Rush
+
+Battlefields:
+1 Forgotten Monument
+1 The Candlelit Sanctum
+1 Trifarian War Camp
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Banner of Conquest
+2 Ferrous Forerunner
+2 Imperial Decree
+1 Long Sword
+1 Rage Amplifier
+2 Salvage
+1 Shadow's Call

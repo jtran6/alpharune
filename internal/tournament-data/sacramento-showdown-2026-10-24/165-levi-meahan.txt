@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 165th place
+# player: Levi Meahan
+# record: 4-2-1
+# source: https://riftwatch.gg/decks/sacramento-165/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+3 Baited Hook
+3 Black Rose Dignitary
+1 Deathgrip
+3 Glasc Mixologist
+3 Harnessed Dragon
+1 Hidden Blade
+2 Honest Broker
+3 Karthus, Eternal
+2 Mirror Image
+3 Rift Herald
+3 Ruined Rex
+3 Sacrifice
+3 Soaring Scout
+1 Thousand-Tailed Watcher
+3 Vi, Peacekeeper
+2 Watchful Sentry
+
+Battlefields:
+1 Dusk Rose Lab
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+2 Bellows Breath
+1 Deathgrip
+3 Decree of Unity
+1 LeBlanc, Everywhere at Once
+2 Salvage
+1 Thousand-Tailed Watcher

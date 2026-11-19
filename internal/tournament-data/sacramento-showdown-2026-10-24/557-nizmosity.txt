@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 557th place
+# player: Nizmosity
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-557/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Pyke, Bloodharbor Ripper
+
+Champion:
+1 Pyke, Returned
+
+MainDeck:
+3 Bedeviling Stranger
+2 Blood Rush
+2 Ezreal, Prodigy
+3 Falling Star
+1 Fizz, Trickster
+1 Hard Bargain
+2 Inferna
+1 Kha'Zix, Mutating Horror
+2 Kharox
+1 Lost to the Sands
+3 Noxus Hopeful
+2 Rengar, Pouncing
+2 Star-Crossed
+2 Switcheroo
+2 Tail-Cloaked Matriarch
+2 The Good Stuff
+3 Tornado Warrior
+3 Traveling Merchant
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Ripper's Bay
+1 Zaun Warrens
+
+Runes:
+7 Chaos Rune
+5 Fury Rune
+
+Sideboard:
+3 Decree of Rage
+2 Gust Monk
+1 Pyke, Dockside Butcher
+2 Ravenbloom Prefect
+1 Thermo Beam
+1 Whirlwind

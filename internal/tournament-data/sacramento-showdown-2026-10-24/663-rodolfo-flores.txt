@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 663rd place
+# player: Rodolfo Flores
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-663/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+2 Akali, Silent
+2 Charm
+3 Defy
+3 Discipline
+2 En Garde
+2 Entrenched Boar
+1 First Mate
+1 Graves, Blasting Through
+2 Hunker Down
+2 Ki Burst
+3 Lonely Poro
+3 Pit Rookie
+2 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+2 Ruin Runner
+1 Sabotage
+3 Scuttle Crab
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+1 Decree of Strength
+1 Hush
+1 Onslaught
+1 Punch First
+1 Sabotage
+2 Tomb-Raider Barbara
+1 Unyielding Spirit

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 680th place
+# player: Diego
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-680/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+1 Akali, Silent
+3 Astral Heron
+3 Block
+3 Consult the Heavens
+3 Defy
+3 Discipline
+1 Hunting Blind
+2 K'Sante, Courageous
+3 Mutated Mouser
+3 Nazuman Ntofo
+2 Not So Fast
+3 Ntofo Strikes
+3 Scuttle Crab
+3 Stalwart Poro
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Durand Memorial
+1 Fortified Position
+1 Windswept Hillock
+
+Runes:
+3 Body Rune
+9 Calm Rune
+
+Sideboard:
+2 Adaptatron
+2 Akshan, Mischievous
+1 Crumbling Sands
+2 Decree of Focus
+1 Rengar, Trophy Hunter
+1 Sabotage
+1 Twilight Shroud

@@ -1,0 +1,52 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 23rd place
+# player: ahdenny
+# record: 6-2-1
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-23/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+3 Ravenbloom Student
+3 Tideturner
+2 Traveling Merchant
+2 Fizz, Trickster
+2 Vex, Apathetic
+3 Hwei, Brooding Painter
+2 Sprite Fountain
+2 Acceptable Losses
+3 Gust
+3 Stupefy
+1 Flash
+2 Hard Bargain
+2 Ride the Wind
+1 Smoke Screen
+2 Eclipse
+3 Moonfall
+2 Star-Crossed
+1 Singularity
+
+Battlefields:
+1 Abandoned Hall
+1 Seat of Power
+1 Targon's Peak
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+2 An Offer You Can't Refuse
+2 Pickpocket
+2 Ravenbloom Prefect
+1 Star-Crossed
+1 Angler Beast

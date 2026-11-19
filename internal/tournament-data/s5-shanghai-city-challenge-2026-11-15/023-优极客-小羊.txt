@@ -1,0 +1,57 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 23rd place
+# player: 优极客·小羊
+# record: not stated
+# deck name: 假如把把t3极光
+# source: https://riftdecks.com/riftbound-metagame/deck-jia-ru-ba-bat3ji-guang-354172
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Elder Dragon
+2 Garbage Grabber
+3 Platewyrm Egg
+2 Gutter Palace
+3 Dazzling Aurora
+2 Bellows Breath
+3 Flurry of Blades
+1 Repulse
+2 Sabotage
+1 Downstage Dramatics
+3 Dredge Up
+2 Mobilize
+2 Temporal Breach
+1 Acceleration Gate
+1 Wages of Pain
+3 Catalyst of Aeons
+2 Promising Future
+3 Clairvoyance
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+1 Repulse
+2 Unyielding Spirit
+1 Disposal Order
+1 Turn to Dust
+2 Deadly Flourish
+1 Rocket Barrage
+2 Sprite Burst

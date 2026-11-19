@@ -1,0 +1,53 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 24th place
+# player: Derpinox
+# record: 5-1-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-24/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+3 Charm
+3 Defy
+3 Discipline
+3 En Garde
+3 First Mate
+2 Irelia, Fervent
+3 Lonely Poro
+3 Pit Rookie
+3 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+1 Sabotage
+3 Scuttle Crab
+1 Twilight Shroud
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Alpha Strike
+2 Decree of Strength
+1 Not So Fast
+1 Repulse
+1 Sabotage
+2 Tomb-Raider Barbara
+1 Twilight Shroud
+1 Unyielding Spirit

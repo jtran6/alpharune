@@ -1,0 +1,57 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 57th place
+# player: noki
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-57/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Everywhere at Once
+
+MainDeck:
+2 Bellows Breath
+2 Deathgrip
+3 Dredge Up
+1 Eclipse
+1 Frigid Jewel
+1 Hidden Blade
+3 Honest Broker
+3 Hwei, Brooding Painter
+1 Imperial Decree
+1 Kennen, Keeper of Balance
+1 Ki Barrier
+3 Lillia, Fae Fawn
+2 Mirror Image
+2 Patched Porobot
+1 Salvage
+3 Smoke and Mirrors
+3 Stupefy
+2 Thousand-Tailed Watcher
+1 Vi, Peacekeeper
+3 Watchful Sentry
+
+Battlefields:
+1 Black Flame Altar
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+7 Mind Rune
+5 Order Rune
+
+Sideboard:
+2 Azir, Sovereign
+1 Bellows Breath
+1 Decree of Insight
+2 Decree of Unity
+1 Frigid Jewel
+1 Mirror Image
+1 Salvage
+1 Vi, Peacekeeper

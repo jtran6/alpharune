@@ -1,0 +1,54 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 33rd place
+# player: ANTONIOS AMPOU NTAGIE
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-33/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+3 Astral Heron
+2 Battle Preparations
+1 Bedeviling Stranger
+2 Boots of Swiftness
+3 Defiant Dance
+3 Defy
+3 Discipline
+1 Edge of Night
+1 Not So Fast
+1 Pyke, Returned
+2 Rebuke
+2 Ride the Wind
+3 Scuttle Crab
+3 Stellacorn Herder
+2 Switcheroo
+3 Tideturner
+1 Vex, Apathetic
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Abandoned Hall
+1 Forgotten Monument
+1 Sunken Temple
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Abandon
+2 Adaptatron
+1 Not So Fast
+2 Ravenbloom Prefect
+2 Star-Crossed
+1 Twilight Shroud
+1 Vex, Apathetic

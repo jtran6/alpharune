@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 561st place
+# player: Rayven
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-561/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Pyke, Bloodharbor Ripper
+
+Champion:
+1 Pyke, Returned
+
+MainDeck:
+1 Baron Nashor
+3 Bedeviling Stranger
+2 Brittle Steel
+1 Death from Below
+2 Edge of Night
+3 Ember Monk
+3 Evelynn, Entrancing
+1 Evelynn, In Control
+2 Existential Dread
+2 Rebuke
+2 Rengar, Unseen
+2 Ride the Wind
+2 Siren's Song
+2 Star-Crossed
+2 Switcheroo
+2 The Good Stuff
+2 The Waters' Wage
+3 Tideturner
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Bandle Tree
+1 Ripper's Bay
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+1 Angler Wyrm
+3 Bone Skewer
+1 Hard Bargain
+3 Ravenbloom Prefect
+1 Switcheroo
+1 Vex, Apathetic

@@ -1,0 +1,51 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 4th place
+# player: Jacob Boyd
+# record: 4-2-1
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-4/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+3 Baited Hook
+3 Black Rose Dignitary
+2 Dune Devourer
+3 Glasc Mixologist
+3 Harnessed Dragon
+1 Hidden Blade
+2 Honest Broker
+3 Karthus, Eternal
+3 Rift Herald
+3 Ruined Rex
+3 Sacrifice
+3 Soaring Scout
+1 Thousand-Tailed Watcher
+3 Trifarian Captain
+3 Vi, Peacekeeper
+
+Battlefields:
+1 Dusk Rose Lab
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+1 Bellows Breath
+1 Decree of Insight
+2 Decree of Unity
+1 LeBlanc, Everywhere at Once
+2 Mirror Image
+2 Salvage
+1 Thousand-Tailed Watcher

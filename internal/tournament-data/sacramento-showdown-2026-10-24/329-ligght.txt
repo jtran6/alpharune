@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 329th place
+# player: Ligght
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-329/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+2 Astral Heron
+1 Back Off
+1 Baron Nashor
+3 Bedeviling Stranger
+1 Boots of Swiftness
+3 Defy
+3 Discipline
+1 Hard Bargain
+2 Hunker Down
+1 Irelia, Fervent
+1 Janna, Savior
+2 Life from Stone
+3 Mutated Mouser
+1 Rebuke
+1 Ride the Wind
+2 Scuttle Crab
+2 Shadow
+2 Sona, Harmonious
+1 Star-Crossed
+2 Switcheroo
+2 Tideturner
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Abandoned Hall
+1 Bandle Scouts' Academy
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+2 Hush
+2 Ravenbloom Prefect
+1 Rebuke
+1 Star-Crossed
+2 Vilemaw

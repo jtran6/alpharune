@@ -1,0 +1,57 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 49th place
+# player: soyiа
+# record: not stated
+# deck name: best
+# source: https://riftdecks.com/riftbound-metagame/deck-best-354198
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Elder Dragon
+2 Garbage Grabber
+3 Platewyrm Egg
+1 Gutter Palace
+3 Dazzling Aurora
+3 Bellows Breath
+2 Flurry of Blades
+2 Sabotage
+1 Downstage Dramatics
+3 Dredge Up
+3 Mobilize
+3 Catalyst of Aeons
+1 Deadly Flourish
+1 Rocket Barrage
+3 Promising Future
+2 Sprite Burst
+3 Clairvoyance
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+1 Decree of Strength
+1 Sabotage
+1 Unyielding Spirit
+2 Disposal Order
+2 Temporal Breach
+1 Turn to Dust
+1 Deadly Flourish
+1 Sprite Burst

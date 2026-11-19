@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 72nd place
+# player: Vladyslav Boiarchenko
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-72/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Lucian, Purifier
+
+Champion:
+1 Lucian, Merciless
+
+MainDeck:
+3 Doran's Blade
+2 Ferrous Forerunner
+2 First Mate
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+2 Kinkou Initiate
+3 Legion Rearguard
+2 Long Sword
+2 Noxus Hopeful
+2 Punch First
+3 Rampage
+3 Relentless Pursuit
+2 Repulse
+2 Ruin Runner
+2 Skyfall of Areion
+3 Trinity Force
+
+Battlefields:
+1 Forge of the Fluft
+1 Sunken Temple
+1 The Candlelit Sanctum
+
+Runes:
+7 Body Rune
+5 Fury Rune
+
+Sideboard:
+2 Brittle Steel
+1 Brynhir Thundersong
+2 Noxian Demolitionist
+1 Punch First
+1 Repulse
+1 Ruin Runner
+2 Unyielding Spirit

@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 412th place
+# player: Rad Obunji
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/sacramento-412/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 Abandon
+1 Bedeviling Stranger
+2 Edge of Night
+2 Existential Dread
+3 Ezreal, Prodigy
+2 Fizz, Trickster
+1 Gust
+3 Gutter Guardian
+2 Hold 'Em
+1 Portable Portal
+2 Punch First
+3 Pyke, Returned
+1 Rampage
+3 Rengar, Trophy Hunter
+2 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+1 The Good Stuff
+3 Tornado Warrior
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Grove of the God-Willow
+1 Packed Amphitheater
+
+Runes:
+5 Body Rune
+7 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+1 Decree of Strength
+1 Evelynn, In Control
+2 Rampage
+1 Sabotage
+1 Star-Crossed
+2 Unyielding Spirit

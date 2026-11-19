@@ -1,0 +1,55 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 20th place
+# player: David Park
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-20/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+1 Abandon
+3 Astral Heron
+2 Boots of Swiftness
+3 Defiant Dance
+2 Defy
+3 Discipline
+2 Edge of Night
+1 Not So Fast
+1 Pyke, Returned
+1 Rebuke
+2 Reckless Innovator
+2 Ride the Wind
+3 Scuttle Crab
+1 Star-Crossed
+3 Stellacorn Herder
+2 Switcheroo
+3 Tideturner
+1 Vex, Apathetic
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Abandoned Hall
+1 Sunken Temple
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 Adaptatron
+1 Akali, Silent
+1 Charm
+2 Decree of Focus
+2 Gust
+1 Gust Monk
+1 Ravenbloom Prefect

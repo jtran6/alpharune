@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 568th place
+# player: Ean Agustin
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-568/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Azir, Emperor of the Sands
+
+Champion:
+1 Azir, Sovereign
+
+MainDeck:
+3 Arise!
+3 B.F. Sword
+1 Back Off
+3 Brutalizer
+3 Deathgrip
+3 Defy
+3 Discipline
+3 Doran's Shield
+3 Eye of the Herald
+3 Guards!
+2 Hand Hammer
+3 Hidden Blade
+2 Kennen, Keeper of Balance
+3 Soul Sword
+1 Vi, Peacekeeper
+
+Battlefields:
+1 Hall of Legends
+1 Ornn's Forge
+1 Trifarian War Camp
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+3 Decree of Focus
+3 Decree of Unity
+2 Salvage
+1 Vi, Peacekeeper

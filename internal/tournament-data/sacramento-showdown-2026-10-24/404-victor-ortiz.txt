@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 404th place
+# player: Victor Ortiz
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-404/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Everywhere at Once
+
+MainDeck:
+1 Atakhan
+1 Bellows Breath
+1 Blade of the Ruined King
+3 Carrion Dredger
+1 Chakram Dancer
+2 Commander Ledros
+3 Cull the Weak
+2 Deathgrip
+2 Dune Devourer
+1 Glasc Mixologist
+1 Grand Strategem
+2 Hidden Blade
+2 Imperial Decree
+2 Karthus, Eternal
+2 LeBlanc, Fragmented
+2 Lillia, Fae Fawn
+2 Machine Evangel
+1 Mirror Image
+2 Sacrifice
+3 Soaring Scout
+1 Vi, Peacekeeper
+2 Watchful Sentry
+
+Battlefields:
+1 Star Spring
+1 Trifarian War Camp
+1 Windswept Hillock
+
+Runes:
+4 Mind Rune
+8 Order Rune
+
+Sideboard:
+2 Forge of the Future
+2 Glowstone
+2 Raucous Anthem
+2 Safety Inspector
+2 Salvage

@@ -1,0 +1,47 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 241st place
+# player: Rajan Nandan
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-241/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Carrion Dredger
+3 Inferna
+2 Lingering Animus
+3 Noxian Emissary
+2 Bilgewater Tracker
+3 Faithful Manufactor
+3 Hunting Dog
+3 Noxus Hopeful
+3 Undertitan
+3 Blood Rush
+2 Cleave
+3 Cull the Weak
+3 Falling Star
+3 Imperial Decree
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 The Candlelit Sanctum
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Vi, Peacekeeper
+3 Ferrous Forerunner
+2 Brittle Steel
+3 Decree of Unity
+1 Void Rush

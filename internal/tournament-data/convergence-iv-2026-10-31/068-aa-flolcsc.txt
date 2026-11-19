@@ -1,0 +1,49 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 68th place
+# player: AA flolcsc
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-68/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23; Nocturne, Horrifying from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Keeper of Balance
+
+MainDeck:
+3 Baited Hook
+3 Bedeviling Stranger
+1 Grand Strategem
+3 Heimerdinger, Academy Instructor
+2 Illaoi, Prophet of the Great Kraken
+3 Lightning Rush
+2 Lulu, Whimsical
+3 Nocturne, Horrifying
+3 Seal of Unity
+3 Spectral Matron
+3 Tideturner
+3 Trifarian Captain
+2 Up from the Deep
+3 Vanguard Captain
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Black Rose Sanctum
+1 Packed Amphitheater
+1 Trifarian War Camp
+
+Runes:
+4 Chaos Rune
+8 Order Rune
+
+Sideboard:
+2 Decree of Unity
+1 Imperial Decree
+2 Machine Evangel
+3 Ravenbloom Prefect
+2 Zaunite Bouncer

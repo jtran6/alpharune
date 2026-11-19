@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 111th place
+# player: Cynthia
+# record: 6-3-0
+# source: https://riftwatch.gg/decks/sacramento-111/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Rengar, Pridestalker
+
+Champion:
+1 Rengar, Trophy Hunter
+
+MainDeck:
+1 Banner of Conquest
+2 Elnuk Herd
+2 First Mate
+2 Grim Apothecary
+1 Hold 'Em
+3 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+2 Nidalee, Cat Form
+1 Noxian Demolitionist
+3 Noxus Hopeful
+3 Pit Rookie
+2 Punch First
+1 Rally for War
+2 Rampage
+2 Sabotage
+3 Thrill of the Hunt
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Fury Rune
+
+Sideboard:
+1 Brynhir Thundersong
+1 Decree of Strength
+3 Ferrous Forerunner
+1 Noxian Demolitionist
+1 Punch First
+1 Rally for War
+1 Rampage
+1 Sabotage

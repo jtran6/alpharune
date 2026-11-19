@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 326th place
+# player: Frank Zhang
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-326/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+3 Bellows Breath
+3 Concert Poster
+3 Encore
+3 Fanfare
+2 Imperial Decree
+3 Jayce, Man of Progress
+2 Jhin, Meticulous Killer
+2 Plundering Poro
+3 Rousing Display
+3 Seal of Insight
+1 Strigian Oracle
+2 Thousand-Tailed Watcher
+3 Time Warp
+3 Trifarian Captain
+3 Vanguard Armory
+
+Battlefields:
+1 The Grand Plaza
+1 Trifarian War Camp
+1 Veiled Temple
+
+Runes:
+7 Mind Rune
+5 Order Rune
+
+Sideboard:
+2 Decree of Insight
+2 Decree of Unity
+1 For Demacia!
+3 Pickpocket
+2 Turn to Dust

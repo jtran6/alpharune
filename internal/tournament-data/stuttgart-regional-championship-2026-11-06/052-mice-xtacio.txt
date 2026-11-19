@@ -1,0 +1,46 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 52nd place
+# player: MICE xTacio
+# record: 7-4-1
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-52/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Carrion Dredger
+3 Inferna
+2 Lingering Animus
+3 Noxian Emissary
+3 Bilgewater Tracker
+3 Faithful Manufactor
+3 Hunting Dog
+3 Noxus Hopeful
+3 Undertitan
+2 Blood Rush
+2 Cleave
+3 Cull the Weak
+3 Falling Star
+3 Imperial Decree
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 The Candlelit Sanctum
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Rage
+3 Decree of Unity
+2 Salvage
+3 Pyke, Dockside Butcher

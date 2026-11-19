@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 298th place
+# player: Collin Menninger
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-298/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Back Off
+1 Battle Preparations
+1 Charm
+1 Cloth Armor
+3 Consult the Past
+3 Defy
+3 Discipline
+3 Frigid Jewel
+3 Guardian Angel
+3 Hunker Down
+3 Irelia, Fervent
+2 Jayce, Brilliant Inventor
+1 Not So Fast
+3 Ravenbloom Student
+3 Stupefy
+2 The Ball
+1 Thousand-Tailed Watcher
+1 Tianna Crownguard
+
+Battlefields:
+1 Abandoned Hall
+1 Ravenbloom Conservatory
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+1 Decree of Insight
+1 Helm of Suppression
+1 Not So Fast
+1 Rocket Barrage
+1 The Ball
+2 Tomb-Raider Barbara
+1 Vilemaw

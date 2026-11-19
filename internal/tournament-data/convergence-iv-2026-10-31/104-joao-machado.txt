@@ -1,0 +1,49 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 104th place
+# player: Joao Machado
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-104/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Bellows Breath
+3 Bilgewater Tracker
+2 Blood Rush
+2 Ekko, Revolutionary
+2 Falling Star
+3 Inferna
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+3 Plundering Poro
+2 Pyke, Dockside Butcher
+3 Retreat
+3 Shock Blast
+3 Stupefy
+3 Thousand-Tailed Watcher
+2 Vayne, Hunter
+
+Battlefields:
+1 Emperor's Dais
+1 Ripper's Bay
+1 Seat of Power
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Brittle Steel
+3 Decree of Insight
+3 Decree of Rage
+1 Thermo Beam
+1 Unchecked Power

@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 544th place
+# player: Angel M
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-544/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Bellows Breath
+3 Defy
+3 Heartening Soul
+3 Life from Stone
+3 Lonely Poro
+2 Not So Fast
+3 Piltovan Guidebot
+3 Scuttle Crab
+1 Siphoning Strike
+2 Stoic Ferryman
+2 Strigian Oracle
+3 Temporal Breach
+3 The Empyrean
+3 Thousand-Tailed Watcher
+1 Tomb-Raider Barbara
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 The Papertree
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+2 Hush
+1 Supernova
+2 Tomb-Raider Barbara
+2 Twilight Shroud
+1 Unchecked Power

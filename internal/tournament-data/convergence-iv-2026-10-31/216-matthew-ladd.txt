@@ -1,0 +1,56 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 216th place
+# player: Matthew Ladd
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-216/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 An Offer You Can't Refuse
+1 Baron Nashor
+2 Bedeviling Stranger
+3 Bewitching Spirit
+1 Bone Skewer
+1 Edge of Night
+1 Graves, Blasting Through
+2 Hard Bargain
+3 Kharox
+1 Last Caress
+2 Momentary Companion
+2 Pack of Wonders
+2 Portable Portal
+2 Pyke, Returned
+2 Rengar, Trophy Hunter
+1 Sneaky Deckhand
+1 Star-Crossed
+2 Switcheroo
+1 The Good Stuff
+3 Tornado Warrior
+2 Treasure Trove
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Grove of the God-Willow
+1 Hunters' Circle
+
+Runes:
+5 Body Rune
+7 Chaos Rune
+
+Sideboard:
+3 Decree of Strength
+1 Downwell
+1 Graves, Blasting Through
+2 Rebuke
+1 Sneaky Deckhand
+2 The List

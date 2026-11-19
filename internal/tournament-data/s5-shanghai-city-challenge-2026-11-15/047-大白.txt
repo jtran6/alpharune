@@ -1,0 +1,62 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 47th place
+# player: 大白
+# record: not stated
+# deck name: 加油！薇古丝
+# source: https://riftdecks.com/riftbound-metagame/deck-jia-you-wei-gu-si-354196
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Steel Paws
+2 Bedeviling Stranger
+2 Evelynn, Entrancing
+1 Scuttle Crab
+2 Tideturner
+1 Ravenbloom Prefect
+1 Sneaky Deckhand
+3 Tornado Warrior
+1 Kha'Zix, Mutating Horror
+2 Astral Heron
+1 Zhonya's Hourglass
+2 Boots of Swiftness
+2 Edge of Night
+1 Charm
+3 Defy
+1 Existential Dread
+3 Discipline
+1 Rebuke
+1 Ride the Wind
+3 Switcheroo
+1 Back Off
+2 Star-Crossed
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Hunters' Circle
+1 Vilemaw's Lair
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 Charm
+2 Decree of Focus
+2 Gust
+1 Not So Fast
+1 Rebuke
+1 Invert Timelines
+1 Ravenbloom Prefect
+1 Kharox

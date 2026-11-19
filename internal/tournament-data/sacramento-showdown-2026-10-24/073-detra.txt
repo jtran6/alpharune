@@ -1,0 +1,59 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 73rd place
+# player: Detra
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-73/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+# printing pinned: Pouty Poro #776
+
+Legend:
+1 Rengar, Pridestalker
+
+Champion:
+1 Rengar, Trophy Hunter
+
+MainDeck:
+1 Darius, Trifarian
+1 Ferrous Forerunner
+1 First Mate
+1 Graves, Blasting Through
+3 Grim Apothecary
+3 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+1 Minotaur Reckoner
+2 Nidalee, Cat Form
+3 Noxus Hopeful
+2 Pit Rookie
+1 Pouty Poro #776
+3 Punch First
+2 Pyke, Dockside Butcher
+2 Rampage
+1 Repulse
+1 Sabotage
+2 Thrill of the Hunt
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Fury Rune
+
+Sideboard:
+1 Ferrous Forerunner
+1 Graves, Blasting Through
+1 Portable Portal
+1 Rampage
+1 Repulse
+1 Sabotage
+1 Thermo Beam
+1 Thrill of the Hunt
+2 Warwick, Hunter

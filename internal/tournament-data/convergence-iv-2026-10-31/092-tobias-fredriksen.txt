@@ -1,0 +1,55 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 92nd place
+# player: Tobias Fredriksen
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-92/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Diana, Scorn of the Moon
+
+Champion:
+1 Diana, Lunari
+
+MainDeck:
+1 An Offer You Can't Refuse
+1 Fizz, Trickster
+1 Flash
+3 Gust
+2 Hard Bargain
+3 Hwei, Brooding Painter
+3 Moonfall
+3 Ravenbloom Student
+1 Rebuke
+2 Ride the Wind
+1 Siren's Song
+1 Smoke Screen
+3 Sprite Fountain
+2 Star-Crossed
+3 Stupefy
+1 Switcheroo
+3 Tideturner
+2 Traveling Merchant
+3 Vex, Apathetic
+
+Battlefields:
+1 Abandoned Hall
+1 Ravenbloom Conservatory
+1 Targon's Peak
+
+Runes:
+7 Chaos Rune
+5 Mind Rune
+
+Sideboard:
+1 Abandon
+1 Acceptable Losses
+1 An Offer You Can't Refuse
+2 Bellows Breath
+2 Decree of Insight
+1 Fizz, Trickster
+1 Singularity
+1 Tail-Cloaked Matriarch

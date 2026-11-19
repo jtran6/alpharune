@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 418th place
+# player: Terry Smethurst
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-418/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+2 Call to Glory
+2 Concert Poster
+3 Demacian Standard
+2 First Mate
+2 Hidden Blade
+3 Kinkou Initiate
+1 Nidalee, Cat Form
+2 Overloaded Traveler
+3 Pillaged Armory
+3 Pit Rookie
+3 Punch First
+3 Rampage
+3 Rengar, Trophy Hunter
+1 Ruin Runner
+3 Skystrike Squadron
+3 Trifarian Captain
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+1 Akshan, Mischievous
+2 Decree of Unity
+2 Noxian Demolitionist
+1 Ruin Runner
+2 Sabotage
+2 Salvage

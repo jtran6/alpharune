@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 626th place
+# player: Jonathan Li
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-626/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+2 Blighted Battleaxe
+2 Cleave
+2 Darius, Trifarian
+2 Deathgrip
+1 Divining Shells
+3 Ferrous Forerunner
+2 Fiora, Victorious
+2 Gem Jammer
+3 Hextech Gauntlets
+3 Hidden Blade
+3 Honest Broker
+3 Kai'Sa, Survivor
+2 Long Sword
+3 Noxus Hopeful
+2 Pyke, Dockside Butcher
+1 Salvage
+3 Trifarian Captain
+
+Battlefields:
+1 Forge of the Fluft
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+1 Against the Odds
+2 Brynhir Thundersong
+3 Decree of Unity
+2 Falling Star
+2 Salvage

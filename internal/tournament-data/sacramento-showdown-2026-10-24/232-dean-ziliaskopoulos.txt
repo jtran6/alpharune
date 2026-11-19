@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 232nd place
+# player: Dean Ziliaskopoulos
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-232/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Pyke, Bloodharbor Ripper
+
+Champion:
+1 Pyke, Returned
+
+MainDeck:
+2 Bedeviling Stranger
+2 Inferna
+1 Tideturner
+3 Traveling Merchant
+1 Bilgewater Tracker
+2 Ezreal, Prodigy
+1 Fizz, Trickster
+1 Pyke, Dockside Butcher
+3 Reckless Innovator
+1 Rengar, Pouncing
+3 Tornado Warrior
+1 Kha'Zix, Mutating Horror
+2 Noxus Hopeful
+3 Tail-Cloaked Matriarch
+2 Vex, Apathetic
+2 Kharox
+2 Cleave
+2 Falling Star
+1 Switcheroo
+2 Lost to the Sands
+2 Star-Crossed
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Ripper's Bay
+1 Vilemaw's Lair
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+2 Ravenbloom Prefect
+1 Kha'Zix, Mutating Horror
+1 Angler Beast
+1 Brynhir Thundersong
+2 Decree of Rage
+1 Brittle Steel
+1 Death from Below
+1 Thermo Beam

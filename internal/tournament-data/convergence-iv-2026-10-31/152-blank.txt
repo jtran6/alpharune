@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 152nd place
+# player: blank
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-152/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+2 Astral Heron
+2 Back Off
+3 Bedeviling Stranger
+2 Blitzcrank, Impassive
+3 Boots of Swiftness
+3 Charm
+3 Defy
+2 Discipline
+2 Rebuke
+2 Ride the Wind
+3 Scuttle Crab
+2 Star-Crossed
+3 Steel Paws
+2 Switcheroo
+2 Tornado Warrior
+1 Vex, Apathetic
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Bandle Tree
+1 Grove of the God-Willow
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+3 Acceptable Losses
+2 Decree of Focus
+2 Hush
+3 Lonely Poro

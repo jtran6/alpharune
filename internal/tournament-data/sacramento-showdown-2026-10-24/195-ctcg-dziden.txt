@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 195th place
+# player: CTCG DZiden
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-195/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Bedeviling Stranger
+2 Boots of Swiftness
+2 Edge of Night
+1 Existential Dread
+2 Ezreal, Prodigy
+2 Gust
+3 Gutter Guardian
+3 K'Sante, Courageous
+3 Kinkou Initiate
+1 Onslaught
+2 Punch First
+2 Pyke, Returned
+2 Rampage
+2 Rengar, Trophy Hunter
+1 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+3 Tornado Warrior
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Rakelstake
+1 Startipped Peak
+
+Runes:
+4 Body Rune
+8 Chaos Rune
+
+Sideboard:
+1 Abandon
+2 An Offer You Can't Refuse
+1 Baron Nashor
+1 Gust
+2 Ravenbloom Prefect
+2 Sabotage
+1 Star-Crossed

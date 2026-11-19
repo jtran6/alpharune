@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 312th place
+# player: TAK NGAN
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-312/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+1 Acceptable Losses
+3 Amateur Demolitionist
+2 Bewitching Spirit
+2 Bilgewater Tracker
+3 Detonate
+1 Detonation Amplifier
+3 Falling Star
+2 Fizz, Trickster
+2 Gust
+2 Minotaur Reckoner
+1 Morgana, Vindictive
+3 Pack of Wonders
+2 Runeblade Anvil
+2 Seal of Rage
+3 Shimmering Swimmer
+2 Star-Crossed
+2 The List
+3 Treasure Trove
+
+Battlefields:
+1 Rockfall Path
+1 Vilemaw's Lair
+1 Void Gate
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+1 Abandon
+2 Acceptable Losses
+1 Angler Beast
+2 Decree of Rage
+1 Rebuke
+1 Star-Crossed
+2 Vex, Apathetic

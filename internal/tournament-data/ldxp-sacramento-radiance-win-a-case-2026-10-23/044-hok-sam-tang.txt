@@ -1,0 +1,50 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 44th place
+# player: Hok Sam Tang
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-44/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Akali, Silent
+3 Charm
+3 Defy
+3 Discipline
+3 En Garde
+3 First Mate
+2 Lonely Poro
+1 Onslaught
+3 Pit Rookie
+3 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+1 Repulse
+2 Sabotage
+3 Scuttle Crab
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Fortified Position
+1 Grove of the God-Willow
+1 Seat of Power
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+3 Decree of Focus
+2 Decree of Strength
+1 Fiora, Peerless
+2 Ruin Runner
+2 Stalwart Goatherd

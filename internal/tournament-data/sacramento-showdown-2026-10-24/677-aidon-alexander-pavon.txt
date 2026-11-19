@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 677th place
+# player: Aidon Alexander Pavon
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-677/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, In Control
+
+MainDeck:
+3 Bedeviling Stranger
+2 Boots of Swiftness
+3 Edge of Night
+3 Ember Monk
+2 Evelynn, Entrancing
+2 Graves, Blasting Through
+1 Gust
+3 Punch First
+2 Pyke, Returned
+3 Reckless Innovator
+2 Rengar, Trophy Hunter
+2 Ride the Wind
+2 Star-Crossed
+2 Switcheroo
+2 The Good Stuff
+3 Treasure Hunter
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Packed Amphitheater
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+3 An Offer You Can't Refuse
+1 Decree of Strength
+2 Disposal Order
+1 Rebuke
+2 Sabotage
+1 Vex, Apathetic

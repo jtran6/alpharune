@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 390th place
+# player: Jake Crabtree
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-390/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Akali, Silent
+1 Aspiring Engineer
+1 Back Off
+3 Battle Preparations
+2 Brutalizer
+3 Cloth Armor
+1 Consult the Past
+3 Defy
+3 Discipline
+1 Emperor's Divide
+3 Frigid Jewel
+1 Guardian Angel
+2 Mask of Foresight
+1 Not So Fast
+2 Ornn, Blacksmith
+3 Stupefy
+3 The Ball
+1 Twilight Shroud
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Targon's Peak
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Charm
+1 Decree of Focus
+2 Decree of Insight
+1 Not So Fast
+1 Singularity
+3 Tomb-Raider Barbara

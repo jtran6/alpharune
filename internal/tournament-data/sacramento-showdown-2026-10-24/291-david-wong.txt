@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 291st place
+# player: David Wong
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-291/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ziggs, Hexplosives Expert
+
+Champion:
+1 Ziggs, Explosive
+
+MainDeck:
+3 Amateur Demolitionist
+2 An Offer You Can't Refuse
+1 Darius, Trifarian
+3 Detonate
+1 Explosimian
+3 Falling Star
+1 Fizz, Trickster
+2 Kai'Sa, Survivor
+2 Noxus Hopeful
+1 Ride the Wind
+1 Runeblade Anvil
+1 Satchel Charge
+2 Seal of Rage
+2 Shimmering Swimmer
+2 Star-Crossed
+2 Switcheroo
+2 Traveling Merchant
+3 Treasure Hunter
+2 Vex, Apathetic
+2 Ziggs, Explosive
+1 Ziggs, Short-Fused
+
+Battlefields:
+1 Heisho, Shell of the World
+1 Rakelstake
+1 Void Gate
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+2 Acceptable Losses
+1 Baron Nashor
+2 Bilgewater Tracker
+2 Blood Rush
+2 Hard Bargain
+1 Star-Crossed

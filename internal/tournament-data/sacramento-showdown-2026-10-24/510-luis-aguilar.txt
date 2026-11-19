@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 510th place
+# player: Luis Aguilar
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-510/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ambessa, Matriarch of War
+
+Champion:
+1 Ambessa, The Wolf
+
+MainDeck:
+1 Dame the Despoiler
+1 Dockside Lock-Up
+1 Graves, Blasting Through
+2 Guttural Roar
+1 Hidden Blade
+2 Honest Broker
+2 Irresistible Faefolk
+3 Kayle, Justified
+2 Kennen, Keeper of Balance
+1 Ki Barrier
+3 Legion Marauder
+2 Lucian, Merciless
+1 Noxian Emissary
+1 One-Two Punch
+2 Onslaught
+3 Punch First
+3 Rampage
+1 Rengar, Trophy Hunter
+1 Sabotage
+3 Solari Sunhawk
+3 Vi, Peacekeeper
+
+Battlefields:
+1 Risen Altar
+1 Sandswept Tomb
+1 Windswept Hillock
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Decree of Strength
+1 Decree of Unity
+2 Disposal Order
+2 Repulse
+1 Sabotage
+2 Salvage

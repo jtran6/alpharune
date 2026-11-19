@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 152nd place
+# player: GTPL Ize
+# record: 5-4-0
+# source: https://riftwatch.gg/decks/sacramento-152/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Consuming
+
+MainDeck:
+1 An Offer You Can't Refuse
+3 Bedeviling Stranger
+2 Edge of Night
+3 Evelynn, Entrancing
+1 Fizz, Trickster
+2 Gutter Guardian
+3 Hold 'Em
+2 Momentary Companion
+1 Onslaught
+2 Punch First
+3 Pyke, Returned
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Star-Crossed
+2 Switcheroo
+3 Teemo, Scout
+2 The Good Stuff
+1 Trinity Force
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Startipped Peak
+1 Trifarian War Camp
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+1 Ember Monk
+1 Graves, Blasting Through
+1 Last Caress
+1 Ravenbloom Prefect
+2 Sabotage
+1 Shadows of the Past
+1 Trinity Force

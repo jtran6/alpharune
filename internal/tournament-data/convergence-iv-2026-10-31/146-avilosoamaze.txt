@@ -1,0 +1,56 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 146th place
+# player: aviloSoAmaze
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-146/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# printing pinned: Pouty Poro #776
+
+Legend:
+1 Lucian, Purifier
+
+Champion:
+1 Lucian, Merciless
+
+MainDeck:
+2 Brynhir Thundersong
+2 Catalyst of Aeons
+3 Confront
+2 Dragonsoul Sage
+1 Graves, Blasting Through
+2 Kai'Sa, Survivor
+2 Legion Rearguard
+2 Lucian, Merciless
+1 Platewyrm Egg
+2 Portable Portal
+2 Pouty Poro #776
+1 Red Brambleback
+3 Relentless Pursuit
+2 Ruin Runner
+1 Sabotage
+1 Seal of Rage
+3 Shakedown
+2 Skyfall of Areion
+3 Trinity Force
+2 Void Seeker
+
+Battlefields:
+1 Black Market
+1 Forgotten Monument
+1 Reckoner's Arena
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+2 Akshan, Mischievous
+2 Decree of Rage
+2 Repulse
+1 Ruin Runner
+1 Sabotage
+2 Unyielding Spirit

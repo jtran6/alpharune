@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 672nd place
+# player: Mark Meyer
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-672/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+3 Battle Preparations
+2 Bellows Breath
+2 Brutalizer
+3 Cloth Armor
+3 Defy
+3 Discipline
+1 Emperor's Divide
+2 Frigid Jewel
+1 Helm of Suppression
+2 Mask of Foresight
+2 Sterak's Gage
+3 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Hush
+2 Not So Fast
+1 Orianna, Mechanical Marvel
+2 Tomb-Raider Barbara
+1 Unchecked Power

@@ -1,0 +1,52 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 26th place
+# player: Rodrigo
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-26/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Leona, Radiant Dawn
+
+Champion:
+1 Leona, Zealot
+
+MainDeck:
+2 Back Off
+2 Blossoming Dreamroot
+2 Call to Glory
+3 Defy
+3 Discipline
+2 Fiora, Victorious
+1 Hidden Blade
+2 Kennen, Keeper of Balance
+3 Ki Burst
+3 Mournful Witness
+2 Nami, Headstrong
+1 Not So Fast
+3 Riven, Broken Blade
+3 Scuttle Crab
+1 Vex, Mocking
+3 Vi, Peacekeeper
+1 Zenith Blade
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Monastery of Hirana
+1 Packed Amphitheater
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Focus
+3 Disarming Rake
+2 Hush
+1 Not So Fast
+2 Salvage

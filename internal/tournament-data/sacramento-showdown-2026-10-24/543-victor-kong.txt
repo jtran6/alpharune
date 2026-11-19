@@ -1,0 +1,60 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 543rd place
+# player: Victor Kong
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-543/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Back Off
+3 Bellows Breath
+2 Defy
+2 Find Your Center
+2 Not So Fast
+2 Plundering Poro
+2 Ravenbloom Student
+2 Retreat
+2 Scuttle Crab
+2 Sprite Burst
+2 Sprite Fountain
+1 Sprite Queen
+2 Steel Paws
+2 Stupefy
+2 Temporal Breach
+1 The Empyrean
+3 Thousand-Tailed Watcher
+1 Time Warp
+1 Wages of Pain
+1 Whiteflame Protector
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Dusk Rose Lab
+1 Emperor's Dais
+1 Rockfall Path
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Akali, Silent
+1 Decree of Focus
+1 Decree of Insight
+1 Disarming Rake
+1 Last Stand
+1 Mageseeker Warden
+1 Singularity
+1 Stoic Ferryman
+1 Tomb-Raider Barbara
+1 Wages of Pain

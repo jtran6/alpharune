@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 627th place
+# player: Azael Calderon
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-627/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+1 Armored Tusker
+3 Astral Heron
+2 Back Off
+3 Consult the Heavens
+3 Defy
+3 Discipline
+2 Graves, Blasting Through
+3 Mutated Mouser
+3 Nazuman Ntofo
+3 Ntofo Strikes
+2 Punch First
+2 Scuttle Crab
+2 Serene Ascetic
+3 Stalwart Poro
+2 Stoic Ferryman
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Fortified Position
+1 Grove of the God-Willow
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+2 Decree of Focus
+2 Disarming Rake
+1 Hush
+2 Stalwart Goatherd
+1 Trinity Force
+2 Unyielding Spirit

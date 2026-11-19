@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 473rd place
+# player: Clayton Chin
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-473/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+3 Battle Preparations
+2 Brutalizer
+1 Charm
+3 Defy
+1 Disarming Rake
+3 Discipline
+3 Lonely Poro
+3 Mask of Foresight
+3 Ravenbloom Student
+1 Riptide Rex
+3 Smoke and Mirrors
+2 Smoke Screen
+3 Sprite Burst
+3 Sprite Fountain
+2 Stupefy
+2 Thousand-Tailed Watcher
+1 Unchecked Power
+
+Battlefields:
+1 Dusk Rose Lab
+1 Rockfall Path
+1 Seat of Power
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+3 Decree of Focus
+2 Decree of Insight
+2 Disarming Rake
+1 Lilting Lullaby
+1 Riptide Rex
+1 Twilight Shroud

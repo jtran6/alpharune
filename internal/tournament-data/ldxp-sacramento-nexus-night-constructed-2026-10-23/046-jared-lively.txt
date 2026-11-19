@@ -1,0 +1,59 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 46th place
+# player: Jared Lively
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-46/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Shen, Eye of Twilight
+
+Champion:
+1 Shen, Kinkou
+
+MainDeck:
+2 Allay, Eager Admirer
+2 Astral Heron
+2 Back Off
+1 Blitzcrank, Impassive
+2 Blossoming Dreamroot
+3 Carrion Dredger
+2 Charm
+3 Defy
+3 Discipline
+2 Emperor's Divide
+2 Hidden Blade
+2 Honeyfruit
+1 Hunting Dog
+1 Janna, Savior
+1 Ki Barrier
+2 Scuttle Crab
+1 Shadow Dash
+2 Sona, Harmonious
+1 Soulspinner
+2 Stalwart Poro
+1 Trevor Snoozebottom
+1 Vilemaw
+
+Battlefields:
+1 Durand Memorial
+1 Grove of the God-Willow
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Adaptatron
+1 Akali, Silent
+1 Concert Poster
+1 Emperor's Divide
+1 Mageseeker Investigator
+1 Mageseeker Warden
+1 Not So Fast
+2 Salvage
+1 Vilemaw

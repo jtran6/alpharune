@@ -1,0 +1,54 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 49th place
+# player: LRDN
+# record: 6-3-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-49/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+2 Gem Jammer
+3 Irresistible Faefolk
+3 Pit Rookie
+1 Bilgewater Tracker
+2 First Mate
+2 Kinkou Initiate
+1 Akshan, Mischievous
+3 Coalesced Energy
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+2 Rengar, Trophy Hunter
+2 Ferrous Forerunner
+2 Skyfall of Areion
+3 Trinity Force
+2 Punch First
+1 Sabotage
+2 Falling Star
+2 Dominus
+
+Battlefields:
+1 Black Market
+1 Protective Sands
+1 Seat of Power
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+1 Decree of Rage
+2 Decree of Strength
+2 Sabotage
+1 Brittle Steel
+1 Falling Star
+2 Brynhir Thundersong
+1 Ferrous Forerunner

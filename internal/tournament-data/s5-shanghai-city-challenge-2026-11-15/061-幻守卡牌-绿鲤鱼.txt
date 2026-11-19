@@ -1,0 +1,55 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 61st place
+# player: 幻守卡牌·绿鲤鱼
+# record: not stated
+# deck name: 维克托2
+# source: https://riftdecks.com/riftbound-metagame/deck-wei-ke-tuo2-354211
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+3 Carrion Dredger
+1 Vi, Peacekeeper
+1 Thousand-Tailed Watcher
+3 Concert Poster
+3 Sprite Fountain
+3 Bellows Breath
+3 Stupefy
+3 Cull the Weak
+1 Facebreaker
+3 Hidden Blade
+1 Lacerate
+1 Salvage
+3 Shadow's Call
+3 Wages of Pain
+3 Imperial Decree
+3 Sprite Burst
+1 Singularity
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Insight
+1 Lacerate
+2 Salvage
+1 Deadly Flourish
+1 Singularity
+1 Thousand-Tailed Watcher
+2 Unchecked Power

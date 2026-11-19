@@ -1,0 +1,53 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 38th place
+# player: TAPUR Sezgin
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-38/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+2 Abandon
+1 Adaptatron
+3 Akali, Silent
+3 Boots of Swiftness
+3 Defiant Dance
+3 Defy
+1 Discipline
+1 Guardian Angel
+2 Gust Monk
+1 Lonely Poro
+1 Ravenbloom Prefect
+3 Reckless Innovator
+2 Ride the Wind
+1 Riven, Broken Blade
+2 Scuttle Crab
+2 Seal of Discord
+1 Seal of Focus
+2 Stellacorn Herder
+2 Switcheroo
+3 Twilight Shroud
+
+Battlefields:
+1 Abandoned Hall
+1 Back-Alley Bar
+1 The Candlelit Sanctum
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+1 Adaptatron
+3 Decree of Discord
+3 Decree of Focus
+3 Hush

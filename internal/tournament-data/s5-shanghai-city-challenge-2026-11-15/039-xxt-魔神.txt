@@ -1,0 +1,63 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 39th place
+# player: XXT.魔神
+# record: not stated
+# deck name: 卡卡
+# source: https://riftdecks.com/riftbound-metagame/deck-ka-ka-354188
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# RiftDecks does not name a printing; Plundering Poro loads #392 (also #778)
+# RiftDecks does not name a printing; Pouty Poro loads #13 (also #776)
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+3 Plundering Poro
+1 Pouty Poro
+1 Watchful Sentry
+3 Bilgewater Tracker
+3 Lecturing Yordle
+2 Noxus Hopeful
+2 Brynhir Thundersong
+1 Ferrous Forerunner
+3 Thousand-Tailed Watcher
+2 The Empyrean
+2 Iron Ballista
+2 Bellows Breath
+3 Hextech Ray
+1 Retreat
+3 Stupefy
+2 Falling Star
+1 Smoke Screen
+1 Temporal Breach
+1 Lost to the Sands
+1 Singularity
+1 Icathian Rain
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+1 Decree of Insight
+1 Decree of Rage
+2 Brittle Steel
+1 Iron Ballista
+1 Antagonistic Apparatus
+2 Ferrous Forerunner
+1 Unchecked Power
+1 Time Warp

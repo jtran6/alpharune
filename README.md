@@ -5,7 +5,7 @@ end-to-end. Drop-in compatible with [OpenSpiel](https://github.com/google-deepmi
 so any tree-search algorithm (MCTS, ISMCTS, CFR, …) can plug straight in.
 
 > **Disclaimer.** Released **as-is** for research and hobby use.
-> Expect rough edges in: card coverage (955 hand-authored cards; a few are
+> Expect rough edges in: card coverage (1,123 hand-authored cards; a few are
 > still stubs or carry a known engine gap, see `scripts/card_coverage.py`),
 > edge-case rules interactions, performance on stress workloads, and corners of the OpenSpiel
 > wrapper. PRs welcome; production deployment at your own risk.
@@ -15,21 +15,38 @@ so any tree-search algorithm (MCTS, ISMCTS, CFR, …) can plug straight in.
 > baselines via OpenSpiel.
 
 ## What works today
-- Uses Piltover archive formatted game decks
+- **Deck files.** A `.txt` list with `Legend`, `Champion`, `MainDeck`,
+  `Battlefields`, `Runes`, and an optional `Sideboard`. Lines that start
+  with `#` are skipped. `Name #id` selects a later printing of a shared
+  name. Sample lists are in `decks/`. Completed Radiance constructed
+  events are in `internal/tournament-data/` (one file per deck).
 - **Full rules engine.** Awaken → channel → draw → main → end turn loop,
   FEPR chain resolution, combat with damage assignment, scoring, mulligans,
-  battlefields, gear/equip, 23 keyword mechanics, replacement effects.
-- **955 cards**, each a hand-authored C++ class owning its own data + behavior.
-  `python3 scripts/card_coverage.py` classifies every card file (implemented /
-  stub / vanilla, plus in-code gap comments); its work lists are under
-  [`docs/card-coverage/`](docs/card-coverage/).
+  battlefields, gear/equip, keyword mechanics, replacement effects.
+  `--game-mode duel` draws each setup battlefield (the default).
+  `--game-mode match` lets each player choose theirs.
+- **1,123 cards**, each a hand-authored C++ class owning its own data and
+  behavior. `python3 scripts/card_coverage.py` classifies every card file
+  (implemented / stub / vanilla, plus in-code gap comments); its work lists
+  are under [`docs/card-coverage/`](docs/card-coverage/).
+- **Ban list by date.** A card with `banned_from` is illegal in Standard on
+  and after that date. The Radiance list starts 2026-11-23. `--wild` skips
+  the ban check. `--deck-breakdown` only reads the file, so it still prints
+  a list that contains a card the ban has reached.
 - **Deterministic.** Given a seed, the same game replays identically.
 - **OpenSpiel integration.** `RiftboundGame` / `RiftboundState` implement
-  the OpenSpiel `Game` / `State` interfaces. MCTS, ISMCTS, and random
-  agents work out of the box.
+  the OpenSpiel `Game` / `State` interfaces. MCTS, ISMCTS, random, and
+  random-player agents work out of the box.
+- **Deck breakdown.** `--deck-breakdown D.txt` prints one list's curve,
+  roles, and draw chances, then exits. No second deck and no game.
+- **Play-by-play.** After a single game, and after each game of a batch of
+  20 or fewer, the runner prints a short account: seed, both decks, both
+  agents, how the game ended, the score, the mulligan, what each play paid,
+  moves, combat, and who conquered or held.
 - **HTML replays.** Per-game rendered HTML with board snapshots,
   decision points, trace log, arrow-key navigation.
-- **855 unit tests** covering engine behavior + card mechanics.
+- **Tests.** Google Test in `tests/` (`riftbound_tests`) plus the OpenSpiel
+  wrapper tests (`riftbound_openspiel_tests`).
 - **Engine-fiber step machine.** `boost::context::fiber`-based cooperative
   yields at decision points. No OS thread per game state, supports
   thousands of `Clone()` calls per decision for branching search.
@@ -86,10 +103,107 @@ RIFTBOUND_ROOT=. ./build/riftbound_tests
 ./build/riftbound --agent1 random --agent2 mcts:sims=20 --web on \
     --deck1 decks/fiora.txt \
     --deck2 decks/yi_rebuild.txt
+
+# Read one list. No second deck, no game. Prints the curve, the roles,
+# and the chance of seeing each role and card in the opening and the
+# first three turns. The sideboard is listed and left out of the chances.
+./build/riftbound --deck-breakdown decks/fiora.txt
+
+# Same command on a published tournament list:
+./build/riftbound --deck-breakdown \
+    internal/tournament-data/stuttgart-regional-championship-2026-11-06/001-asc-evansrhim.txt
 ```
 
 Pass `--help` for the full flag list. The web UI's WebSocket protocol
 is documented in [`docs/play-api.md`](docs/play-api.md).
+
+## Read one deck
+
+```bash
+./build/riftbound --deck-breakdown decks/fiora.txt
+```
+
+The command loads that file and prints a report, then exits. `--deck1`
+and `--deck2` are not required.
+
+The report names the legend and the champion. The champion is classified
+and is not given a draw chance: it starts in the Champion Zone. Battlefields
+and runes are listed on their own. The sideboard is recorded and left out
+of every chance. The curve counts the main deck and the champion by energy
+cost. Late game is the highest energy cost in that list.
+
+Roles (ramp, combat tricks, and the rest) are read from the printed text
+and keywords the card already carries. Empty roles are omitted. Each role
+says why those cards are in it and how many copies it holds.
+
+Draw chances cover the opening hand and each of the first three turns.
+With no draw, Predict, recycle-from-deck, or tutor on the main deck or the
+champion, each chance is the plain hypergeometric draw. When the list has
+one of those effects, a copy already seen counts its printed extra cards
+once. An effect that appears only on those extra cards is not followed.
+That is a count of the list, not a played game.
+
+## What a game prints
+
+A run of one game, and each game of a batch of 20 or fewer, ends with a
+play-by-play. A larger batch keeps the progress line and does not print a
+block per game. The block is not the trace (`--trace`) and not the decision
+log.
+
+The header names the game number, the seed, both deck-list names, both
+agent specs, how the game ended, the final score, the turns, and the
+decision count. A game that throws still prints the header, the error, and
+that the game is not usable.
+
+Each turn names whose turn it is and how many runes that player has at the
+start and at the end. The mulligan names what each player shipped and what
+they kept. A play names the card, the player, and what was paid. A free
+play, and a play that ignores its cost, says so. A spell's target is named,
+including a friendly unit. A move names the unit and both locations. A
+combat names who fought and the damage. A conquer or a hold names the
+battlefield and who controls it afterwards. The score is one line at the
+end of the turn.
+
+```bash
+./build/riftbound \
+    --deck1 internal/tournament-data/stuttgart-regional-championship-2026-11-06/001-asc-evansrhim.txt \
+    --deck2 internal/tournament-data/orlando-showdown-2026-10-31/001-merc-koopastar.txt \
+    --agent1 random-player:pass=0 --agent2 random-player:pass=0 \
+    --seed 1 --games 1 --web off --render-html off
+```
+
+`random-player` chooses uniformly among the legal actions that are not a
+pass, and passes with probability `P` when it could act (`pass=0.2` if you
+omit it). `pass=0` plays whenever anything else is legal. `random` can pass
+on any decision. `mcts:sims=N` searches the real position, including the
+opponent's hand and both deck orders. `ismcts:sims=N` searches worlds drawn
+from what the deciding player knows. Add `,world=perfect` to search the
+real hidden cards instead.
+
+## Tournament lists
+
+`internal/tournament-data/` holds one file per deck from the completed
+constructed events with a start date from the Radiance release (2026-10-23)
+through 2026-11-19. Riftwatch is 12 events and 1,283 lists, pulled at 12:28
+PM ET on November 19, 2026. RiftDecks adds the S5 Shanghai City Challenge,
+64 lists, pulled at 2:54 PM ET the same day. Thirteen events, 1,347 lists.
+The folder's `README.md` is the event table, the source URLs, and where the
+published top-cut scores are. Shanghai does not publish who beat whom.
+
+A path works as `--deck1`, `--deck2`, or `--deck-breakdown`. `matchups.txt`
+is the published top cut for Stuttgart and Orlando. It is not a deck file.
+Do not pass it as one.
+
+A header comment names the event, the date, the place, the player, the
+record, and the source URL. The November 23, 2026 bans are still in the
+list, and the header names each one that file contains. On and after that
+date a normal game rejects those cards. `--wild` plays the list anyway.
+`--deck-breakdown` does not apply the ban check.
+
+`Master Yi, Wuju Bladesman` is the engine name for the Proving Grounds
+starter. `Master Yi, Wuju Master` is the Unleashed legend. A line written
+`Pouty Poro #776` is a later printing. A header that says a promo code is
+not in the engine kept the card under the name the loader already has.
 
 ## Play against the AI (web UI)
 
@@ -119,12 +233,14 @@ Useful flags:
 
 | Flag | Default | Meaning |
 |---|---|---|
-| `--agent1` / `--agent2` | `random` | Per-seat agent: `human`, `random`, `mcts:sims=N`, `ismcts:sims=N`. |
+| `--deck-breakdown` | | Read one deck file, print its curve, roles, and draw chances, then exit. |
+| `--agent1` / `--agent2` | `random` | Per-seat agent: `human`, `random`, `random-player[:pass=P]`, `mcts:sims=N`, `ismcts:sims=N[,world=sampled\|perfect]`. |
+| `--game-mode` | `duel` | `duel` draws each setup battlefield. `match` has each player choose theirs. |
 | `--web` | `auto` | `auto` starts the UI whenever a seat is human; `on` forces it (spectate AI-vs-AI); `off` disables it. |
 | `--port` / `--bind` | `8080` / `127.0.0.1` | Where the UI listens. Use `--bind 0.0.0.0` to reach it from another machine: the printed URL then carries an access token that the server requires. |
 | `--god-mode` | `auto` | `auto`/`on` enables the in-browser state editor when a human is seated. While it is on the UI shows every hand and deck. `off` hides the editor **and** the opponent's hand and both decks' order, for a fair game. |
 | `--seed` | `0` | Fix the RNG for a reproducible game (`0` = random per game). |
-| `--wild` | off | Wild format: allow banned cards in decks (ignores each card's `banned` flag so banned cards can be played). |
+| `--wild` | off | Wild format: allow banned cards. Skips `banned` and a `banned_from` date that has arrived. |
 
 ### What the UI looks like
 
@@ -164,7 +280,7 @@ underlying WebSocket protocol is in [`docs/play-api.md`](docs/play-api.md).
 
 | Binary | Purpose |
 |---|---|
-| `build/riftbound` | Unified game runner. All modes (single / batch / web UI / spectator), all agents (`random` / `human` / `mcts:sims=N` / `ismcts:sims=N`), HTML replay, trace/debug logging — all driven by CLI flags. |
+| `build/riftbound` | Unified game runner. Single game, batch, web UI, spectator, `--deck-breakdown`, agents (`random` / `random-player` / `human` / `mcts:sims=N` / `ismcts:sims=N`), HTML replay, play-by-play, trace/debug logging — all driven by CLI flags. |
 | `build/riftbound_tests` | Google Test suite. |
 | `build/src/openspiel/riftbound_clone_equiv_test` | Validates Clone() correctness — clones mid-game, runs the same actions on original + clone, asserts identical terminal state. |
 | `build/src/openspiel/riftbound_clone_microbench` | Microbenchmark — times Clone() throughput. |
@@ -221,19 +337,20 @@ src/cards/       Card subclasses — one TU per card under units/ spells/ gear/
                  cross-cutting helpers in card_helpers.h; cards_init.cpp is the
                  checked-in registration aggregator (one line per card).
 src/agents/      AgentInterface + RandomAgent + HumanAgent
-src/io/          HTML replay writer, ASCII state renderer, play server
-                 (web UI) and its god-mode state editor
+src/io/          HTML replay writer, play-by-play, ASCII state renderer,
+                 play server (web UI) and its god-mode state editor
 src/openspiel/   OpenSpiel Game / State subclasses, action vocabulary,
                  clone-correctness tests
 src/ml/          Engine-side shared infra: feature extractor +
                  CFR utilities. No torch — these emit data for
                  downstream ML consumers.
-src/rules/       Deck validator (tournament rules)
+src/rules/       Deck validator, deck-breakdown report, tournament rules
 src/effects/     Effect type definitions
 
 tests/           Google Test — engine behavior + card mechanics
 cards/           raw/gallery_raw.json (reference art/metadata for authoring)
-decks/           Sample decks (.txt deck lists, Piltover Archive format)
+decks/           Sample decks (.txt deck lists)
+internal/tournament-data/   One file per deck from completed Radiance events
 rules/           core-rules.md, tournament-rules.md, core-rules.pdf
 errata/          Official errata documents
 scripts/         Card gallery fetch, card coverage report, batch replay

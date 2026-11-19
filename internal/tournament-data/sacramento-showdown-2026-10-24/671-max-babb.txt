@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 671st place
+# player: Max Babb
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/sacramento-671/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Renekton, Butcher of the Sands
+
+Champion:
+1 Renekton, Rage Fueled
+
+MainDeck:
+3 Coalesced Energy
+1 Dominus
+3 Falling Star
+2 Graves, Blasting Through
+3 Inferna
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+2 Nidalee, Cat Form
+3 Noxus Hopeful
+3 Pit Rookie
+3 Punch First
+2 Pyke, Dockside Butcher
+2 Rampage
+3 Rengar, Trophy Hunter
+3 Sneaky Zeebles
+
+Battlefields:
+1 Black Market
+1 Protective Sands
+1 Seat of Power
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+2 Against the Odds
+2 Brittle Steel
+2 Disposal Order
+2 Ferrous Forerunner
+2 Repulse

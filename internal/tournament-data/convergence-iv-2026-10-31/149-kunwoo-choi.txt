@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 149th place
+# player: Kunwoo Choi
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-149/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Fiora, Grand Duelist
+
+Champion:
+1 Fiora, Victorious
+
+MainDeck:
+2 Concert Poster
+2 Elder Dragon
+3 First Mate
+2 Graves, Blasting Through
+3 Kayle, Justified
+2 Kinkou Initiate
+1 Mordekaiser, Dominating
+2 Pit Rookie
+3 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+2 Repulse
+3 Rift Herald
+2 Riposte
+2 Sabotage
+1 Sacrifice
+2 Shepherd's Heirloom
+2 Trifarian Captain
+
+Battlefields:
+1 Fortified Position
+1 Packed Amphitheater
+1 Sunken Temple
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+2 Akshan, Mischievous
+2 Decree of Strength
+2 Forge of the Future
+2 Ruin Runner
+1 Sacrifice
+1 Salvage

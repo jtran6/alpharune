@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 336th place
+# player: Steven Quan
+# record: 3-2-0
+# source: https://riftwatch.gg/decks/sacramento-336/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lillia, Bashful Bloom
+
+Champion:
+1 Lillia, Fae Fawn
+
+MainDeck:
+2 Battle Preparations
+1 Blastcone Fae
+2 Brutalizer
+1 Charm
+3 Defy
+3 Discipline
+3 Lonely Poro
+3 Mask of Foresight
+1 Parallel Convergence
+3 Ravenbloom Student
+2 Riptide Mage
+3 Smoke and Mirrors
+1 Smoke Screen
+3 Sprite Burst
+3 Sprite Fountain
+3 Stupefy
+1 Tomb-Raider Barbara
+1 Unchecked Power
+
+Battlefields:
+1 Abandoned Hall
+1 Dusk Rose Lab
+1 Seat of Power
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+1 Akali, Silent
+1 Charm
+1 Decree of Focus
+2 Decree of Insight
+2 Disarming Rake
+1 Lilting Lullaby
+2 Parallel Convergence

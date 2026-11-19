@@ -1,0 +1,49 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 43rd place
+# player: Brian lee
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-43/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+3 Cull the Weak
+2 Deadly Flourish
+1 Dune Devourer
+3 Encore
+1 Heimerdinger, Academy Instructor
+2 Hidden Blade
+2 High Note
+3 Honest Broker
+1 Neeko, Blending In
+1 Party Crasher
+1 Piltovan Guidebot
+2 Raucous Anthem
+1 Renata Glasc, Industrialist
+2 Rousing Display
+1 Shadow's Call
+1 Soraka, Wanderer
+1 Soul Shepherd
+3 Stupefy
+1 Supernova
+1 The Empyrean
+2 Vanguard Armory
+2 Vanguard Captain
+2 Wages of Pain
+
+Battlefields:
+1 Dusk Rose Lab
+1 Hunters' Circle
+1 Rockfall Path
+
+Runes:
+6 Mind Rune
+6 Order Rune

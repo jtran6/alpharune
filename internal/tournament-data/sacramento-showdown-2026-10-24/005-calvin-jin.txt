@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 5th place
+# player: Calvin Jin
+# record: 9-2-1
+# source: https://riftwatch.gg/decks/sacramento-5/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+3 Carrion Dredger
+1 Kennen, Keeper of Balance
+1 Thousand-Tailed Watcher
+3 Bellows Breath
+3 Stupefy
+1 Blood Money
+3 Cull the Weak
+1 Facebreaker
+3 Hidden Blade
+1 Salvage
+3 Shadow's Call
+3 Wages of Pain
+3 Imperial Decree
+3 Sprite Burst
+3 Concert Poster
+3 Sprite Fountain
+1 B.F. Sword
+
+Battlefields:
+1 Forbidding Waste
+1 Ravenbloom Conservatory
+1 Rockfall Path
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+3 Pickpocket
+1 Safety Inspector
+3 Decree of Insight
+1 Decree of Unity
+2 Salvage

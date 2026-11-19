@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 661st place
+# player: FMA IKrisp
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-661/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Lucian, Purifier
+
+Champion:
+1 Lucian, Merciless
+
+MainDeck:
+2 Gem Jammer
+3 Irresistible Faefolk
+3 First Mate
+2 Repair Specialist
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+2 Ferrous Forerunner
+2 Ruin Runner
+3 Punch First
+1 Sabotage
+3 Relentless Pursuit
+2 Rampage
+3 Doran's Blade
+3 Long Sword
+2 Portable Portal
+2 Blighted Battleaxe
+
+Battlefields:
+1 Forge of the Fluft
+1 Mystic Vortex
+1 Sunken Temple
+
+Runes:
+5 Body Rune
+7 Fury Rune
+
+Sideboard:
+1 Noxian Demolitionist
+2 Noxus Saboteur
+2 Akshan, Mischievous
+1 Sabotage
+2 Unyielding Spirit
+2 Brittle Steel

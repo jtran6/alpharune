@@ -1,0 +1,56 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 7th place
+# player: Calvin
+# record: 3-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-7/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Dominating
+
+MainDeck:
+1 Bilgewater Tracker
+2 Blast Corps Cadet
+1 Brynhir Thundersong
+3 Carrion Dredger
+1 Darius, Trifarian
+2 Escaped Grayback
+1 Falling Star
+1 Ferrous Forerunner
+2 Hidden Blade
+1 Honest Broker
+3 Kai'Sa, Survivor
+2 LeBlanc, Fragmented
+2 Long Sword
+3 Realm of Death
+2 Seal of Unity
+2 Spectral Matron
+3 Trifarian Captain
+2 Vanguard Captain
+3 Vi, Peacekeeper
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+1 Brynhir Thundersong
+1 Cull the Weak
+1 Decree of Rage
+1 Falling Star
+2 Ferrous Forerunner
+2 Salvage

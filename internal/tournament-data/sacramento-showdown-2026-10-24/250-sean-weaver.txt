@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 250th place
+# player: Sean Weaver
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-250/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Battle Preparations
+2 Charm
+3 Cloth Armor
+3 Defy
+3 Discipline
+2 Energy Conduit
+1 Helm of Suppression
+2 Honeyfruit
+2 Hunting Blind
+3 Mask of Foresight
+2 Orianna, Mechanical Marvel
+3 Patched Porobot
+2 Singularity
+2 Spirit of the Forge
+3 The Ball
+2 Thousand-Tailed Watcher
+2 Unchecked Power
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+7 Calm Rune
+5 Mind Rune
+
+Sideboard:
+2 Akali, Silent
+2 Decree of Insight
+1 Helm of Suppression
+2 Not So Fast
+2 Rocket Barrage
+1 Singularity

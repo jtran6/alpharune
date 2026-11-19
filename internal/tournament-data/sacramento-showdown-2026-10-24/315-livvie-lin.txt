@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 315th place
+# player: Livvie Lin
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-315/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Bellows Breath
+2 Bilgewater Tracker
+2 Brynhir Thundersong
+2 Falling Star
+3 Inferna
+3 Kai'Sa, Survivor
+1 Lecturing Yordle
+1 Lost to the Sands
+3 Noxus Hopeful
+3 Plundering Poro
+1 Pyke, Dockside Butcher
+1 Retreat
+3 Shock Blast
+1 Singularity
+3 Stupefy
+2 Temporal Breach
+3 Thousand-Tailed Watcher
+3 Watchful Sentry
+
+Battlefields:
+1 Rockfall Path
+1 Seat of Power
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Antagonistic Apparatus
+2 Decree of Insight
+2 Decree of Rage
+2 Ferrous Forerunner
+1 Lost to the Sands
+1 Time Warp

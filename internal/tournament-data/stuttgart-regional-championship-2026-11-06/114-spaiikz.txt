@@ -1,0 +1,50 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 114th place
+# player: Spaiikz
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-114/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Carrion Dredger
+3 Honest Broker
+3 Inferna
+3 Noxian Emissary
+3 Bilgewater Tracker
+3 Faithful Manufactor
+2 Hunting Dog
+3 Noxus Hopeful
+1 Long Sword
+2 Blood Rush
+1 Cleave
+1 Hextech Ray
+3 Cull the Weak
+3 Falling Star
+2 Salvage
+3 Imperial Decree
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 The Candlelit Sanctum
+
+Runes:
+7 Fury Rune
+5 Order Rune
+
+Sideboard:
+3 Decree of Rage
+2 Decree of Unity
+1 Hidden Blade
+1 Salvage
+1 Ferrous Forerunner
+2 Undertitan

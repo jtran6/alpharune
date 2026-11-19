@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 475th place
+# player: Cody L Lawrence
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-475/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+1 Baron Nashor
+2 Bedeviling Stranger
+2 Fizz, Trickster
+1 Flash
+2 Gust
+2 Last Rites
+3 Lightning Rush
+3 Nocturne, Horrifying
+2 Pack of Wonders
+2 Reckless Innovator
+3 Rhasa the Sunderer
+3 Ride the Wind
+3 Seal of Discord
+1 Siren's Song
+2 Star-Crossed
+1 The Harrowing
+3 Traveling Merchant
+3 Trifarian Captain
+
+Battlefields:
+1 Minefield
+1 Shadow Temple
+1 Zaun Warrens
+
+Runes:
+9 Chaos Rune
+3 Order Rune
+
+Sideboard:
+3 Decree of Unity
+3 Ravenbloom Prefect
+1 Rebuke
+1 Salvage
+1 Siren's Song
+1 Switcheroo

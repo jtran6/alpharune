@@ -1,0 +1,54 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 15th place
+# player: Anthony brienzo
+# record: 2-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-15/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Fiora, Grand Duelist
+
+Champion:
+1 Fiora, Worthy
+
+MainDeck:
+3 B.F. Sword
+2 Call to Glory
+2 Deathgrip
+3 Doran's Blade
+1 Elnuk Herd
+2 First Mate
+1 Graves, Blasting Through
+2 Ki Barrier
+3 Lucian, Merciless
+3 Pit Rookie
+3 Punch First
+3 Rampage
+3 Riposte
+1 Sacrifice
+1 Sett, Brawler
+1 Shen, Kinkou
+2 Spectral Matron
+3 Unsung Hero
+
+Battlefields:
+1 Black Market
+1 Seat of Power
+1 Sunken Temple
+
+Runes:
+6 Body Rune
+6 Order Rune
+
+Sideboard:
+2 Akshan, Mischievous
+1 Ashe, Focused
+1 Elnuk Herd
+2 Ruin Runner
+2 Salvage
+1 Sett, Brawler
+1 Unyielding Spirit

@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 545th place
+# player: David Mai
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-545/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Back Off
+3 Bedeviling Stranger
+1 Blitzcrank, Impassive
+2 Boots of Swiftness
+3 Defy
+1 Demon Shade
+3 Discipline
+1 Evelynn, Entrancing
+1 Existential Dread
+1 Irelia, Fervent
+1 Janna, Savior
+1 Kha'Zix, Mutating Horror
+1 Ki Burst
+1 Momentary Companion
+3 Mutated Mouser
+1 Siren's Song
+2 Sona, Harmonious
+1 Star-Crossed
+3 Steel Paws
+3 Switcheroo
+1 Tornado Warrior
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Hunters' Circle
+1 Startipped Peak
+1 The Grand Plaza
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+3 Flurry of Feathers
+2 Gust
+1 Hush
+1 Irelia, Fervent
+1 Vilemaw

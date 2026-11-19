@@ -1,0 +1,53 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 48th place
+# player: Sadnath
+# record: 5-1-3
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-48/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ivern, Green Father
+
+Champion:
+1 Ivern, Nurturer
+
+MainDeck:
+2 Fallen Feline
+3 Mutated Mouser
+3 Stalwart Poro
+3 Trusty Ramhound
+3 Affectionate Poro
+2 Iridescent Avian
+1 Janna, Savior
+1 Kennen, Keeper of Balance
+1 Blitzcrank, Impassive
+3 Astral Heron
+1 Daisy!
+3 Defy
+2 Friendship
+2 Block
+3 Discipline
+1 Not So Fast
+2 Back Off
+1 For Demacia!
+2 Raucous Anthem
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Hush
+2 Hidden Blade
+3 Disarming Rake
+1 Janna, Savior
+1 Dockside Lock-Up
+1 Vilemaw

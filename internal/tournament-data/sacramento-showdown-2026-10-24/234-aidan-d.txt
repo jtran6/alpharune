@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 234th place
+# player: Aidan D
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-234/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+1 An Offer You Can't Refuse
+1 Bedeviling Stranger
+1 Evelynn, Entrancing
+1 Ezreal, Prodigy
+3 Fizz, Trickster
+3 Irresistible Faefolk
+2 Kinkou Initiate
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+1 Ride the Wind
+1 Riven, Deserter
+2 Sabotage
+2 Shadow Order Disciple
+2 Star-Crossed
+1 Switcheroo
+2 Tail-Cloaked Matriarch
+2 Traveling Merchant
+2 Up from the Deep
+2 Vex, Apathetic
+3 Void Assault
+
+Battlefields:
+1 Sandswept Tomb
+1 Star Spring
+1 Zaun Warrens
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+2 Graves, Blasting Through
+2 Ravenbloom Prefect
+2 Ruin Runner
+1 Switcheroo
+2 Unyielding Spirit

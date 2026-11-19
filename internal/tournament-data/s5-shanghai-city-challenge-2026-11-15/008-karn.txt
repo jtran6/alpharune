@@ -1,0 +1,60 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 8th place
+# player: karn
+# record: not stated
+# deck name: kenne
+# source: https://riftdecks.com/riftbound-metagame/deck-kenne-354157
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+# source printing is not named; Seal of Discord loads #204
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+2 Bedeviling Stranger
+1 Tideturner
+3 Traveling Merchant
+3 Trifarian Captain
+2 Fizz, Trickster
+3 Reckless Innovator
+3 Nocturne, Horrifying
+3 Rhasa the Sunderer
+3 Seal of Discord
+2 Last Rites
+2 Gust
+3 Lightning Rush
+1 An Offer You Can't Refuse
+1 Cull the Weak
+1 Hard Bargain
+3 Ride the Wind
+2 Switcheroo
+1 Star-Crossed
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+9 Chaos Rune
+3 Order Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Decree of Unity
+1 Forge of the Future
+1 Rebuke
+1 Ravenbloom Prefect
+1 Star-Crossed
+1 Vex, Apathetic
+1 Vi, Peacekeeper

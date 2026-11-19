@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 481st place
+# player: Big G
+# record: 2-3-1
+# source: https://riftwatch.gg/decks/sacramento-481/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Astral Heron
+1 Back Off
+2 Bellows Breath
+1 Convergent Mutation
+2 Deadly Flourish
+3 Defy
+3 Discipline
+2 Life from Stone
+1 Not So Fast
+3 Ravenbloom Student
+3 Scuttle Crab
+1 Siphoning Strike
+3 Stupefy
+1 Temporal Breach
+3 The Empyrean
+2 Thousand-Tailed Watcher
+1 Time Warp
+1 Vilemaw
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Insight
+1 Helm of Suppression
+1 Not So Fast
+1 Thousand-Tailed Watcher
+2 Tomb-Raider Barbara
+1 Unchecked Power

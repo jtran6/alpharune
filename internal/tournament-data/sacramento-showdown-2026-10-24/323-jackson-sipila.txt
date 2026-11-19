@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 323rd place
+# player: Jackson Sipila
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-323/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Not Alone
+
+MainDeck:
+3 Bellows Breath
+2 Carrion Dredger
+3 Concert Poster
+2 Eclipse
+3 Encore
+3 Faithful Manufactor
+2 Hidden Blade
+3 Imperial Decree
+1 Raucous Anthem
+2 Seal of Unity
+2 Shadow's Call
+2 Sprite Fountain
+3 Stupefy
+3 Trifarian Captain
+2 Vanguard Captain
+1 Vi, Peacekeeper
+2 Wages of Pain
+
+Battlefields:
+1 Rockfall Path
+1 Trifarian War Camp
+1 Void Gate
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Cull the Weak
+1 For Demacia!
+2 Salvage
+1 Singularity
+2 Temporal Breach
+2 Thousand-Tailed Watcher

@@ -1,0 +1,48 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 24, 2026
+# placement: 21st place
+# player: Alejandro Delgado Paz
+# record: 0-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-24-21/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Azir, Emperor of the Sands
+
+Champion:
+1 Azir, Sovereign
+
+MainDeck:
+3 Arise!
+3 B.F. Sword
+2 Back Off
+3 Brutalizer
+2 Deathgrip
+3 Defy
+3 Discipline
+3 Doran's Shield
+3 En Garde
+3 Eye of the Herald
+3 Guards!
+2 Hand Hammer
+3 Hidden Blade
+3 Soul Sword
+
+Battlefields:
+1 Hall of Legends
+1 Seat of Power
+1 Trifarian War Camp
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+1 Charm
+2 Decree of Focus
+2 Decree of Unity
+1 Disarming Rake
+2 Salvage

@@ -1,0 +1,62 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 469th place
+# player: Ranga
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-469/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ivern, Green Father
+
+Champion:
+1 Ivern, Nurturer
+
+MainDeck:
+1 Affectionate Poro
+1 Astral Heron
+1 Azir, Sovereign
+2 Back Off
+1 Call to Glory
+2 Defy
+1 Dockside Lock-Up
+1 Emperor's Divide
+2 Friendship
+2 Frisky Hunter
+3 Hidden Blade
+1 Hunting Blind
+2 Hunting Dog
+1 Iridescent Avian
+1 Ki Barrier
+1 Ki Burst
+3 Mutated Mouser
+2 Not So Fast
+1 Raucous Anthem
+1 Stalking Wolf
+3 Stalwart Poro
+1 Tianna Crownguard
+3 Trusty Ramhound
+1 Vi, Peacekeeper
+1 Vilemaw
+
+Battlefields:
+1 Forbidding Waste
+1 Sigil of the Storm
+1 Vilemaw's Lair
+
+Runes:
+6 Calm Rune
+6 Order Rune
+
+Sideboard:
+1 Affectionate Poro
+1 Blitzcrank, Impassive
+1 Decree of Unity
+1 Defy
+1 Disarming Rake
+1 Hush
+1 Iridescent Avian
+1 Janna, Savior
+1 Mystic Reversal

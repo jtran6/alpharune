@@ -1,0 +1,58 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 6th place
+# player: 酷猫.顾守
+# record: not stated
+# deck name: 锐天帝鹭斩万锋
+# source: https://riftdecks.com/riftbound-metagame/deck-rui-tian-di-lu-zhan-wan-feng-354155
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+2 Bedeviling Stranger
+2 Scuttle Crab
+1 Teemo, Scout
+2 Tideturner
+3 Reckless Innovator
+2 Stellacorn Herder
+2 Blitzcrank, Impassive
+3 Astral Heron
+1 Baron Nashor
+3 Zhonya's Hourglass
+3 Blade of the Exile
+2 The Good Stuff
+3 Defy
+1 En Garde
+2 Gust
+3 Discipline
+1 Rebuke
+2 Switcheroo
+1 Star-Crossed
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+3 Decree of Focus
+1 Hush
+1 Twilight Shroud
+2 An Offer You Can't Refuse
+1 Not So Fast
+1 Rebuke
+1 Ravenbloom Prefect

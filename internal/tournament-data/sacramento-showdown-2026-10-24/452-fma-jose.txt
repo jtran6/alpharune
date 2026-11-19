@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 452nd place
+# player: FMA Jose
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-452/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+2 Bellows Breath
+1 Charm
+3 Defy
+3 Discipline
+2 Find Your Center
+1 Life from Stone
+2 Piltovan Guidebot
+3 Ravenbloom Student
+3 Retreat
+3 Scuttle Crab
+3 Steel Paws
+3 Stupefy
+2 Temporal Breach
+3 The Empyrean
+2 Thousand-Tailed Watcher
+1 Time Warp
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Cosmic Vista
+1 Forgotten Monument
+1 Rockfall Path
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Astral Heron
+1 Back Off
+2 Hush
+2 Not So Fast
+1 Supernova
+1 Tomb-Raider Barbara
+1 Unchecked Power
+1 Whiteflame Protector

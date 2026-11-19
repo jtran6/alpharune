@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 424th place
+# player: Joseph Gayagoy
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-424/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Destructive
+
+MainDeck:
+3 B.F. Sword
+1 Brynhir Thundersong
+1 Darius, Trifarian
+3 Deathgrip
+1 Ekko, Revolutionary
+1 Falling Star
+1 Fiora, Victorious
+2 Gem Jammer
+3 Hextech Gauntlets
+3 Honest Broker
+2 Jhin, Murderous Artist
+2 Kai'Sa, Survivor
+2 Long Sword
+3 Noxus Hopeful
+2 Pyke, Dockside Butcher
+2 Rek'Sai, Breacher
+3 Rengar, Unseen
+1 Tactical Retreat
+3 Unsung Hero
+
+Battlefields:
+1 Forge of the Fluft
+1 Rockfall Path
+1 Sunken Temple
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+1 Ashe, Focused
+1 Brawl
+1 Brynhir Thundersong
+1 Ferrous Forerunner
+2 Hidden Blade
+1 Kennen, Keeper of Balance
+2 Salvage
+1 Vi, Peacekeeper

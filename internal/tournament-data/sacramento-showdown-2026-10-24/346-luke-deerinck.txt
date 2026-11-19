@@ -1,0 +1,51 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 346th place
+# player: Luke Deerinck
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-346/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Battle Preparations
+3 Brutalizer
+2 Charm
+2 Cloth Armor
+3 Defy
+3 Discipline
+1 Guardian Angel
+1 Helm of Suppression
+1 Hush
+3 Mask of Foresight
+3 Patched Porobot
+3 Scuttle Crab
+2 Sprite Fountain
+2 Sterak's Gage
+3 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+
+Battlefields:
+1 Ornn's Forge
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+2 Bellows Breath
+2 Decree of Focus
+1 Decree of Insight
+2 Disarming Rake
+1 Helm of Suppression
+1 Not So Fast

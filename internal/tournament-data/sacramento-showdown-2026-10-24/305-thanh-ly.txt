@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 305th place
+# player: Thanh Ly
+# record: 3-2-1
+# source: https://riftwatch.gg/decks/sacramento-305/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Bellows Breath
+3 Catalyst of Aeons
+3 Clairvoyance
+3 Dazzling Aurora
+1 Deadly Flourish
+3 Dredge Up
+3 Elder Dragon
+2 Flurry of Blades
+2 Garbage Grabber
+2 Gutter Palace
+3 Mobilize
+3 Platewyrm Egg
+1 Progress Day
+1 Promising Future
+1 Rocket Barrage
+2 Sabotage
+2 Sprite Burst
+1 Temporal Breach
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+6 Body Rune
+6 Mind Rune
+
+Sideboard:
+1 Deadly Flourish
+1 Decree of Strength
+2 Disposal Order
+1 Flurry of Blades
+1 Garbage Grabber
+1 Rocket Barrage
+1 Sabotage
+1 Turn to Dust
+1 Wages of Pain

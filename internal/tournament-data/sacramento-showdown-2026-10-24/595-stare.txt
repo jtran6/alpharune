@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 595th place
+# player: Stare
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-595/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Ambessa, Matriarch of War
+
+Champion:
+1 Ambessa, The Wolf
+
+MainDeck:
+1 Ambessa, The Wolf
+1 Challenge
+2 First Mate
+1 Graves, Blasting Through
+2 Guttural Roar
+3 Irresistible Faefolk
+2 Kayle, Justified
+2 Kennen, Keeper of Balance
+3 Legion Marauder
+2 Lucian, Merciless
+1 Noxian Emissary
+2 Onslaught
+1 Pit Rookie
+1 Portable Portal
+2 Public Execution
+3 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+1 Sabotage
+2 Tactical Retreat
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Risen Altar
+1 Sandswept Tomb
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+3 Cull the Weak
+1 Graves, Blasting Through
+2 Ruin Runner
+1 Sabotage
+3 Salvage

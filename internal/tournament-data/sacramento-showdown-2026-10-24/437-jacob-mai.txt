@@ -1,0 +1,50 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 437th place
+# player: Jacob Mai
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-437/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+1 B.F. Sword
+2 Bellows Breath
+3 Concert Poster
+3 Encore
+3 Faithful Manufactor
+3 Hidden Blade
+2 Honest Broker
+2 Imperial Decree
+3 Jayce, Man of Progress
+3 Plundering Poro
+2 Raucous Anthem
+3 Stupefy
+2 Thousand-Tailed Watcher
+1 Unchecked Power
+3 Vanguard Armory
+3 Wages of Pain
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Trifarian War Camp
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Cull the Weak
+1 Decree of Insight
+2 Decree of Unity
+2 Salvage
+1 Singularity

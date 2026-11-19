@@ -1,0 +1,48 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 25th place
+# player: Carl Domingo
+# record: 2-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-25/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+3 Bellows Breath
+3 Carrion Dredger
+3 Concert Poster
+2 Eclipse
+3 Encore
+2 Faithful Manufactor
+2 Hidden Blade
+3 Imperial Decree
+2 Mordekaiser, Dominating
+2 Raucous Anthem
+2 Seal of Unity
+2 Shadow's Call
+2 Stupefy
+2 Thousand-Tailed Watcher
+3 Trifarian Captain
+3 Vanguard Captain
+
+Battlefields:
+1 Black Rose Sanctum
+1 Forgotten Monument
+1 Void Gate
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+3 Decree of Insight
+2 Decree of Unity
+2 For Demacia!
+3 Salvage

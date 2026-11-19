@@ -1,0 +1,56 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 23, 2026
+# placement: 11th place
+# player: NBC Tokenthetoker
+# record: 3-1-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-23-11/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Bellows Breath
+2 Bilgewater Tracker
+1 Brittle Steel
+3 Brynhir Thundersong
+3 Falling Star
+2 Hextech Ray
+2 Lecturing Yordle
+1 Pickpocket
+3 Plundering Poro
+1 Progress Day
+1 Retreat
+1 Singularity
+2 Smoke Screen
+3 Stupefy
+3 Temporal Breach
+1 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+8 Fury Rune
+4 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Brittle Steel
+1 Decree of Insight
+2 Decree of Rage
+1 Ferrous Forerunner
+1 Icathian Rain
+1 The Empyrean
+2 Thermo Beam

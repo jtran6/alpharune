@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 611th place
+# player: Maranda Azurin
+# record: 1-5-1
+# source: https://riftwatch.gg/decks/sacramento-611/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Card Sharp
+2 Concert Poster
+2 Encore
+2 Fanfare
+3 Forge of the Future
+2 Hidden Blade
+2 Imperial Decree
+2 Jayce, Man of Progress
+3 Patched Porobot
+3 Plundering Poro
+3 Raucous Anthem
+1 Salvage
+2 Singularity
+1 Time Warp
+3 Unchecked Power
+2 Vanguard Armory
+2 Vanguard Captain
+2 Wages of Pain
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Trifarian War Camp
+
+Runes:
+6 Mind Rune
+6 Order Rune
+
+Sideboard:
+1 Aspiring Engineer
+2 Bellows Breath
+2 Cull the Weak
+2 High Note
+1 Salvage
+1 Soraka, Wanderer
+1 Thousand-Tailed Watcher

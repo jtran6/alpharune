@@ -1,0 +1,53 @@
+# event: Melbourne Showdown
+# date: October 24–25, 2026
+# placement: 77th place
+# player: Hour
+# record: 5-4-0
+# source: https://riftwatch.gg/decks/melbourne-showdown-2026-77/
+# results: https://riftwatch.gg/tournaments/melbourne-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+3 Gem Jammer
+2 Trifarian Captain
+3 Unsung Hero
+3 Pyke, Dockside Butcher
+2 Kai'Sa, Survivor
+2 Noxus Hopeful
+3 Rengar, Unseen
+3 Ekko, Revolutionary
+3 Seal of Rage
+1 Long Sword
+3 Hextech Gauntlets
+2 Pendulum Blade
+2 Blighted Battleaxe
+2 Sacrifice
+1 Deathgrip
+2 Falling Star
+1 Tactical Retreat
+1 Perfect Execution
+
+Battlefields:
+1 Forge of the Fluft
+1 Ornn's Forge
+1 Sunken Temple
+
+Runes:
+8 Fury Rune
+4 Order Rune
+
+Sideboard:
+2 Decree of Rage
+1 Brittle Steel
+2 Decree of Unity
+1 Falling Star
+1 Salvage
+1 Tactical Retreat
+2 Ashe, Focused

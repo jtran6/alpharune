@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 542nd place
+# player: Adam Mai
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-542/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 Bedeviling Stranger
+1 Boots of Swiftness
+2 Edge of Night
+3 Ember Monk
+3 Gutter Guardian
+3 Hold 'Em
+2 K'Sante, Courageous
+3 Kinkou Initiate
+3 Momentary Companion
+3 Punch First
+3 Pyke, Returned
+2 Rampage
+3 Rengar, Trophy Hunter
+1 Stalwart Goatherd
+1 Star-Crossed
+2 Switcheroo
+1 The Good Stuff
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Forbidding Waste
+1 Grove of the God-Willow
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Evelynn, Consuming
+1 Existential Dread
+1 Gust
+1 K'Sante, Courageous
+1 Onslaught
+2 Ravenbloom Prefect
+1 Repulse
+1 Stalwart Goatherd

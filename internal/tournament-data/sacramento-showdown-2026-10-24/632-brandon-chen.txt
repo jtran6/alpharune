@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 632nd place
+# player: Brandon Chen
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/sacramento-632/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Baited Hook from 2026-11-23; Nocturne, Horrifying from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Keeper of Balance
+
+MainDeck:
+3 Baited Hook
+1 Bedeviling Stranger
+1 Fizz, Trickster
+1 Hidden Blade
+1 Illaoi, Prophet of the Great Kraken
+3 Lightning Rush
+2 Lulu, Whimsical
+3 Nocturne, Horrifying
+1 Raucous Anthem
+3 Seal of Unity
+3 Shadow Order Disciple
+3 Spectral Matron
+3 Star-Crossed
+1 Tail-Cloaked Matriarch
+2 Traveling Merchant
+3 Trifarian Captain
+3 Vanguard Captain
+2 Xin Zhao, Vigilant
+
+Battlefields:
+1 Forbidding Waste
+1 The Candlelit Sanctum
+1 Trifarian War Camp
+
+Runes:
+4 Chaos Rune
+8 Order Rune
+
+Sideboard:
+1 Abandon
+2 Decree of Unity
+2 Gust
+1 Hard Bargain
+1 Imperial Decree
+1 Ravenbloom Prefect
+2 Salvage

@@ -1,0 +1,52 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 133rd place
+# player: makoto
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-133/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Ornn, Fire Below the Mountain
+
+Champion:
+1 Ornn, Blacksmith
+
+MainDeck:
+2 Aspiring Engineer
+3 Astral Heron
+2 Back Off
+2 Cloth Armor
+3 Defy
+2 Hunting Blind
+2 Invigorating Bloom
+1 Not So Fast
+2 Orianna, Exquisite
+2 Orianna, Mechanical Marvel
+3 Patched Porobot
+3 Scuttle Crab
+1 Shurelya's Requiem
+3 Sprite Fountain
+3 Sterak's Gage
+2 Stoic Ferryman
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Hunters' Circle
+1 Ornn's Forge
+1 Seat of Power
+
+Runes:
+8 Calm Rune
+4 Mind Rune
+
+Sideboard:
+1 Charm
+1 Not So Fast
+1 Ornn, Forge God
+2 Singularity
+2 Supernova
+3 Tomb-Raider Barbara

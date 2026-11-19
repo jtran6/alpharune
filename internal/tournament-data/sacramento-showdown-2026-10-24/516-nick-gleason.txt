@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 516th place
+# player: Nick Gleason
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-516/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Nasus, Curator of the Sands
+
+Champion:
+1 Nasus, Ascended
+
+MainDeck:
+3 Astral Heron
+1 Back Off
+2 Bellows Breath
+3 Defy
+3 Find Your Center
+3 Lonely Poro
+1 Not So Fast
+3 Piltovan Guidebot
+2 Scuttle Crab
+1 Siphoning Strike
+3 Strigian Oracle
+3 Temporal Breach
+3 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+1 Tomb-Raider Barbara
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Rockfall Path
+1 Ruined Monastery
+1 The Papertree
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Hunker Down
+1 Hush
+1 Not So Fast
+1 Supernova
+2 Tomb-Raider Barbara
+2 Twilight Shroud
+1 Unchecked Power
+1 Vilemaw

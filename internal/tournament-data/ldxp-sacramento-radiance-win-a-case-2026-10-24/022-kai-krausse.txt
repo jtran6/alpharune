@@ -1,0 +1,51 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 24, 2026
+# placement: 22nd place
+# player: Kai Krausse
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-24-22/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Bellows Breath
+3 Bilgewater Tracker
+3 Brynhir Thundersong
+3 Falling Star
+1 Ferrous Forerunner
+3 Hextech Ray
+1 Lecturing Yordle
+3 Noxus Hopeful
+3 Plundering Poro
+1 Singularity
+2 Smoke Screen
+3 Stupefy
+3 Temporal Breach
+2 The Empyrean
+3 Thousand-Tailed Watcher
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+2 Brittle Steel
+2 Decree of Insight
+3 Decree of Rage
+1 Dr. Mundo, Expert
+1 Pickpocket
+1 Singularity

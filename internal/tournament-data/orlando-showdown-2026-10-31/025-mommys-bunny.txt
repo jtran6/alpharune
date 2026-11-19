@@ -1,0 +1,52 @@
+# event: Orlando Showdown
+# date: November 1, 2026
+# placement: 25th place
+# player: Mommys Bunny
+# record: 8-3-0
+# source: https://riftwatch.gg/decks/orlando-showdown-2026-25/
+# results: https://riftwatch.gg/tournaments/orlando-showdown-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Vex, Gloomist
+
+Champion:
+1 Vex, Apathetic
+
+MainDeck:
+3 Steel Paws
+2 Bedeviling Stranger
+1 Evelynn, Entrancing
+3 Scuttle Crab
+2 Tideturner
+3 Tornado Warrior
+1 Blitzcrank, Impassive
+3 Irelia, Fervent
+3 Astral Heron
+3 Zhonya's Hourglass
+2 Boots of Swiftness
+1 Edge of Night
+3 Defy
+3 Discipline
+2 Rebuke
+2 Switcheroo
+2 Star-Crossed
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Bandle Tree
+1 Targon's Peak
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+2 Gust
+2 Hard Bargain
+1 Not So Fast
+1 Rebuke
+2 Ravenbloom Prefect
+2 Tomb-Raider Barbara

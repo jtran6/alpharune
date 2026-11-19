@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 190th place
+# player: Akira Bui
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-190/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Jayce, Defender of Tomorrow
+
+Champion:
+1 Jayce, Brilliant Inventor
+
+MainDeck:
+3 Elder Dragon
+3 Bellows Breath
+2 Flurry of Blades
+2 Sabotage
+3 Dredge Up
+3 Wages of Pain
+3 Catalyst of Aeons
+2 Deadly Flourish
+2 Rocket Barrage
+2 Sprite Burst
+1 Progress Day
+3 Clairvoyance
+2 Garbage Grabber
+1 Portable Portal
+3 Platewyrm Egg
+1 Gutter Palace
+3 Dazzling Aurora
+
+Battlefields:
+1 Dragon Roost
+1 Forgotten Monument
+1 Sigil of the Storm
+
+Runes:
+7 Body Rune
+5 Mind Rune
+
+Sideboard:
+2 Decree of Strength
+2 Repulse
+1 Sabotage
+1 Turn to Dust
+1 Deadly Flourish
+1 Avalanche
+1 Unchecked Power
+1 Gutter Palace

@@ -1,0 +1,57 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 53rd place
+# player: NRW SevBash
+# record: 4-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-53/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+1 Back Off
+3 Charm
+3 Defy
+3 Discipline
+1 Elnuk Herd
+1 En Garde
+2 First Mate
+3 Lonely Poro
+1 Onslaught
+2 Pit Rookie
+3 Punch First
+2 Rampage
+3 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Sabotage
+3 Scuttle Crab
+2 Stellacorn Herder
+1 Zhonya's Hourglass
+
+Battlefields:
+1 Amateur Recital
+1 Star Spring
+1 Vilemaw's Lair
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Alpha Strike
+1 Decree of Focus
+1 Decree of Strength
+2 Disarming Rake
+1 Disposal Order
+1 Hush
+1 Ruin Runner
+1 Sabotage
+1 Vilemaw

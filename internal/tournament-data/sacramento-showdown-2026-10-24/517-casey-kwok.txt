@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 517th place
+# player: Casey Kwok
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/sacramento-517/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+2 Concert Poster
+3 Demacian Standard
+3 First Mate
+1 Hidden Blade
+3 Irresistible Faefolk
+1 Jarvan IV, Martial Paragon
+2 Kinkou Initiate
+1 Onslaught
+2 Overloaded Traveler
+3 Pillaged Armory
+3 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Repulse
+3 Sett, Brawler
+3 Skystrike Squadron
+3 Trifarian Captain
+
+Battlefields:
+1 Monastery of Hirana
+1 Ornn's Forge
+1 Targon's Peak
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Ashe, Focused
+2 Graves, Blasting Through
+1 Hidden Blade
+2 Noxian Demolitionist
+1 Rampage
+2 Sabotage

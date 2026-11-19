@@ -1,0 +1,55 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 38th place
+# player: 蒙古人
+# record: not stated
+# deck name: 卡莎
+# source: https://riftdecks.com/riftbound-metagame/deck-ka-sha-354187
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# RiftDecks does not name a printing; Plundering Poro loads #392 (also #778)
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+3 Plundering Poro
+3 Watchful Sentry
+3 Bilgewater Tracker
+2 Lecturing Yordle
+2 Noxus Hopeful
+3 Brynhir Thundersong
+3 Thousand-Tailed Watcher
+2 The Empyrean
+2 Bellows Breath
+2 Hextech Ray
+3 Stupefy
+3 Falling Star
+2 Smoke Screen
+3 Temporal Breach
+1 Lost to the Sands
+2 Time Warp
+
+Battlefields:
+1 Frozen Fortress
+1 Heisho, Shell of the World
+1 Rockfall Path
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Insight
+3 Decree of Rage
+1 Brittle Steel
+2 Pickpocket
+1 Thermo Beam
+1 Unchecked Power

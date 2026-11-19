@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 722nd place
+# player: Duality
+# record: 0-4-0
+# source: https://riftwatch.gg/decks/sacramento-722/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Vi, Piltover Enforcer
+
+Champion:
+1 Vi, Peacekeeper
+
+MainDeck:
+1 B.F. Sword
+1 Burn Away
+2 Carrion Dredger
+3 Concert Poster
+2 Cull the Weak
+2 Facebreaker
+3 Faithful Manufactor
+3 Grand Strategem
+3 Hextech Gauntlets
+2 Hidden Blade
+2 Kennen, Keeper of Balance
+3 Noxian Emissary
+2 Noxus Hopeful
+1 Raucous Anthem
+3 Trifarian Captain
+3 Vanguard Captain
+3 Xin Zhao, Vigilant
+
+Battlefields:
+1 Black Rose Sanctum
+1 Forbidding Waste
+1 The Grand Plaza
+
+Runes:
+3 Fury Rune
+9 Order Rune
+
+Sideboard:
+1 Burn Away
+1 Decree of Rage
+2 Decree of Unity
+1 Dockside Lock-Up
+2 Ferrous Forerunner
+2 Raucous Anthem
+1 Salvage

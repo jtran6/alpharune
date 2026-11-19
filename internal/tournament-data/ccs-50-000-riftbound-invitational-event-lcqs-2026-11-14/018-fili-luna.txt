@@ -1,0 +1,49 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 18th place
+# player: Fili Luna
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-18/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Dazzling Aurora from 2026-11-23
+
+Legend:
+1 Miss Fortune, Bounty Hunter
+
+Champion:
+1 Miss Fortune, Captain
+
+MainDeck:
+3 Baron Nashor
+3 Bullet Time
+3 Catalyst of Aeons
+3 Dazzling Aurora
+1 Elder Dragon
+3 Invert Timelines
+2 Last Rites
+3 Lunar Boon
+2 Mobilize
+3 Pack of Wonders
+2 Punch First
+2 Ride the Wind
+1 Sabotage
+3 Scryer's Bloom
+3 Treasure Trove
+2 Up from the Deep
+
+Battlefields:
+1 Forgotten Monument
+1 The Papertree
+1 Vilemaw's Lair
+
+Runes:
+7 Body Rune
+5 Chaos Rune
+
+Sideboard:
+3 An Offer You Can't Refuse
+2 Elder Dragon
+3 Ravenbloom Prefect
+2 Sabotage

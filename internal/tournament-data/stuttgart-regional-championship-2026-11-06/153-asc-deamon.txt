@@ -1,0 +1,54 @@
+# event: Stuttgart Regional Championship
+# date: November 6–8, 2026
+# placement: 153rd place
+# player: ASC Deamon
+# record: 3-3-0
+# source: https://riftwatch.gg/decks/rc-stuttgart-2026-153/
+# results: https://riftwatch.gg/tournaments/stuttgart-regional-championship-2026-11-06/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+# printing pinned: Pouty Poro #776
+
+Legend:
+1 Lucian, Purifier
+
+Champion:
+1 Lucian, Merciless
+
+MainDeck:
+3 Gem Jammer
+3 Irresistible Faefolk
+2 Pouty Poro #776
+3 First Mate
+3 Kai'Sa, Survivor
+2 Brynhir Thundersong
+2 Ruin Runner
+3 Long Sword
+2 Portable Portal
+3 Pendulum Blade
+3 Skyfall of Areion
+3 Trinity Force
+2 Punch First
+1 Sabotage
+3 Relentless Pursuit
+1 Rampage
+
+Battlefields:
+1 Forge of the Fluft
+1 Sunken Temple
+1 Trapping Grounds
+
+Runes:
+6 Body Rune
+6 Fury Rune
+
+Sideboard:
+2 Decree of Rage
+1 Sabotage
+1 Hexdrinker
+2 Noxian Demolitionist
+1 Rampage
+1 Stalwart Goatherd
+1 Brynhir Thundersong
+1 Ruin Runner

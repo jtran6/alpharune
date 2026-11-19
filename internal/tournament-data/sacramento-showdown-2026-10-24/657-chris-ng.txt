@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 657th place
+# player: Chris Ng
+# record: 1-6-0
+# source: https://riftwatch.gg/decks/sacramento-657/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Seraphine, Starry-Eyed Songstress
+
+Champion:
+1 Seraphine, Inspiring
+
+MainDeck:
+2 Bellows Breath
+1 Carrion Dredger
+3 Concert Poster
+2 Cull the Weak
+1 Dockside Lock-Up
+1 Eclipse
+3 Encore
+1 Fanfare
+1 Hidden Blade
+2 Honest Broker
+3 Imperial Decree
+3 Jayce, Man of Progress
+2 Plundering Poro
+1 Raucous Anthem
+1 Ravenbloom Student
+1 Shadow's Call
+2 Thousand-Tailed Watcher
+2 Trifarian Captain
+3 Vanguard Armory
+2 Vanguard Captain
+2 Wages of Pain
+
+Battlefields:
+1 Forbidding Waste
+1 Treasure Hoard
+1 Trifarian War Camp
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+1 Decree of Insight
+1 Decree of Unity
+1 Hidden Blade
+3 Salvage
+1 Seraphine, Not Alone
+1 Singularity
+1 Unchecked Power
+1 Vi, Peacekeeper

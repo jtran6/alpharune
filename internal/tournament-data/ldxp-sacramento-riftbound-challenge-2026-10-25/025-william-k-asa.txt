@@ -1,0 +1,56 @@
+# event: LDXP Sacramento - Riftbound Challenge
+# date: October 25, 2026
+# placement: 25th place
+# player: William K. Asa
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-riftbound-challenge-2026-10-25-25/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-riftbound-challenge-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+1 Arachnoid Horror
+2 Back Off
+1 Deadbloom Predator
+3 Defy
+3 Discipline
+1 Elnuk Herd
+3 Gemhand Hunter
+3 Grim Resolve
+1 Honeyfruit
+1 Irresistible Faefolk
+1 Master Yi, Tempered
+2 Poppy, Paragon
+1 Portable Portal
+2 Punch First
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Scuttle Crab
+1 Skyward Strike
+3 Wuju Apprentice
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Gardens of Becoming
+1 Hunters' Circle
+1 Reckoner's Arena
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Avalanche
+2 Decree of Strength
+2 Disarming Rake
+1 Hush
+2 Sabotage
+2 Unyielding Spirit

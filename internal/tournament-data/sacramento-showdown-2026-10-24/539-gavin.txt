@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 539th place
+# player: Gavin
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-539/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+1 An Offer You Can't Refuse
+3 Fizz, Trickster
+2 Gust
+1 Hard Bargain
+3 Irresistible Faefolk
+3 Punch First
+3 Rampage
+3 Rengar, Trophy Hunter
+2 Sabotage
+3 Shadow Order Disciple
+2 Star-Crossed
+1 Tail-Cloaked Matriarch
+1 The Good Stuff
+2 Traveling Merchant
+3 Up from the Deep
+3 Vex, Apathetic
+3 Void Assault
+
+Battlefields:
+1 Sandswept Tomb
+1 Star Spring
+1 Zaun Warrens
+
+Runes:
+5 Body Rune
+7 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+2 Decree of Strength
+1 Onslaught
+2 Ravenbloom Prefect
+1 Repulse
+1 Sabotage
+1 Switcheroo
+1 Unyielding Spirit

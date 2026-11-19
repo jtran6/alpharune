@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 114th place
+# player: bajablast
+# record: 2-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-114/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Fiora, Grand Duelist
+
+Champion:
+1 Fiora, Worthy
+
+MainDeck:
+3 Kayle, Justified
+3 Kinkou Initiate
+2 Mordekaiser, Dominating
+3 Pit Rookie
+2 Poppy, Paragon
+2 Portable Portal
+3 Punch First
+3 Rampage
+3 Rengar, Trophy Hunter
+1 Repulse
+3 Riposte
+2 Sacrifice
+2 Sett, Brawler
+3 Shepherd's Heirloom
+1 Skystrike Squadron
+3 Trifarian Captain
+
+Battlefields:
+1 Packed Amphitheater
+1 Risen Altar
+1 Sunken Temple
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Akshan, Mischievous
+2 Decree of Unity
+1 Fiora, Victorious
+3 Sabotage
+2 Salvage

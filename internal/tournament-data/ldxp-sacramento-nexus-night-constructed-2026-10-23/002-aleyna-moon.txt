@@ -1,0 +1,52 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 2nd place
+# player: Aleyna Moon
+# record: 3-0-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-2/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Viktor, Herald of the Arcane
+
+Champion:
+1 Viktor, Leader
+
+MainDeck:
+2 Bellows Breath
+3 Carrion Dredger
+3 Cull the Weak
+3 Hidden Blade
+3 Imperial Decree
+1 Kennen, Keeper of Balance
+3 Plundering Poro
+1 Raucous Anthem
+1 Salvage
+2 Shadow's Call
+2 Singularity
+1 Sprite Burst
+3 Sprite Fountain
+3 Stupefy
+2 Vi, Peacekeeper
+3 Wages of Pain
+3 Xin Zhao, Vigilant
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 Treasure Hoard
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+1 Bellows Breath
+2 Decree of Insight
+2 Eclipse
+1 Kennen, Keeper of Balance
+1 Salvage
+2 Sprite Burst
+1 Thousand-Tailed Watcher

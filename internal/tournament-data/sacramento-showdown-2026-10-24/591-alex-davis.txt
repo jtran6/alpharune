@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 591st place
+# player: Alex Davis
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/sacramento-591/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+2 Bedeviling Stranger
+1 Boots of Swiftness
+2 Edge of Night
+1 Existential Dread
+2 Ezreal, Prodigy
+1 Fizz, Trickster
+2 Gust
+3 Gutter Guardian
+2 K'Sante, Courageous
+2 Momentary Companion
+3 Punch First
+3 Pyke, Returned
+1 Rampage
+2 Rengar, Trophy Hunter
+2 Siren's Song
+1 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+3 Tornado Warrior
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Rakelstake
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Abandon
+1 Baron Nashor
+1 Evelynn, In Control
+1 Graves, Blasting Through
+1 Rampage
+2 Ravenbloom Prefect
+1 Star-Crossed
+1 The Good Stuff
+1 Unyielding Spirit

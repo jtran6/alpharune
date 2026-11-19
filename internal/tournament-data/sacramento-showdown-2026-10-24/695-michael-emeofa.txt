@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 695th place
+# player: Michael Emeofa
+# record: 0-4-1
+# source: https://riftwatch.gg/decks/sacramento-695/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Dauntless
+
+MainDeck:
+1 Consult the Heavens
+2 Defy
+3 Discipline
+2 Emperor's Divide
+3 Graves, Blasting Through
+1 Guardian Angel
+1 K'Sante, Dauntless
+3 Nazuman Ntofo
+2 Not So Fast
+1 Onslaught
+2 Pillaged Armory
+3 Portable Portal
+3 Punch First
+2 Ruin Runner
+2 Scuttle Crab
+3 Stellacorn Herder
+1 Stoic Ferryman
+1 Twilight Shroud
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Grove of the God-Willow
+1 Hunters' Circle
+1 Packed Amphitheater
+
+Runes:
+5 Body Rune
+7 Calm Rune
+
+Sideboard:
+2 Decree of Strength
+1 Hush
+1 Ruin Runner
+2 Sabotage
+2 Trinity Force
+1 Twilight Shroud
+1 Unyielding Spirit

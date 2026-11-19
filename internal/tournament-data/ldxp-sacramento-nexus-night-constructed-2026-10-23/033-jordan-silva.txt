@@ -1,0 +1,54 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 33rd place
+# player: Jordan Silva
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-33/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Ekko, Boy Who Shattered Time
+
+Champion:
+1 Ekko, Ingenious
+
+MainDeck:
+2 Bilgewater Tracker
+1 Brynhir Thundersong
+2 Cleave
+2 Ekko, Revolutionary
+2 Falling Star
+2 Inferna
+3 Kai'Sa, Survivor
+3 Noxus Hopeful
+3 Plundering Poro
+2 Pyke, Dockside Butcher
+1 Retreat
+2 Shock Blast
+3 Stupefy
+2 Temporal Breach
+1 The Empyrean
+2 Thousand-Tailed Watcher
+1 Time Warp
+2 Vayne, Hunter
+3 Watchful Sentry
+
+Battlefields:
+1 Ripper's Bay
+1 Rockfall Path
+1 Seat of Power
+
+Runes:
+6 Fury Rune
+6 Mind Rune
+
+Sideboard:
+2 Antagonistic Apparatus
+2 Brittle Steel
+1 Brynhir Thundersong
+2 Decree of Insight
+1 Decree of Rage
+2 Singularity

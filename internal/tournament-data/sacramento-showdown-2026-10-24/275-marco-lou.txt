@@ -1,0 +1,60 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 275th place
+# player: Marco Lou
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-275/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+1 Alpha Strike
+1 Arachnoid Horror
+1 Astral Heron
+3 Back Off
+1 Concentrate
+3 Defy
+3 Discipline
+1 Emperor's Divide
+2 Gemhand Hunter
+2 Grim Resolve
+2 Master Yi, Unstoppable
+1 Not So Fast
+3 Punch First
+1 Rampage
+2 Rengar, Trophy Hunter
+1 Sabotage
+3 Scuttle Crab
+1 Tomb-Raider Barbara
+1 Voracious Gromp
+3 Wuju Apprentice
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Reckoner's Arena
+1 Targon's Peak
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+1 Alpha Strike
+1 Decree of Focus
+1 Decree of Strength
+1 Gemhand Hunter
+1 Hush
+1 Not So Fast
+1 Rampage
+1 Sabotage
+1 Tomb-Raider Barbara
+1 Unyielding Spirit

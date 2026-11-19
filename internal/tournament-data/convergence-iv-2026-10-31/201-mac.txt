@@ -1,0 +1,53 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 201st place
+# player: Mac
+# record: 1-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-201/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Master Yi, Wuju Master
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+2 Akali, Silent
+2 Alpha Strike
+2 Concentrate
+2 Defy
+3 Demacian Diplomat
+2 Discipline
+2 Grim Resolve
+2 Herald of Spring
+2 Hunter's Machete
+2 Master Yi, Tempered
+2 Master Yi, Unstoppable
+2 Not So Fast
+2 Poppy, Paragon
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Ruin Runner
+2 Scuttle Crab
+2 Voracious Gromp
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Reckoner's Arena
+1 Vilemaw's Lair
+
+Runes:
+7 Body Rune
+5 Calm Rune
+
+Sideboard:
+2 Avalanche
+2 Emperor's Divide
+2 Hunker Down
+2 Hush
+2 Sabotage

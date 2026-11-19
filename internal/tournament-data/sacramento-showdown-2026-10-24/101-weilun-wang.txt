@@ -1,0 +1,54 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 101st place
+# player: Weilun Wang
+# record: 6-3-2
+# source: https://riftwatch.gg/decks/sacramento-101/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+3 Bedeviling Stranger
+1 Edge of Night
+3 Ember Monk
+1 Evelynn, Entrancing
+1 Existential Dread
+2 Gust
+3 Gutter Guardian
+3 K'Sante, Courageous
+3 Momentary Companion
+2 Punch First
+2 Pyke, Returned
+1 Rebuke
+1 Siren's Song
+2 Sneaky Deckhand
+1 Star-Crossed
+2 Switcheroo
+3 The Good Stuff
+2 Trinity Force
+3 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Bandle Tree
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+2 An Offer You Can't Refuse
+1 Avalanche
+2 Decree of Strength
+2 Graves, Blasting Through
+1 Ravenbloom Prefect
+1 Rebuke
+1 Unyielding Spirit

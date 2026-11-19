@@ -1,0 +1,53 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 66th place
+# player: Larry Chapman
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-66/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Kha'Zix, Voidreaver
+
+Champion:
+1 Kha'Zix, Mutating Horror
+
+MainDeck:
+1 An Offer You Can't Refuse
+2 Ezreal, Prodigy
+3 Fizz, Trickster
+2 Gust
+3 Irresistible Faefolk
+1 Onslaught
+3 Punch First
+2 Rampage
+3 Reckless Innovator
+1 Rengar, Trophy Hunter
+1 Sabotage
+3 Shadow Order Disciple
+2 Star-Crossed
+1 Switcheroo
+2 Tail-Cloaked Matriarch
+1 Tornado Warrior
+3 Traveling Merchant
+2 Vex, Apathetic
+3 Void Assault
+
+Battlefields:
+1 Packed Amphitheater
+1 Rockfall Path
+1 Sandswept Tomb
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+2 Disposal Order
+2 Hard Bargain
+1 Rampage
+1 Repulse
+2 Sabotage
+2 Unyielding Spirit

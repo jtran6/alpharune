@@ -1,0 +1,56 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 181st place
+# player: Harvey Jarvis
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-181/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23; Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+2 Battle Preparations
+1 Blitzcrank, Impassive
+1 Block
+1 Darius, Trifarian
+3 Defy
+3 Discipline
+2 Falling Star
+2 Kai'Sa, Survivor
+2 Ki Burst
+2 Long Sword
+2 Mischievous Marai
+1 Not So Fast
+2 Scuttle Crab
+3 Shuriken Flip
+3 Stellacorn Herder
+1 Sterak's Gage
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+6 Calm Rune
+6 Fury Rune
+
+Sideboard:
+2 Against the Odds
+1 Akali, Silent
+2 Brittle Steel
+1 Decree of Focus
+1 En Garde
+1 Ferrous Forerunner
+1 Helm of Suppression
+1 Thermo Beam

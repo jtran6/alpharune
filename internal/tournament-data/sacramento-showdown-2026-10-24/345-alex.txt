@@ -1,0 +1,57 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 345th place
+# player: Alex
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-345/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Evelynn, Agony's Embrace
+
+Champion:
+1 Evelynn, Entrancing
+
+MainDeck:
+1 Akshan, Mischievous
+2 Bedeviling Stranger
+1 Edge of Night
+3 Ezreal, Prodigy
+2 Fizz, Trickster
+2 Gutter Guardian
+1 Hard Bargain
+2 Hold 'Em
+1 Last Caress
+3 Momentary Companion
+1 Portable Portal
+2 Punch First
+3 Pyke, Returned
+2 Rampage
+2 Rengar, Trophy Hunter
+2 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+1 The Good Stuff
+2 Tornado Warrior
+2 Vex, Apathetic
+
+Battlefields:
+1 Bandle Scouts' Academy
+1 Hunters' Circle
+1 Startipped Peak
+
+Runes:
+6 Body Rune
+6 Chaos Rune
+
+Sideboard:
+1 Akshan, Mischievous
+1 An Offer You Can't Refuse
+2 Baron Nashor
+1 Disposal Order
+1 Existential Dread
+1 Gust
+2 Sabotage
+1 Star-Crossed

@@ -1,0 +1,55 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 98th place
+# player: HumbleYaazhi
+# record: 7-4-0
+# source: https://riftwatch.gg/decks/sacramento-98/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23; Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Rengar, Pridestalker
+
+Champion:
+1 Rengar, Trophy Hunter
+
+MainDeck:
+1 Darius, Trifarian
+1 Ferrous Forerunner
+2 First Mate
+3 Grim Apothecary
+3 Inferna
+3 Irresistible Faefolk
+3 Kai'Sa, Survivor
+3 Kinkou Initiate
+2 Nidalee, Cat Form
+3 Noxus Hopeful
+1 Pakaa Cub
+3 Pit Rookie
+3 Punch First
+1 Pyke, Dockside Butcher
+2 Rampage
+2 Sabotage
+3 Thrill of the Hunt
+
+Battlefields:
+1 Emperor's Dais
+1 Seat of Power
+1 Star Spring
+
+Runes:
+8 Body Rune
+4 Fury Rune
+
+Sideboard:
+1 Against the Odds
+1 Brittle Steel
+1 Brynhir Thundersong
+1 Decree of Rage
+1 Ferrous Forerunner
+1 Lost to the Sands
+1 Noxian Demolitionist
+1 Repulse
+2 Ruin Runner

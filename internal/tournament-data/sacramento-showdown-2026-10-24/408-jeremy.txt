@@ -1,0 +1,58 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 408th place
+# player: Jeremy
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/sacramento-408/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Battle Preparations
+1 Bellows Breath
+3 Blossoming Dreamroot
+2 Cloth Armor
+1 Command: Attack
+3 Defy
+3 Discipline
+1 Dropboarder
+2 Gravity Field
+1 Helm of Suppression
+1 Hunting Blind
+2 Life from Stone
+3 Mask of Foresight
+1 Not So Fast
+3 Patched Porobot
+1 Plundering Poro
+1 Resplendent Rostrum
+1 Sterak's Gage
+2 Stupefy
+3 The Ball
+1 Thousand-Tailed Watcher
+1 Watchful Curator
+
+Battlefields:
+1 Hunters' Circle
+1 Ornn's Forge
+1 Veiled Temple
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Hush
+1 Not So Fast
+1 Orianna, Mechanical Marvel
+2 Pickpocket
+1 Singularity
+2 Tomb-Raider Barbara
+1 Unchecked Power

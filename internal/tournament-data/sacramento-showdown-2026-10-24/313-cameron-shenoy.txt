@@ -1,0 +1,49 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 313th place
+# player: Cameron Shenoy
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-313/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Zhonya's Hourglass from 2026-11-23; Emperor's Dais from 2026-11-23
+
+Legend:
+1 K'Sante, Pride of Nazumah
+
+Champion:
+1 K'Sante, Courageous
+
+MainDeck:
+3 Astral Heron
+2 Back Off
+1 Blitzcrank, Impassive
+3 Defy
+3 Discipline
+1 Hush
+2 Nazuman Ntofo
+3 Ntofo Strikes
+3 Pit Rookie
+3 Punch First
+3 Riven, Broken Blade
+3 Ruin Runner
+3 Scuttle Crab
+3 Stalwart Poro
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Emperor's Dais
+1 Fortified Position
+1 Hunters' Circle
+
+Runes:
+6 Body Rune
+6 Calm Rune
+
+Sideboard:
+1 Akali, Silent
+3 Decree of Focus
+3 Decree of Strength
+2 Tomb-Raider Barbara
+1 Trinity Force

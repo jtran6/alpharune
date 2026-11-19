@@ -1,0 +1,53 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 297th place
+# player: Stanley
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-297/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jarvan IV, Exemplar of Demacia
+
+Champion:
+1 Jarvan IV, Martial Paragon
+
+MainDeck:
+3 Call to Glory
+3 Concert Poster
+2 Demacian Standard
+2 First Mate
+2 Hidden Blade
+2 Irresistible Faefolk
+1 Kennen, Keeper of Balance
+2 Kinkou Initiate
+2 Nidalee, Cat Form
+1 Onslaught
+3 Overloaded Traveler
+3 Pillaged Armory
+2 Pit Rookie
+2 Punch First
+2 Rengar, Trophy Hunter
+1 Repulse
+1 Sabotage
+3 Skystrike Squadron
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Hunters' Circle
+1 Monastery of Hirana
+1 Ornn's Forge
+
+Runes:
+8 Body Rune
+4 Order Rune
+
+Sideboard:
+1 Avalanche
+2 Decree of Unity
+3 Noxian Demolitionist
+1 Repulse
+2 Salvage
+1 Unyielding Spirit

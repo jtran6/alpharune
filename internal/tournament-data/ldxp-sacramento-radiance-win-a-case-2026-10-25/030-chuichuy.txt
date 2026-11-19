@@ -1,0 +1,51 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 25, 2026
+# placement: 30th place
+# player: ChuiChuy
+# record: 1-3-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-25-30/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Back Off
+2 Bellows Breath
+1 Charm
+3 Cloth Armor
+2 Consult the Past
+3 Defy
+3 Discipline
+2 Eclipse
+3 Frigid Jewel
+1 Hwei, Brooding Painter
+3 Patched Porobot
+3 Ravenbloom Student
+3 Stupefy
+3 The Ball
+2 Thousand-Tailed Watcher
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Grove of the God-Willow
+1 Ornn's Forge
+1 Veiled Temple
+
+Runes:
+5 Calm Rune
+7 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Insight
+2 Disarming Rake
+1 Hush
+2 Not So Fast
+1 Thousand-Tailed Watcher

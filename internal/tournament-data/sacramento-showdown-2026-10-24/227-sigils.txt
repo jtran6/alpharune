@@ -1,0 +1,48 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 227th place
+# player: Sigils
+# record: 4-3-0
+# source: https://riftwatch.gg/decks/sacramento-227/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 LeBlanc, Deceiver
+
+Champion:
+1 LeBlanc, Fragmented
+
+MainDeck:
+2 Black Rose Dignitary
+3 Deathgrip
+2 Hidden Blade
+3 Honest Broker
+3 Karthus, Eternal
+3 Mirror Image
+3 Mordekaiser, Dominating
+3 Mournful Spirit
+3 Rift Herald
+3 Sacrifice
+3 Soaring Scout
+2 Stupefy
+3 Thousand-Tailed Watcher
+3 Watchful Sentry
+
+Battlefields:
+1 Amateur Recital
+1 Star Spring
+1 Windswept Hillock
+
+Runes:
+5 Mind Rune
+7 Order Rune
+
+Sideboard:
+2 Bellows Breath
+1 Decree of Insight
+3 Decree of Unity
+2 Salvage
+2 Unchecked Power

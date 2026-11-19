@@ -1,0 +1,56 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 330th place
+# player: Kevin Palisoc
+# record: 3-3-1
+# source: https://riftwatch.gg/decks/sacramento-330/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Mordekaiser, Iron Revenant
+
+Champion:
+1 Mordekaiser, Twice Slain
+
+MainDeck:
+2 Burn Away
+3 Ferrous Forerunner
+2 Forge of the Future
+1 Hidden Blade
+3 Honest Broker
+3 Hunting Dog
+3 Karthus, Eternal
+2 LeBlanc, Fragmented
+2 Long Sword
+2 Mournful Spirit
+2 Noxian Emissary
+2 Rage Amplifier
+3 Realm of Death
+2 Shadow's Call
+2 Spectral Matron
+2 Trifarian Captain
+3 Vanguard Captain
+
+Battlefields:
+1 Mystic Vortex
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+1 Bilgewater Tracker
+1 Brynhir Thundersong
+1 Burn Away
+1 Dockside Lock-Up
+1 Falling Star
+1 Forge of the Future
+1 Hidden Blade
+1 Imperial Decree
+1 Mordekaiser, Dominating
+1 Thermo Beam

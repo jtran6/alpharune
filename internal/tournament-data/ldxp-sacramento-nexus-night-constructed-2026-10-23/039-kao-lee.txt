@@ -1,0 +1,46 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 39th place
+# player: Kao lee
+# record: 1-2-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-39/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Bellows Breath
+2 Bilgewater Tracker
+1 Brittle Steel
+2 Brynhir Thundersong
+1 Darius, Trifarian
+3 Falling Star
+2 Ferrous Forerunner
+3 Hextech Ray
+1 Lecturing Yordle
+3 Noxus Hopeful
+3 Plundering Poro
+1 Singularity
+2 Smoke Screen
+3 Stupefy
+3 Temporal Breach
+1 The Empyrean
+2 Thousand-Tailed Watcher
+1 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+6 Fury Rune
+6 Mind Rune

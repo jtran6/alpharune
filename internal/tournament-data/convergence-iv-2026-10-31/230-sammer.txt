@@ -1,0 +1,50 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 230th place
+# player: sammer
+# record: 0-0-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-230/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# source printing VEN-SP4 is not in the engine; Sett, Brawler loads #164
+
+Legend:
+1 Sett, The Boss
+
+Champion:
+1 Sett, Kingpin
+
+MainDeck:
+3 Call to Glory
+2 Cithria of Cloudfield
+3 First Mate
+2 Graves, Blasting Through
+2 Kayle, Justified
+3 Kinkou Initiate
+3 Lucian, Merciless
+3 Pillaged Armory
+3 Pit Rookie
+1 Portable Portal
+3 Punch First
+3 Rampage
+2 Rengar, Trophy Hunter
+3 Showstopper
+3 Trifarian Captain
+
+Battlefields:
+1 Monastery of Hirana
+1 Sunken Temple
+1 Valley of Idols
+
+Runes:
+7 Body Rune
+5 Order Rune
+
+Sideboard:
+2 Decree of Strength
+1 Decree of Unity
+2 Repulse
+1 Sett, Brawler
+2 Unyielding Spirit
+2 Vi, Peacekeeper

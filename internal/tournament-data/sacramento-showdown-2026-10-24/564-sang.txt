@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 564th place
+# player: Sang
+# record: 2-5-0
+# source: https://riftwatch.gg/decks/sacramento-564/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jhin, Virtuoso
+
+Champion:
+1 Jhin, Meticulous Killer
+
+MainDeck:
+3 Battering Ram
+3 Consult the Past
+3 Curtain Call
+3 Deadly Flourish
+3 Downstage Dramatics
+2 Hextech Anomaly
+2 Jhin, Meticulous Killer
+1 Noxus Hopeful
+3 Progress Day
+3 Rocket Barrage
+3 Seal of Insight
+3 Singularity
+3 Sprite Burst
+1 Sprite Fountain
+2 Time Warp
+1 Unchecked Power
+
+Battlefields:
+1 Forgotten Monument
+1 Sigil of the Storm
+1 Void Gate
+
+Runes:
+2 Fury Rune
+10 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+2 Mel, Newly Awakened
+1 Moonlight Affliction
+1 Piercing Light
+2 Sprite Fountain
+1 Supernova
+1 Thermo Beam
+1 Unchecked Power

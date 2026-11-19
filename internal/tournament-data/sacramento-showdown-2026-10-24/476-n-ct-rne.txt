@@ -1,0 +1,52 @@
+# event: Sacramento Showdown
+# date: October 24–25, 2026
+# placement: 476th place
+# player: Nøctμrne
+# record: 2-4-1
+# source: https://riftwatch.gg/decks/sacramento-476/
+# results: https://riftwatch.gg/tournaments/sacramento-showdown-2026-10-24/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Star Spring from 2026-11-23
+
+Legend:
+1 Ambessa, Matriarch of War
+
+Champion:
+1 Ambessa, The Wolf
+
+MainDeck:
+3 First Mate
+3 Guttural Roar
+1 Hidden Blade
+2 Irresistible Faefolk
+3 Kayle, Justified
+3 Kennen, Keeper of Balance
+2 Ki Barrier
+3 Legion Marauder
+3 Pit Rookie
+2 Public Execution
+1 Punch First
+3 Rampage
+1 Rengar, Trophy Hunter
+2 Repulse
+1 Sabotage
+2 Solari Sunhawk
+2 Tactical Retreat
+2 Vi, Peacekeeper
+
+Battlefields:
+1 Risen Altar
+1 Star Spring
+1 Sunken Temple
+
+Runes:
+6 Body Rune
+6 Order Rune
+
+Sideboard:
+1 Cull the Weak
+2 Decree of Strength
+2 Decree of Unity
+2 Disposal Order
+3 Salvage

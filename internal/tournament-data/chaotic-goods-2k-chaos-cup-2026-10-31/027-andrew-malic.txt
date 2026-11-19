@@ -1,0 +1,50 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 27th place
+# player: Andrew Malic
+# record: 0-2-0
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-27/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+
+Legend:
+1 Jinx, Loose Cannon
+
+Champion:
+1 Jinx, Rebel
+
+MainDeck:
+2 Cleave
+2 Ekko, Revolutionary
+2 Fizz, Trickster
+3 Gust
+2 Noxus Hopeful
+2 Perfect Execution
+3 Ride the Wind
+2 Ruthless Strike
+2 Star-Crossed
+3 Super Mega Death Rocket!
+2 Tideturner
+3 Traveling Merchant
+3 Treasure Hunter
+1 Unlicensed Armory
+2 Vex, Apathetic
+3 Vi, Destructive
+2 Zed, From the Shadows
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+6 Chaos Rune
+6 Fury Rune
+
+Sideboard:
+2 Abandon
+2 Brittle Steel
+2 Doran's Ring
+2 Flame Chompers
+2 Hard Bargain

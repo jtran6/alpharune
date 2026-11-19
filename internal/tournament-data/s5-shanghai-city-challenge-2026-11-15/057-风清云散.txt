@@ -1,0 +1,54 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 57th place
+# player: 风清云散
+# record: not stated
+# deck name: 狸猫换狸猫
+# source: https://riftdecks.com/riftbound-metagame/deck-li-mao-huan-li-mao-354207
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+
+Legend:
+1 Teemo, Swift Scout
+
+Champion:
+1 Teemo, Scout
+
+MainDeck:
+3 Bedeviling Stranger
+3 Tideturner
+3 Ekko, Ingenious
+2 Lecturing Yordle
+2 Pyke, Returned
+3 Ember Monk
+1 Kha'Zix, Mutating Horror
+2 Vex, Apathetic
+3 Thousand-Tailed Watcher
+3 The Empyrean
+3 Boots of Swiftness
+2 Edge of Night
+1 Gust
+3 Temporal Breach
+1 Star-Crossed
+2 Wages of Pain
+2 Consult the Past
+
+Battlefields:
+1 Bandle Tree
+1 Packed Amphitheater
+1 Rakelstake
+
+Runes:
+6 Chaos Rune
+6 Mind Rune
+
+Sideboard:
+1 Acceptable Losses
+2 Decree of Insight
+1 Abandon
+2 An Offer You Can't Refuse
+3 Pickpocket
+1 Ravenbloom Prefect

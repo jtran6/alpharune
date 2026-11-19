@@ -1,0 +1,51 @@
+# event: CCS $50,000 Riftbound Invitational Event + LCQs
+# date: November 14, 2026
+# placement: 44th place
+# player: Drew Mlasko
+# record: 3-4-0
+# source: https://riftwatch.gg/decks/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14-44/
+# results: https://riftwatch.gg/tournaments/ccs-50-000-riftbound-invitational-event-lcqs-2026-11-14/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# printing pinned: Pouty Poro #776
+
+Legend:
+1 Rek'Sai, Void Burrower
+
+Champion:
+1 Rek'Sai, Breacher
+
+MainDeck:
+3 Bilgewater Tracker
+2 Blood Rush
+3 Carrion Dredger
+2 Cleave
+3 Cull the Weak
+2 Faithful Manufactor
+3 Falling Star
+1 Honest Broker
+3 Hunting Dog
+3 Imperial Decree
+2 Inferna
+2 Lingering Animus
+1 Noxian Emissary
+3 Noxus Hopeful
+2 Pouty Poro #776
+1 Salvage
+3 Undertitan
+
+Battlefields:
+1 Forbidding Waste
+1 Rockfall Path
+1 The Candlelit Sanctum
+
+Runes:
+6 Fury Rune
+6 Order Rune
+
+Sideboard:
+2 Decree of Rage
+3 Decree of Unity
+1 Faithful Manufactor
+3 Pyke, Dockside Butcher
+1 Salvage

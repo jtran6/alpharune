@@ -1,0 +1,60 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 142nd place
+# player: Recycled Future
+# record: 2-4-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-142/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+
+Legend:
+1 Orianna, Lady of Clockwork
+
+Champion:
+1 Orianna, Exquisite
+
+MainDeck:
+2 Astral Heron
+2 Battle Preparations
+2 Bellows Breath
+1 Blitzcrank, Impassive
+1 Block
+2 Cloth Armor
+1 Command: Attack
+1 Deadly Flourish
+3 Defy
+2 Discipline
+1 Forgotten Signpost
+3 Frigid Jewel
+1 Not So Fast
+1 Resource Extractor
+1 Resplendent Rostrum
+1 Singularity
+1 Smoke Screen
+3 Stupefy
+2 Temporal Breach
+3 The Ball
+2 Thousand-Tailed Watcher
+1 Tomb-Raider Barbara
+2 Zhonya's Hourglass
+
+Battlefields:
+1 Hunters' Circle
+1 Rockfall Path
+1 Veiled Temple
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+2 Decree of Focus
+2 Decree of Insight
+1 Disarming Rake
+1 Helm of Suppression
+1 Hunker Down
+1 Hush
+1 Temporal Breach
+1 Unchecked Power

@@ -1,0 +1,58 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 9th place
+# player: FG.Rapcat
+# record: not stated
+# deck name: 刀妹城市赛2
+# source: https://riftdecks.com/riftbound-metagame/deck-dao-mei-cheng-shi-sai2-354158
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Stellacorn Herder from 2026-11-23
+
+Legend:
+1 Irelia, Blade Dancer
+
+Champion:
+1 Irelia, Fervent
+
+MainDeck:
+3 Scuttle Crab
+3 Tideturner
+3 Reckless Innovator
+2 Stellacorn Herder
+1 Irelia, Fervent
+1 Riven, Deserter
+2 Guardian Angel
+2 Boots of Swiftness
+3 Defiant Dance
+3 Defy
+2 Gust
+2 Hunker Down
+1 Ki Burst
+1 Twilight Shroud
+2 Battle Preparations
+3 Discipline
+1 Not So Fast
+2 Ride the Wind
+2 Star-Crossed
+
+Battlefields:
+1 Abandoned Hall
+1 Hunters' Circle
+1 Targon's Peak
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 Decree of Focus
+1 Hush
+2 An Offer You Can't Refuse
+1 Ravenbloom Prefect
+1 Akali, Silent
+1 Tomb-Raider Barbara
+2 Vex, Apathetic

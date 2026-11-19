@@ -1,0 +1,56 @@
+# event: S5 Shanghai City Challenge
+# date: November 15, 2026
+# placement: 45th place
+# player: 烟雨
+# record: not stated
+# deck name: 阿狸
+# source: https://riftdecks.com/riftbound-metagame/deck-a-li-354194
+# results: https://riftdecks.com/riftbound-tournaments/s5-shanghai-city-challenge-tournament-decks-19014
+# pulled: 2:54 PM ET on November 19, 2026
+# organizer: 钢铁国度
+# players: 128
+# legal: RiftDecks lists this as Radiance Constructed
+# upcoming bans, still legal on the pull date: Zhonya's Hourglass from 2026-11-23
+# RiftDecks does not name a printing; Lonely Poro loads #359 (also #777)
+
+Legend:
+1 Ahri, Nine-Tailed Fox
+
+Champion:
+1 Ahri, Confident
+
+MainDeck:
+3 Lonely Poro
+2 Ravenbloom Student
+3 Scuttle Crab
+3 Lecturing Yordle
+1 Mel, Newly Awakened
+1 Blitzcrank, Impassive
+3 Astral Heron
+2 Thousand-Tailed Watcher
+3 Zhonya's Hourglass
+2 Sterak's Gage
+3 Defy
+3 Stupefy
+3 Discipline
+2 Premonition
+2 Temporal Breach
+1 Singularity
+2 Time Warp
+
+Battlefields:
+1 Amateur Recital
+1 The Papertree
+1 Threshold of the Gray
+
+Runes:
+6 Calm Rune
+6 Mind Rune
+
+Sideboard:
+1 Bellows Breath
+1 Charm
+2 Decree of Focus
+2 Decree of Insight
+2 Not So Fast
+2 Tomb-Raider Barbara

@@ -1,0 +1,59 @@
+# event: LDXP Sacramento - Nexus Night Constructed
+# date: October 23, 2026
+# placement: 4th place
+# player: Taro
+# record: 3-0-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-nexus-night-constructed-2026-10-23-4/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-nexus-night-constructed-2026-10-23/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+1 Back Off
+1 Battle Preparations
+1 Bedeviling Stranger
+3 Blade of the Exile
+3 Defy
+3 Discipline
+1 En Garde
+1 Evelynn, Entrancing
+1 Flash
+1 Gust
+2 Irelia, Fervent
+2 Ki Burst
+1 Not So Fast
+3 Reckless Innovator
+2 Ride the Wind
+1 Siren's Song
+1 Star-Crossed
+3 Stellacorn Herder
+1 Switcheroo
+3 Tideturner
+3 Traveling Merchant
+1 Vex, Apathetic
+
+Battlefields:
+1 Star Spring
+1 Valley of Idols
+1 Windswept Hillock
+
+Runes:
+6 Calm Rune
+6 Chaos Rune
+
+Sideboard:
+2 Akali, Silent
+2 An Offer You Can't Refuse
+1 Decree of Focus
+1 Hush
+1 Not So Fast
+1 Rebuke
+1 Star-Crossed
+1 Vex, Apathetic

@@ -1,0 +1,55 @@
+# event: LDXP Sacramento - Radiance-Win-A-Case
+# date: October 25, 2026
+# placement: 37th place
+# player: Jesse Smith
+# record: 0-3-0
+# source: https://riftwatch.gg/decks/ldxp-sacramento-radiance-win-a-case-2026-10-25-37/
+# results: https://riftwatch.gg/tournaments/ldxp-sacramento-radiance-win-a-case-2026-10-25/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Riven, Broken Blade from 2026-11-23; Stellacorn Herder from 2026-11-23; Emperor's Dais from 2026-11-23; Star Spring from 2026-11-23
+
+Legend:
+1 Riven, The Exile
+
+Champion:
+1 Riven, Broken Blade
+
+MainDeck:
+2 Baron Nashor
+2 Battle Preparations
+2 Bedeviling Stranger
+3 Blade of the Exile
+3 Defy
+3 Discipline
+2 En Garde
+2 Illaoi, Prophet of the Great Kraken
+1 Ki Burst
+1 Not So Fast
+3 Reckless Innovator
+2 Star-Crossed
+3 Stellacorn Herder
+2 Switcheroo
+2 Tideturner
+2 Traveling Merchant
+3 Treasure Hunter
+1 Up from the Deep
+
+Battlefields:
+1 Emperor's Dais
+1 Hunters' Circle
+1 Star Spring
+
+Runes:
+5 Calm Rune
+7 Chaos Rune
+
+Sideboard:
+1 An Offer You Can't Refuse
+1 Beast Below
+1 Decree of Focus
+2 Disarming Rake
+1 Gust
+1 Hush
+1 Twilight Shroud
+2 Vex, Apathetic

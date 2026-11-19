@@ -1,0 +1,52 @@
+# event: Chaotic Goods $2k Chaos Cup!
+# date: October 31, 2026
+# placement: 1st place
+# player: Seth Hogue
+# record: 6-0-2
+# source: https://riftwatch.gg/decks/chaotic-goods-2k-chaos-cup-2026-10-31-1/
+# results: https://riftwatch.gg/tournaments/chaotic-goods-2k-chaos-cup-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Brynhir Thundersong from 2026-11-23
+
+Legend:
+1 Kai'Sa, Daughter of the Void
+
+Champion:
+1 Kai'Sa, Survivor
+
+MainDeck:
+2 Bellows Breath
+2 Bilgewater Tracker
+3 Brynhir Thundersong
+3 Falling Star
+2 Hextech Ray
+2 Lecturing Yordle
+1 Lost to the Sands
+3 Noxus Hopeful
+1 Orb of Regret
+3 Plundering Poro
+2 Smoke Screen
+3 Stupefy
+3 Temporal Breach
+1 The Empyrean
+3 Thousand-Tailed Watcher
+2 Time Warp
+3 Watchful Sentry
+
+Battlefields:
+1 Frozen Fortress
+1 Rockfall Path
+1 Void Gate
+
+Runes:
+7 Fury Rune
+5 Mind Rune
+
+Sideboard:
+2 Brittle Steel
+1 Decree of Insight
+3 Decree of Rage
+1 Icathian Rain
+2 Pickpocket
+1 The Empyrean

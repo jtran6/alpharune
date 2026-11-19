@@ -1,0 +1,57 @@
+# event: Convergence IV
+# date: October 31, 2026
+# placement: 144th place
+# player: rifthoundtcg
+# record: 2-3-0
+# source: https://riftwatch.gg/decks/convergence-iv-2026-10-31-144/
+# results: https://riftwatch.gg/tournaments/convergence-iv-2026-10-31/
+# pulled: 12:28 PM ET on November 19, 2026
+# legal: Legal in Standard Constructed
+# upcoming bans, still legal on the pull date: Nocturne, Horrifying from 2026-11-23; Rhasa the Sunderer from 2026-11-23
+
+Legend:
+1 Kennen, Heart of the Tempest
+
+Champion:
+1 Kennen, Storm of Shuriken
+
+MainDeck:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Bedeviling Stranger
+1 Ezreal, Prodigy
+2 Fizz, Trickster
+1 Flash
+1 Gust
+2 Last Rites
+3 Lightning Rush
+3 Nocturne, Horrifying
+3 Rhasa the Sunderer
+2 Ride the Wind
+3 Seal of Discord
+1 Shadows of the Past
+1 Star-Crossed
+1 Switcheroo
+3 Tail-Cloaked Matriarch
+2 Tornado Warrior
+3 Traveling Merchant
+3 Trifarian Captain
+
+Battlefields:
+1 Minefield
+1 Ruined Monastery
+1 Zaun Warrens
+
+Runes:
+10 Chaos Rune
+2 Order Rune
+
+Sideboard:
+1 Abandon
+1 An Offer You Can't Refuse
+2 Decree of Unity
+1 Downwell
+2 Ravenbloom Prefect
+1 Rebuke
+1 Star-Crossed
+1 Vex, Apathetic
