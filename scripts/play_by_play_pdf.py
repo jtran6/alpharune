@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """Write a play-by-play PDF from the text a game prints.
 
-This is the play-by-play PDF exporter. ``write_pdf`` is the layout every
-later export uses. The engine's lines are not rewritten: a turn is set so
-whose turn it is, the score, the runes, the moves, the plays (what was
-paid), the combat, and a conquer or a hold can be told apart at a glance.
+This is the play-by-play PDF exporter. ``write_pdf`` is the only layout.
+Later exports call it. The engine's lines are not rewritten.
 
-The text format is the one ``PlayByPlay::text`` prints. Startup lines, a
-batch progress line, and a results table are skipped. A line that names a
-card also shows that card's picture, taken from ``image_url`` on the card
-class: the card played and the card it was played on, the unit that moved,
-the battlefield conquered or held, the units in a combat, and the cards
-named in the mulligan. A picture that cannot be fetched is left out. The
-words of the line stay.
+A turn is a card you can read at a glance. The header names whose turn it
+is, the score, and the runes at the start and at the end. Under that, space
+and type separate the lines: a play with the cost marked, a quieter move, a
+conquer or a hold as a result, and a combat box that says who fought and
+then who took damage. A hide stays on its line. A facedown play still says
+it was from face down. A unit still names the player who controls it, in
+parentheses. Accelerate stays in the cost when it was paid.
+
+A line that names a card shows that card's picture beside the line, from
+``image_url`` on the card class. The pictures are not gathered into a
+gallery. A picture that cannot be fetched is left out. The words stay.
 
 Requires ReportLab (``pip install reportlab``), which is not an engine
 dependency. ``--self-check`` also needs PyMuPDF. Card pictures are fetched
@@ -36,7 +38,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from reportlab.lib.colors import Color, HexColor, white
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.pdfbase import pdfmetrics
@@ -55,62 +57,125 @@ from reportlab.platypus import (
 )
 
 PAGE_W, PAGE_H = letter
-LEFT = 40
-RIGHT = 40
-TOP = 48
-BOTTOM = 36
+LEFT = 46
+RIGHT = 46
+TOP = 54
+BOTTOM = 42
 CONTENT_W = PAGE_W - LEFT - RIGHT
-OUTER_X = 8
-INNER_W = CONTENT_W - 2 * OUTER_X
-SCORE_W = 108
-LABEL_W = 58
+PAD_L = 14
+PAD_R = 12
+INNER = CONTENT_W - PAD_L - PAD_R
+SCORE_COL = 118
 
-INK = HexColor("#1f1d1a")
-MUTED = HexColor("#5c574e")
-RULE = HexColor("#d9d3c7")
-BORDER = HexColor("#cfc6b8")
-HEADER_BG = HexColor("#f6f3ec")
-SCORE_BG = HexColor("#e7f0e6")
-SCORE_INK = HexColor("#1a3a2a")
-COMBAT_BG = HexColor("#f8f1e6")
+INK = HexColor("#1c1915")
+MUTED = HexColor("#5e584f")
+RULE = HexColor("#e3dcd2")
+BORDER = HexColor("#ddd4c8")
+PAPER = HexColor("#f4f1eb")
+P1_EDGE = HexColor("#2c4a34")
+P2_EDGE = HexColor("#1c3d66")
+P1_BAND = HexColor("#e4f0e4")
+P2_BAND = HexColor("#e3eef8")
+SCORE_INK = HexColor("#163324")
+SCORE_EDGE = HexColor("#b7d0b2")
+COST_HEX = "#1c3d66"
+COST_BG_HEX = "#e3eef8"
+FACE_HEX = "#6b4e12"
+CONQUER_BG = HexColor("#e3f2e2")
+CONQUER_EDGE = HexColor("#2f7a45")
+CONQUER_HEX = "#1c6b38"
+HOLD_BG = HexColor("#f6f1e2")
+HOLD_EDGE = HexColor("#a6843d")
+HOLD_HEX = "#6e5420"
+COMBAT_BG = HexColor("#fbf6ee")
 COMBAT_EDGE = HexColor("#b08968")
-P1_EDGE = HexColor("#3d4f3a")
-P2_EDGE = HexColor("#1e3a5f")
-MULLIGAN_BG = HexColor("#f7f6f3")
+COMBAT_HEX = "#6b4e32"
+QUIET = HexColor("#4e4942")
+
+P1_HEX = "#2c4a34"
+P2_HEX = "#1c3d66"
 
 GAME_RE = re.compile(r"^Game \d+ \[seed=")
 TURN_RE = re.compile(r"^Turn \d+ - \S+")
 PLAYER_RE = re.compile(r"^Turn \d+ - (\S+)")
+_ACTOR_RE = re.compile(r"^(P1|P2)\b")
+_SEAT_RE = re.compile(r"\(P[12]\)")
+_POSSESSIVE_RE = re.compile(r"P[12](?='s)")
+_FACE_RE = re.compile(r"from face down")
+_HIDE_RE = re.compile(r"\bhides\b")
+_TAKES_RE = re.compile(r"takes \d+ damage")
+_SCORE_RE = re.compile(r"^Score (\d+-\d+)\.$")
+_RUNE_RE = re.compile(r"^(.*?)(\d+)(\.)$")
 
 FONT = "Pbp"
 FONT_BOLD = "Pbp-Bold"
+FONT_CJK = "Pbp-CJK"
+
+# How many pictures a kind of line can carry, and the preferred width.
+# A play shows the card and what it was played on. A combat shows who fought.
+# The score and the rune counts name no card.
+_ART_LIMIT = {
+    "play": 3,
+    "move": 2,
+    "result": 1,
+    "combat": 8,
+    "event": 2,
+    "hide": 2,
+    "mulligan": 8,
+    "outcome": 2,
+}
+_THUMB_W = {
+    "play": 38,
+    "move": 32,
+    "result": 34,
+    "combat": 28,
+    "event": 30,
+    "hide": 36,
+    "mulligan": 24,
+    "outcome": 30,
+}
+_ART_SHARE = {"combat": 0.56, "mulligan": 0.46}
+_CARD_RATIO = 1039 / 744
+_NAME_RE = re.compile(r'\bd\.name\s*=\s*R"RB\((.*?)\)RB"', re.S)
+_URL_RE = re.compile(r'\bd\.image_url\s*=\s*R"RB\((.*?)\)RB"', re.S)
+_THUMB_CHROME = 2.4
+_THUMB_GAP = 4.0
 
 
 def _register_fonts() -> None:
-    global FONT, FONT_BOLD
+    global FONT, FONT_BOLD, FONT_CJK
     if FONT in pdfmetrics.getRegisteredFontNames():
         return
-    regular = _find_font("DejaVuSans.ttf")
-    bold = _find_font("DejaVuSans-Bold.ttf")
+    regular = _first_file(
+        (
+            "/usr/share/fonts/truetype/macos/Inter-Regular.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        )
+    )
+    bold = _first_file(
+        (
+            "/usr/share/fonts/truetype/macos/Inter-Bold.ttf",
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        )
+    )
+    cjk = _first_file(("/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",))
     if regular and bold:
         pdfmetrics.registerFont(TTFont(FONT, regular))
         pdfmetrics.registerFont(TTFont(FONT_BOLD, bold))
-        return
-    # Built-in faces. They cover the engine's ASCII lines.
-    FONT = "Times-Roman"
-    FONT_BOLD = "Times-Bold"
+        pdfmetrics.registerFontFamily(FONT, normal=FONT, bold=FONT_BOLD, italic=FONT, boldItalic=FONT_BOLD)
+    else:
+        FONT = "Times-Roman"
+        FONT_BOLD = "Times-Bold"
+    if cjk:
+        pdfmetrics.registerFont(TTFont(FONT_CJK, cjk))
+    else:
+        FONT_CJK = FONT
 
 
-def _find_font(name: str) -> str | None:
-    roots = (
-        Path("/usr/share/fonts/truetype/dejavu"),
-        Path("/usr/share/fonts/dejavu"),
-        Path("/usr/share/fonts/TTF"),
-    )
-    for root in roots:
-        path = root / name
-        if path.is_file():
-            return str(path)
+def _first_file(paths: tuple[str, ...]) -> str | None:
+    for path in paths:
+        if Path(path).is_file():
+            return path
     return None
 
 
@@ -118,30 +183,32 @@ def _xml(text: str) -> str:
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 
-# How many pictures a kind of line can carry, and how wide each one is.
-# A play shows the card that was played and what it was played on. A combat
-# shows who fought. The score and the rune counts name no card.
-_ART_LIMIT = {
-    "play": 3,
-    "move": 2,
-    "result": 1,
-    "combat": 8,
-    "event": 2,
-    "mulligan": 8,
-    "outcome": 2,
-}
-_THUMB_W = {
-    "play": 32,
-    "move": 28,
-    "result": 28,
-    "combat": 24,
-    "event": 28,
-    "mulligan": 22,
-    "outcome": 28,
-}
-_CARD_RATIO = 1039 / 744
-_NAME_RE = re.compile(r'\bd\.name\s*=\s*R"RB\((.*?)\)RB"', re.S)
-_URL_RE = re.compile(r'\bd\.image_url\s*=\s*R"RB\((.*?)\)RB"', re.S)
+def _xml_runs(text: str) -> str:
+    """Escape text, and draw characters Inter does not cover in the CJK face."""
+    if not text:
+        return ""
+    parts: list[str] = []
+    buf: list[str] = []
+    cjk: bool | None = None
+
+    def flush() -> None:
+        if not buf:
+            return
+        chunk = _xml("".join(buf))
+        if cjk and FONT_CJK != FONT:
+            parts.append(f'<font name="{FONT_CJK}">{chunk}</font>')
+        else:
+            parts.append(chunk)
+        buf.clear()
+
+    for ch in text:
+        is_cjk = ord(ch) > 0x2E7F
+        if cjk is not None and is_cjk != cjk:
+            flush()
+        cjk = is_cjk
+        buf.append(ch)
+    flush()
+    return "".join(parts)
 
 
 class ArtCatalog:
@@ -165,11 +232,12 @@ class ArtCatalog:
     def __bool__(self) -> bool:
         return bool(self._entries)
 
-    def find(self, line: str) -> list[str]:
+    def spans(self, line: str) -> list[tuple[int, int, str]]:
+        """``(start, end, source)`` for each card name in ``line``, in order."""
         if not line or not self._entries:
             return []
         occupied = bytearray(len(line))
-        hits: list[tuple[int, str]] = []
+        hits: list[tuple[int, int, str]] = []
         for name, source in self._entries:
             start = 0
             while True:
@@ -180,12 +248,15 @@ class ArtCatalog:
                 before_ok = at == 0 or not line[at - 1].isalnum()
                 after_ok = end == len(line) or not line[end].isalnum()
                 if before_ok and after_ok and not any(occupied[at:end]):
-                    hits.append((at, source))
+                    hits.append((at, end, source))
                     for index in range(at, end):
                         occupied[index] = 1
                 start = at + 1
         hits.sort(key=lambda item: item[0])
-        return [source for _at, source in hits]
+        return hits
+
+    def find(self, line: str) -> list[str]:
+        return [source for _start, _end, source in self.spans(line)]
 
     def file_for(self, source: str) -> Path | None:
         if source in self._files:
@@ -279,6 +350,8 @@ def classify(line: str) -> str:
         return "play"
     if verb == "moves":
         return "move"
+    if verb == "hides":
+        return "hide"
     if verb in ("conquers", "holds"):
         return "result"
     if verb == "Predicts" or verb.startswith("Predicts"):
@@ -286,19 +359,21 @@ def classify(line: str) -> str:
     return "event"
 
 
+def _cost_at(line: str) -> int | None:
+    """Where the cost clause starts, so it can be marked and still read."""
+    ignoring = line.rfind(", ignoring")
+    paying = line.rfind(" for ")
+    start = None
+    if ignoring != -1:
+        start = ignoring + 2
+    if paying != -1 and (start is None or paying + 1 < start):
+        start = paying + 1
+    return start
+
+
 def _cost_markup(line: str) -> str:
     """The play sentence, with the cost clause the engine wrote set apart."""
-    start = None
-    for marker in (", ignoring", " for "):
-        at = line.rfind(marker)
-        if at != -1 and (start is None or at < start):
-            start = at
-    if start is None:
-        return _xml(line)
-    return (
-        _xml(line[:start])
-        + f'<font color="#1e3a5f"><b>{_xml(line[start:])}</b></font>'
-    )
+    return _rich_text(line, cost=True)
 
 
 def _split_combat(line: str) -> tuple[str, str | None]:
@@ -307,6 +382,108 @@ def _split_combat(line: str) -> tuple[str, str | None]:
     if not sep:
         return line, None
     return head + ".", tail
+
+
+def _rich_text(
+    text: str,
+    art: ArtCatalog | None = None,
+    *,
+    cost: bool = False,
+    damage: bool = False,
+) -> str:
+    """The engine's words, with the cost, the controller, and a card name marked."""
+    cost_at = _cost_at(text) if cost else None
+    body = text if cost_at is None else text[:cost_at]
+    tail = "" if cost_at is None else text[cost_at:]
+    marked = _mark(body, art, damage=damage)
+    if tail:
+        # The cost stays one chip. A wrapped "1" / "power" reads as two costs.
+        solid = tail.replace(" ", "\u00a0")
+        marked += (
+            f'<font color="{COST_HEX}" backColor="{COST_BG_HEX}"><b>{_xml_runs(solid)}</b></font>'
+        )
+    return marked
+
+
+def _mark(text: str, art: ArtCatalog | None, *, damage: bool) -> str:
+    spans: list[tuple[int, int, str]] = []
+    actor = _ACTOR_RE.match(text)
+    if actor:
+        spans.append((actor.start(), actor.end(), "actor"))
+    if art is not None:
+        for start, end, _source in art.spans(text):
+            spans.append((start, end, "name"))
+    for match in _SEAT_RE.finditer(text):
+        spans.append((match.start(), match.end(), "seat"))
+    for match in _POSSESSIVE_RE.finditer(text):
+        spans.append((match.start(), match.end(), "actor"))
+    for match in _FACE_RE.finditer(text):
+        spans.append((match.start(), match.end(), "face"))
+    for match in _HIDE_RE.finditer(text):
+        spans.append((match.start(), match.end(), "hide"))
+    if damage:
+        for match in _TAKES_RE.finditer(text):
+            spans.append((match.start(), match.end(), "damage"))
+    spans.sort(key=lambda item: (item[0], -(item[1] - item[0])))
+    parts: list[str] = []
+    cursor = 0
+    for start, end, kind in spans:
+        if start < cursor:
+            continue
+        if start > cursor:
+            parts.append(_xml_runs(text[cursor:start]))
+        parts.append(_wrap(kind, text[start:end]))
+        cursor = end
+    if cursor < len(text):
+        parts.append(_xml_runs(text[cursor:]))
+    return "".join(parts)
+
+
+def _wrap(kind: str, token: str) -> str:
+    escaped = _xml_runs(token)
+    if kind in ("actor", "seat"):
+        color = P1_HEX if "P1" in token else P2_HEX
+        return f'<font color="{color}"><b>{escaped}</b></font>'
+    if kind == "name":
+        return f"<b>{escaped}</b>"
+    if kind in ("face", "hide"):
+        return f'<font color="{FACE_HEX}"><b>{escaped}</b></font>'
+    if kind == "damage":
+        return f"<b>{escaped}</b>"
+    return escaped
+
+
+def _score_markup(score: str) -> str:
+    match = _SCORE_RE.match(score.strip())
+    if match is None:
+        return _xml_runs(score)
+    return (
+        f'<font color="#5e584f" size="8">Score </font>'
+        f'<font color="#163324" size="14"><b>{_xml(match.group(1))}.</b></font>'
+    )
+
+
+def _rune_markup(line: str) -> str:
+    match = _RUNE_RE.match(line.strip())
+    if match is None:
+        return _xml_runs(line)
+    return (
+        f'<font color="#5e584f">{_xml_runs(match.group(1))}</font>'
+        f"<b>{_xml(match.group(2))}</b>"
+        f'<font color="#5e584f">{_xml(match.group(3))}</font>'
+    )
+
+
+def _heading_markup(heading: str) -> str:
+    match = re.match(r"^(Turn \d+ - )(P1|P2)(.*)$", heading)
+    if match is None:
+        return _xml_runs(heading)
+    color = P1_HEX if match.group(2) == "P1" else P2_HEX
+    return (
+        _xml_runs(match.group(1))
+        + f'<font color="{color}"><b>{match.group(2)}</b></font>'
+        + _xml_runs(match.group(3))
+    )
 
 
 def parse_log(text: str) -> list[Game]:
@@ -384,8 +561,8 @@ def _styles() -> dict[str, ParagraphStyle]:
     def style(name: str, **kwargs) -> ParagraphStyle:
         base = dict(
             fontName=FONT,
-            fontSize=9,
-            leading=12,
+            fontSize=10,
+            leading=13.5,
             textColor=INK,
             alignment=TA_LEFT,
         )
@@ -393,19 +570,19 @@ def _styles() -> dict[str, ParagraphStyle]:
         return ParagraphStyle(name, **base)
 
     return {
-        "title": style("title", fontName=FONT_BOLD, fontSize=14, leading=18),
-        "header": style("header", fontSize=9.5, leading=13),
-        "outcome": style("outcome", fontName=FONT_BOLD, fontSize=10, leading=13),
+        "title": style("title", fontName=FONT_BOLD, fontSize=16, leading=20),
+        "header": style("header", fontSize=9.5, leading=13, textColor=INK),
+        "outcome": style("outcome", fontName=FONT_BOLD, fontSize=11, leading=15),
         "extra": style("extra", fontSize=9, leading=12, textColor=MUTED),
-        "mulligan": style("mulligan", fontSize=8.5, leading=11.5),
-        "turn": style("turn", fontName=FONT_BOLD, fontSize=10.5, leading=13),
+        "mulligan": style("mulligan", fontSize=9, leading=12.5),
+        "turn": style("turn", fontName=FONT_BOLD, fontSize=12, leading=15.5),
         "score": style(
             "score",
             fontName=FONT_BOLD,
-            fontSize=10.5,
-            leading=13,
+            fontSize=14,
+            leading=17,
             textColor=SCORE_INK,
-            alignment=TA_RIGHT,
+            alignment=TA_CENTER,
         ),
         "rune": style("rune", fontSize=8.5, leading=11, textColor=MUTED),
         "rune_right": style(
@@ -415,36 +592,13 @@ def _styles() -> dict[str, ParagraphStyle]:
             textColor=MUTED,
             alignment=TA_RIGHT,
         ),
-        "label": style("label", fontName=FONT_BOLD, fontSize=7.5, leading=10),
-        "body": style("body", fontSize=9, leading=12),
-        "combat_kicker": style(
-            "combat_kicker",
-            fontName=FONT_BOLD,
-            fontSize=7.5,
-            leading=9,
-            textColor=COMBAT_EDGE,
-        ),
-        "combat": style("combat", fontSize=9, leading=12),
+        "play": style("play", fontSize=10.5, leading=14),
+        "move": style("move", fontSize=9.5, leading=12.5, textColor=QUIET),
+        "quiet": style("quiet", fontSize=9, leading=12, textColor=MUTED),
+        "kicker": style("kicker", fontName=FONT_BOLD, fontSize=8, leading=10),
+        "combat": style("combat", fontSize=10, leading=13.5),
+        "result": style("result", fontSize=10.5, leading=14),
     }
-
-
-_LABEL_HEX = {
-    "move": "#3f3a32",
-    "play": "#1e3a5f",
-    "result": "#245c3a",
-    "predict": "#5c4a32",
-    "event": "#5c574e",
-}
-
-
-def _label_text(kind: str) -> str:
-    return {
-        "move": "Move",
-        "play": "Play",
-        "result": "Result",
-        "predict": "Predict",
-        "event": "Event",
-    }[kind]
 
 
 def _player_edge(heading: str) -> Color:
@@ -459,8 +613,13 @@ def _player_edge(heading: str) -> Color:
     return BORDER
 
 
-def _paragraph(text: str, style: ParagraphStyle) -> Paragraph:
-    return Paragraph(_xml(text), style)
+def _player_band(heading: str) -> Color:
+    match = PLAYER_RE.match(heading)
+    if match is not None and match.group(1) == "P2":
+        return P2_BAND
+    if match is not None and match.group(1) == "P1":
+        return P1_BAND
+    return HexColor("#f3efe8")
 
 
 def _pictures(kind: str, text: str, art: ArtCatalog | None) -> list[Path]:
@@ -475,102 +634,84 @@ def _pictures(kind: str, text: str, art: ArtCatalog | None) -> list[Path]:
         _place, sep, fighters = fought.partition(":")
         text = fighters if sep else fought
     paths: list[Path] = []
-    for source in art.find(text)[:limit]:
+    seen: set[str] = set()
+    for source in art.find(text):
+        if source in seen:
+            continue
+        seen.add(source)
+        if len(paths) >= limit:
+            break
         path = art.file_for(source)
         if path is not None:
             paths.append(path)
     return paths
 
 
-def _picture_strip(paths: list[Path], width: float, max_width: float):
-    """A row of card pictures. Wraps onto another row when the line names many."""
+def _picture_strip(paths: list[Path], thumb: float):
+    """One row of card pictures, each the size passed in."""
     if not paths:
         return None
-    gap = 3.0
-    cell_w = width + gap
-    per_row = max(1, int(max_width // cell_w))
-    rows = []
-    for start in range(0, len(paths), per_row):
-        chunk = paths[start : start + per_row]
-        cells = []
-        for path in chunk:
-            image = Image(
-                str(path),
-                width=width,
-                height=width * _CARD_RATIO,
-                hAlign="LEFT",
-            )
-            frame = Table([[image]], colWidths=[cell_w], hAlign="LEFT")
-            frame.setStyle(
-                TableStyle(
-                    [
-                        ("BOX", (0, 0), (-1, -1), 0.4, BORDER),
-                        ("BACKGROUND", (0, 0), (-1, -1), white),
-                        ("LEFTPADDING", (0, 0), (-1, -1), 0.6),
-                        ("RIGHTPADDING", (0, 0), (-1, -1), 0.6),
-                        ("TOPPADDING", (0, 0), (-1, -1), 0.6),
-                        ("BOTTOMPADDING", (0, 0), (-1, -1), 0.6),
-                        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                    ]
-                )
-            )
-            cells.append(frame)
-        row = Table([cells], colWidths=[cell_w] * len(cells), hAlign="LEFT")
-        row.setStyle(
+    cell_w = thumb + _THUMB_CHROME + _THUMB_GAP
+    cells = []
+    for path in paths:
+        image = Image(str(path), width=thumb, height=thumb * _CARD_RATIO, hAlign="LEFT")
+        frame = Table([[image]], colWidths=[cell_w], hAlign="LEFT")
+        frame.setStyle(
             TableStyle(
                 [
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 0),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-                    ("TOPPADDING", (0, 0), (-1, -1), 0),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                    ("BOX", (0, 0), (-1, -1), 0.4, BORDER),
+                    ("BACKGROUND", (0, 0), (-1, -1), white),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 0.5),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 0.5),
+                    ("TOPPADDING", (0, 0), (-1, -1), 0.5),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 0.5),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("RIGHTPADDING", (0, 0), (0, 0), 0.5 + _THUMB_GAP),
                 ]
             )
         )
-        rows.append(row)
-    if len(rows) == 1:
-        return rows[0]
-    stack = Table([[row] for row in rows], colWidths=[per_row * cell_w], hAlign="LEFT")
-    stack.setStyle(
+        cells.append(frame)
+    row = Table([cells], colWidths=[cell_w] * len(cells), hAlign="LEFT")
+    row.setStyle(
         TableStyle(
             [
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("LEFTPADDING", (0, 0), (-1, -1), 0),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 0),
                 ("TOPPADDING", (0, 0), (-1, -1), 0),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
             ]
         )
     )
-    return stack
+    return row
 
 
-def _strip_width(count: int, width: float, max_width: float) -> float:
-    cell_w = width + 3.0
-    per_row = max(1, int(max_width // cell_w))
-    return min(count, per_row) * cell_w
+def _fit_thumb(count: int, preferred: float, budget: float) -> float:
+    if count <= 0:
+        return preferred
+    room = (budget - _THUMB_GAP * max(0, count - 1)) / count - _THUMB_CHROME
+    return max(14.0, min(preferred, room))
 
 
-def _event_row(event: Event, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
-    if event.kind == "play":
-        body = Paragraph(_cost_markup(event.text), styles["body"])
-    else:
-        body = _paragraph(event.text, styles["body"])
-    label = Paragraph(
-        f'<font color="{_LABEL_HEX[event.kind]}">{_label_text(event.kind)}</font>',
-        styles["label"],
+def _beside(paragraph, pictures: list[Path], kind: str, width: float):
+    """The sentence, with the pictures of the cards it names on its left."""
+    if not pictures:
+        return paragraph
+    share = _ART_SHARE.get(kind, 0.40)
+    budget = min(width * share, max(56.0, width - 168.0))
+    thumb = _fit_thumb(len(pictures), _THUMB_W.get(kind, 28), budget)
+    cell_w = thumb + _THUMB_CHROME + _THUMB_GAP
+    art_w = cell_w * len(pictures)
+    if art_w > width - 150:
+        cell_w = (width - 150) / len(pictures)
+        thumb = max(14.0, cell_w - _THUMB_CHROME - _THUMB_GAP)
+        art_w = cell_w * len(pictures)
+    strip = _picture_strip(pictures, thumb)
+    row = Table(
+        [[strip, paragraph]],
+        colWidths=[art_w, width - art_w],
+        hAlign="LEFT",
     )
-    pictures = _pictures(event.kind, event.text, art)
-    if pictures:
-        thumb_w = _THUMB_W[event.kind]
-        art_w = _strip_width(len(pictures), thumb_w, INNER_W - LABEL_W - 160)
-        strip = _picture_strip(pictures, thumb_w, art_w)
-        cells = [label, strip, body]
-        widths = [LABEL_W, art_w, INNER_W - LABEL_W - art_w]
-    else:
-        cells = [label, body]
-        widths = [LABEL_W, INNER_W - LABEL_W]
-    row = Table([cells], colWidths=widths, hAlign="LEFT")
     row.setStyle(
         TableStyle(
             [
@@ -579,7 +720,6 @@ def _event_row(event: Event, styles: dict[str, ParagraphStyle], art: ArtCatalog 
                 ("RIGHTPADDING", (0, 0), (-1, -1), 0),
                 ("TOPPADDING", (0, 0), (-1, -1), 1),
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
-                ("RIGHTPADDING", (0, 0), (0, 0), 6),
                 ("LEFTPADDING", (1, 0), (1, 0), 2),
             ]
         )
@@ -587,209 +727,294 @@ def _event_row(event: Event, styles: dict[str, ParagraphStyle], art: ArtCatalog 
     return row
 
 
-def _combat_box(line: str, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
-    fought, damage = _split_combat(line)
-    # The two sentences are the engine's line. The kickers name the halves.
-    # Pictures sit with who fought, so the damage sentence is not repeated in art.
-    rows: list[list] = [[Paragraph("Who fought", styles["combat_kicker"])]]
-    pictures = _pictures("combat", line, art)
-    if pictures:
-        rows.append([_picture_strip(pictures, _THUMB_W["combat"], INNER_W - 36)])
-    rows.append([_paragraph(fought, styles["combat"])])
-    if damage is not None:
-        rows.append([Paragraph("Took damage", styles["combat_kicker"])])
-        rows.append([_paragraph(damage, styles["combat"])])
-    box = Table(rows, colWidths=[INNER_W - 14], hAlign="LEFT")
-    box.setStyle(
+def _sentence(
+    text: str,
+    style: ParagraphStyle,
+    kind: str,
+    art: ArtCatalog | None,
+    width: float,
+    *,
+    cost: bool = False,
+    damage: bool = False,
+):
+    paragraph = Paragraph(_rich_text(text, art, cost=cost, damage=damage), style)
+    return _beside(paragraph, _pictures(kind, text, art), kind, width)
+
+
+def _pads(kind: str, previous: str | None) -> tuple[float, float]:
+    """Air around a line. A run of moves stays a run. A play or a result opens up."""
+    if kind == "combat":
+        return 10, 8
+    if kind == "result":
+        return 9, 8
+    if kind == "move" and previous == "move":
+        return 3, 2
+    if kind == "move":
+        return 6, 3
+    if kind in ("predict", "event"):
+        return 4, 3
+    return 8, 5
+
+
+def _result_band(event: Event, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
+    parts = event.text.split(" ", 2)
+    verb = "Hold" if len(parts) > 1 and parts[1] == "holds" else "Conquer"
+    if verb == "Hold":
+        bg, edge, color = HOLD_BG, HOLD_EDGE, HOLD_HEX
+    else:
+        bg, edge, color = CONQUER_BG, CONQUER_EDGE, CONQUER_HEX
+    inner = INNER - 20
+    kicker = Paragraph(f'<font color="{color}"><b>{verb}</b></font>', styles["kicker"])
+    body = _sentence(event.text, styles["result"], "result", art, inner)
+    band = Table([[kicker], [body]], colWidths=[INNER], hAlign="LEFT")
+    band.setStyle(
         TableStyle(
             [
-                ("BACKGROUND", (0, 0), (-1, -1), COMBAT_BG),
-                ("BOX", (0, 0), (-1, -1), 0.8, COMBAT_EDGE),
-                ("LINEBEFORE", (0, 0), (0, -1), 3, COMBAT_EDGE),
-                ("LEFTPADDING", (0, 0), (-1, -1), 8),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 6),
-                ("TOPPADDING", (0, 0), (-1, 0), 5),
-                ("BOTTOMPADDING", (0, -1), (-1, -1), 6),
-                ("TOPPADDING", (0, 1), (-1, -1), 1),
-                ("BOTTOMPADDING", (0, 0), (-1, -2), 1),
+                ("BACKGROUND", (0, 0), (-1, -1), bg),
+                ("BOX", (0, 0), (-1, -1), 0.6, edge),
+                ("LINEBEFORE", (0, 0), (0, -1), 3.5, edge),
+                ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+                ("TOPPADDING", (0, 0), (-1, 0), 6),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 1),
+                ("TOPPADDING", (0, 1), (-1, 1), 1),
+                ("BOTTOMPADDING", (0, 1), (-1, 1), 7),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
             ]
         )
     )
+    return band
+
+
+def _combat_box(line: str, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
+    fought, damage = _split_combat(line)
+    inner = INNER - 20
+    kicker = styles["kicker"]
+    who = Paragraph(f'<font color="{COMBAT_HEX}"><b>Who fought</b></font>', kicker)
+    # Pictures come from the full combat line, so the damage half is not drawn again.
+    fought_line = _beside(
+        Paragraph(_rich_text(fought, art), styles["combat"]),
+        _pictures("combat", line, art),
+        "combat",
+        inner,
+    )
+    rows: list[list] = [[who], [fought_line]]
+    if damage is not None:
+        took = Paragraph(f'<font color="{COMBAT_HEX}"><b>Took damage</b></font>', kicker)
+        harm = Paragraph(_rich_text(damage, art, damage=True), styles["combat"])
+        rows.append([took])
+        rows.append([harm])
+    box = Table(rows, colWidths=[INNER], hAlign="LEFT")
+    commands: list[tuple] = [
+        ("BACKGROUND", (0, 0), (-1, -1), COMBAT_BG),
+        ("BOX", (0, 0), (-1, -1), 0.7, COMBAT_EDGE),
+        ("LINEBEFORE", (0, 0), (0, -1), 3.5, COMBAT_EDGE),
+        ("LEFTPADDING", (0, 0), (-1, -1), 10),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("TOPPADDING", (0, 0), (-1, 0), 7),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 1),
+        ("TOPPADDING", (0, 1), (-1, 1), 2),
+        ("BOTTOMPADDING", (0, 1), (-1, 1), 4),
+    ]
+    if damage is not None:
+        commands.extend(
+            [
+                ("TOPPADDING", (0, 2), (-1, 2), 6),
+                ("BOTTOMPADDING", (0, 2), (-1, 2), 1),
+                ("TOPPADDING", (0, 3), (-1, 3), 1),
+                ("BOTTOMPADDING", (0, 3), (-1, 3), 8),
+            ]
+        )
+    else:
+        commands.append(("BOTTOMPADDING", (0, 1), (-1, 1), 8))
+    box.setStyle(TableStyle(commands))
     return box
 
 
-def _turn_table(turn: Turn, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
-    rune = Table(
-        [
-            [
-                _paragraph(turn.runes_start, styles["rune"]) if turn.runes_start else "",
-                _paragraph(turn.runes_end, styles["rune_right"]) if turn.runes_end else "",
-            ]
-        ],
-        colWidths=[(INNER_W - SCORE_W) / 2, (INNER_W - SCORE_W) / 2],
-        hAlign="LEFT",
-    )
-    rune.setStyle(
-        TableStyle(
-            [
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 0),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-                ("TOPPADDING", (0, 0), (-1, -1), 1),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
-                ("ALIGN", (1, 0), (1, 0), "RIGHT"),
-            ]
+def _turn_header(turn: Turn, styles: dict[str, ParagraphStyle]) -> Table:
+    heading = Paragraph(_heading_markup(turn.heading), styles["turn"])
+    if turn.score:
+        score = Paragraph(_score_markup(turn.score), styles["score"])
+        chip = Table([[score]], colWidths=[SCORE_COL - 6], hAlign="RIGHT")
+        chip.setStyle(
+            TableStyle(
+                [
+                    ("BACKGROUND", (0, 0), (-1, -1), white),
+                    ("BOX", (0, 0), (-1, -1), 0.7, SCORE_EDGE),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 4),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 4),
+                    ("TOPPADDING", (0, 0), (-1, -1), 2),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 1),
+                    ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                    ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ]
+            )
         )
-    )
+    else:
+        chip = ""
+    start = Paragraph(_rune_markup(turn.runes_start), styles["rune"]) if turn.runes_start else ""
+    end = Paragraph(_rune_markup(turn.runes_end), styles["rune_right"]) if turn.runes_end else ""
+    text_w = INNER - SCORE_COL
     header = Table(
-        [
-            [
-                _paragraph(turn.heading, styles["turn"]),
-                _paragraph(turn.score, styles["score"]) if turn.score else "",
-            ],
-            [rune, ""],
-        ],
-        colWidths=[INNER_W - SCORE_W, SCORE_W],
+        [[heading, chip], [start, end]],
+        colWidths=[text_w, SCORE_COL],
         hAlign="LEFT",
     )
     header.setStyle(
         TableStyle(
             [
-                ("SPAN", (1, 0), (1, 1)),
-                ("VALIGN", (0, 0), (0, 1), "MIDDLE"),
-                ("VALIGN", (1, 0), (1, 1), "MIDDLE"),
-                ("BACKGROUND", (1, 0), (1, 1), SCORE_BG),
-                ("ALIGN", (1, 0), (1, 1), "RIGHT"),
-                ("LEFTPADDING", (0, 0), (0, 1), 0),
-                ("RIGHTPADDING", (0, 0), (0, 1), 6),
-                ("LEFTPADDING", (1, 0), (1, 1), 6),
-                ("RIGHTPADDING", (1, 0), (1, 1), 2),
-                ("TOPPADDING", (0, 0), (-1, 0), 2),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 1),
-                ("TOPPADDING", (0, 1), (-1, 1), 1),
-                ("BOTTOMPADDING", (0, 1), (-1, 1), 2),
-                ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+                ("VALIGN", (0, 0), (0, 0), "MIDDLE"),
+                ("VALIGN", (1, 0), (1, 0), "MIDDLE"),
+                ("VALIGN", (0, 1), (-1, 1), "MIDDLE"),
+                ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                ("TOPPADDING", (0, 0), (-1, 0), 1),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 2),
+                ("TOPPADDING", (0, 1), (-1, 1), 3),
+                ("BOTTOMPADDING", (0, 1), (-1, 1), 1),
+                ("RIGHTPADDING", (0, 0), (0, -1), 8),
             ]
         )
     )
+    return header
 
-    rows: list[list] = [[header]]
-    combat_rows: list[int] = []
+
+def _turn_table(turn: Turn, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
+    rows: list[list] = [[_turn_header(turn, styles)]]
+    kinds = ["header"]
+    previous: str | None = None
     for event in turn.events:
         if event.kind == "combat":
-            combat_rows.append(len(rows))
             rows.append([_combat_box(event.text, styles, art)])
+        elif event.kind == "result":
+            rows.append([_result_band(event, styles, art)])
+        elif event.kind == "play":
+            rows.append([_sentence(event.text, styles["play"], "play", art, INNER, cost=True)])
+        elif event.kind == "hide":
+            rows.append([_sentence(event.text, styles["play"], "hide", art, INNER, cost=True)])
+        elif event.kind == "move":
+            rows.append([_sentence(event.text, styles["move"], "move", art, INNER)])
         else:
-            rows.append([_event_row(event, styles, art)])
-
+            rows.append([_sentence(event.text, styles["quiet"], event.kind, art, INNER)])
+        kinds.append(event.kind)
+        previous = event.kind
     table = Table(rows, colWidths=[CONTENT_W], hAlign="LEFT", repeatRows=1)
+    edge = _player_edge(turn.heading)
     commands: list[tuple] = [
         ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("BACKGROUND", (0, 0), (-1, 0), HEADER_BG),
-        ("BOX", (0, 0), (-1, -1), 0.8, BORDER),
-        ("LINEBEFORE", (0, 0), (0, -1), 3.5, _player_edge(turn.heading)),
-        ("LINEBELOW", (0, 0), (-1, 0), 0.4, RULE),
-        ("LEFTPADDING", (0, 0), (-1, -1), OUTER_X),
-        ("RIGHTPADDING", (0, 0), (-1, -1), OUTER_X),
-        ("TOPPADDING", (0, 0), (-1, -1), 2),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 2),
-        ("TOPPADDING", (0, 0), (-1, 0), 6),
-        ("BOTTOMPADDING", (0, 0), (-1, 0), 5),
-        ("BOTTOMPADDING", (0, -1), (-1, -1), 6),
-        ("BACKGROUND", (0, 0), (-1, 0), HEADER_BG),
+        ("BACKGROUND", (0, 0), (-1, -1), white),
+        ("BACKGROUND", (0, 0), (-1, 0), _player_band(turn.heading)),
+        ("BOX", (0, 0), (-1, -1), 0.7, BORDER),
+        ("LINEBEFORE", (0, 0), (0, -1), 4, edge),
+        ("LINEBELOW", (0, 0), (-1, 0), 1.25, edge),
+        ("LEFTPADDING", (0, 0), (-1, -1), PAD_L),
+        ("RIGHTPADDING", (0, 0), (-1, -1), PAD_R),
+        ("TOPPADDING", (0, 0), (-1, 0), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, 0), 7),
     ]
-    for row_index in combat_rows:
-        # Padding above and below the box, so the combat cannot sit on the next line.
-        commands.append(("TOPPADDING", (0, row_index), (-1, row_index), 5))
-        commands.append(("BOTTOMPADDING", (0, row_index), (-1, row_index), 5))
+    previous = None
+    for index, kind in enumerate(kinds):
+        if index == 0:
+            continue
+        top, bottom = _pads(kind, previous)
+        commands.append(("TOPPADDING", (0, index), (-1, index), top))
+        commands.append(("BOTTOMPADDING", (0, index), (-1, index), bottom))
+        previous = kind
+    if len(rows) > 1:
+        commands.append(("BOTTOMPADDING", (0, -1), (-1, -1), 10))
     table.setStyle(TableStyle(commands))
-    table.spaceBefore = 9
+    table.spaceBefore = 16
     table.spaceAfter = 2
     return table
 
 
-def _noted(text: str, style: ParagraphStyle, kind: str, art: ArtCatalog | None, width: float):
-    """The sentence, then the pictures of the cards it names."""
-    pictures = _pictures(kind, text, art)
-    if not pictures:
-        return _paragraph(text, style)
-    strip = _picture_strip(pictures, _THUMB_W[kind], width - 16)
-    block = Table(
-        [[_paragraph(text, style)], [strip]],
-        colWidths=[width],
-        hAlign="LEFT",
-    )
-    block.setStyle(
+def _outcome_band(game: Game, styles: dict[str, ParagraphStyle], art: ArtCatalog | None):
+    if not game.outcome:
+        return None
+    lowered = game.outcome.lower()
+    if "not usable" in lowered or "throw" in lowered:
+        bg, edge = HexColor("#f8ece8"), HexColor("#a15a4a")
+    elif "draw" in lowered or "no winner" in lowered:
+        bg, edge = HexColor("#f3efe8"), HexColor("#8a8174")
+    else:
+        bg, edge = HexColor("#e7f3e6"), HexColor("#2f7a45")
+    body = _sentence(game.outcome, styles["outcome"], "outcome", art, CONTENT_W - 22)
+    band = Table([[body]], colWidths=[CONTENT_W], hAlign="LEFT")
+    band.setStyle(
         TableStyle(
             [
+                ("BACKGROUND", (0, 0), (-1, -1), bg),
+                ("BOX", (0, 0), (-1, -1), 0.6, edge),
+                ("LINEBEFORE", (0, 0), (0, -1), 4, edge),
+                ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 7),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 0),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-                ("TOPPADDING", (0, 0), (-1, 0), 0),
-                ("BOTTOMPADDING", (0, 0), (-1, 0), 3),
-                ("TOPPADDING", (0, 1), (-1, 1), 1),
-                ("BOTTOMPADDING", (0, 1), (-1, 1), 0),
             ]
         )
     )
-    return block
+    band.spaceBefore = 6
+    band.spaceAfter = 2
+    return band
+
+
+def _mulligan_card(text: str, styles: dict[str, ParagraphStyle], art: ArtCatalog | None) -> Table:
+    body = _sentence(text, styles["mulligan"], "mulligan", art, CONTENT_W - 20)
+    card = Table([[body]], colWidths=[CONTENT_W], hAlign="LEFT")
+    card.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, -1), white),
+                ("BOX", (0, 0), (-1, -1), 0.6, BORDER),
+                ("LEFTPADDING", (0, 0), (-1, -1), 10),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 10),
+                ("TOPPADDING", (0, 0), (-1, -1), 7),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ]
+        )
+    )
+    card.spaceBefore = 8
+    card.spaceAfter = 2
+    return card
 
 
 def _game_story(game: Game, styles: dict[str, ParagraphStyle], first: bool, art: ArtCatalog | None) -> list:
     story: list = []
     if not first:
-        story.append(Spacer(1, 12))
-        story.append(CondPageBreak(130))
-    story.append(
-        HRFlowable(width="100%", thickness=0.6, color=RULE, spaceBefore=2, spaceAfter=6)
-    )
-    story.append(_paragraph(game.header, styles["header"]))
-    if game.outcome:
-        story.append(Spacer(1, 2))
-        story.append(_noted(game.outcome, styles["outcome"], "outcome", art, CONTENT_W))
+        story.append(Spacer(1, 16))
+        story.append(CondPageBreak(160))
+    story.append(HRFlowable(width="100%", thickness=0.6, color=RULE, spaceBefore=2, spaceAfter=8))
+    story.append(Paragraph(_rich_text(game.header, art), styles["header"]))
+    outcome = _outcome_band(game, styles, art)
+    if outcome is not None:
+        story.append(outcome)
     for line in game.extra:
-        story.append(Spacer(1, 2))
-        story.append(_paragraph(line, styles["extra"]))
+        story.append(Spacer(1, 3))
+        story.append(Paragraph(_rich_text(line, art), styles["extra"]))
     if game.mulligan:
-        mulligan = Table(
-            [[_noted(game.mulligan, styles["mulligan"], "mulligan", art, CONTENT_W - 16)]],
-            colWidths=[CONTENT_W],
-            hAlign="LEFT",
-        )
-        mulligan.setStyle(
-            TableStyle(
-                [
-                    ("BACKGROUND", (0, 0), (-1, -1), MULLIGAN_BG),
-                    ("BOX", (0, 0), (-1, -1), 0.4, RULE),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 8),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 8),
-                    ("TOPPADDING", (0, 0), (-1, -1), 5),
-                    ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ]
-            )
-        )
-        mulligan.spaceBefore = 6
-        mulligan.spaceAfter = 2
-        story.append(mulligan)
+        story.append(_mulligan_card(game.mulligan, styles, art))
     for turn in game.turns:
-        # A turn header does not start in the last inch of a page, jammed
-        # against the previous turn's wrapped line.
-        story.append(CondPageBreak(86))
+        # A turn header does not start in the last inch of a page.
+        story.append(CondPageBreak(108))
         story.append(_turn_table(turn, styles, art))
     return story
 
 
 def _draw_page(canvas, doc) -> None:
     canvas.saveState()
+    canvas.setFillColor(PAPER)
+    canvas.rect(0, 0, PAGE_W, PAGE_H, fill=1, stroke=0)
     canvas.setFillColor(MUTED)
     canvas.setFont(FONT, 8)
-    canvas.drawString(LEFT, PAGE_H - 30, "Play-by-play")
-    canvas.drawRightString(PAGE_W - RIGHT, PAGE_H - 30, str(doc.page))
+    canvas.drawString(LEFT, PAGE_H - 32, "Play-by-play")
+    canvas.drawRightString(PAGE_W - RIGHT, PAGE_H - 32, str(doc.page))
     canvas.setStrokeColor(RULE)
-    canvas.setLineWidth(0.4)
-    canvas.line(LEFT, PAGE_H - 36, PAGE_W - RIGHT, PAGE_H - 36)
+    canvas.setLineWidth(0.6)
+    canvas.line(LEFT, PAGE_H - 40, PAGE_W - RIGHT, PAGE_H - 40)
     canvas.restoreState()
 
 
@@ -799,7 +1024,7 @@ def write_pdf(
     title: str | None = None,
     art: ArtCatalog | None = None,
 ) -> None:
-    """Write ``games`` in the scannable layout. This is the only layout."""
+    """Write ``games`` in the glance layout. This is the only layout."""
     if not games:
         raise ValueError("no play-by-play games to write")
     _register_fonts()
@@ -818,8 +1043,8 @@ def write_pdf(
     doc.addPageTemplates([PageTemplate(id="main", frames=[frame], onPage=_draw_page)])
     story: list = []
     if title:
-        story.append(Paragraph(_xml(title), styles["title"]))
-        story.append(Spacer(1, 4))
+        story.append(Paragraph(_xml_runs(title), styles["title"]))
+        story.append(Spacer(1, 2))
     for number, game in enumerate(games):
         story.extend(_game_story(game, styles, first=number == 0, art=art))
     doc.build(story)
@@ -835,7 +1060,8 @@ def layout_problems(path: str | Path) -> list[str]:
 
     A text line may not paint over another line. A turn header may not sit
     on the previous turn. A combat's damage line may not meet the next
-    section. Nothing may run past the page margin.
+    section. A card picture sits beside the line it explains, inside the
+    margin, and off the words.
     """
     import pymupdf
 
@@ -920,39 +1146,36 @@ def _turn_gap_problems(page_index: int, rows) -> list[str]:
     return found
 
 
-_SECTION_LABELS = {"Move", "Play", "Result", "Predict", "Event", "Who fought"}
-
-
 def _combat_gap_problems(page_index: int, rows) -> list[str]:
     """The damage sentence stays above the next section, with air between them.
 
-    A wrapped damage sentence is still that sentence. The gap is measured
-    from its last line to the next section, not between its own lines.
+    A wrapped damage sentence is still that sentence. The next section is the
+    first line that sits clear of it, or a conquer, a hold, or the next turn.
     """
     found = []
     for index, (text, box) in enumerate(rows):
         if text != "Took damage" and not text.startswith("No combat damage"):
             continue
-        last = box
-        nxt = None
+        prev_bottom = box[3]
         for next_text, next_box in rows[index + 1 :]:
-            if next_text in _SECTION_LABELS or next_text.startswith("Turn "):
-                nxt = (next_text, next_box)
-                break
-            last = next_box
-        if nxt is None:
-            continue
-        next_text, next_box = nxt
-        gap = next_box[1] - last[3]
-        if gap < 4:
-            found.append(
-                f"page {page_index + 1}: combat damage is {gap:.1f}pt from {next_text!r}"
+            gap = next_box[1] - prev_bottom
+            hard = (
+                next_text in ("Who fought", "Conquer", "Hold", "Hide")
+                or next_text.startswith("Turn ")
+                or next_text.startswith("Runes at ")
             )
+            if hard or gap > 4.5:
+                if gap < 6:
+                    found.append(
+                        f"page {page_index + 1}: combat damage is {gap:.1f}pt from {next_text!r}"
+                    )
+                break
+            prev_bottom = max(prev_bottom, next_box[3])
     return found
 
 
 def _art_problems(page_index: int, page, rows) -> list[str]:
-    """A card picture stays inside the margin and off the words of the line."""
+    """A card picture stays inside the margin, off the words, and beside its line."""
     found = []
     boxes = []
     for block in page.get_text("dict")["blocks"]:
@@ -960,7 +1183,7 @@ def _art_problems(page_index: int, page, rows) -> list[str]:
             continue
         boxes.append(tuple(block["bbox"]))
     for box in boxes:
-        x0, _y0, x1, _y1 = box
+        x0, y0, x1, y1 = box
         if x0 < LEFT - 2 or x1 > page.rect.width - RIGHT + 2:
             found.append(
                 f"page {page_index + 1}: a card picture runs past the margin ({x0:.1f},{x1:.1f})"
@@ -969,6 +1192,14 @@ def _art_problems(page_index: int, page, rows) -> list[str]:
             if _intersects(box, text_box):
                 found.append(f"page {page_index + 1}: a card picture overlaps {text!r}")
                 break
+        beside = False
+        for _text, text_box in rows:
+            vertical = min(y1, text_box[3]) - max(y0, text_box[1])
+            if vertical > 1 and text_box[0] >= x1 - 1:
+                beside = True
+                break
+        if not beside:
+            found.append(f"page {page_index + 1}: a card picture is not beside its line")
     for i, left in enumerate(boxes):
         for right in boxes[i + 1 :]:
             if _intersects(left, right, slack=0.4):
@@ -988,10 +1219,12 @@ Turn 1 - P1 (Grand Duelist)
   P1 plays Discipline on Defiant Dance for 2 energy.
   Combat at Monument of the Returned King: P1's Fiora, Grand Duelist and Recruit the Trainees against P2's Defiant Dance and Bedeviling Stranger and Stellacorn Herder and another unit that makes this sentence wrap inside the combat box. P2's Defiant Dance takes 4 damage, P2's Bedeviling Stranger takes 3 damage, P2's Stellacorn Herder takes 2 damage, and P1's Fiora, Grand Duelist takes 5 damage.
   P1 plays Charm on Defiant Dance for 1 energy and 1 power.
+  P1 plays Tasty Faefolk (P1) to base for 8 energy, 1 power, and Accelerate.
   Runes at end: 4.
   Score 1-0.
 Turn 2 - P2 (Wuju Bladesman - Starter)
   Runes at start: 3.
+  P2 hides Blade of the Exile.
   P2 plays Blade of the Exile from face down to base, ignoring its cost.
   P2 holds Monument of the Returned King. P2 controls it.
   Runes at end: 5.
@@ -1008,14 +1241,17 @@ def self_check() -> list[str]:
         return problems
     turn = games[0].turns[0]
     kinds = [event.kind for event in turn.events]
-    if kinds != ["move", "result", "play", "combat", "play"]:
+    if kinds != ["move", "result", "play", "combat", "play", "play"]:
         problems.append(f"turn 1 kinds {kinds}")
     combat = next(event.text for event in turn.events if event.kind == "combat")
     fought, damage = _split_combat(combat)
     if fought + " " + (damage or "") != combat:
         problems.append("combat split dropped or reordered words")
-    if "for 2 energy." not in _cost_markup(turn.events[2].text):
+    if "for 2 energy." not in _cost_markup(turn.events[2].text).replace("\u00a0", " "):
         problems.append("play cost was dropped")
+    hide = next(event.text for event in games[0].turns[1].events if event.kind == "hide")
+    if "hides" not in hide:
+        problems.append("hide line was dropped")
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         swatch = tmp_path / "card.png"
@@ -1028,6 +1264,8 @@ def self_check() -> list[str]:
                 ("Defiant Dance", str(swatch)),
                 ("Fiora, Grand Duelist", str(swatch)),
                 ("Monument of the Returned King", str(swatch)),
+                ("Tasty Faefolk", str(swatch)),
+                ("Blade of the Exile", str(swatch)),
             ]
         )
         path = tmp_path / "layout.pdf"
@@ -1036,7 +1274,7 @@ def self_check() -> list[str]:
         import pymupdf
 
         doc = pymupdf.open(path)
-        text = "".join(page.get_text() for page in doc)
+        text = "".join(page.get_text() for page in doc).replace("\u00a0", " ")
         images = sum(len(page.get_images()) for page in doc)
         doc.close()
         if images < 1:
@@ -1056,12 +1294,21 @@ def self_check() -> list[str]:
         "Took damage",
         "takes 5 damage.",
         "P1 plays Charm on Defiant Dance for 1 energy and 1 power.",
+        "(P1)",
+        "and Accelerate.",
         "Turn 2 - P2 (Wuju Bladesman - Starter)",
+        "P2 hides Blade of the Exile.",
+        "from face down",
         "ignoring its cost.",
         "P2 holds Monument of the Returned King. P2 controls it.",
+        "Conquer",
+        "Hold",
     ):
         if line not in text:
             problems.append(f"missing {line!r}")
+    for label in text.splitlines():
+        if label.strip() in ("Play", "Move", "Result", "Event", "Predict"):
+            problems.append(f"bullet label {label.strip()!r} is back")
     return problems
 
 
@@ -1084,7 +1331,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--self-check",
         action="store_true",
-        help="Render a fixture and check that turns and combat stay apart.",
+        help="Render a fixture and check that turns, combat, and pictures stay apart.",
     )
     args = parser.parse_args(argv)
     if args.self_check:
