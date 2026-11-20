@@ -5,7 +5,11 @@
 /// the agents, the ending, the score, the turns, or the decisions fails.
 /// So does a combat that omits who fought or the damage, a mulligan that
 /// omits what was shipped or kept, and a throw that is dropped or that
-/// calls the game usable.
+/// calls the game usable. A unit named on a play, a move, a spell, or a
+/// combat line without its controller in parentheses fails. A control
+/// change that still shows the old controller fails. An [Accelerate] play
+/// that never says Accelerate fails, and so does a play that did not pay
+/// it and says the word anyway.
 
 #include <gtest/gtest.h>
 
@@ -16,6 +20,7 @@
 #include "engine/game_runner.h"
 #include "io/play_by_play.h"
 #include "rules/deck_validator.h"
+#include "tests/cards/card_test_fixture.h"
 
 #include <cstdlib>
 #include <memory>
@@ -92,6 +97,60 @@ bool moveNamesPlaces(const std::string& line) {
         return text.find_first_not_of(" \t") == std::string::npos;
     };
     return !blank(origin) && !blank(dest);
+}
+
+/// The unit a move names is "Name (P1)" or "Name (P2)", the controller when
+/// the line was written. A line that is not a move is not this function's
+/// concern.
+bool moveNamesOwner(const std::string& line) {
+    const auto moves = line.find(" moves ");
+    if (moves == std::string::npos) return true;
+    const auto from = line.find(" from ", moves);
+    if (from == std::string::npos || from < moves + 7) return false;
+    const std::string unit = line.substr(moves + 7, from - (moves + 7));
+    if (unit.size() < 6) return false;
+    const std::string tail = unit.substr(unit.size() - 5);
+    return tail == " (P1)" || tail == " (P2)";
+}
+
+/// The bare name of the unit a move line names, without " (P1)" / " (P2)".
+std::string movedUnitName(const std::string& line) {
+    if (!moveNamesOwner(line)) return {};
+    const auto moves = line.find(" moves ");
+    const auto from = line.find(" from ", moves);
+    const std::string unit = line.substr(moves + 7, from - (moves + 7));
+    return unit.substr(0, unit.size() - 5);
+}
+
+/// Every move names its unit's controller. Every later play, move, or combat
+/// line that uses one of those unit names keeps the parenthetical on it.
+void expectUnitMentionsCarryOwner(const std::string& text) {
+    std::vector<std::string> names;
+    std::vector<std::string> lines;
+    std::istringstream in(text);
+    std::string line;
+    while (std::getline(in, line)) {
+        lines.push_back(line);
+        if (line.find(" moves ") == std::string::npos) continue;
+        EXPECT_TRUE(moveNamesOwner(line)) << line;
+        const std::string name = movedUnitName(line);
+        if (!name.empty() && std::find(names.begin(), names.end(), name) == names.end())
+            names.push_back(name);
+    }
+    for (const auto& row : lines) {
+        const bool about_a_unit = row.find(" plays ") != std::string::npos ||
+                                  row.find(" moves ") != std::string::npos ||
+                                  row.find("Combat at ") != std::string::npos;
+        if (!about_a_unit) continue;
+        for (const auto& name : names) {
+            for (size_t at = 0; (at = row.find(name, at)) != std::string::npos;) {
+                const std::string after = row.substr(at + name.size());
+                EXPECT_TRUE(after.rfind(" (P1)", 0) == 0 || after.rfind(" (P2)", 0) == 0)
+                    << row;
+                at += name.size();
+            }
+        }
+    }
 }
 
 /// A play names what was paid, or says that it was free or that its cost was
@@ -204,11 +263,14 @@ TEST(PlayByPlayText, MoveNamesOriginAndDestination) {
     EXPECT_NE(text.find("Turn 1 - P1"), std::string::npos) << text;
     EXPECT_NE(text.find("Runes at start: 1."), std::string::npos) << text;
     EXPECT_NE(text.find("Runes at end: 2."), std::string::npos) << text;
-    EXPECT_NE(text.find("P1 moves Lecturing Yordle from base to Frozen Fortress."),
+    EXPECT_NE(text.find("P1 moves Lecturing Yordle (P1) from base to Frozen Fortress."),
               std::string::npos) << text;
     EXPECT_NE(text.find("P1 conquers Frozen Fortress. P1 controls it."), std::string::npos) << text;
-    EXPECT_NE(text.find("P1 plays Smoke Screen on Lecturing Yordle for 1 energy."),
+    EXPECT_NE(text.find("P1 plays Smoke Screen on Lecturing Yordle (P1) for 1 energy."),
               std::string::npos) << text;
+    EXPECT_EQ(text.find("Smoke Screen (P"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Frozen Fortress (P"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Accelerate"), std::string::npos) << text;
     EXPECT_NE(text.find("Score 1-0."), std::string::npos) << text;
     expectRunesAndCosts(text);
 
@@ -219,8 +281,10 @@ TEST(PlayByPlayText, MoveNamesOriginAndDestination) {
         if (line.find(" moves ") == std::string::npos) continue;
         ++moves;
         EXPECT_TRUE(moveNamesPlaces(line)) << line;
+        EXPECT_TRUE(moveNamesOwner(line)) << line;
     }
     EXPECT_EQ(moves, 1) << text;
+    expectUnitMentionsCarryOwner(text);
 }
 
 // A real game, with tracing and the HTML replay off. The per-game result
@@ -288,8 +352,10 @@ TEST(PlayByPlayText, ShortGamePrintsTheSummary) {
         if (line.find(" moves ") == std::string::npos) continue;
         ++moves;
         EXPECT_TRUE(moveNamesPlaces(line)) << line;
+        EXPECT_TRUE(moveNamesOwner(line)) << line;
     }
     EXPECT_GE(moves, 1) << out;
+    expectUnitMentionsCarryOwner(out);
 }
 
 PlayByPlay::Account sampleAccount() {
@@ -453,10 +519,11 @@ TEST(PlayByPlayText, CombatNamesFightersAndDamage) {
     bus.emit(CombatEndedEvent{BattlefieldId::fromRaw(0), PlayerId::Player1});
 
     const std::string text = chronicle.text();
-    EXPECT_NE(text.find("Combat at Frozen Fortress: P1's Lecturing Yordle and Eager Recruit "
-                        "against P2's Recruit. P2's Recruit takes 3 damage and "
-                        "P1's Lecturing Yordle takes 2 damage."),
+    EXPECT_NE(text.find("Combat at Frozen Fortress: P1's Lecturing Yordle (P1) and Eager Recruit (P1) "
+                        "against P2's Recruit (P2). P2's Recruit (P2) takes 3 damage and "
+                        "P1's Lecturing Yordle (P1) takes 2 damage."),
               std::string::npos) << text;
+    EXPECT_EQ(text.find("Frozen Fortress (P"), std::string::npos) << text;
     EXPECT_EQ(text.find("9"), std::string::npos) << text;
 }
 
@@ -495,7 +562,8 @@ TEST(PlayByPlayText, QuietProbeWritesNothing) {
     bus.notePlayCost(unit, 0, 0, false, false);
     bus.emit(CardPlayedEvent{unit, PlayerId::Player1, CardType::Unit, 1});
     const std::string after = chronicle.text();
-    EXPECT_NE(after.find("P1 plays Lecturing Yordle for free."), std::string::npos) << after;
+    EXPECT_NE(after.find("P1 plays Lecturing Yordle (P1) for free."), std::string::npos) << after;
+    EXPECT_EQ(after.find("Accelerate"), std::string::npos) << after;
 }
 
 /// Keeps the opening hand, then throws. The mulligan was a real decision.
@@ -586,6 +654,178 @@ TEST(PlayByPlayText, ABatchLargerThanTwentyDoesNotListEachGame) {
     EXPECT_EQ(out.find("Mulligan:"), std::string::npos) << out;
     EXPECT_EQ(out.find("Ended by "), std::string::npos) << out;
     EXPECT_EQ(results.games_completed.load(), 1);
+}
+
+// The parenthetical is the controller when the line is written. Owner stays
+// P1; after the control change the unit is (P2). A spell, a gear, a rune, a
+// legend, and a battlefield are not marked.
+TEST(PlayByPlayText, ControlChangeNamesTheNewOwner) {
+    GameState state;
+    EventBus bus;
+
+    const auto unit = state.createObject();
+    auto& stranger = state.getObject(unit);
+    stranger.name = "Bedeviling Stranger";
+    stranger.card_type = CardType::Unit;
+    stranger.owner = PlayerId::Player1;
+    stranger.controller = PlayerId::Player1;
+    stranger.zone = ZoneType::Base;
+    stranger.location = BaseLocation{PlayerId::Player1};
+
+    const auto gear = state.createObject();
+    auto& angel = state.getObject(gear);
+    angel.name = "Guardian Angel";
+    angel.card_type = CardType::Gear;
+    angel.owner = PlayerId::Player1;
+    angel.controller = PlayerId::Player1;
+    angel.zone = ZoneType::Base;
+    angel.location = BaseLocation{PlayerId::Player1};
+
+    const auto rune = state.createObject();
+    auto& fury = state.getObject(rune);
+    fury.name = "Fury Rune";
+    fury.card_type = CardType::Rune;
+    fury.owner = PlayerId::Player1;
+    fury.controller = PlayerId::Player1;
+    fury.zone = ZoneType::Base;
+    fury.location = BaseLocation{PlayerId::Player1};
+
+    const auto legend = state.createObject();
+    auto& heart = state.getObject(legend);
+    heart.name = "Heart of the Tempest";
+    heart.card_type = CardType::Legend;
+    heart.owner = PlayerId::Player2;
+    heart.controller = PlayerId::Player2;
+
+    const auto spell = state.createObject();
+    auto& discipline = state.getObject(spell);
+    discipline.name = "Discipline";
+    discipline.card_type = CardType::Spell;
+    discipline.controller = PlayerId::Player1;
+
+    const auto field = state.createObject();
+    auto& lair = state.getObject(field);
+    lair.name = "Vilemaw's Lair";
+    lair.card_type = CardType::Battlefield;
+    BattlefieldState bf;
+    bf.id = BattlefieldId::fromRaw(0);
+    bf.card_object_id = field;
+    state.battlefields.push_back(bf);
+
+    state.turn.turn_number = 2;
+    state.turn.turn_player = PlayerId::Player2;
+
+    PlayByPlay chronicle(state, bus);
+    bus.emit(PhaseChangedEvent{TurnPhase::Mulligan, TurnPhase::AwakenPhase, PlayerId::Player2});
+
+    bus.notePlayCost(unit, 2, 0, false, false);
+    bus.emit(CardPlayedEvent{unit, PlayerId::Player1, CardType::Unit, 1});
+    bus.emit(UnitMovedEvent{unit, PlayerId::Player2, BaseLocation{PlayerId::Player1},
+                            BattlefieldLocation{0}, true});
+
+    stranger.controller = PlayerId::Player2;
+    EXPECT_EQ(stranger.owner, PlayerId::Player1);
+
+    ChainItem item;
+    item.id = ChainItemId::fromRaw(1);
+    item.source = spell;
+    item.controller = PlayerId::Player1;
+    item.is_spell = true;
+    item.targets = {unit};
+    state.chain.items.push_back(item);
+    bus.notePlayCost(spell, 2, 0, false, false);
+    bus.emit(ChainItemFinalizedEvent{item.id, spell, PlayerId::Player1});
+
+    bus.emit(UnitMovedEvent{unit, PlayerId::Player2, BattlefieldLocation{0},
+                            BaseLocation{PlayerId::Player2}, false});
+
+    bus.notePlayCost(gear, 2, 0, false, false);
+    bus.emit(CardPlayedEvent{gear, PlayerId::Player1, CardType::Gear, 2});
+    bus.notePlayCost(rune, 0, 0, false, false);
+    bus.emit(CardPlayedEvent{rune, PlayerId::Player1, CardType::Rune, 3});
+    bus.notePlayCost(legend, 0, 0, false, false);
+    bus.emit(CardPlayedEvent{legend, PlayerId::Player2, CardType::Legend, 1});
+
+    state.battlefields[0].controller = PlayerId::Player2;
+    bus.emit(ScoreEvent{PlayerId::Player2, BattlefieldId::fromRaw(0), ScoreMethod::Conquer, 1,
+                        std::nullopt});
+
+    const std::string text = chronicle.text();
+    EXPECT_NE(text.find("P1 plays Bedeviling Stranger (P1) to base for 2 energy."),
+              std::string::npos) << text;
+    EXPECT_NE(text.find("P2 moves Bedeviling Stranger (P1) from P1's base to Vilemaw's Lair."),
+              std::string::npos) << text;
+    EXPECT_NE(text.find("P1 plays Discipline on Bedeviling Stranger (P2) for 2 energy."),
+              std::string::npos) << text;
+    EXPECT_NE(text.find("P2 moves Bedeviling Stranger (P2) from Vilemaw's Lair to base."),
+              std::string::npos) << text;
+    EXPECT_NE(text.find("P1 plays Guardian Angel to base for 2 energy."), std::string::npos) << text;
+    EXPECT_NE(text.find("P1 plays Fury Rune to base for free."), std::string::npos) << text;
+    EXPECT_NE(text.find("P2 plays Heart of the Tempest for free."), std::string::npos) << text;
+    EXPECT_NE(text.find("P2 conquers Vilemaw's Lair. P2 controls it."), std::string::npos) << text;
+    EXPECT_EQ(text.find("Discipline (P"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Guardian Angel (P"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Fury Rune (P"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Heart of the Tempest (P"), std::string::npos) << text;
+    EXPECT_EQ(text.find("Vilemaw's Lair (P"), std::string::npos) << text;
+    expectUnitMentionsCarryOwner(text);
+}
+
+/// Plays Tasty Faefolk through the engine so the account is what a real
+/// payment writes, not a note the test filled in itself.
+class PlayByPlayEngine : public CardTestFixture {};
+
+TEST_F(PlayByPlayEngine, AccelerateIsNamedWhenItIsPaid) {
+    constexpr CardDefId kFaefolk = 75;   // [7], [Accelerate] ([1][G])
+    auto fae = addToHand(P1, kFaefolk);
+    // Printed 7, plus Accelerate's [1] and one power.
+    state.player(P1).rune_pool.energy = 8;
+    state.player(P1).rune_pool.universal_power = 1;
+    EnginePathAgent pay(EnginePathAgent::script({1}));   // pay Accelerate
+
+    std::string account;
+    withEngine([&](GameEngine& e) {
+        PlayByPlay chronicle(e.state(), events);
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = fae;
+        play.play_location = LocationId{BaseLocation{P1}};
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+        account = chronicle.text();
+    }, &pay);
+
+    EXPECT_NE(account.find(
+                  "P1 plays Tasty Faefolk (P1) to base for 8 energy, 1 power, and Accelerate."),
+              std::string::npos) << account;
+    EXPECT_FALSE(state.getObject(fae).is_exhausted) << account;
+}
+
+TEST_F(PlayByPlayEngine, APlayThatDoesNotPayAccelerateStaysUnchanged) {
+    constexpr CardDefId kFaefolk = 75;
+    auto fae = addToHand(P1, kFaefolk);
+    state.player(P1).rune_pool.energy = 8;
+    state.player(P1).rune_pool.universal_power = 1;
+    EnginePathAgent decline(EnginePathAgent::script({0}));   // decline Accelerate
+
+    std::string account;
+    withEngine([&](GameEngine& e) {
+        PlayByPlay chronicle(e.state(), events);
+        Intent play;
+        play.type = IntentType::PlayCard;
+        play.player = P1;
+        play.card = fae;
+        play.play_location = LocationId{BaseLocation{P1}};
+        e.testHook_executeIntent(play);
+        settleLikeTheEngine(e);
+        account = chronicle.text();
+    }, &decline);
+
+    EXPECT_NE(account.find("P1 plays Tasty Faefolk (P1) to base for 7 energy."),
+              std::string::npos) << account;
+    EXPECT_EQ(account.find("Accelerate"), std::string::npos) << account;
+    EXPECT_TRUE(state.getObject(fae).is_exhausted) << account;
 }
 
 } // namespace riftbound::test::play_by_play
