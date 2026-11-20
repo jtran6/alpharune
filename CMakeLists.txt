@@ -475,6 +475,7 @@ add_library(riftbound_core
     # the rules engine does not.
     src/agents/friendly_harm.cpp
     src/agents/board_score.cpp
+    src/agents/battlefield_assignment.cpp
     src/io/state_renderer.cpp
     src/io/play_by_play.cpp
     src/io/replay_writer.cpp

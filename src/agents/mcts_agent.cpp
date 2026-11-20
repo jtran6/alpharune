@@ -5,6 +5,7 @@
 #include "core/game_object.h"
 #include "engine/game_engine.h"  // StepResult / StepKind
 
+#include "agents/battlefield_assignment.h"
 #include "agents/board_score.h"
 #include "agents/determinizer.h"
 #include "agents/friendly_harm.h"
@@ -33,6 +34,10 @@
 namespace riftbound {
 
 namespace {
+
+std::vector<Intent> linesWorthSearching(const GameState& state,
+                                        const std::vector<Intent>& legal,
+                                        const CardRegistry& cards);
 
 // A heuristic evaluator that scores Riftbound positions directly from
 // the engine state instead of running noisy random rollouts to terminal.
@@ -73,7 +78,11 @@ public:
 
         double val = 0.0;
         if (board_value_) {
-            val = boardScore(s);
+            const CardRegistry* reg = nullptr;
+            if (const auto game = rb->GetGame())
+                if (const auto* rg = dynamic_cast<const openspiel::RiftboundGame*>(game.get()))
+                    reg = &rg->cardRegistry();
+            val = reg ? boardScore(s, *reg) : boardScore(s);
         } else {
             const auto& p1 = s.player(PlayerId::Player1);
             const auto& p2 = s.player(PlayerId::Player2);
@@ -179,7 +188,7 @@ public:
             if (const auto* rg = dynamic_cast<const openspiel::RiftboundGame*>(game.get()))
                 reg = &rg->cardRegistry();
         const std::vector<Intent> kept =
-            reg ? searchCandidates(engine_state, intents, *reg) : intents;
+            reg ? linesWorthSearching(engine_state, intents, *reg) : intents;
         const bool pruned = kept.size() != intents.size();
         std::vector<std::pair<::open_spiel::Action, double>> weighted;
         weighted.reserve(intents.size());
@@ -503,7 +512,15 @@ const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
     return rg ? &rg->cardRegistry() : nullptr;
 }
 
-/// Action ids from `legal` that searchCandidates keeps. The engine's list is
+/// searchCandidates, then the defend-alone assignment. Friendly-harm pruning
+/// stays in front: a line it drops is not put back by the assignment filter.
+std::vector<Intent> linesWorthSearching(const GameState& state,
+                                        const std::vector<Intent>& legal,
+                                        const CardRegistry& cards) {
+    return keepBattlefieldAssignment(state, searchCandidates(state, legal, cards), cards);
+}
+
+/// Action ids from `legal` that the search keeps. The engine's list is
 /// not changed. When every option was an empty friendly harm, the result is
 /// empty: those lines are not put back.
 std::vector<::open_spiel::Action> actionsWorthSearching(
@@ -512,7 +529,8 @@ std::vector<::open_spiel::Action> actionsWorthSearching(
     const CardRegistry* reg = registryOf(world);
     if (!reg) return legal;
     const auto& intents = world.legalIntents();
-    const std::vector<Intent> kept = searchCandidates(world.engineState(), intents, *reg);
+    const std::vector<Intent> kept =
+        linesWorthSearching(world.engineState(), intents, *reg);
     if (kept.empty()) return {};
     if (kept.size() == intents.size()) return legal;
     const std::vector<int> ids = openspiel::actionIds(intents, world.engineState());
@@ -621,7 +639,7 @@ private:
         std::vector<char> worth(live_legal.size(), 1);
         if (const CardRegistry* reg = registryOf(world)) {
             const std::vector<Intent> kept =
-                searchCandidates(world.engineState(), live_legal, *reg);
+                linesWorthSearching(world.engineState(), live_legal, *reg);
             if (kept.size() != live_legal.size()) {
                 for (size_t i = 0; i < live_legal.size(); ++i)
                     worth[i] = std::find(kept.begin(), kept.end(), live_legal[i]) != kept.end();
