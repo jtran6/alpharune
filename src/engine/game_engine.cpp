@@ -5891,6 +5891,18 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         card.card_counters["__announce_play"] = ps.cards_played_this_turn;
         card.card_counters["__announce_energy"] = 0;
         card.card_counters["__announce_not_hand"] = 1;
+        // The same "as this is played" instructions a play from hand runs
+        // (executePlayCard; CR 135.2.b.3, CR 355.1), before the permanent is
+        // on the chain. Hiding is not a play and does not come through here
+        // (CR 811.1.c.1). "When you play me" is announced once it has entered.
+        if (card.card_def_id != kInvalidId) {
+            if (Card* card_obj = card_registry_.get(card.card_def_id)) {
+                CardContext on_play_ctx{state_, events_, *effect_executor_,
+                                         intent.player, intent.card};
+                const EffectExecutor::ActingFor acting(*effect_executor_, intent.card);
+                card_obj->onPlay(on_play_ctx);
+            }
+        }
         chain_manager_->addPermanent(intent.card, intent.player);
         runChain();
     } else if (card.isSpell()) {
