@@ -859,6 +859,12 @@ public:
     /// (Rengar, Trophy Hunter 682.)
     virtual bool ambushToEnemyBattlefields() const { return false; }
 
+    /// Exhausted runes this permanent adds to a channel while it is in play
+    /// (Seraphic Wyvern: "plus 1 exhausted rune"). A channel counts the copies
+    /// still in play, not the last Cleanup's total: a copy that has already
+    /// left does not add one (CR 365.1, 370.1.a.2).
+    virtual int extraExhaustedChannel() const { return 0; }
+
     /// Passive aura contribution. Called during `recalculateAuras` ONCE
     /// per (card, controller) that has at least one instance in play (on
     /// board, or in the Legend Zone) — not once per instance, and without

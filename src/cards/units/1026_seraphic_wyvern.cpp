@@ -16,9 +16,16 @@ class SeraphicWyvern_1026 : public UnitCard {
 public:
     const CardDef& def() const override { return def_; }
 
+    // One exhausted rune per copy still in play. The channel reads this, so a
+    // copy that has already left (Retreat) is not in the total.
+    int extraExhaustedChannel() const override { return 1; }
+
+    // Each Wyvern adds one exhausted rune. The hook runs once per controller,
+    // so the copies have to add, not overwrite: two Wyverns still in play
+    // channel two extra (D9X8F turn 11, Mobilize took a 4-rune deck down to 1).
     void applyPassiveAura(GameState& state, PlayerId controller) const override {
         forEachSelfOnce(*this, state, controller, [&](GameObjectId, GameObject&) {
-            state.player(controller).extra_exhausted_channel = 1;
+            state.player(controller).extra_exhausted_channel += 1;
         });
     }
 

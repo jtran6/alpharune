@@ -9969,22 +9969,10 @@ void GameEngine::drawCards(PlayerId player, int count) {
 }
 
 void GameEngine::channelRunes(PlayerId player, int count) {
-    auto& ps = state_.player(player);
-    for (int i = 0; i < count; ++i) {
-        if (ps.rune_deck.empty()) break;
-        auto rune_id = ps.rune_deck.back();
-        ps.rune_deck.pop_back();
-
-        auto& rune = state_.getObject(rune_id);
-        rune.zone = ZoneType::Base;
-        rune.location = BaseLocation{player};
-
-        RIFT_TRACE(events_, "  CHANNELED: " + rune.name + " (id=" +
-                         toString(rune_id) + ", ready)");
-        events_.emit(RuneChanneledEvent{rune_id, player});
-        events_.emit(EnteredBoardEvent{
-            rune_id, player, CardType::Rune, BaseLocation{player}, false});
-    }
+    // The same channel a spell uses, so a Wyvern still in play adds its
+    // exhausted rune here too (the Channel Phase). Copies that have left
+    // are not counted.
+    effect_executor_->channelRunes(player, count, /*enter_exhausted=*/false);
 }
 
 void GameEngine::shuffleDeck(PlayerId player) {
