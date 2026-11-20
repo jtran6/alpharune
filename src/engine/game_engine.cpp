@@ -5823,6 +5823,16 @@ void GameEngine::executeHideCard(const Intent& intent) {
 void GameEngine::executePlayFromHidden(const Intent& intent) {
     auto& card = state_.getObject(intent.card);
     forgetPlayPayments(intent.player, intent.card);   // a new play: nothing is paid yet
+    // The printed base cost is ignored (CR 811.1.b). A cost increase is not
+    // (CR 356.1.b.3, 356.3): during a showdown at Mystic Vortex a card with
+    // [Reaction] costs [A] more, and a facedown card has [Reaction] (CR
+    // 811.6). Paid while it is still facedown, so that [Reaction] is visible.
+    // Unpaid, the card stays where it is.
+    Card::PlayCostAdjust ignoring_base;
+    ignoring_base.ignore_cost = true;
+    if (card.card_def_id != kInvalidId &&
+        !payCardCost(intent.player, intent.card, ignoring_base))
+        return;
     auto bf_id = card.hidden_at;
     auto& bf = getBattlefield(bf_id);
 
@@ -5844,17 +5854,11 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
     // "When you play a card from face down" (Katarina, Reckless).
     events_.emit(PlayedFromFacedownEvent{intent.card, intent.player});
 
-    // A play from face down ignores the card's base cost (CR 811.1.b), not
-    // its additional costs: "you may pay [R] as an additional cost to play
-    // me" is still offered (CR 356.1.b and its example; testing phase U7,
-    // Pyke, Dockside Butcher). Its "As you play me" choices come first (CR
+    // Optional additional costs are still offered (CR 356.1.b; testing phase
+    // U7, Pyke, Dockside Butcher). "As you play me" choices come first (CR
     // 355.1). No [Hidden] card prints a mandatory additional cost
-    // (Batch8Test.U7_NoHiddenCardPrintsAMandatoryAdditionalCost).
-    Card::PlayCostAdjust ignoring_base;
-    ignoring_base.ignore_cost = true;
-    // A facedown play ignores the base cost (CR 811). An optional cost paid
-    // after this is added on top.
-    events_.notePlayCost(intent.card, 0, 0, true, true);
+    // (Batch8Test.U7_NoHiddenCardPrintsAMandatoryAdditionalCost). The base
+    // cost was ignored above; what payCardCost charged is the increase.
 
     // Play ignoring base cost — permanents go to the BF they were hidden at
     if (card.isPermanent()) {
@@ -6784,11 +6788,11 @@ std::vector<std::vector<GameObjectId>> spellTargetSets(
 // CR 811: `player`'s facedown cards. A permanent goes to the battlefield it
 // was hidden at (executePlayFromHidden / ChainManager); a spell's targets are
 // tied to that battlefield, target by target (CR 811.1.d.2, .4).
-// A card played from facedown is played ignoring its base cost (CR 811;
-// executePlayFromHidden charges nothing), so there is no cost gate here and no
-// discount can matter: what a target adds — its Deflect — is the whole price,
-// and Card::enumerateLegalTargets already leaves out a target whose Deflect
-// the player cannot pay.
+// A card played from facedown ignores its base cost (CR 811). A cost increase
+// is still owed (CR 356.1.b.3; executePlayFromHidden pays it), so a play that
+// cannot pay the increase is not offered. What a target adds — its Deflect —
+// is on top of that, and Card::enumerateLegalTargets already leaves out a
+// target whose Deflect the player cannot pay.
 void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_type,
                                            std::vector<Intent>& actions) const {
     const auto& ps = state_.player(player);
@@ -6819,6 +6823,12 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
             if (card.isUnit() && ps.units_play_base_only) continue;
             if (card.isUnit() && bf.blocks_unit_play && ps.next_unit_any_battlefield <= 0)
                 continue;
+            // The printed Energy and Power are ignored. The increase is not.
+            if (card.card_def_id != kInvalidId) {
+                Card::PlayCostAdjust ignoring_base;
+                ignoring_base.ignore_cost = true;
+                if (!canAffordWith(player, card_id, 0, ignoring_base)) continue;
+            }
 
             if (card.card_def_id != kInvalidId && card.isSpell()) {
                 Card* card_obj = card_registry_.get(card.card_def_id);
@@ -9769,6 +9779,11 @@ void GameEngine::recallMisplacedObjects() {
     std::vector<GameObjectId> misplaced;
     for (auto& [id, obj] : state_.objects.onBoard()) {
         if (!obj.location.has_value() || obj.is_hidden) continue;   // facedown cards stay put
+        // Still on the chain: this location is where the play enters, and the
+        // play is announced there (CR 383.4.a.2). Recalling a gear to base
+        // now would announce it at base (Rakelstake). Once it has entered,
+        // the next Cleanup recalls an unattached gear (CR 323.6).
+        if (obj.zone == ZoneType::Chain) continue;
         if (obj.controller == PlayerId::None) continue;
         const LocationId home{BaseLocation{obj.controller}};
         bool recall = false;

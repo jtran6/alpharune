@@ -22,6 +22,10 @@ constexpr CardDefId kScuttleCrab = 615;        // When you play me, draw 1. Cost
 constexpr CardDefId kLotusTrap = 575;          // [Hidden] spell
 constexpr CardDefId kRecruit = 266;            // a card to draw
 constexpr CardDefId kDeterminedSentry = 673;   // onPlay: I can't move to base.
+constexpr CardDefId kConsultThePast = 83;      // [Hidden] [Reaction]. Draw 2. Cost [4].
+constexpr CardDefId kMysticVortex = 947;       // Showdowns here: [Reaction] costs [A] more.
+constexpr CardDefId kEdgeOfNight = 460;        // [Hidden] gear.
+constexpr CardDefId kRakelstake = 1082;        // First unit or gear here each turn: Predict.
 
 class AnswerAgent : public AgentInterface {
 public:
@@ -122,6 +126,12 @@ protected:
     }
     /// A unit of the controller, so an Open State does not drop the battlefield
     /// (CR 323.5) and take the facedown card with it (CR 323.6.a).
+    GameObjectId battlefieldCard(int bf, CardDefId def_id) {
+        auto id = fromDef(PlayerId::None, def_id);
+        o(id).zone = ZoneType::BattlefieldZone;
+        s().battlefields[bf].card_object_id = id;
+        return id;
+    }
     GameObjectId hold(PlayerId p, int bf) {
         auto id = s().createObject();
         auto& u = o(id);
@@ -241,6 +251,89 @@ TEST_F(HiddenPlayLineTest, FacedownPlayRunsOnPlayTheWayAHandPlayDoes) {
 
     EXPECT_TRUE(o(sentry).location.has_value());
     EXPECT_TRUE(o(sentry).cant_move_to_base);
+}
+
+// Mystic Vortex: during a showdown here, a [Reaction] costs [A] more.
+// Ignoring the printed Energy does not skip that increase (CR 356.1.b.3).
+// Consult the Past from facedown draws 2 and recycles the one ready rune.
+// With no Power at all the play is not offered.
+TEST_F(HiddenPlayLineTest, FacedownConsultThePastPaysTheVortexShowdownTax) {
+    battlefieldCard(0, kMysticVortex);
+    hold(P1, 0);
+    s().turn.ns_state = NeutralShowdownState::Showdown;
+    s().turn.oc_state = OpenClosedState::Open;
+    s().turn.focus_holder = P1;
+    s().battlefields[0].showdown_in_progress = true;
+    engine_->testHook_cleanup();
+    ASSERT_EQ(s().battlefields[0].reaction_tax_power, 1);
+
+    // Hidden on an earlier turn, so this turn it may be played.
+    auto spell = hiddenEarlier(P1, kConsultThePast, 0);
+    s().turn.turn_number = 2;
+    onDeck(P1, kRecruit);
+    onDeck(P1, kRecruit);
+    EXPECT_EQ(findPlay(engine_->generateLegalActions(), spell), nullptr)
+        << "no Power: the [A] increase is not offered";
+
+    auto power = rune(P1, Domain::Fury);
+    const auto legal = engine_->generateLegalActions();
+    const Intent* play = findPlay(legal, spell);
+    ASSERT_NE(play, nullptr) << "one ready rune pays the [A]";
+
+    engine_->testHook_executeIntent(*play);
+    settleLikeTheEngine(*engine_);
+
+    EXPECT_EQ(s().player(P1).draws_this_turn, 2);
+    EXPECT_EQ(static_cast<int>(s().player(P1).hand.size()), 2);
+    EXPECT_TRUE(inRuneDeck(P1, power));
+    EXPECT_FALSE(o(power).is_exhausted);
+    EXPECT_EQ(s().player(P1).power_spent_this_turn, 1);
+    EXPECT_FALSE(o(spell).is_hidden);
+}
+
+// Rakelstake: the first gear played here this turn Predicts. A hidden gear
+// is played to the battlefield it was hidden at, and that is where the play
+// is announced. Cleanup must not recall it to base before that announcement.
+TEST_F(HiddenPlayLineTest, FacedownEdgeOfNightIsAnnouncedAtRakelstake) {
+    auto stake = battlefieldCard(0, kRakelstake);
+    auto unit = hold(P1, 0);
+    auto gear = hiddenEarlier(P1, kEdgeOfNight, 0);
+    onDeck(P1, kRecruit);
+    s().turn.turn_number = 2;
+    s().turn.oc_state = OpenClosedState::Closed;
+    s().turn.priority_holder = P1;
+
+    int played_events = 0;
+    std::optional<BattlefieldId> announced;
+    auto played = events.on_card_played.connect([&](const CardPlayedEvent& e) {
+        ++played_events;
+        if (e.object == gear && s().objectExists(gear))
+            announced = s().getObject(gear).battlefieldId();
+    });
+    int predicts = 0;
+    auto looked = events.on_predicted.connect([&](const PredictEvent& e) {
+        if (e.player == P1) ++predicts;
+    });
+
+    const auto legal = engine_->generateLegalActions();
+    const Intent* play = findPlay(legal, gear);
+    ASSERT_NE(play, nullptr);
+    engine_->testHook_executeIntent(*play);
+    settleLikeTheEngine(*engine_);
+
+    auto stamp = o(stake).card_counters.find("__rakel_p1");
+    ASSERT_NE(stamp, o(stake).card_counters.end())
+        << "played_events=" << played_events
+        << " predicts=" << predicts
+        << " attached=" << o(gear).attached_to.has_value()
+        << " zone=" << static_cast<int>(o(gear).zone.get());
+    EXPECT_EQ(stamp->second, s().turn.turn_number + 1);
+    EXPECT_EQ(predicts, 1);
+    ASSERT_TRUE(announced.has_value());
+    EXPECT_EQ(*announced, BattlefieldId::fromRaw(0));
+    EXPECT_EQ(o(gear).attached_to, unit);
+    (void)played;
+    (void)looked;
 }
 
 // The same turn it is hidden, it is not yet a Reaction (CR 811.1.b).
