@@ -5449,6 +5449,9 @@ void GameEngine::executeStandardMove(const Intent& intent) {
                 join.type = IntentType::MakeChoice;
                 join.player = intent.player;
                 join.chosen_objects = {uid};
+                // Where the join arrives. The assignment drops one that stacks
+                // this unit on a fight it was sent to conquer somewhere else.
+                join.move_destination = dest;
                 options.push_back(std::move(join));
             }
             const Intent chosen = decideNow(intent.player, options, PromptKind::MoveJoin, kInvalidId,

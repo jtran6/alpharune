@@ -227,4 +227,139 @@ TEST_F(AssignmentTest, SecondUnitJoinsWhenTheBonusDoesNotApply) {
     EXPECT_NE(std::find(attackers.begin(), attackers.end(), poro), attackers.end());
 }
 
+// Two battlefields the enemy holds, each with less Might than one of our
+// units. Each unit conquers one. Master stacks both on the first, and that
+// pile scores higher only because the extra Might widens one fight.
+TEST_F(AssignmentTest, TwoConquersInOneTurn) {
+    auto first = addUnit(P1, kYi, 4, -1);
+    auto second = addUnit(P1, kPoro, 4, -1);
+    addUnit(P2, kInvalidId, 3, 0);
+    addUnit(P2, kInvalidId, 3, 1);
+    state.battlefields[0].controller = P2;
+    state.battlefields[1].controller = P2;
+
+    const Assignment chosen = assignUnits(state, P1, &card_registry);
+    const auto on0 = assignedUnits(chosen, BattlefieldId::fromRaw(0));
+    const auto on1 = assignedUnits(chosen, BattlefieldId::fromRaw(1));
+    ASSERT_EQ(on0.size(), 1u);
+    ASSERT_EQ(on1.size(), 1u);
+    EXPECT_NE(on0.front(), on1.front());
+
+    const auto stack = Intent::standardMove(P1, {on1.front()}, BattlefieldLocation{0});
+    const auto conquer = Intent::standardMove(P1, {on1.front()}, BattlefieldLocation{1});
+    const auto end = Intent::endTurn(P1);
+    Intent join;
+    join.type = IntentType::MakeChoice;
+    join.player = P1;
+    join.chosen_objects = {on1.front()};
+    join.move_destination = BattlefieldLocation{0};
+    Intent stop;
+    stop.type = IntentType::MakeChoice;
+    stop.player = P1;
+    stop.chosen_value = 0;
+    stop.choice_label = "Move no more units";
+
+    const auto kept =
+        keepBattlefieldAssignment(state, {stack, conquer, end, join, stop}, card_registry);
+    EXPECT_FALSE(contains(kept, stack));
+    EXPECT_FALSE(contains(kept, join));
+    EXPECT_TRUE(contains(kept, conquer));
+    EXPECT_TRUE(contains(kept, end));
+    EXPECT_TRUE(contains(kept, stop));
+
+    GameState split = state;
+    split.getObject(first).zone = ZoneType::BattlefieldZone;
+    split.getObject(first).location = BattlefieldLocation{0};
+    split.getObject(second).zone = ZoneType::BattlefieldZone;
+    split.getObject(second).location = BattlefieldLocation{1};
+    GameState piled = state;
+    piled.getObject(first).zone = ZoneType::BattlefieldZone;
+    piled.getObject(first).location = BattlefieldLocation{0};
+    piled.getObject(second).zone = ZoneType::BattlefieldZone;
+    piled.getObject(second).location = BattlefieldLocation{0};
+    EXPECT_GT(boardScore(split), boardScore(piled));
+
+    // The defend-alone bonus does not glue attackers onto one fight.
+    addLegend(P1, kLegend);
+    const Assignment with_bonus = assignUnits(state, P1, &card_registry);
+    EXPECT_EQ(assignedUnits(with_bonus, BattlefieldId::fromRaw(0)).size(), 1u);
+    EXPECT_EQ(assignedUnits(with_bonus, BattlefieldId::fromRaw(1)).size(), 1u);
+}
+
+// One unit already on the battlefield out-mights the enemy there. The spare
+// conquers the other battlefield instead of stacking on the first.
+TEST_F(AssignmentTest, SpareLeavesAFightOneUnitAlreadyCovers) {
+    addLegend(P1, kLegend);
+    auto anchor = addUnit(P1, kYi, 4, 0);
+    auto spare = addUnit(P1, kPoro, 4, -1);
+    addUnit(P2, kInvalidId, 3, 0);
+    addUnit(P2, kInvalidId, 3, 1);
+    state.battlefields[0].controller = P2;
+    state.battlefields[1].controller = P2;
+
+    const Assignment chosen = assignUnits(state, P1, &card_registry);
+    EXPECT_EQ(assignedUnits(chosen, BattlefieldId::fromRaw(0)),
+              std::vector<GameObjectId>{anchor});
+    EXPECT_EQ(assignedUnits(chosen, BattlefieldId::fromRaw(1)),
+              std::vector<GameObjectId>{spare});
+
+    const auto stack = Intent::standardMove(P1, {spare}, BattlefieldLocation{0});
+    const auto conquer = Intent::standardMove(P1, {spare}, BattlefieldLocation{1});
+    const auto kept = keepBattlefieldAssignment(state, {stack, conquer}, card_registry);
+    EXPECT_FALSE(contains(kept, stack));
+    EXPECT_TRUE(contains(kept, conquer));
+}
+
+// Scored this turn already: another body there is not a conquer. The spare
+// takes the battlefield that still is.
+TEST_F(AssignmentTest, SpareDoesNotStackOnABattlefieldAlreadyScored) {
+    addUnit(P1, kYi, 4, -1);
+    addUnit(P1, kPoro, 4, -1);
+    addUnit(P2, kInvalidId, 3, 0);
+    addUnit(P2, kInvalidId, 3, 1);
+    state.battlefields[0].controller = P2;
+    state.battlefields[1].controller = P2;
+    state.player(P1).battlefields_scored_this_turn.insert(BattlefieldId::fromRaw(0));
+
+    const Assignment chosen = assignUnits(state, P1, &card_registry);
+    const auto scored = assignedUnits(chosen, BattlefieldId::fromRaw(0));
+    const auto fresh = assignedUnits(chosen, BattlefieldId::fromRaw(1));
+    ASSERT_EQ(fresh.size(), 1u);
+    ASSERT_EQ(scored.size(), 1u);
+
+    const auto back = Intent::standardMove(P1, {fresh.front()}, BattlefieldLocation{0});
+    const auto conquer = Intent::standardMove(P1, {fresh.front()}, BattlefieldLocation{1});
+    const auto kept = keepBattlefieldAssignment(state, {back, conquer}, card_registry);
+    EXPECT_FALSE(contains(kept, back));
+    EXPECT_TRUE(contains(kept, conquer));
+}
+
+// The other battlefield is already held. The second unit has nowhere else
+// to conquer, so it stacks on the fight.
+TEST_F(AssignmentTest, SecondUnitStacksWhenItCannotConquerElsewhere) {
+    addLegend(P1, kLegend);
+    auto first = addUnit(P1, kYi, 4, -1);
+    auto second = addUnit(P1, kPoro, 4, -1);
+    addUnit(P2, kInvalidId, 3, 0);
+    addUnit(P1, kInvalidId, 1, 1);
+    state.battlefields[0].controller = P2;
+    state.battlefields[1].controller = P1;
+
+    const Assignment chosen = assignUnits(state, P1, &card_registry);
+    const auto fighters = assignedUnits(chosen, BattlefieldId::fromRaw(0));
+    ASSERT_EQ(fighters.size(), 2u);
+    EXPECT_NE(std::find(fighters.begin(), fighters.end(), first), fighters.end());
+    EXPECT_NE(std::find(fighters.begin(), fighters.end(), second), fighters.end());
+    EXPECT_EQ(assignedUnits(chosen, BattlefieldId::fromRaw(1)).size(), 1u);
+
+    const auto stack = Intent::standardMove(P1, {second}, BattlefieldLocation{0});
+    const auto to_held = Intent::standardMove(P1, {second}, BattlefieldLocation{1});
+    const auto end = Intent::endTurn(P1);
+    const auto kept =
+        keepBattlefieldAssignment(state, {stack, to_held, end}, card_registry);
+    EXPECT_TRUE(contains(kept, stack));
+    EXPECT_FALSE(contains(kept, to_held));
+    EXPECT_TRUE(contains(kept, end));
+}
+
 }  // namespace riftbound::test::battlefield_assignment

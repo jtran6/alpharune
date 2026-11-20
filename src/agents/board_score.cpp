@@ -11,7 +11,9 @@ namespace {
 
 // In points, not yet divided by the victory score. A scored point is 1.
 // Two battlefields, each controlled and each a won fight, is 0.8: still
-// less than the point those fights have not scored yet.
+// less than the point those fights have not scored yet. A won fight is the
+// whole combat term, not a fraction of the Might margin: extra Might past
+// the win does not outrank a second fight that is also won.
 constexpr double kBattlefield = 0.2;
 constexpr double kCombat = 0.2;
 // Smaller than the combat swing of turning a loss into a kill, and smaller
@@ -76,11 +78,8 @@ double scoreBoard(const GameState& state, const CardRegistry* cards) {
             if (count[s] == 1 && defends[s] && bonus[s] > 0)
                 eff[s] += std::max(0, bonus[s] - baked[s]);
         }
-        if (eff[0] > 0 && eff[1] > 0) {
-            const double edge = static_cast<double>(eff[0] - eff[1]) /
-                                static_cast<double>(eff[0] + eff[1]);
-            board += kCombat * edge;
-        }
+        if (eff[0] > 0 && eff[1] > 0 && eff[0] != eff[1])
+            board += (eff[0] > eff[1]) ? kCombat : -kCombat;
         for (int s = 0; s < 2; ++s) {
             if (count[s] <= 1 || bonus[s] <= 0 || !defends[s]) continue;
             const int lone = best[s] + bonus[s];
