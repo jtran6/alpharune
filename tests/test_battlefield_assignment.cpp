@@ -362,4 +362,35 @@ TEST_F(AssignmentTest, SecondUnitStacksWhenItCannotConquerElsewhere) {
     EXPECT_TRUE(contains(kept, end));
 }
 
+// Battlefield 0 is empty and already scored. Battlefield 1 is an unscored
+// enemy of Might 3. The 6 in hand costs [4], and the player has nothing to
+// pay it with, so that card stays in hand and does not conquer. The ready
+// 4 at base conquers battlefield 1. That scores the point; the move onto
+// the battlefield already scored does not.
+TEST_F(AssignmentTest, UnplayableHandUnitDoesNotConquer) {
+    auto ready = addUnit(P1, kPoro, 4, -1);
+    auto held = addToHand(P1, kYi);
+    state.getObject(held).base_might = 6;
+    state.getObject(held).current_might = 6;
+    addUnit(P2, kInvalidId, 3, 1);
+    state.battlefields[1].controller = P2;
+    state.player(P1).battlefields_scored_this_turn.insert(BattlefieldId::fromRaw(0));
+
+    const Assignment chosen = assignUnits(state, P1, &card_registry);
+    EXPECT_EQ(assignedUnits(chosen, BattlefieldId::fromRaw(1)),
+              std::vector<GameObjectId>{ready});
+    EXPECT_TRUE(assignedUnits(chosen, BattlefieldId::fromRaw(0)).empty());
+    const auto held_post = std::find_if(
+        chosen.posts.begin(), chosen.posts.end(),
+        [&](const UnitPost& post) { return post.id == held; });
+    EXPECT_EQ(held_post, chosen.posts.end());
+
+    const auto to_scored = Intent::standardMove(P1, {ready}, BattlefieldLocation{0});
+    const auto conquer = Intent::standardMove(P1, {ready}, BattlefieldLocation{1});
+    const auto kept =
+        keepBattlefieldAssignment(state, {to_scored, conquer}, card_registry);
+    EXPECT_TRUE(contains(kept, conquer));
+    EXPECT_FALSE(contains(kept, to_scored));
+}
+
 }  // namespace riftbound::test::battlefield_assignment

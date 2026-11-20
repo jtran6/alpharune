@@ -18,7 +18,10 @@
 /// to each. Stacking a second unit on a battlefield that is already conquered,
 /// or that one unit already covers, is dropped when that unit could conquer
 /// somewhere else. A unit that cannot conquer anywhere else still stacks.
-/// The rules engine's legal list is unchanged.
+/// A card in hand, or the Chosen Champion, is one of those units only when
+/// the player can pay to play it. A card that stays in hand is not a unit
+/// remaining, so it does not conquer (CR 468.5). The rules engine's legal
+/// list is unchanged.
 
 #include "core/intent.h"
 

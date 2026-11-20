@@ -4,6 +4,7 @@
 #include "cards/card_registry.h"
 #include "core/game_object.h"
 #include "core/game_state.h"
+#include "engine/resource_payment.h"
 
 #include <algorithm>
 #include <cctype>
@@ -325,6 +326,43 @@ bool coveredWithout(const GameState& state, PlayerId player,
     return ours > sideMightAt(state, opponent(player), bf);
 }
 
+/// A card in hand or the Champion Zone conquers only if it is played. The
+/// Main Phase omits the play when the printed cost and an alternative cost
+/// both fail. A discount that exists only at one battlefield is not asked
+/// here: a card we cannot see a way to pay for is not posted, and its play
+/// stays in the legal list.
+bool canPlayUnitNow(const GameState& state, PlayerId player, const GameObject& obj,
+                    const CardRegistry* cards) {
+    if (!cards || obj.card_def_id == kInvalidId) return false;
+    if (state.player(player).cant_play_cards_this_turn) return false;
+    const Card* card = cards->get(obj.card_def_id);
+    if (!card || !card->canBePlayed(state, player)) return false;
+
+    const CardDef& def = card->def();
+    const auto& ps = state.player(player);
+    const bool ignore_energy = ps.transient_ignore_energy ||
+        obj.card_counters.find("__ignore_energy") != obj.card_counters.end();
+    const bool ignore_power = ps.transient_ignore_power;
+    int energy = ps.transient_replace_energy >= 0 ? ps.transient_replace_energy
+                                                  : def.energy_cost;
+    int power = ps.transient_replace_power >= 0 ? ps.transient_replace_power
+                                                : def.power_cost;
+    if (ignore_energy) energy = 0;
+    if (ignore_power) power = 0;
+    energy = std::max(0, energy - card->selfCostReduction(state, player));
+    power = std::max(0, power - card->selfPowerCostReduction(state, player));
+    if (resource::canPayIn(state, player, energy, power, resource::maskOf(def.domains),
+                           SpendFor::PlayUnit))
+        return true;
+
+    const auto alt = card->alternativePlayCost(state, player);
+    if (!alt.valid) return false;
+    const auto mask = alt.any_domain ? resource::kAnyDomain
+                                     : resource::maskOf(alt.power_domain);
+    return resource::canPayIn(state, player, alt.energy, alt.power, mask,
+                              SpendFor::PlayUnit);
+}
+
 }  // namespace
 
 int defendAloneBonus(const GameState& state, PlayerId player,
@@ -371,7 +409,11 @@ Assignment assignUnits(const GameState& state, PlayerId player,
         const ZoneType zone = obj.zone.get();
         const bool in_hand = zone == ZoneType::Hand || zone == ZoneType::ChampionZone;
         const bool at_base = obj.isAtBase() && !obj.is_exhausted && !obj.cant_move_this_turn;
-        if (!in_hand && !at_base) continue;
+        if (in_hand) {
+            if (!canPlayUnitNow(state, player, obj, cards)) continue;
+        } else if (!at_base) {
+            continue;
+        }
         bodies.push_back(Body{id, unitMight(obj), std::nullopt, std::nullopt, true, false});
     }
 
@@ -384,11 +426,13 @@ Assignment assignUnits(const GameState& state, PlayerId player,
     }
 
     // A spare unit holds a battlefield we already control, then conquers an
-    // empty one. The fight above is settled first, so a unit required there
-    // is not the one sent away.
+    // empty one. One already scored this turn is not a point (CR 472), so
+    // it does not take the unit that could conquer somewhere else. The fight
+    // above is settled first, so a unit required there is not the one sent away.
     std::vector<BattlefieldId> empty;
     for (const auto& bf : state.battlefields) {
         if (sideMightAt(state, opponent(player), bf.id) > 0) continue;
+        if (alreadyScored(state, player, bf.id)) continue;
         bool ours = false;
         for (const auto& b : bodies)
             if (b.at == bf.id) ours = true;
