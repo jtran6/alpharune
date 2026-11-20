@@ -81,7 +81,12 @@ public:
                            const std::vector<GameObjectId>& /*targets*/) {}
 
     // ── Permanent enters board ──
-    /// Called when this permanent (unit/gear) enters the board from play.
+    /// Called as this permanent is played, before it is put on the chain: a
+    /// play from hand (GameEngine::executePlayCard), a play from facedown
+    /// (executePlayFromHidden), and an effect play (EffectExecutor::
+    /// playIgnoringCost / playPayingCost). Hiding is not a play and does not
+    /// call it (CR 811.1.c.1). "When you play me" is a trigger, announced
+    /// once the permanent has entered.
     virtual void onPlay(CardContext& /*ctx*/) {}
     /// "As you play me, choose / name ..." (CR 355.1): the choice made as the
     /// card is played, before its cost — no chain item, no priority window.
