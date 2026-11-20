@@ -5830,8 +5830,19 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
     // Unpaid, the card stays where it is.
     Card::PlayCostAdjust ignoring_base;
     ignoring_base.ignore_cost = true;
+    // A target named by this play still owes its [Deflect] (CR 809), paid as
+    // the spell goes on the chain. That [A] and the increase are one payment
+    // (payCardCost's extra): one rune cannot cover both, and the increase is
+    // not taken when the Deflect would then be dropped.
+    int deflect_with_the_cost = 0;
+    if (card.card_def_id != kInvalidId) {
+        const Card* played = card_registry_.get(card.card_def_id);
+        if (!played || !played->ignoresDeflect())
+            for (auto t : intent.targets)
+                deflect_with_the_cost += deflectCostFor(state_, intent.player, t);
+    }
     if (card.card_def_id != kInvalidId &&
-        !payCardCost(intent.player, intent.card, ignoring_base))
+        !payCardCost(intent.player, intent.card, ignoring_base, deflect_with_the_cost))
         return;
     auto bf_id = card.hidden_at;
     auto& bf = getBattlefield(bf_id);
@@ -6790,9 +6801,10 @@ std::vector<std::vector<GameObjectId>> spellTargetSets(
 // tied to that battlefield, target by target (CR 811.1.d.2, .4).
 // A card played from facedown ignores its base cost (CR 811). A cost increase
 // is still owed (CR 356.1.b.3; executePlayFromHidden pays it), so a play that
-// cannot pay the increase is not offered. What a target adds — its Deflect —
-// is on top of that, and Card::enumerateLegalTargets already leaves out a
-// target whose Deflect the player cannot pay.
+// cannot pay the increase is not offered. A target's [Deflect] (CR 809) is
+// the same payment: enumerateLegalTargets keeps a unit the pool can pay for
+// on its own, and the set is offered only when that [Deflect] and the
+// increase can be paid together.
 void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_type,
                                            std::vector<Intent>& actions) const {
     const auto& ps = state_.player(player);
@@ -6824,11 +6836,12 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
             if (card.isUnit() && bf.blocks_unit_play && ps.next_unit_any_battlefield <= 0)
                 continue;
             // The printed Energy and Power are ignored. The increase is not.
-            if (card.card_def_id != kInvalidId) {
-                Card::PlayCostAdjust ignoring_base;
-                ignoring_base.ignore_cost = true;
-                if (!canAffordWith(player, card_id, 0, ignoring_base)) continue;
-            }
+            // A target's [Deflect] is judged with it, per set, below.
+            Card::PlayCostAdjust ignoring_base;
+            ignoring_base.ignore_cost = true;
+            if (card.card_def_id != kInvalidId &&
+                !canAffordWith(player, card_id, 0, ignoring_base))
+                continue;
 
             if (card.card_def_id != kInvalidId && card.isSpell()) {
                 Card* card_obj = card_registry_.get(card.card_def_id);
@@ -6871,6 +6884,14 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
                                     !card_obj->hiddenTargetFreeOfBattlefield(
                                         static_cast<int>(slot))) { ok = false; break; }
                             if (!ok) continue;
+                            // The showdown increase and this set's [Deflect]
+                            // come out of one pool (CR 356.1.b.3, CR 809).
+                            int deflect = 0;
+                            if (!card_obj->ignoresDeflect())
+                                for (auto t : tset)
+                                    deflect += deflectCostFor(state_, player, t);
+                            if (!canAffordWith(player, card_id, deflect, ignoring_base))
+                                continue;
                             Intent play;
                             play.type = intent_type;
                             play.player = player;
