@@ -6,6 +6,10 @@
 /// of that board picture, so a line that scores beats a line that spends a
 /// card to shrink a friendly unit.
 ///
+/// A fight one side has already won is that whole combat term. Extra Might
+/// piled past the win does not outrank a second battlefield that is also
+/// won, which is a second conquer.
+///
 /// A legend that pays Might while a unit defends alone (Wuju Bladesman -
 /// Starter: "While a friendly unit defends alone, it gets +2 [M].") is
 /// counted on that one defender. An extra body that the bonus already

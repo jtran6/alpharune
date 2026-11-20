@@ -4,6 +4,7 @@
 #include "cards/card_registry.h"
 #include "core/game_object.h"
 #include "core/game_state.h"
+#include "engine/resource_payment.h"
 
 #include <algorithm>
 #include <cctype>
@@ -73,6 +74,13 @@ std::optional<Placement> placementOf(const GameState& state, const Intent& in) {
     if (in.type == IntentType::StandardMove && in.move_destination &&
         in.units_to_move.size() == 1) {
         return Placement{in.units_to_move.front(),
+                         battlefieldOf(*in.move_destination)};
+    }
+    // A unit joining a standard move (the destination is stamped on the
+    // choice). "Move no more units" names nobody.
+    if (in.type == IntentType::MakeChoice && in.move_destination &&
+        in.chosen_objects.size() == 1) {
+        return Placement{in.chosen_objects.front(),
                          battlefieldOf(*in.move_destination)};
     }
     return std::nullopt;
@@ -174,6 +182,187 @@ void coverDefense(std::vector<Body>& bodies, BattlefieldId bf, int enemy,
     }
 }
 
+struct Fight {
+    BattlefieldId bf = kInvalidId;
+    int enemy = 0;
+    int present = 0;
+};
+
+int mightOn(const std::vector<Body>& bodies, BattlefieldId bf) {
+    int sum = 0;
+    for (const auto& b : bodies)
+        if (!b.free && b.at == bf) sum += b.might;
+    return sum;
+}
+
+bool alreadyScored(const GameState& state, PlayerId player, BattlefieldId bf) {
+    return state.player(player).battlefields_scored_this_turn.count(bf) != 0;
+}
+
+/// Control gained of a battlefield not yet scored this turn (CR 471.1, 472).
+/// One this player already controls is a hold or a defense, not a conquer.
+bool conquerTarget(const GameState& state, PlayerId player, BattlefieldId bf) {
+    if (!bf.valid() || bf.raw() >= state.battlefields.size()) return false;
+    if (state.battlefields[bf].controller == player) return false;
+    return !alreadyScored(state, player, bf);
+}
+
+void place(Body& b, BattlefieldId bf) {
+    b.free = false;
+    b.at = bf;
+    b.needed = false;
+}
+
+/// Smallest free unit whose Might is strictly greater than `gap`.
+int soloCover(const std::vector<Body>& bodies, int gap) {
+    int pick = -1;
+    for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
+        if (!bodies[i].free || bodies[i].might <= gap) continue;
+        if (pick < 0 || bodies[i].might < bodies[pick].might ||
+            (bodies[i].might == bodies[pick].might && bodies[i].id < bodies[pick].id))
+            pick = i;
+    }
+    return pick;
+}
+
+int largestFree(const std::vector<Body>& bodies) {
+    int pick = -1;
+    for (int i = 0; i < static_cast<int>(bodies.size()); ++i) {
+        if (!bodies[i].free) continue;
+        if (pick < 0 || bodies[i].might > bodies[pick].might ||
+            (bodies[i].might == bodies[pick].might && bodies[i].id < bodies[pick].id))
+            pick = i;
+    }
+    return pick;
+}
+
+int freeMight(const std::vector<Body>& bodies) {
+    int sum = 0;
+    for (const auto& b : bodies)
+        if (b.free) sum += b.might;
+    return sum;
+}
+
+/// One unit covers a fight when the Might there is strictly greater than the
+/// enemy's. A tie leaves nobody, and that is not a conquer (CR 468.3.d,
+/// 468.5.b). Spares take those conquers one battlefield at a time, easiest
+/// first. Units that cannot add a conquer then stack on the first fight.
+void sendSparesToConquers(std::vector<Body>& bodies, const GameState& state,
+                          PlayerId player, int bonus) {
+    std::vector<Fight> fights;
+    for (const auto& bf : state.battlefields) {
+        if (bonus > 0 && defendsBattlefield(state, player, bf.id)) continue;
+        const int enemy = sideMightAt(state, opponent(player), bf.id);
+        if (enemy <= 0) continue;
+        fights.push_back(Fight{bf.id, enemy, mightOn(bodies, bf.id)});
+    }
+
+    auto easier = [&](int a, int b) {
+        const int ga = fights[a].enemy - fights[a].present;
+        const int gb = fights[b].enemy - fights[b].present;
+        if (ga != gb) return ga < gb;
+        return fights[a].bf < fights[b].bf;
+    };
+
+    std::vector<int> open;
+    for (int i = 0; i < static_cast<int>(fights.size()); ++i) {
+        if (fights[i].present > fights[i].enemy) continue;
+        if (!conquerTarget(state, player, fights[i].bf)) continue;
+        open.push_back(i);
+    }
+    std::stable_sort(open.begin(), open.end(), easier);
+    for (int fi : open) {
+        const int pick = soloCover(bodies, fights[fi].enemy - fights[fi].present);
+        if (pick < 0) continue;
+        place(bodies[pick], fights[fi].bf);
+        fights[fi].present += bodies[pick].might;
+    }
+
+    // A fight one unit could not take, that the units still free can take
+    // together. Only until it is covered, so the rest can conquer elsewhere.
+    for (int guard = static_cast<int>(bodies.size()); guard > 0; --guard) {
+        int best = -1;
+        for (int i = 0; i < static_cast<int>(fights.size()); ++i) {
+            if (fights[i].present > fights[i].enemy) continue;
+            if (!conquerTarget(state, player, fights[i].bf)) continue;
+            if (fights[i].present + freeMight(bodies) <= fights[i].enemy) continue;
+            if (best < 0 || easier(i, best)) best = i;
+        }
+        if (best < 0) break;
+        int steps = static_cast<int>(bodies.size());
+        while (fights[best].present <= fights[best].enemy && steps-- > 0) {
+            const int pick = largestFree(bodies);
+            if (pick < 0 || bodies[pick].might <= 0) break;
+            place(bodies[pick], fights[best].bf);
+            fights[best].present += bodies[pick].might;
+        }
+    }
+
+    for (const auto& f : fights) {
+        bool joined = false;
+        for (auto& b : bodies) {
+            if (!b.free) continue;
+            place(b, f.bf);
+            joined = true;
+        }
+        if (joined) break;
+    }
+}
+
+/// Might of the units `assigned` put at `bf`, other than `except`. Strictly
+/// greater than the enemy's Might is a fight one unit already covers.
+bool coveredWithout(const GameState& state, PlayerId player,
+                    const Assignment& assigned, BattlefieldId bf,
+                    GameObjectId except) {
+    int ours = 0;
+    bool any = false;
+    for (const auto& post : assigned.posts) {
+        if (post.id == except || post.battlefield != bf) continue;
+        if (!state.objectExists(post.id)) continue;
+        any = true;
+        ours += unitMight(state.getObject(post.id));
+    }
+    if (!any) return false;
+    return ours > sideMightAt(state, opponent(player), bf);
+}
+
+/// A card in hand or the Champion Zone conquers only if it is played. The
+/// Main Phase omits the play when the printed cost and an alternative cost
+/// both fail. A discount that exists only at one battlefield is not asked
+/// here: a card we cannot see a way to pay for is not posted, and its play
+/// stays in the legal list.
+bool canPlayUnitNow(const GameState& state, PlayerId player, const GameObject& obj,
+                    const CardRegistry* cards) {
+    if (!cards || obj.card_def_id == kInvalidId) return false;
+    if (state.player(player).cant_play_cards_this_turn) return false;
+    const Card* card = cards->get(obj.card_def_id);
+    if (!card || !card->canBePlayed(state, player)) return false;
+
+    const CardDef& def = card->def();
+    const auto& ps = state.player(player);
+    const bool ignore_energy = ps.transient_ignore_energy ||
+        obj.card_counters.find("__ignore_energy") != obj.card_counters.end();
+    const bool ignore_power = ps.transient_ignore_power;
+    int energy = ps.transient_replace_energy >= 0 ? ps.transient_replace_energy
+                                                  : def.energy_cost;
+    int power = ps.transient_replace_power >= 0 ? ps.transient_replace_power
+                                                : def.power_cost;
+    if (ignore_energy) energy = 0;
+    if (ignore_power) power = 0;
+    energy = std::max(0, energy - card->selfCostReduction(state, player));
+    power = std::max(0, power - card->selfPowerCostReduction(state, player));
+    if (resource::canPayIn(state, player, energy, power, resource::maskOf(def.domains),
+                           SpendFor::PlayUnit))
+        return true;
+
+    const auto alt = card->alternativePlayCost(state, player);
+    if (!alt.valid) return false;
+    const auto mask = alt.any_domain ? resource::kAnyDomain
+                                     : resource::maskOf(alt.power_domain);
+    return resource::canPayIn(state, player, alt.energy, alt.power, mask,
+                              SpendFor::PlayUnit);
+}
+
 }  // namespace
 
 int defendAloneBonus(const GameState& state, PlayerId player,
@@ -220,7 +409,11 @@ Assignment assignUnits(const GameState& state, PlayerId player,
         const ZoneType zone = obj.zone.get();
         const bool in_hand = zone == ZoneType::Hand || zone == ZoneType::ChampionZone;
         const bool at_base = obj.isAtBase() && !obj.is_exhausted && !obj.cant_move_this_turn;
-        if (!in_hand && !at_base) continue;
+        if (in_hand) {
+            if (!canPlayUnitNow(state, player, obj, cards)) continue;
+        } else if (!at_base) {
+            continue;
+        }
         bodies.push_back(Body{id, unitMight(obj), std::nullopt, std::nullopt, true, false});
     }
 
@@ -233,11 +426,13 @@ Assignment assignUnits(const GameState& state, PlayerId player,
     }
 
     // A spare unit holds a battlefield we already control, then conquers an
-    // empty one. The fight above is settled first, so a unit required there
-    // is not the one sent away.
+    // empty one. One already scored this turn is not a point (CR 472), so
+    // it does not take the unit that could conquer somewhere else. The fight
+    // above is settled first, so a unit required there is not the one sent away.
     std::vector<BattlefieldId> empty;
     for (const auto& bf : state.battlefields) {
         if (sideMightAt(state, opponent(player), bf.id) > 0) continue;
+        if (alreadyScored(state, player, bf.id)) continue;
         bool ours = false;
         for (const auto& b : bodies)
             if (b.at == bf.id) ours = true;
@@ -263,21 +458,8 @@ Assignment assignUnits(const GameState& state, PlayerId player,
         bodies[pick].needed = false;
     }
 
-    // The printed bonus does not apply to an attack, or at all when the
-    // legend does not give it. A second unit may join that fight.
-    for (const auto& bf : state.battlefields) {
-        if (out.bonus > 0 && defendsBattlefield(state, player, bf.id)) continue;
-        if (sideMightAt(state, opponent(player), bf.id) <= 0) continue;
-        bool joined = false;
-        for (auto& b : bodies) {
-            if (!b.free) continue;
-            b.free = false;
-            b.at = bf.id;
-            b.needed = false;
-            joined = true;
-        }
-        if (joined) break;
-    }
+    // A second unit stacks on a fight only when it cannot conquer elsewhere.
+    sendSparesToConquers(bodies, state, player, out.bonus);
 
     out.posts.reserve(bodies.size());
     for (const auto& b : bodies)
@@ -300,8 +482,8 @@ std::vector<Intent> keepBattlefieldAssignment(const GameState& state,
     if (legal.empty()) return legal;
     const PlayerId player = legal.front().player;
     if (player != PlayerId::Player1 && player != PlayerId::Player2) return legal;
-    if (defendAloneBonus(state, player, &cards) <= 0) return legal;
 
+    const int bonus = defendAloneBonus(state, player, &cards);
     const Assignment assigned = assignUnits(state, player, &cards);
     std::vector<Intent> kept;
     kept.reserve(legal.size());
@@ -318,14 +500,23 @@ std::vector<Intent> keepBattlefieldAssignment(const GameState& state,
             kept.push_back(in);
             continue;
         }
-        const bool onto_defense =
-            placed->battlefield &&
-            defendsBattlefield(state, player, *placed->battlefield);
-        // A second body on a battlefield the bonus already covers.
-        if (onto_defense && post->battlefield != placed->battlefield) continue;
-        // The unit is the one that keeps the enemy from living.
-        if (post->needed && post->battlefield &&
-            placed->battlefield != post->battlefield)
+        if (bonus > 0) {
+            const bool onto_defense =
+                placed->battlefield &&
+                defendsBattlefield(state, player, *placed->battlefield);
+            // A second body on a battlefield the bonus already covers.
+            if (onto_defense && post->battlefield != placed->battlefield) continue;
+            // The unit is the one that keeps the enemy from living.
+            if (post->needed && post->battlefield &&
+                placed->battlefield != post->battlefield)
+                continue;
+        }
+        // Stacking onto a battlefield already conquered, or that one assigned
+        // unit already covers, when this unit was sent to conquer another.
+        if (placed->battlefield && post->battlefield &&
+            *placed->battlefield != *post->battlefield &&
+            (alreadyScored(state, player, *placed->battlefield) ||
+             coveredWithout(state, player, assigned, *placed->battlefield, placed->unit)))
             continue;
         kept.push_back(in);
     }

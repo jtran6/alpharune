@@ -512,7 +512,8 @@ const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
     return rg ? &rg->cardRegistry() : nullptr;
 }
 
-/// searchCandidates, then the defend-alone assignment. Friendly-harm pruning
+/// searchCandidates, then the battlefield assignment (defend-alone, and not
+/// stacking a unit that could conquer somewhere else). Friendly-harm pruning
 /// stays in front: a line it drops is not put back by the assignment filter.
 std::vector<Intent> linesWorthSearching(const GameState& state,
                                         const std::vector<Intent>& legal,

@@ -9,7 +9,19 @@
 /// conquers, it holds another battlefield, it is required to survive a combat
 /// the single unit would lose, or the printed bonus does not apply. Stacking
 /// with none of those reasons is dropped from the lines the search expands.
-/// The rules engine's legal list is unchanged.
+///
+/// Offense is the same choice in the other direction. A conquer is gaining
+/// control of a battlefield this player has not scored this turn (CR 471.1,
+/// 472), and one unit covers a fight when its Might is strictly greater than
+/// the enemy's — a tie leaves nobody, which is not a conquer (CR 468.3.d,
+/// 468.5.b). When two battlefields can be conquered this turn, one unit goes
+/// to each. Stacking a second unit on a battlefield that is already conquered,
+/// or that one unit already covers, is dropped when that unit could conquer
+/// somewhere else. A unit that cannot conquer anywhere else still stacks.
+/// A card in hand, or the Chosen Champion, is one of those units only when
+/// the player can pay to play it. A card that stays in hand is not a unit
+/// remaining, so it does not conquer (CR 468.5). The rules engine's legal
+/// list is unchanged.
 
 #include "core/intent.h"
 
@@ -68,11 +80,13 @@ Assignment assignUnits(const GameState& state, PlayerId player,
 std::vector<GameObjectId> assignedUnits(const Assignment& assignment,
                                         BattlefieldId bf);
 
-/// Plays and standard moves that put a unit where `assignUnits` does not,
-/// when the defend-alone bonus is why it stays off. A unit the assignment
-/// needs at a battlefield keeps that placement. Spells, passes and choices
-/// stay. When the printed bonus does not apply, `legal` is returned as it
-/// is. An empty result is put back: a pass is not withheld.
+/// Plays and standard moves that put a unit where `assignUnits` does not.
+/// Dropped: a second body on a battlefield the defend-alone bonus already
+/// covers, a move off a post the assignment marked needed, and a move onto
+/// a battlefield that is already conquered or that one assigned unit already
+/// covers when this unit was sent to conquer another. A join of a standard
+/// move is the same placement. Spells, passes and other choices stay. An
+/// empty result is put back: a pass is not withheld.
 std::vector<Intent> keepBattlefieldAssignment(const GameState& state,
                                               const std::vector<Intent>& legal,
                                               const CardRegistry& cards);
