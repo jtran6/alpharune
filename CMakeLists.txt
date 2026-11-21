@@ -683,6 +683,8 @@ target_link_libraries(riftbound_tests PRIVATE
     riftbound_core
     GTest::gtest_main
 )
+# AlphaAgent.IsSelectableAndPlaysALegalGame seats the agent through this binary.
+add_dependencies(riftbound_tests riftbound)
 
 # The tests parse the same engine headers plus GoogleTest and the shared card
 # fixture; they get their own PCH (different include paths and definitions

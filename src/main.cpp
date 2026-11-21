@@ -23,6 +23,11 @@
 ///                       runs in a world drawn from what the player knows
 ///                       (agents/determinizer.h); world=perfect searches the
 ///                       real game and sees hidden cards
+///   alpha[:sims=N][,world=sampled|perfect]
+///                     — the same honest search as ismcts, for a seat in a
+///                       real game. Omitting sims uses AlphaAgent::kDefaultSims
+///                       (50), the ismcts:sims=50 matchup budget. Answers are
+///                       taken from the actions the engine offers.
 /// (agents/mcts_agent.{h,cpp}; keep this and the --help text below in step
 /// with that file.)
 ///
@@ -189,11 +194,21 @@ void dumpRegistry(const CardDB& db, const std::string& path) {
 
 struct AgentSpec {
     std::string raw;       // original spec string
-    std::string kind;      // "random", "random-player", "human", "mcts", "ismcts"
-    int sims = 0;          // populated for mcts/ismcts
-    bool perfect_world = false;   // ismcts: world=perfect (sees hidden cards)
+    std::string kind;      // "random", "random-player", "human", "mcts", "ismcts", "alpha"
+    int sims = 0;          // populated for mcts/ismcts/alpha
+    bool sims_set = false; // alpha omits this and uses AlphaAgent::kDefaultSims
+    bool perfect_world = false;   // ismcts/alpha: world=perfect (sees hidden cards)
     double pass = kDefaultPassProbability;   // random-player: how often it passes when it could act
 };
+
+bool isSearchAgent(const std::string& kind) {
+    return kind == "mcts" || kind == "ismcts" || kind == "alpha";
+}
+
+/// ismcts and alpha draw worlds; mcts searches the real position only.
+bool agentTakesWorld(const std::string& kind) {
+    return kind == "ismcts" || kind == "alpha";
+}
 
 AgentSpec parseAgentSpec(const std::string& s) {
     AgentSpec out;
@@ -206,30 +221,30 @@ AgentSpec parseAgentSpec(const std::string& s) {
             colon == std::string::npos ? std::string() : s.substr(colon + 1));
         return out;
     }
-    if (out.kind != "random" && out.kind != "human" &&
-        out.kind != "mcts" && out.kind != "ismcts") {
+    if (out.kind != "random" && out.kind != "human" && !isSearchAgent(out.kind)) {
         throw std::runtime_error(
             "Unknown agent kind '" + out.kind + "'. Expected one of: "
-            "random, random-player, human, mcts, ismcts.");
+            "random, random-player, human, mcts, ismcts, alpha.");
     }
-    const bool search = (out.kind == "mcts" || out.kind == "ismcts");
+    const bool search = isSearchAgent(out.kind);
     if (colon != std::string::npos) {
         auto rest = s.substr(colon + 1);
         // key=value pairs separated by commas: sims=N, and for ismcts
-        // world=sampled|perfect.
+        // and alpha world=sampled|perfect.
         size_t i = 0;
         while (i < rest.size()) {
             auto eq    = rest.find('=', i);
             auto comma = rest.find(',', i);
             if (comma == std::string::npos) comma = rest.size();
             auto key = rest.substr(i, std::min(eq, comma) - i);
-            const bool world_key = out.kind == "ismcts" && key == "world";
+            const bool world_key = agentTakesWorld(out.kind) && key == "world";
             if (!search || (key != "sims" && !world_key) || eq == std::string::npos || eq > comma) {
                 throw std::runtime_error(
                     "Agent spec '" + s + "': unrecognised option '" +
                     rest.substr(i, comma - i) + "'." +
-                    (search ? (out.kind == "ismcts" ? " Expected sims=N or world=sampled|perfect."
-                                                    : " Expected sims=N.")
+                    (search ? (agentTakesWorld(out.kind)
+                                   ? " Expected sims=N or world=sampled|perfect."
+                                   : " Expected sims=N.")
                             : " '" + out.kind + "' takes no options."));
             }
             auto val = rest.substr(eq + 1, comma - eq - 1);
@@ -247,11 +262,14 @@ AgentSpec parseAgentSpec(const std::string& s) {
                 throw std::runtime_error(
                     "Agent spec '" + s + "': sims must be a whole number, got '" + val + "'.");
             }
+            out.sims_set = true;
             i = comma + 1;
         }
     }
-    // Checked whether or not the spec had a ':' — a bare "mcts" used to slip
-    // through with sims=0.
+    // A bare "alpha" is the matchup seat: honest search, 50 simulations.
+    // mcts and ismcts still require an explicit sims=N (a bare "mcts" used
+    // to slip through with sims=0).
+    if (out.kind == "alpha" && !out.sims_set) out.sims = AlphaAgent::kDefaultSims;
     if (search && out.sims <= 0) {
         throw std::runtime_error(
             "Agent '" + out.kind + "' requires sims=N with N > 0 (e.g. " +
@@ -292,12 +310,15 @@ std::unique_ptr<AgentInterface> buildAgent(const AgentSpec& spec,
         return std::make_unique<MctsAgent>(deck1, deck2, registry,
                                             game_seed, derived_seed, spec.sims, format);
     }
-    if (spec.kind == "ismcts") {
+    if (spec.kind == "ismcts" || spec.kind == "alpha") {
+        const auto world = spec.perfect_world ? IsMctsAgent::WorldModel::Perfect
+                                              : IsMctsAgent::WorldModel::Sampled;
+        if (spec.kind == "alpha") {
+            return std::make_unique<AlphaAgent>(
+                deck1, deck2, registry, game_seed, derived_seed, spec.sims, world, format);
+        }
         return std::make_unique<IsMctsAgent>(
-            deck1, deck2, registry, game_seed, derived_seed, spec.sims,
-            spec.perfect_world ? IsMctsAgent::WorldModel::Perfect
-                               : IsMctsAgent::WorldModel::Sampled,
-            format);
+            deck1, deck2, registry, game_seed, derived_seed, spec.sims, world, format);
     }
     throw std::runtime_error("Unsupported agent spec '" + spec.raw + "'");
 }
@@ -376,6 +397,14 @@ int main(int argc, char* argv[]) {
         "                    agent searches from a copy of the live state at\n"
         "                    main-phase decisions only and answers every\n"
         "                    other decision at random.\n"
+        "  alpha[:sims=N][,world=sampled|perfect]\n"
+        "                    The same honest information-set search as ismcts,\n"
+        "                    for seating an opponent in a real game. With no\n"
+        "                    sims, N is 50 (the ismcts:sims=50 matchup budget).\n"
+        "                    world=sampled (default) draws each simulation from\n"
+        "                    what the player knows. world=perfect searches the\n"
+        "                    real hidden cards. It plays one of the actions the\n"
+        "                    engine already offers.\n"
         "\n"
         "Common invocations:\n"
         "  ./riftbound --deck-breakdown D.txt\n"
@@ -384,6 +413,8 @@ int main(int argc, char* argv[]) {
         "      (default: random vs random, one game, stdout only)\n"
         "  ./riftbound --deck1 ... --deck2 ... --agent1 human\n"
         "      (browser UI on http://127.0.0.1:8080; auto-replay)\n"
+        "  ./riftbound --deck1 D1.txt --deck2 D2.txt --agent1 human --agent2 alpha\n"
+        "      (play a deck file against the default alpha seat)\n"
         "  ./riftbound --deck1 ... --deck2 ... --agent1 random --agent2 mcts:sims=50\n"
         "      (single game, watch MCTS-50 vs random in stdout)\n"
         "  ./riftbound --deck1 ... --deck2 ... --games 100 --threads 8\n"
@@ -407,10 +438,10 @@ int main(int argc, char* argv[]) {
          "(validation/export tool; does not require decks)")
         ("agent1", po::value<std::string>()->default_value("random"),
          "Player 1 agent spec (see top of --help for full descriptions). "
-         "One of: random | random-player[:pass=P] | human | mcts:sims=N | ismcts:sims=N[,world=sampled|perfect]")
+         "One of: random | random-player[:pass=P] | human | mcts:sims=N | ismcts:sims=N[,world=sampled|perfect] | alpha[:sims=N][,world=sampled|perfect]")
         ("agent2", po::value<std::string>()->default_value("random"),
          "Player 2 agent spec (see top of --help for full descriptions). "
-         "One of: random | random-player[:pass=P] | human | mcts:sims=N | ismcts:sims=N[,world=sampled|perfect]")
+         "One of: random | random-player[:pass=P] | human | mcts:sims=N | ismcts:sims=N[,world=sampled|perfect] | alpha[:sims=N][,world=sampled|perfect]")
         ("web", po::value<std::string>()->default_value("auto"),
          "Web UI mode: auto (default — ON if any seat is human, else OFF), "
          "on (force ON: with no human seat this is spectator mode), off. "
