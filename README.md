@@ -182,17 +182,23 @@ real hidden cards instead.
 
 ## Play-by-play PDF
 
-`scripts/play_by_play_pdf.py` is the play-by-play PDF exporter. It reads
-the text a game prints and writes one document a person can scan: whose
-turn, the score, the runes at the start and at the end, each move, each
-play with what was paid, a combat in its own box (who fought, then who
-took damage), and a conquer or a hold marked as the result. The lines are
-the engine's lines. A line that names a card shows that card's picture
-from the card class, beside the line: the card played and what it was
-played on, the unit that moved, the battlefield conquered or held, the
-units in a combat, and the cards in the mulligan. This script is the
-layout. A later export that turns the text into a bullet list is the old
-layout.
+`scripts/play_by_play_pdf.py` is the play-by-play PDF exporter. `write_pdf`
+is the layout. A later export calls it.
+
+A turn is a card you can read at a glance. The header names whose turn it
+is, the score, and the runes at the start and at the end. Under that, the
+engine's lines stay in order, and type and space separate them. A play is
+its own line, and the cost is marked, Accelerate included when it was
+paid. A move is quieter. A conquer or a hold is a result band. A combat is
+a box: who fought, then who took damage. A hide stays on its line. A
+facedown play still says it was from face down. A unit still names the
+player who controls it, in parentheses.
+
+A line that names a card shows that card's picture from the card class,
+beside the line: the card played and what it was played on, the unit that
+moved, the battlefield conquered or held, the units in a combat, and the
+cards in the mulligan. The pictures are not gathered into a gallery. A
+picture that cannot be fetched is left out. The words stay.
 
 ```bash
 ./build/riftbound \
@@ -203,9 +209,9 @@ layout.
 ```
 
 `python3 scripts/play_by_play_pdf.py --self-check` checks that a wrapped
-line stays inside its turn and that a combat box does not run into the
-next line. It needs `reportlab` and `pymupdf`, which are not engine
-dependencies.
+line stays inside its turn, that a combat box does not run into the next
+line, and that a card picture sits beside its line. It needs `reportlab`
+and `pymupdf`, which are not engine dependencies.
 
 ## Tournament lists
 
@@ -350,7 +356,7 @@ python3 scripts/fetch_cards.py
 | `scripts/card_coverage.py` | Classify every `src/cards/<type>/<id>_<slug>.cpp` (implemented / metadata-only / stub / vanilla) and its in-code gap comments; exits non-zero while any card is a stub. `--write-lists` refreshes `docs/card-coverage/`. |
 | `scripts/generate_replays.py` | Run `build/riftbound --render-html on` once per deck pair under `decks/` (the binary plays one pair per run) and file the HTML replays per pair. Visual V&V after card changes. |
 | `scripts/rules_to_md.py` | Regenerate `rules/core-rules.md` from the rules PDF. |
-| `scripts/play_by_play_pdf.py` | The play-by-play PDF exporter. Reads the text a game prints and writes the scannable turn layout, with the picture of each card a line is about. |
+| `scripts/play_by_play_pdf.py` | The play-by-play PDF exporter. `write_pdf` is the layout: whose turn, the score, the runes, the marked cost, the combat, and a conquer or a hold, with each card's picture beside its line. |
 
 ## Repository layout
 
