@@ -909,8 +909,10 @@ TEST_F(SignatureDefectTest, AlphaStrike_AnElderDragonKillGrantsXp) {
     EXPECT_EQ(state.player(P1).xp, 1);
 }
 
-// One Zhonya's Hourglass, two units this spell leaves lethal. The gear saves
-// one. The other dies in that cleanup and grants 1 XP.
+// One Zhonya's Hourglass, two units this spell leaves lethal. The gear
+// replaces one death and does not heal, so that unit dies in the next pass
+// of the same cleanup from the damage the recall left. That replaced death
+// grants no XP. The other death does.
 TEST_F(SignatureDefectTest, AlphaStrike_ZhonyasSecondUnitGrantsXp) {
     auto striker = addUnit(P1, kInvalidId, 2);
     auto first = addUnit(P2, kInvalidId, 1, 0);
@@ -920,15 +922,18 @@ TEST_F(SignatureDefectTest, AlphaStrike_ZhonyasSecondUnitGrantsXp) {
     EnginePathAgent p1(splitAndDecline());
     EnginePathAgent p2;
     play(spell, &p1, &p2, true, {striker});
-    int dead = 0, saved = 0;
+    int dead = 0, recalled = 0;
     for (auto id : {first, second}) {
-        if (o(id).location.has_value()) ++saved;
-        else ++dead;
+        EXPECT_FALSE(o(id).location.has_value());
+        ++dead;
+        if (o(id).last_location.has_value() &&
+            std::holds_alternative<BaseLocation>(*o(id).last_location))
+            ++recalled;
     }
-    EXPECT_EQ(saved, 1) << "the gear saves one";
-    EXPECT_EQ(dead, 1) << "the other dies";
+    EXPECT_EQ(dead, 2);
+    EXPECT_EQ(recalled, 1) << "one death was recalled before the damage killed it";
     EXPECT_EQ(o(glass).zone.get(), ZoneType::Trash);
-    EXPECT_EQ(state.player(P1).xp, 1);
+    EXPECT_EQ(state.player(P1).xp, 1) << "the replaced death grants no XP";
 }
 
 // Saving the first buffed unit exhausts The Boss. The second then dies and

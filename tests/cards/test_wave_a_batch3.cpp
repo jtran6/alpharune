@@ -3,7 +3,7 @@
 ///
 ///   290 Vilemaw's Lair        — BF: "Units can't move from here to base"
 ///                               (engine-handled: blocks_move_to_base)
-///   77  Zhonya's Hourglass     — friendly-death replacement (heal/exhaust/recall)
+///   77  Zhonya's Hourglass     — friendly-death replacement (exhaust/recall, damage kept)
 ///   736 Shard of Undoing       — first friendly death in your Beginning Phase
 ///                               => each opponent kills one of their units
 ///   12  Noxus Hopeful          — [Legion] I cost [2] less
@@ -64,10 +64,47 @@ TEST_F(WaveABatch3Test, ZhonyasReplacesFriendlyDeath) {
     EXPECT_TRUE(applied);
     // Gear killed instead.
     EXPECT_EQ(state.getObject(gear).zone, ZoneType::Trash);
-    // Victim healed (damage cleared), exhausted, recalled to base.
-    EXPECT_EQ(state.getObject(victim).damage_marked, 0);
+    // Recalled exhausted. The printed line does not heal, so the damage stays.
+    EXPECT_EQ(state.getObject(victim).damage_marked, 5);
     EXPECT_TRUE(state.getObject(victim).is_exhausted);
     EXPECT_TRUE(state.getObject(victim).isAtBase());
+    EXPECT_EQ(state.getObject(victim).moves_this_turn, 0) << "a recall is not a move (CR 458)";
+}
+
+// Through the engine: a kill that is not lethal damage. The unit is recalled
+// exhausted and keeps the damage it already had. The gallery prints "Recall
+// that unit exhausted," not a heal.
+TEST_F(WaveABatch3Test, ZhonyasRecallsExhaustedAndKeepsDamage) {
+    EXPECT_NE(card_db.get(kZhonyas).ability_text.find("Recall that unit exhausted"),
+              std::string::npos);
+    EXPECT_EQ(card_db.get(kZhonyas).ability_text.find("Heal that unit"), std::string::npos);
+
+    auto gear = addUnit(P1, kInvalidId, 1, 0);
+    auto& g = state.getObject(gear);
+    g.card_type = CardType::Gear;
+    g.card_def_id = kZhonyas;
+    g.name = "Zhonya's Hourglass";
+    g.location = BaseLocation{P1};
+    g.zone = ZoneType::Base;
+
+    auto victim = addUnit(P1, kInvalidId, 5, 0);   // 5 [M] at a battlefield
+    auto& v = state.getObject(victim);
+    v.damage_marked = 2;                            // not lethal
+    v.is_exhausted = false;
+
+    int moved = 0;
+    auto conn = events.on_unit_moved.connect([&](const UnitMovedEvent& e) {
+        if (e.object == victim) ++moved;
+    });
+    resolveThroughEngine([&](EffectExecutor& exec, GameState&) { exec.killObject(victim); });
+    conn.disconnect();
+
+    EXPECT_EQ(state.getObject(gear).zone, ZoneType::Trash) << "killed instead";
+    EXPECT_TRUE(state.getObject(victim).isAtBase()) << "recalled";
+    EXPECT_TRUE(state.getObject(victim).is_exhausted);
+    EXPECT_EQ(state.getObject(victim).damage_marked, 2) << "the recall does not heal";
+    EXPECT_EQ(state.getObject(victim).moves_this_turn, 0);
+    EXPECT_EQ(moved, 0) << "a recall is not a move (CR 457, 458)";
 }
 
 TEST_F(WaveABatch3Test, ZhonyasIgnoresEnemyDeath) {

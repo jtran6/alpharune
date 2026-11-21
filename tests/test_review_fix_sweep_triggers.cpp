@@ -2001,7 +2001,11 @@ TEST_F(SweepTriggersTest, DeathReplacements_TheControllerChoosesWhenSeveralApply
                &first);
     ASSERT_EQ(first.prompts.size(), 1u);
     EXPECT_EQ(first.prompts[0].size(), 2u);
+    // This hook does not run the cleanup that would find the damage still
+    // lethal. The replacement itself recalls and leaves the damage.
     EXPECT_TRUE(atBase(unit));
+    EXPECT_EQ(obj(unit).damage_marked, 5) << "recalled; the printed line does not heal";
+    EXPECT_TRUE(obj(unit).is_exhausted);
     EXPECT_FALSE(obj(zhonya).location.has_value());
     EXPECT_TRUE(obj(angel).location.has_value());
     EXPECT_EQ(obj(angel).attached_to, std::optional<GameObjectId>{unit}) << "recalled with its gear";

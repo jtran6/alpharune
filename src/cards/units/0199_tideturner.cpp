@@ -15,31 +15,31 @@ namespace {
 class Tideturner : public UnitCard {
 public:
     const CardDef& def() const override { return def_; }
-    // "When you play me, you may choose a unit you control at another
-    // location. Move me to its location and it to my original location."
-    // The "may" and the unit are decided as the ability goes on the chain
-    // (CR 383.3).
+    // "When you play me, you may choose a friendly unit. Move me to its
+    // location and it to my original location." A unit at my own location is
+    // a legal choice. The "may" and the unit are decided as the ability goes
+    // on the chain (CR 383.3).
     unsigned choicesAtFinalization() const override { return kFinalizeTrigger; }
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayMe; }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>& /*targets*/) override {
-        // Units I control somewhere other than where I am. Empty once I've
-        // left the board.
-        auto elsewhere = [&]() {
+        // Friendly units, including one at my own location. Empty once I've
+        // left the board. Not myself: the swap is with a unit I choose.
+        auto friendly = [&]() {
             std::vector<GameObjectId> out;
             const auto& self = ctx.state.getObject(ctx.source);
             if (!self.location.has_value()) return out;
             for (const auto& [id, obj] : ctx.state.objects.onBoard()) {
                 if (id == ctx.source || !obj.isUnit() || obj.controller != ctx.controller) continue;
-                if (!obj.location.has_value() || *obj.location == *self.location) continue;
+                if (!obj.location.has_value()) continue;
                 out.push_back(id);
             }
             std::sort(out.begin(), out.end());
             return out;
         };
         const int go = confirmOptional(ctx, "Tideturner: swap locations with a unit you control?",
-                                       [&]() { return !elsewhere().empty(); });
+                                       [&]() { return !friendly().empty(); });
         if (go < 1) return;                   // declined / nothing to choose / waiting
-        const GameObjectId t = pickTarget(ctx, "Tideturner: swap with which unit", elsewhere());
+        const GameObjectId t = pickTarget(ctx, "Tideturner: swap with which unit", friendly());
         if (finalizingChoices(ctx)) return;   // choices end here (CR 383.3)
         if (t == kInvalidId) return;          // none / mistarget / waiting
         const auto my_loc = ctx.state.getObject(ctx.source).location;
@@ -67,7 +67,7 @@ private:
         d.rarity = Rarity::Rare;
         d.keywords.set(Keyword::Hidden);
         d.ability_text = R"RB([Hidden] (Hide now for [A] to react with later for [0].)
-When you play me, you may choose a unit you control at another location. Move me to its location and it to my original location.)RB";
+When you play me, you may choose a friendly unit. Move me to its location and it to my original location.)RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/bad355dba8b32d1fba33dc3924cad6a34b61b5af-744x1039.png)RB";
         return d;
     }();
