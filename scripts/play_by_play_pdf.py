@@ -135,7 +135,10 @@ _THUMB_W = {
     "outcome": 30,
 }
 _ART_SHARE = {"combat": 0.56, "mulligan": 0.46}
+# A unit is 744 wide by 1039 tall. A battlefield is that card turned
+# sideways. Each picture is drawn at the file's own ratio.
 _CARD_RATIO = 1039 / 744
+_PIXEL_SIZE: dict[str, tuple[int, int]] = {}
 _NAME_RE = re.compile(r'\bd\.name\s*=\s*R"RB\((.*?)\)RB"', re.S)
 _URL_RE = re.compile(r'\bd\.image_url\s*=\s*R"RB\((.*?)\)RB"', re.S)
 _THUMB_CHROME = 2.4
@@ -647,14 +650,45 @@ def _pictures(kind: str, text: str, art: ArtCatalog | None) -> list[Path]:
     return paths
 
 
+def _pixel_size(path: Path) -> tuple[int, int]:
+    key = str(path)
+    if key not in _PIXEL_SIZE:
+        from PIL import Image as PilImage
+
+        with PilImage.open(path) as image:
+            _PIXEL_SIZE[key] = image.size
+    return _PIXEL_SIZE[key]
+
+
+def _draw_size(path: Path, thumb: float) -> tuple[float, float]:
+    """The short side is ``thumb``. The other side follows the file.
+
+    A portrait card stays as tall as it was. A battlefield, which is that
+    card on its side, comes out wide and short instead of squeezed into the
+    portrait frame.
+    """
+    width, height = _pixel_size(path)
+    if width <= 0 or height <= 0:
+        return thumb, thumb * _CARD_RATIO
+    if height >= width:
+        return thumb, thumb * (height / width)
+    return thumb * (width / height), thumb
+
+
+def _cell_width(draw_w: float) -> float:
+    return draw_w + _THUMB_CHROME + _THUMB_GAP
+
+
 def _picture_strip(paths: list[Path], thumb: float):
-    """One row of card pictures, each the size passed in."""
+    """One row of card pictures, each at its own aspect ratio."""
     if not paths:
-        return None
-    cell_w = thumb + _THUMB_CHROME + _THUMB_GAP
+        return None, 0.0
     cells = []
+    widths = []
     for path in paths:
-        image = Image(str(path), width=thumb, height=thumb * _CARD_RATIO, hAlign="LEFT")
+        draw_w, draw_h = _draw_size(path, thumb)
+        cell_w = _cell_width(draw_w)
+        image = Image(str(path), width=draw_w, height=draw_h, hAlign="LEFT")
         frame = Table([[image]], colWidths=[cell_w], hAlign="LEFT")
         frame.setStyle(
             TableStyle(
@@ -671,7 +705,8 @@ def _picture_strip(paths: list[Path], thumb: float):
             )
         )
         cells.append(frame)
-    row = Table([cells], colWidths=[cell_w] * len(cells), hAlign="LEFT")
+        widths.append(cell_w)
+    row = Table([cells], colWidths=widths, hAlign="LEFT")
     row.setStyle(
         TableStyle(
             [
@@ -683,14 +718,11 @@ def _picture_strip(paths: list[Path], thumb: float):
             ]
         )
     )
-    return row
+    return row, sum(widths)
 
 
-def _fit_thumb(count: int, preferred: float, budget: float) -> float:
-    if count <= 0:
-        return preferred
-    room = (budget - _THUMB_GAP * max(0, count - 1)) / count - _THUMB_CHROME
-    return max(14.0, min(preferred, room))
+def _strip_width(paths: list[Path], thumb: float) -> float:
+    return sum(_cell_width(_draw_size(path, thumb)[0]) for path in paths)
 
 
 def _beside(paragraph, pictures: list[Path], kind: str, width: float):
@@ -699,14 +731,16 @@ def _beside(paragraph, pictures: list[Path], kind: str, width: float):
         return paragraph
     share = _ART_SHARE.get(kind, 0.40)
     budget = min(width * share, max(56.0, width - 168.0))
-    thumb = _fit_thumb(len(pictures), _THUMB_W.get(kind, 28), budget)
-    cell_w = thumb + _THUMB_CHROME + _THUMB_GAP
-    art_w = cell_w * len(pictures)
-    if art_w > width - 150:
-        cell_w = (width - 150) / len(pictures)
-        thumb = max(14.0, cell_w - _THUMB_CHROME - _THUMB_GAP)
-        art_w = cell_w * len(pictures)
-    strip = _picture_strip(pictures, thumb)
+    thumb = float(_THUMB_W.get(kind, 28))
+    art_w = _strip_width(pictures, thumb)
+    limit = min(budget, width - 150)
+    if art_w > limit > 0:
+        thumb *= limit / art_w
+        art_w = _strip_width(pictures, thumb)
+    if art_w > width - 120 > 0:
+        thumb *= (width - 120) / art_w
+        art_w = _strip_width(pictures, thumb)
+    strip, art_w = _picture_strip(pictures, thumb)
     row = Table(
         [[strip, paragraph]],
         colWidths=[art_w, width - art_w],
@@ -1254,18 +1288,21 @@ def self_check() -> list[str]:
         problems.append("hide line was dropped")
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
-        swatch = tmp_path / "card.png"
-        _write_swatch(swatch)
+        portrait = tmp_path / "card.png"
+        landscape = tmp_path / "battlefield.png"
+        _write_swatch(portrait, (80, 112))
+        _write_swatch(landscape, (112, 80))
         # The fixture names these. Real exports use the card classes' pictures.
+        # Monument is a battlefield, so its picture is the landscape file.
         art = ArtCatalog(
             [
-                ("Charm", str(swatch)),
-                ("Discipline", str(swatch)),
-                ("Defiant Dance", str(swatch)),
-                ("Fiora, Grand Duelist", str(swatch)),
-                ("Monument of the Returned King", str(swatch)),
-                ("Tasty Faefolk", str(swatch)),
-                ("Blade of the Exile", str(swatch)),
+                ("Charm", str(portrait)),
+                ("Discipline", str(portrait)),
+                ("Defiant Dance", str(portrait)),
+                ("Fiora, Grand Duelist", str(portrait)),
+                ("Monument of the Returned King", str(landscape)),
+                ("Tasty Faefolk", str(portrait)),
+                ("Blade of the Exile", str(portrait)),
             ]
         )
         path = tmp_path / "layout.pdf"
@@ -1276,9 +1313,17 @@ def self_check() -> list[str]:
         doc = pymupdf.open(path)
         text = "".join(page.get_text() for page in doc).replace("\u00a0", " ")
         images = sum(len(page.get_images()) for page in doc)
+        aspects = _drawn_aspects(doc)
         doc.close()
         if images < 1:
             problems.append("no card pictures were drawn")
+        if not any(aspect < 0.85 for aspect in aspects):
+            problems.append("a battlefield picture was not drawn landscape")
+        if not any(aspect > 1.2 for aspect in aspects):
+            problems.append("a unit picture was not drawn portrait")
+        for aspect in aspects:
+            if min(abs(aspect - 0.714), abs(aspect - 1.4)) > 0.08:
+                problems.append(f"a card picture aspect {aspect:.2f} is not the file's")
     for line in (
         "Game 1 [seed=7]:",
         "Ended by points: P1 reached 8 points.",
@@ -1312,10 +1357,24 @@ def self_check() -> list[str]:
     return problems
 
 
-def _write_swatch(path: Path) -> None:
+def _drawn_aspects(doc) -> list[float]:
+    found = []
+    for page in doc:
+        for block in page.get_text("dict")["blocks"]:
+            if block.get("type") != 1:
+                continue
+            x0, y0, x1, y1 = block["bbox"]
+            width = x1 - x0
+            height = y1 - y0
+            if width > 1 and height > 1:
+                found.append(height / width)
+    return found
+
+
+def _write_swatch(path: Path, size: tuple[int, int] = (80, 112)) -> None:
     from PIL import Image as PilImage
 
-    PilImage.new("RGB", (80, 112), (176, 138, 86)).save(path, "PNG")
+    PilImage.new("RGB", size, (176, 138, 86)).save(path, "PNG")
 
 
 def main(argv: list[str] | None = None) -> int:
