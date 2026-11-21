@@ -127,7 +127,7 @@ GameResult GameRunner::run() {
         throw std::runtime_error(
             "GameRunner: agent spec '" + spec +
             "' requires an agent_factory in GameConfig (riftbound_core only "
-            "ships RandomAgent; mcts/ismcts/human live in the binary's TU).");
+            "ships RandomAgent; mcts/ismcts/alpha/human live in the binary's TU).");
     };
 
     // A failure is reported with the game it happened in: in a batch the

@@ -164,4 +164,39 @@ private:
     std::unique_ptr<Impl> impl_;
 };
 
+/// A seat for a real game: the honest information-set search (`IsMctsAgent`,
+/// sampled worlds), answering only with an action the engine offered.
+///
+/// CLI: `alpha`, or `alpha:sims=N[,world=sampled|perfect]`. With no `sims`,
+/// the budget is `kDefaultSims` — 50, the same budget as the
+/// `ismcts:sims=50` matchup seat. `world=perfect` searches the real hidden
+/// cards instead.
+class AlphaAgent : public AgentInterface {
+public:
+    /// Simulation budget of a bare `alpha` spec.
+    static constexpr int kDefaultSims = 50;
+
+    AlphaAgent(std::string deck1_path,
+               std::string deck2_path,
+               std::string registry_path,
+               uint64_t    engine_seed,
+               uint64_t    search_seed,
+               int         sims = kDefaultSims,
+               IsMctsAgent::WorldModel world = IsMctsAgent::WorldModel::Sampled,
+               MatchFormat format = MatchFormat::BestOf1);
+    ~AlphaAgent() override;
+
+    AlphaAgent(const AlphaAgent&) = delete;
+    AlphaAgent& operator=(const AlphaAgent&) = delete;
+
+    Intent selectAction(
+        const GameState& state,
+        const std::vector<Intent>& legal_actions
+    ) override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
 } // namespace riftbound
