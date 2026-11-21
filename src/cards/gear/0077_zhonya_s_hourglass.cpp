@@ -31,12 +31,13 @@ public:
         if (!replacementApplies(ctx.state, ctx.source, ctx.controller, dying_unit)) return false;
         const auto& victim = ctx.state.getObject(dying_unit);
         RIFT_TRACE(ctx.events, "ZHONYA'S HOURGLASS: kill self instead of " +
-                             victim.name + " — heal/exhaust/recall it");
+                             victim.name + " — recall it exhausted");
         // Kill the gear instead.
         ctx.executor.killObject(ctx.source);
-        // Heal, exhaust, and recall the saved unit to its base.
-        // "(Send it to base. This isn't a move.)" — CR 457-460.
-        ctx.executor.healExhaustRecall(dying_unit);
+        // "Recall that unit exhausted." A recall is not a move (CR 457, 458)
+        // and this line does not heal, so the unit keeps its damage.
+        ctx.executor.exhaustObject(dying_unit);
+        ctx.executor.recallToBase(dying_unit);
         return true;  // replacement consumed — the unit does not die
     }
 private:
@@ -56,7 +57,7 @@ private:
         d.rarity = Rarity::Rare;
         d.keywords.set(Keyword::Hidden);
         d.ability_text = R"RB([Hidden] (Hide now for [A] to react with later for [0].)
-If a friendly unit would die, kill this instead. Heal that unit, exhaust it, and recall it. (Send it to base. This isn't a move.))RB";
+The next time a friendly unit would die, kill this instead. Recall that unit exhausted. (Send it to base. This isn't a move.))RB";
         d.image_url = R"RB(https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dc38172c56f838b407fc9f170ba973da32d7cd4d-744x1039.png)RB";
         d.banned_from = CardDef::kRadianceBanListDate;  // Standard and 2v2, 2026-11-23
         return d;

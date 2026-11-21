@@ -1416,8 +1416,8 @@ inline std::optional<BattlefieldId> facedownPlayBattlefield(const GameState& sta
 //     has no legal option (811.1.d.3.a);
 //   - a unit either of them plays is played at that battlefield (811.1.d.5).
 // "Unless it explicitly restricts targeting in a way that makes this
-// impossible" (Tideturner: "a unit you control at another location") is the
-// card's to say: such a card does not call these.
+// impossible" (CR 811.1.d.2, 811.1.d.3) is the card's to say: such a card
+// does not call these.
 struct HiddenBinding {
     bool bound = false;                    // this play of the card is from facedown
     std::optional<BattlefieldId> bf;       // the battlefield; none = no option anywhere

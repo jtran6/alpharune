@@ -289,7 +289,7 @@ TEST_F(C4Test, Tideturner_SwapsWithTheChosenUnitOrNotAtAll) {
     EnginePathAgent agent(EnginePathAgent::choosing(away, EnginePathAgent::May::Yes));   // yes, then `away`
     playThroughEngine(card, &agent);
     ASSERT_EQ(agent.prompts.size(), 2u) << "the may, then the unit";
-    EXPECT_FALSE(agent.wasOffered(beside)) << "\"at another location\"";
+    EXPECT_TRUE(agent.wasOffered(beside)) << "a friendly unit at my location";
     EXPECT_FALSE(agent.wasOffered(card));
     EXPECT_EQ(o(card).battlefieldId(), std::optional<BattlefieldId>{BattlefieldId::fromRaw(0)});
     EXPECT_TRUE(o(away).isAtBase());
@@ -299,6 +299,27 @@ TEST_F(C4Test, Tideturner_SwapsWithTheChosenUnitOrNotAtAll) {
     playThroughEngine(second, &no);
     EXPECT_EQ(no.prompts.size(), 1u);
     EXPECT_TRUE(o(second).isAtBase()) << "declined: nobody moves";
+}
+
+// The only other friendly unit is at the base Tideturner is played to. It is
+// still a legal choice. Choosing it swaps the two, which leaves both there.
+TEST_F(C4Test, Tideturner_AFriendlyUnitAtTheSameLocationIsALegalChoice) {
+    EXPECT_NE(card_db.get(kTideturner).ability_text.find("you may choose a friendly unit"),
+              std::string::npos);
+    EXPECT_EQ(card_db.get(kTideturner).ability_text.find("at another location"),
+              std::string::npos);
+
+    auto beside = addUnit(P1, kInvalidId, 2);          // in base, where Tideturner lands
+    auto enemy = addUnit(P2, kInvalidId, 2, 0);
+    auto card = addToHand(P1, kTideturner);
+    EnginePathAgent agent(EnginePathAgent::choosing(beside, EnginePathAgent::May::Yes));
+    playThroughEngine(card, &agent);
+    EXPECT_TRUE(agent.wasOffered(beside));
+    EXPECT_FALSE(agent.wasOffered(enemy)) << "a friendly unit";
+    EXPECT_FALSE(agent.wasOffered(card)) << "not itself";
+    EXPECT_TRUE(o(card).isAtBase());
+    EXPECT_TRUE(o(beside).isAtBase());
+    EXPECT_EQ(o(enemy).battlefieldId(), std::optional<BattlefieldId>{BattlefieldId::fromRaw(0)});
 }
 
 TEST_F(C4Test, PitRookie_BuffsTheFriendlyUnitItsControllerChooses) {
