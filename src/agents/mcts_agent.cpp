@@ -907,4 +907,49 @@ Intent IsMctsAgent::selectAction(const GameState& state,
     return legal_actions[impl_->last.chosen];
 }
 
+// ─── AlphaAgent ────────────────────────────────────────────────────────────
+
+struct AlphaAgent::Impl {
+    IsMctsAgent inner;
+    Impl(std::string d1, std::string d2, std::string registry,
+         uint64_t engine_seed, uint64_t search_seed, int sims,
+         IsMctsAgent::WorldModel world, MatchFormat format)
+        : inner(std::move(d1), std::move(d2), std::move(registry),
+                engine_seed, search_seed, sims, world, format) {}
+};
+
+AlphaAgent::AlphaAgent(std::string deck1_path,
+                       std::string deck2_path,
+                       std::string registry_path,
+                       uint64_t    engine_seed,
+                       uint64_t    search_seed,
+                       int         sims,
+                       IsMctsAgent::WorldModel world,
+                       MatchFormat format) {
+    if (sims <= 0) {
+        throw std::invalid_argument(
+            "AlphaAgent requires sims > 0 (the bare 'alpha' seat uses " +
+            std::to_string(kDefaultSims) + ")");
+    }
+    impl_ = std::make_unique<Impl>(std::move(deck1_path), std::move(deck2_path),
+                                   std::move(registry_path), engine_seed, search_seed,
+                                   sims, world, format);
+}
+
+AlphaAgent::~AlphaAgent() = default;
+
+Intent AlphaAgent::selectAction(const GameState& state,
+                                const std::vector<Intent>& legal_actions) {
+    if (legal_actions.empty()) {
+        return Intent::concede(decidingPlayer(state, legal_actions));
+    }
+    const Intent chosen = impl_->inner.selectAction(state, legal_actions);
+    for (const Intent& offered : legal_actions) {
+        if (offered == chosen) return offered;
+    }
+    // The search answers from the list it was given. If that ever fails,
+    // still play an offered action.
+    return legal_actions.front();
+}
+
 } // namespace riftbound
