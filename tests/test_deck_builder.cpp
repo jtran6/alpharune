@@ -617,7 +617,11 @@ Runes:
     EXPECT_LT(garen_counts.units, 39);
     EXPECT_GT(garen_counts.spells, 0);
     const std::string garen_book = formatLegendPlaybook(g_db, g_registry, garen, 0, 1);
-    EXPECT_NE(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
+    EXPECT_NE(garen_book.find(
+                  "Plan: When you conquer, if you have 4+ units at that battlefield, draw 2."),
+              std::string::npos)
+        << garen_book;
+    EXPECT_EQ(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
     EXPECT_NE(garen.plan_detail.find("draws 2"), std::string::npos) << garen.plan_detail;
     EXPECT_NE(garen.plan_detail.find("4+ units at that battlefield"), std::string::npos)
         << garen.plan_detail;
@@ -755,7 +759,7 @@ MainDeck:
 3 Astral Heron
 3 Kai'Sa, Survivor
 3 Blitzcrank, Impassive
-3 Noxus Hopeful
+3 Steel Paws
 3 Charm
 3 Defy
 3 Discipline
@@ -779,11 +783,13 @@ Runes:
     EXPECT_GE(countNamed(akali, "Charm"), 1);
     EXPECT_GE(countNamed(akali, "Shuriken Flip"), 1);
     EXPECT_GE(countNamed(akali, "Rage Amplifier"), 1);
+    EXPECT_GE(countNamed(akali, "Steel Paws"), 1);
     const std::string akali_book = formatLegendPlaybook(g_db, g_registry, akali, 0, 1);
     const std::string akali_carries = carriesLine(akali_book);
     EXPECT_EQ(akali_carries.find("Charm"), std::string::npos) << akali_carries;
     EXPECT_EQ(akali_carries.find("Shuriken Flip"), std::string::npos) << akali_carries;
     EXPECT_EQ(akali_carries.find("Rage Amplifier"), std::string::npos) << akali_carries;
+    EXPECT_EQ(akali_carries.find("Steel Paws"), std::string::npos) << akali_carries;
     EXPECT_EQ(akali_carries.find("Defy"), std::string::npos) << akali_carries;
     EXPECT_TRUE(lineNamesAMainDeckCard(akali_book, "Carries this plan: ", akali)) << akali_book;
 
@@ -833,7 +839,11 @@ Runes:
     EXPECT_EQ(garen_carries.find("Cannon Barrage"), std::string::npos) << garen_carries;
     EXPECT_EQ(garen_carries.find("Wallop"), std::string::npos) << garen_carries;
     EXPECT_TRUE(lineNamesAMainDeckCard(garen_book, "Carries this plan: ", garen)) << garen_book;
-    EXPECT_NE(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
+    EXPECT_NE(garen_book.find(
+                  "Plan: When you conquer, if you have 4+ units at that battlefield, draw 2."),
+              std::string::npos)
+        << garen_book;
+    EXPECT_EQ(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
 }
 
 }  // namespace riftbound::test::deck_builder

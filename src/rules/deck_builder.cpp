@@ -380,7 +380,7 @@ LegendPlan readLegendPlan(const CardDef& legend) {
     // The draw is the legend's. Another conquer line does not get this reading.
     if (hasStem(text, "conquer") && containsPhrase(text, "4+") && containsPhrase(text, "unit") &&
         containsPhrase(text, "at that battlefield") && containsPhrase(text, "draw 2")) {
-        plan.name = "Conquer with units";
+        plan.name = printed;
         plan.detail =
             "The line draws 2 when you conquer if you have 4+ units at that battlefield. A unit "
             "carries it as one of those units. A spell or a gear carries it when it draws for 4+ "
@@ -549,7 +549,13 @@ bool carriesPlan(const LegendPlan& plan, const CardDef& card,
     const bool spellish = card.card_type == CardType::Spell || gear;
 
     if (plan.min_energy > 0) return card.energy_cost >= plan.min_energy;
-    if (unit && plan.unit_body) return true;
+    // Akali readies the moved unit only when this legend is Empowered.
+    // Empower on the unit does not do that.
+    if (unit && plan.unit_body) {
+        if (plan.spell == SpellNeed::ShowdownToBase && card.keywords.has(Keyword::Empower))
+            return false;
+        return true;
+    }
     if (unit && plan.mighty_body && card.might >= 5) return true;
     if (unit && plan.temporary_body &&
         (card.keywords.has(Keyword::Temporary) || containsPhrase(text, "temporary")))
