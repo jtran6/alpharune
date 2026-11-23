@@ -502,9 +502,11 @@ namespace {
 ///   for them, so every opponent decision would be a new node in every world.
 ///   (Measured: keyed that way, honest ISMCTS-50 won 6 of 20 against random
 ///   where random itself wins 34%; keyed by the root player, 21 of 30.)
-/// * The move played is the most visited root option (ties by the RNG), not
-///   a draw in proportion to the visits; the visits are reported
-///   (SearchSummary) for a recorder.
+/// * The move played at the root is `chooseMixedRootAction`: a draw in
+///   proportion to visits among actions with at least three quarters of the
+///   leader's visits. A clear best is that action alone and is not drawn.
+///   The draw is the search RNG, so a seed repeats the choice. Every
+///   option's visits are still reported (SearchSummary) for a recorder.
 const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
     const auto game = world.GetGame();
     if (!game) return nullptr;
@@ -590,21 +592,10 @@ public:
             sum += child.return_sum;
         }
         out.root_value = total > 0 ? sum / total : 0.0;
-        // Most visited, ties broken by the RNG.
-        int best = -1;
-        std::vector<int> tied;
-        for (const auto& [index, child] : root_) {
-            if (child.visits > best) { best = child.visits; tied.assign(1, index); }
-            else if (child.visits == best) tied.push_back(index);
-        }
-        if (tied.empty()) {
-            // Nothing worth searching was visited. Do not default to a
-            // dropped friendly-harm line.
-            out.chosen = -1;
-        } else {
-            std::uniform_int_distribution<size_t> dist(0, tied.size() - 1);
-            out.chosen = tied[tied.size() == 1 ? 0 : dist(rng_)];
-        }
+        // Visit-weighted draw among actions close to the leader. Nothing
+        // visited (every line was dropped as empty friendly harm, or the
+        // world offered none) stays -1: do not default to a dropped line.
+        out.chosen = chooseMixedRootAction(out.visits, rng_);
         return out;
     }
 
@@ -781,6 +772,33 @@ private:
 };
 
 } // namespace
+
+int chooseMixedRootAction(const std::vector<int>& visits, std::mt19937_64& rng) {
+    int best = 0;
+    for (int count : visits)
+        if (count > best) best = count;
+    if (best <= 0) return -1;
+
+    std::vector<int> support;
+    support.reserve(visits.size());
+    int total = 0;
+    for (int i = 0; i < static_cast<int>(visits.size()); ++i) {
+        if (!inRootVisitMix(visits[static_cast<size_t>(i)], best)) continue;
+        support.push_back(i);
+        total += visits[static_cast<size_t>(i)];
+    }
+    // The leader itself qualifies, so a positive best has a support.
+    if (support.size() == 1 || total <= 0) return support.empty() ? -1 : support.front();
+
+    std::uniform_int_distribution<int> dist(0, total - 1);
+    const int draw = dist(rng);
+    int covered = 0;
+    for (int index : support) {
+        covered += visits[static_cast<size_t>(index)];
+        if (draw < covered) return index;
+    }
+    return support.back();
+}
 
 // ─── IsMctsAgent ───────────────────────────────────────────────────────────
 
