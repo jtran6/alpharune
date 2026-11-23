@@ -56,6 +56,7 @@
 #include "io/replay_writer.h"
 #include "io/state_renderer.h"
 #include "rules/deck_breakdown.h"
+#include "rules/deck_builder.h"
 #include "rules/deck_validator.h"
 
 #include <boost/asio/ip/address.hpp>
@@ -409,6 +410,8 @@ int main(int argc, char* argv[]) {
         "Common invocations:\n"
         "  ./riftbound --deck-breakdown D.txt\n"
         "      (print that deck's roles and draw chances, then exit)\n"
+        "  ./riftbound --build-deck \"Champion, Title\"\n"
+        "      (a constructed deck for that legend, then a playbook, then exit)\n"
         "  ./riftbound --deck1 D1.txt --deck2 D2.txt\n"
         "      (default: random vs random, one game, stdout only)\n"
         "  ./riftbound --deck1 ... --deck2 ... --agent1 human\n"
@@ -431,6 +434,21 @@ int main(int argc, char* argv[]) {
          "A deck path is enough: no second deck and no game. The main deck and "
          "the champion are analyzed. Battlefields and runes are listed on their "
          "own. The sideboard is recorded and left out of the draw chance.")
+        ("build-deck", po::value<std::string>(),
+         "Build a constructed deck for this legend and print it with a playbook. "
+         "The main deck follows that legend's saved unit, spell, and gear split "
+         "when lists are under internal/deck-catalogue or internal/tournament-data, "
+         "and otherwise stays near 18 units, 18 spells, and 3 gear. "
+         "The list is judged by DeckValidator on legality date 20261123. "
+         "A legend name is enough: no --deck1 and no --deck2. "
+         "The name is the printed legend or the \"Champion, Title\" form deck "
+         "lists use.")
+        ("build-games", po::value<int>(),
+         "Mirror games --build-deck plays (default 2, 0 to 20). 0 writes the "
+         "deck and marks every played section unread.")
+        ("build-seed", po::value<uint64_t>(),
+         "Seed of the first --build-deck mirror game (default 1). The next "
+         "game uses the next seed. 0 is rejected so the games replay.")
         ("registry,r", po::value<std::string>()->default_value("cards/registry.json"),
          "Deprecated/ignored — card data and ban status are compiled into the engine")
         ("dump-registry", po::value<std::string>(),
@@ -519,6 +537,23 @@ int main(int argc, char* argv[]) {
                 std::cout << formatDeckReport(analyzeDeck(deck, db));
             } catch (const std::exception& e) {
                 std::cerr << "Failed to read deck: " << e.what() << "\n";
+                return 1;
+            }
+            return 0;
+        }
+        if (vm.count("build-deck")) {
+            // Before notify: --deck1 and --deck2 stay required for a game.
+            try {
+                const auto& cards = openspiel::sharedCards();
+                const auto legend = vm["build-deck"].as<std::string>();
+                int games = 2;
+                uint64_t seed = 1;
+                if (vm.count("build-games")) games = vm["build-games"].as<int>();
+                if (vm.count("build-seed")) seed = vm["build-seed"].as<uint64_t>();
+                const DeckBuild built = buildLegendDeck(cards.db, legend);
+                std::cout << formatLegendPlaybook(cards.db, cards.registry, built, games, seed);
+            } catch (const std::exception& e) {
+                std::cerr << "Failed to build a deck: " << e.what() << "\n";
                 return 1;
             }
             return 0;
