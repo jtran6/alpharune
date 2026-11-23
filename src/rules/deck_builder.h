@@ -5,9 +5,12 @@
 /// The main deck follows the unit, spell, and gear split of that legend's
 /// saved lists when those lists are on disk under internal/deck-catalogue or
 /// internal/tournament-data. With none, the split stays near 18 units, 18
-/// spells, and 3 gear. `DeckValidator::validate` is the judge, on legality
-/// date 20261123. A card that tells a player to channel is not added to fill a
-/// type count. A card the saved lists already play is kept.
+/// spells, and 3 gear. The cards follow one plan: the legend's printed
+/// ability, carried by cards those lists play. A card that does not carry it
+/// is curve filler, and the playbook names that card. `DeckValidator::validate`
+/// is the judge, on legality date 20261123. A card that tells a player to
+/// channel is not added to fill a type count. A card the saved lists already
+/// play is kept.
 ///
 /// The playbook's played lines are `PlayByPlay` accounts of `GameEngine::runGame`.
 /// Both seats play this list with `random-player:pass=0`. A section with no
@@ -57,6 +60,17 @@ struct DeckBuild {
     /// Cards the saved lists played that this list left out because they are
     /// banned on `legality_date`.
     std::vector<std::string> banned_left_out;
+    /// The one plan, taken from the printed legend line.
+    std::string plan_name;
+    /// What that line does, and which kinds of cards carry it.
+    std::string plan_detail;
+    /// Saved-list cards that fill slots the plan's cards did not fill.
+    std::vector<std::string> curve_filler_lists;
+    /// Card-pool cards that fill slots the plan and the saved lists did not fill.
+    std::vector<std::string> curve_filler_pool;
+    /// Card-pool cards that carry the plan. Empty when every carrier is from a saved list,
+    /// and when there were no saved lists the carriers are recorded here.
+    std::vector<std::string> plan_from_pool;
 };
 
 /// The deck of `legend`. `legend` is a printed name or the "Champion, Title"

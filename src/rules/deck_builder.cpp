@@ -4,8 +4,11 @@
 /// Saved lists under internal/deck-catalogue and internal/tournament-data set
 /// the main deck's unit, spell, and gear counts. With none, the split stays
 /// near 18, 18, and 3. When those three medians do not sum to 39, the playbook
-/// says the median and the adjustment. Cards banned on 20261123 are left out.
-/// A card that tells a player to channel is not added just to fill a type
+/// says the median and the adjustment. The cards follow one plan read from the
+/// printed legend line. Cards the saved lists play that carry the plan are
+/// taken at the count those lists play. A card that does not carry the plan is
+/// curve filler, and the playbook names it. Cards banned on 20261123 are left
+/// out. A card that tells a player to channel is not added just to fill a type
 /// count. A card the saved lists already play is kept. DeckValidator is the
 /// judge on that date. Mirror games go through GameEngine::runGame with a
 /// PlayByPlay account.
@@ -16,7 +19,6 @@
 #include "cards/card_registry.h"
 #include "engine/game_engine.h"
 #include "io/play_by_play.h"
-#include "rules/deck_breakdown.h"
 #include "rules/deck_model.h"
 #include "rules/random_deck.h"
 
@@ -154,6 +156,507 @@ bool instructsChannel(const CardDef& card) {
         pos += sizeof("channel") - 1;
     }
     return false;
+}
+
+bool boundary(char c) { return std::isalnum(static_cast<unsigned char>(c)) == 0; }
+
+bool hasWord(const std::string& text, const char* word) {
+    const size_t n = std::char_traits<char>::length(word);
+    for (size_t i = 0; i + n <= text.size(); ++i) {
+        if (text.compare(i, n, word) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        if (i + n < text.size() && !boundary(text[i + n])) continue;
+        return true;
+    }
+    return false;
+}
+
+/// `stem` as a word, or as the start of one ("defend" matches "defends").
+bool hasStem(const std::string& text, const char* stem) {
+    const size_t n = std::char_traits<char>::length(stem);
+    for (size_t i = 0; i + n <= text.size(); ++i) {
+        if (text.compare(i, n, stem) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        return true;
+    }
+    return false;
+}
+
+bool containsPhrase(const std::string& text, const char* phrase) {
+    return text.find(phrase) != std::string::npos;
+}
+
+std::string planText(const CardDef& card) { return lowerCopy(stripParentheticals(printedRaw(card))); }
+
+bool givesMight(const CardDef& card, const std::string& text) {
+    if (card.keywords.has(Keyword::Assault) || card.keywords.has(Keyword::Shield) ||
+        card.keywords.has(Keyword::Disarm))
+        return true;
+    if (containsPhrase(text, "[shield") || containsPhrase(text, "[assault") ||
+        containsPhrase(text, "[disarm"))
+        return true;
+    if (hasWord(text, "buff") || hasWord(text, "buffs")) return true;
+    for (size_t i = 0; i + 3 < text.size(); ++i) {
+        if (text[i] != '+' && text[i] != '-') continue;
+        size_t j = i + 1;
+        while (j < text.size() && std::isspace(static_cast<unsigned char>(text[j]))) ++j;
+        if (j >= text.size() || !std::isdigit(static_cast<unsigned char>(text[j]))) continue;
+        while (j < text.size() && std::isdigit(static_cast<unsigned char>(text[j]))) ++j;
+        while (j < text.size() && std::isspace(static_cast<unsigned char>(text[j]))) ++j;
+        if (j + 2 < text.size() && text[j] == '[' && text[j + 1] == 'm' && text[j + 2] == ']')
+            return true;
+    }
+    return false;
+}
+
+/// A spell that channels, or a unit or gear whose text says "Channel N rune(s)",
+/// does not carry a plan as filler. "Only channel" and "channel that many" stay
+/// out of that test, the same way `instructsChannel` reads them.
+bool channelsAsFiller(const CardDef& card) {
+    if (isChannelOrRampSpell(card)) return true;
+    return instructsChannel(card);
+}
+
+/// "Ready a gear" / "Ready 2 gear". The words after "ready" name a gear, not a unit
+/// and not runes.
+bool readiesGear(const std::string& text) {
+    const char* word = "ready";
+    for (size_t i = 0; i + 5 <= text.size(); ++i) {
+        if (text.compare(i, 5, word) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        size_t end = i + 5;
+        while (end < text.size() && std::isalpha(static_cast<unsigned char>(text[end]))) ++end;
+        const std::string after = text.substr(end, 32);
+        if (containsPhrase(after, "gear") && !containsPhrase(after, "unit")) return true;
+    }
+    return false;
+}
+
+bool givesBuff(const std::string& text) {
+    return hasWord(text, "buff") || hasWord(text, "buffs") || hasWord(text, "buffed");
+}
+
+bool drawsForUnitsAtBattlefield(const std::string& text) {
+    if (!hasStem(text, "draw") || !containsPhrase(text, "unit") || !containsPhrase(text, "battlefield"))
+        return false;
+    for (char c : text)
+        if (std::isdigit(static_cast<unsigned char>(c)) != 0 || c == '+') return true;
+    return false;
+}
+
+/// The first number after "energy cost", when the line then readies runes.
+int runeReadyEnergyGate(const std::string& text) {
+    const auto at = text.find("energy cost");
+    if (at == std::string::npos) return 0;
+    if (!containsPhrase(text, "rune") || !hasStem(text, "ready")) return 0;
+    for (size_t i = at; i < text.size(); ++i) {
+        if (std::isdigit(static_cast<unsigned char>(text[i])) == 0) continue;
+        int n = 0;
+        while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i])) != 0)
+            n = n * 10 + (text[i++] - '0');
+        return n;
+    }
+    return 0;
+}
+
+std::string collapseSpace(std::string s) {
+    std::string out;
+    bool pending = false;
+    for (char c : s) {
+        if (c == '\n' || c == '\r' || c == '\t') c = ' ';
+        if (c == ' ') {
+            pending = !out.empty();
+            continue;
+        }
+        if (pending) out.push_back(' ');
+        pending = false;
+        out.push_back(c);
+    }
+    return trimCopy(out);
+}
+
+bool effectVerb(const std::string& lower) {
+    static const char* verbs[] = {
+        "move",     "ready",   "stun",    "draw",    "conquer", "hold",    "play",
+        "buff",     "channel", "kill",    "banish",  "hide",    "attach",  "equip",
+        "recycle",  "give",    "gain",    "spend",   "win",     "choose",  "discard",
+        "reveal",   "return",  "heal",    "recall",  "replace", "become",  "deal",
+        "fight",    "score",   "defend",  "attack",  "copy",    "reduce",  "assign"};
+    for (const char* verb : verbs)
+        if (hasStem(lower, verb)) return true;
+    return false;
+}
+
+/// The printed effect, reminders removed. A sentence that is only an Empower
+/// cost is not the effect. The playbook still quotes the raw card above this.
+std::string printedPlanName(const CardDef& legend) {
+    const std::string stripped = stripParentheticals(printedRaw(legend));
+    std::string name;
+    std::string cur;
+    auto take = [&](std::string sentence) {
+        sentence = collapseSpace(std::move(sentence));
+        if (sentence.empty() || !effectVerb(lowerCopy(sentence))) return;
+        if (!name.empty()) name.push_back(' ');
+        name += sentence;
+    };
+    for (char c : stripped) {
+        if (c == '\n' || c == '\r') c = ' ';
+        cur.push_back(c);
+        if (c == '.') {
+            take(cur);
+            cur.clear();
+        }
+    }
+    take(cur);
+    while (!name.empty() && (name.back() == '.' || name.back() == ' ')) name.pop_back();
+    if (name.empty()) return "The printed line";
+    return name;
+}
+
+/// What a spell or gear must do to carry this legend's own line. None means a
+/// spell does not carry it: the line's payoff is the legend's.
+enum class SpellNeed {
+    None,
+    DefendAlone,
+    DrawForUnits,
+    ShowdownToBase,
+    Stuns,
+    BecomesMighty,
+    ChoosesFriendly,
+    RecycleRune,
+    Temporary,
+    ReadiesGear,
+    Brush,
+    Buff,
+    ExcessDamage,
+    CopiesUnit,
+    FriendlyBase,
+    Deploy,
+    ExhaustedToBase,
+};
+
+struct LegendPlan {
+    SpellNeed spell = SpellNeed::None;
+    std::string name;
+    std::string detail;
+    std::string text;
+    /// A unit can be the unit the line uses.
+    bool unit_body = false;
+    /// Only a unit whose printed Might is 5 or more (the unit the line plays).
+    bool mighty_body = false;
+    /// Only a unit with Temporary.
+    bool temporary_body = false;
+    /// A gear is the object the line names.
+    bool gear_body = false;
+    /// Only a gear with Deploy.
+    bool deploy_gear = false;
+    /// A card whose energy cost is at least this. 0 means the cost is not the test.
+    int min_energy = 0;
+};
+
+LegendPlan readLegendPlan(const CardDef& legend) {
+    LegendPlan plan;
+    plan.text = planText(legend);
+    const std::string& text = plan.text;
+    const std::string printed = printedPlanName(legend);
+    auto printedAs = [&](const char* detail, SpellNeed spell) {
+        plan.name = printed;
+        plan.detail = detail;
+        plan.spell = spell;
+    };
+
+    // "While a friendly unit defends alone, it gets +2 [M]." The +2 is the
+    // legend's. "The only unit you control there" is not "defends alone."
+    if (hasStem(text, "defend") && hasWord(text, "alone")) {
+        plan.name = "Defend alone";
+        plan.detail =
+            "A friendly unit that defends alone gets the Might on that line. A unit carries it as "
+            "that body. A spell or a gear carries it when it says a unit defends alone.";
+        plan.spell = SpellNeed::DefendAlone;
+        plan.unit_body = true;
+        return plan;
+    }
+    // "When you conquer, if you have 4+ units at that battlefield, draw 2."
+    // The draw is the legend's. Another conquer line does not get this reading.
+    if (hasStem(text, "conquer") && containsPhrase(text, "4+") && containsPhrase(text, "unit") &&
+        containsPhrase(text, "at that battlefield") && containsPhrase(text, "draw 2")) {
+        plan.name = printed;
+        plan.detail =
+            "The line draws 2 when you conquer if you have 4+ units at that battlefield. A unit "
+            "carries it as one of those units. A spell or a gear carries it when it draws for 4+ "
+            "units at a battlefield.";
+        plan.spell = SpellNeed::DrawForUnits;
+        plan.unit_body = true;
+        return plan;
+    }
+    // "[E]: If it's your turn, move a friendly unit in a showdown to base and
+    // if I'm Empowered, ready it." The ready checks this legend.
+    if (hasStem(text, "move") && containsPhrase(text, "friendly") && containsPhrase(text, "showdown") &&
+        containsPhrase(text, "to base") && hasStem(text, "ready") && containsPhrase(text, "empowered")) {
+        plan.name = "Move a friendly unit in a showdown to base, and ready it only if this legend is "
+                     "Empowered";
+        plan.detail =
+            "If it is your turn, the line moves a friendly unit in a showdown to base, and readies "
+            "that unit only if this legend is Empowered. A unit carries it as the one moved. A spell "
+            "or a gear carries it when it moves a friendly unit in a showdown to base. A card with "
+            "Empower does not carry this line.";
+        plan.spell = SpellNeed::ShowdownToBase;
+        plan.unit_body = true;
+        return plan;
+    }
+
+    const int gate = runeReadyEnergyGate(text);
+    if (gate > 0) {
+        plan.min_energy = gate;
+        printedAs("The plan is the printed line above. A card with that energy cost or more carries "
+                  "it as the play the line names. The line readies runes, not a unit.",
+                  SpellNeed::None);
+        plan.detail = "The plan is the printed line above. A card with energy cost " +
+                      std::to_string(gate) +
+                      " or more carries it as the play the line names. The line readies runes, not a "
+                      "unit.";
+        return plan;
+    }
+    if (readiesGear(text)) {
+        plan.gear_body = true;
+        printedAs("The plan is the printed line above. A gear carries it as the gear that is readied. "
+                  "A spell carries it when it readies a gear. Readying a gear does not attach it.",
+                  SpellNeed::ReadiesGear);
+        return plan;
+    }
+    if (containsPhrase(text, "sprite") && containsPhrase(text, "temporary") &&
+        containsPhrase(text, "play")) {
+        plan.temporary_body = true;
+        printedAs("The plan is the printed line above. A unit with Temporary carries it. The line "
+                  "plays a ready Sprite token, and that ability costs less for each friendly unit "
+                  "with Temporary.",
+                  SpellNeed::Temporary);
+        return plan;
+    }
+    if (hasStem(text, "recycle") && containsPhrase(text, "rune") && containsPhrase(text, "ready me")) {
+        printedAs("The plan is the printed line above. A spell or a gear carries it when it recycles "
+                  "a rune. The Gold token and readying this legend are this legend's.",
+                  SpellNeed::RecycleRune);
+        return plan;
+    }
+    if (hasStem(text, "stun") && givesBuff(text) && containsPhrase(text, "friendly")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the friendly unit that is "
+                  "buffed. A spell or a gear carries it when it stuns an enemy unit. The stun happens "
+                  "before this legend buffs.",
+                  SpellNeed::Stuns);
+        return plan;
+    }
+    if (hasStem(text, "become") && containsPhrase(text, "mighty")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit that becomes "
+                  "Mighty. A spell or a gear carries it when it makes a unit become Mighty. The "
+                  "channel is this legend's.",
+                  SpellNeed::BecomesMighty);
+        return plan;
+    }
+    if (containsPhrase(text, "play") && containsPhrase(text, "mighty")) {
+        plan.mighty_body = true;
+        printedAs("The plan is the printed line above. A unit with 5 or more Might carries it as the "
+                  "Mighty unit this line plays. The channel is this legend's.",
+                  SpellNeed::None);
+        return plan;
+    }
+    if (containsPhrase(text, "choose") && containsPhrase(text, "friendly unit")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the friendly unit that is "
+                  "chosen. A spell or a gear carries it when it chooses a friendly unit. Readying "
+                  "that unit, and readying this legend when you conquer, are this legend's.",
+                  SpellNeed::ChoosesFriendly);
+        return plan;
+    }
+    if (containsPhrase(text, "brush")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as a unit you conquer or "
+                  "hold with. A spell or a gear carries it when it names Brush. The line replaces "
+                  "that battlefield with a Brush token.",
+                  SpellNeed::Brush);
+        return plan;
+    }
+    if (containsPhrase(text, "would die") &&
+        (hasStem(text, "recall") || hasStem(text, "heal"))) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the buffed unit the "
+                  "replacement keeps. A spell or a gear carries it when it buffs a unit. When you "
+                  "conquer, the line readies this legend.",
+                  SpellNeed::Buff);
+        return plan;
+    }
+    if (containsPhrase(text, "excess") && containsPhrase(text, "damage")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit the line "
+                  "readies. A spell or a gear carries it when it assigns excess damage.",
+                  SpellNeed::ExcessDamage);
+        return plan;
+    }
+    if (hasStem(text, "copy") && containsPhrase(text, "unit")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit that is copied. "
+                  "A spell or a gear carries it when it copies a unit.",
+                  SpellNeed::CopiesUnit);
+        return plan;
+    }
+    if (hasStem(text, "move") && containsPhrase(text, "exhausted") && containsPhrase(text, "friendly") &&
+        containsPhrase(text, "base")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit those abilities "
+                  "buff or move. A spell or a gear carries it when it buffs a unit, or moves an "
+                  "exhausted friendly unit from a battlefield to its base.",
+                  SpellNeed::ExhaustedToBase);
+        return plan;
+    }
+    if (containsPhrase(text, "deploy") && hasStem(text, "move") && containsPhrase(text, "friendly")) {
+        plan.unit_body = true;
+        plan.deploy_gear = true;
+        printedAs("The plan is the printed line above. A gear with Deploy carries it. A unit carries "
+                  "it as the friendly unit the line moves to that battlefield.",
+                  SpellNeed::Deploy);
+        return plan;
+    }
+    if (hasStem(text, "move") && containsPhrase(text, "friendly") && containsPhrase(text, "base")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the friendly unit that is "
+                  "moved. A spell or a gear carries it when it moves a friendly unit to or from its "
+                  "base.",
+                  SpellNeed::FriendlyBase);
+        return plan;
+    }
+
+    plan.name = printed;
+    plan.spell = SpellNeed::None;
+    plan.unit_body = containsPhrase(text, "friendly unit") || containsPhrase(text, "your unit") ||
+                     containsPhrase(text, "unit you") || containsPhrase(text, "units you");
+    plan.gear_body = containsPhrase(text, "equipment") || containsPhrase(text, "attach") ||
+                     containsPhrase(text, "play a gear") || containsPhrase(text, "friendly gear") ||
+                     containsPhrase(text, "your gear");
+    plan.detail = "The plan is the printed line above.";
+    if (plan.unit_body) plan.detail += " A unit carries it as the unit that line uses.";
+    if (plan.gear_body) plan.detail += " A gear carries it as the gear that line names.";
+    return plan;
+}
+
+bool carriesPlan(const LegendPlan& plan, const CardDef& card,
+                 const std::set<std::string>& /*legend_words*/) {
+    if (channelsAsFiller(card)) return false;
+    const std::string text = planText(card);
+    const bool unit = card.card_type == CardType::Unit;
+    const bool gear = card.card_type == CardType::Gear;
+    const bool spellish = card.card_type == CardType::Spell || gear;
+
+    if (plan.min_energy > 0) return card.energy_cost >= plan.min_energy;
+    // Akali readies the moved unit only when this legend is Empowered.
+    // Empower on the unit does not do that.
+    if (unit && plan.unit_body) {
+        if (plan.spell == SpellNeed::ShowdownToBase && card.keywords.has(Keyword::Empower))
+            return false;
+        return true;
+    }
+    if (unit && plan.mighty_body && card.might >= 5) return true;
+    if (unit && plan.temporary_body &&
+        (card.keywords.has(Keyword::Temporary) || containsPhrase(text, "temporary")))
+        return true;
+    if (gear && plan.gear_body) return true;
+    if (gear && plan.deploy_gear &&
+        (card.keywords.has(Keyword::Deploy) || containsPhrase(text, "deploy")))
+        return true;
+    if (!spellish) return false;
+
+    switch (plan.spell) {
+        case SpellNeed::None:
+            return false;
+        case SpellNeed::DefendAlone:
+            return hasStem(text, "defend") && hasWord(text, "alone");
+        case SpellNeed::DrawForUnits:
+            return drawsForUnitsAtBattlefield(text);
+        case SpellNeed::ShowdownToBase:
+            return hasStem(text, "move") && containsPhrase(text, "friendly") &&
+                   containsPhrase(text, "showdown") && containsPhrase(text, "to base");
+        case SpellNeed::Stuns:
+            return hasStem(text, "stun");
+        case SpellNeed::BecomesMighty:
+            return (hasStem(text, "become") && containsPhrase(text, "mighty")) || givesMight(card, text);
+        case SpellNeed::ChoosesFriendly:
+            return containsPhrase(text, "choose") && containsPhrase(text, "friendly unit");
+        case SpellNeed::RecycleRune:
+            return hasStem(text, "recycle") && containsPhrase(text, "rune");
+        case SpellNeed::Temporary:
+            return containsPhrase(text, "temporary");
+        case SpellNeed::ReadiesGear:
+            return readiesGear(text);
+        case SpellNeed::Brush:
+            return containsPhrase(text, "brush");
+        case SpellNeed::Buff:
+            return givesBuff(text);
+        case SpellNeed::ExcessDamage:
+            return containsPhrase(text, "excess") && containsPhrase(text, "damage");
+        case SpellNeed::CopiesUnit:
+            return hasStem(text, "copy") && containsPhrase(text, "unit");
+        case SpellNeed::FriendlyBase:
+            return hasStem(text, "move") && containsPhrase(text, "friendly") &&
+                   containsPhrase(text, "base") &&
+                   (containsPhrase(text, "to or from") || containsPhrase(text, "to its base") ||
+                    containsPhrase(text, "from its base") || containsPhrase(text, "to base") ||
+                    containsPhrase(text, "from base"));
+        case SpellNeed::Deploy:
+            return containsPhrase(text, "deploy");
+        case SpellNeed::ExhaustedToBase:
+            return (hasStem(text, "move") && containsPhrase(text, "exhausted") &&
+                    containsPhrase(text, "friendly") && containsPhrase(text, "base")) ||
+                   givesBuff(text);
+    }
+    return false;
+}
+
+struct NamedCopy {
+    std::string name;
+    int copies = 0;
+    int energy = 0;
+    int power = 0;
+};
+
+std::vector<NamedCopy> copiesInMain(const DeckSubmission& deck, const CardDB& db) {
+    std::vector<NamedCopy> lines;
+    for (CardDefId id : deck.main_deck) {
+        const CardDef& card = db.get(id);
+        auto it = std::find_if(lines.begin(), lines.end(),
+                               [&](const NamedCopy& line) { return line.name == card.name; });
+        if (it == lines.end())
+            lines.push_back(NamedCopy{card.name, 1, card.energy_cost, card.power_cost});
+        else
+            ++it->copies;
+    }
+    return lines;
+}
+
+std::string costPhrase(const NamedCopy& line) {
+    std::string text = std::to_string(line.energy) + " energy";
+    if (line.power > 0) text += " and " + std::to_string(line.power) + " power";
+    return text;
+}
+
+std::string joinNamed(const std::vector<NamedCopy>& lines) {
+    std::ostringstream out;
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (i > 0) out << (i + 1 == lines.size() ? ", and " : ", ");
+        out << lines[i].copies << " " << lines[i].name << " (" << costPhrase(lines[i]) << ")";
+    }
+    return out.str();
+}
+
+std::vector<NamedCopy> pickNamed(const std::vector<NamedCopy>& lines,
+                                 const std::vector<std::string>& names) {
+    std::vector<NamedCopy> out;
+    for (const std::string& name : names) {
+        auto it = std::find_if(lines.begin(), lines.end(),
+                               [&](const NamedCopy& line) { return line.name == name; });
+        if (it != lines.end()) out.push_back(*it);
+    }
+    return out;
 }
 
 std::string bareTitle(const CardDef& legend) {
@@ -707,6 +1210,15 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
     built.banned_left_out.assign(banned_names.begin(), banned_names.end());
 
     const std::set<std::string> legend_words = wordsOf(printedRaw(*found));
+    const LegendPlan legend_plan = readLegendPlan(*found);
+    built.plan_name = legend_plan.name;
+    built.plan_detail = legend_plan.detail;
+    auto carries = [&](const CardDef& card) {
+        return carriesPlan(legend_plan, card, legend_words);
+    };
+    auto noteName = [&](std::vector<std::string>& names, const std::string& name) {
+        if (std::find(names.begin(), names.end(), name) == names.end()) names.push_back(name);
+    };
     auto room = [&](const CardDef& card) { return roomFor(card, copies, deck, db); };
     auto haveUnitAt = [&](int energy) {
         for (CardDefId id : deck.main_deck) {
@@ -720,7 +1232,7 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
     int spell_left = target.spells;
     int gear_left = target.gear;
 
-    auto take = [&](CardDefId id, int n, int& quota) {
+    auto take = [&](CardDefId id, int n, int& quota, bool filler, bool from_list) {
         if (n <= 0 || quota <= 0) return 0;
         const CardDef& card = db.get(id);
         if (!legalHere(card)) return 0;
@@ -729,39 +1241,48 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         if (n <= 0) return 0;
         addCopies(deck, copies, card, n);
         quota -= n;
+        if (filler) noteName(from_list ? built.curve_filler_lists : built.curve_filler_pool, card.name);
+        else if (!from_list) noteName(built.plan_from_pool, card.name);
         return n;
     };
 
+    auto betterSeen = [](const Seen& seen, const Seen* best) {
+        if (!best) return true;
+        if (seen.lists() != best->lists()) return seen.lists() > best->lists();
+        if (seen.typical() != best->typical()) return seen.typical() > best->typical();
+        return seen.id.raw() < best->id.raw();
+    };
+
+    // One copy at each early cost, from the lists. A unit that carries the plan
+    // comes first. A unit that does not is the curve filler for that cost.
     if (!played.empty()) {
         for (int energy : {1, 2, 3, 4}) {
             if (unit_left <= 0 || haveUnitAt(energy)) continue;
-            const Seen* best = nullptr;
+            const Seen* best_plan = nullptr;
+            const Seen* best_any = nullptr;
             for (const auto& [name, seen] : played) {
                 (void)name;
                 const CardDef& card = db.get(seen.id);
                 if (card.card_type != CardType::Unit || card.energy_cost != energy) continue;
                 if (room(card) <= 0 || seen.counts.empty()) continue;
-                if (!best || seen.lists() > best->lists() ||
-                    (seen.lists() == best->lists() && seen.typical() > best->typical()) ||
-                    (seen.lists() == best->lists() && seen.typical() == best->typical() &&
-                     seen.id.raw() < best->id.raw()))
-                    best = &seen;
+                if (betterSeen(seen, best_any)) best_any = &seen;
+                if (carries(card) && betterSeen(seen, best_plan)) best_plan = &seen;
             }
-            if (best) take(best->id, 1, unit_left);
+            const Seen* best = best_plan ? best_plan : best_any;
+            if (best) take(best->id, 1, unit_left, best_plan == nullptr, true);
         }
     }
 
-    // A card in at least a fifth of the lists is part of the build. It is taken
-    // at the count those lists play, and a further copy of it fills a leftover
-    // slot before a card from one list does. One saved list still counts: the
-    // fixture and a legend with a single list have a fifth that rounds below 1.
-    const int notable = std::max(1, static_cast<int>((lists.size() + 4) / 5));
-    auto byFrequency = [&](CardType type, int& quota, bool to_typical, int min_lists) {
+    // Saved-list cards that carry the plan, at the count those lists play.
+    // Cards that do not carry it fill what is left, and the playbook names them.
+    // The count stops at that median. A further copy would be a count no list plays.
+    auto rankSaved = [&](CardType type, bool want_plan) {
         std::vector<const Seen*> ranked;
         for (const auto& [name, seen] : played) {
             (void)name;
-            if (seen.lists() < min_lists) continue;
-            if (db.get(seen.id).card_type == type) ranked.push_back(&seen);
+            if (db.get(seen.id).card_type != type) continue;
+            if (carries(db.get(seen.id)) != want_plan) continue;
+            ranked.push_back(&seen);
         }
         std::sort(ranked.begin(), ranked.end(), [&](const Seen* a, const Seen* b) {
             if (a->lists() != b->lists()) return a->lists() > b->lists();
@@ -771,31 +1292,32 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
             if (da.energy_cost != db_.energy_cost) return da.energy_cost < db_.energy_cost;
             return a->id.raw() < b->id.raw();
         });
+        return ranked;
+    };
+    auto takeRanked = [&](const std::vector<const Seen*>& ranked, int& quota, bool filler) {
         for (const Seen* seen : ranked) {
             if (quota <= 0) break;
             const CardDef& card = db.get(seen->id);
             const int already = copiesOfName(deck, db, card.name);
             const int want = std::min(seen->typical(), CopyCounts::kCopiesPerName);
-            const int n = to_typical ? want - already : CopyCounts::kCopiesPerName - already;
-            take(seen->id, n, quota);
+            take(seen->id, want - already, quota, filler, true);
         }
     };
-    auto fillType = [&](CardType type, int& quota) {
+    auto fillSaved = [&](CardType type, int& quota) {
         if (played.empty() || quota <= 0) return;
-        byFrequency(type, quota, true, notable);
-        byFrequency(type, quota, false, notable);
-        byFrequency(type, quota, true, 1);
-        byFrequency(type, quota, false, 1);
+        takeRanked(rankSaved(type, true), quota, false);
+        takeRanked(rankSaved(type, false), quota, true);
     };
-    fillType(CardType::Unit, unit_left);
-    fillType(CardType::Spell, spell_left);
-    fillType(CardType::Gear, gear_left);
+    fillSaved(CardType::Unit, unit_left);
+    fillSaved(CardType::Spell, spell_left);
+    fillSaved(CardType::Gear, gear_left);
 
-    // Pool cards fill what the saved lists did not. Costs are spread the way a
+    // Pool cards fill what the saved lists did not. A card the lists already
+    // play is not raised past the count they play. Costs are spread the way a
     // played list is spread (more 1s and 2s than 5s). Inside a cost, a card
-    // that shares words with the legend comes first. That is a preference, not
-    // a keyword rule, and a channel or ramp spell is never the filler.
-    auto fillFromPool = [&](CardType type, int& quota) {
+    // that shares words with the legend comes first. A channel spell, and a
+    // unit or gear that says "Channel N rune(s)", is not this filler.
+    auto fillFromPool = [&](CardType type, int& quota, bool plan_only) {
         if (quota <= 0) return;
         struct Band {
             int lo;
@@ -823,10 +1345,16 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
                 auto consider = [&](CardDefId id) {
                     const CardDef& card = db.get(id);
                     if (card.card_type != type || !legalHere(card)) return;
+                    if (played.count(card.name)) return;
                     if (card.energy_cost < lo || card.energy_cost > hi) return;
                     if (type == CardType::Spell && isChannelOrRampSpell(card)) return;
                     if ((type == CardType::Unit || type == CardType::Gear) && instructsChannel(card))
                         return;
+                    if (plan_only) {
+                        if (!carries(card)) return;
+                    } else if (carries(card)) {
+                        return;
+                    }
                     if (room(card) <= 0) return;
                     if (!best) {
                         best = &card;
@@ -843,7 +1371,7 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
                 for (CardDefId id : pool->signatures) consider(id);
                 if (!best) break;
                 const int n = std::min(need - got, std::min(quota, std::min(CopyCounts::kCopiesPerName, room(*best))));
-                const int added = take(best->id, n, quota);
+                const int added = take(best->id, n, quota, !plan_only, false);
                 if (added <= 0) break;
                 got += added;
             }
@@ -858,9 +1386,13 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         }
         if (quota > 0) fillBand(0, 99, quota);
     };
-    fillFromPool(CardType::Unit, unit_left);
-    fillFromPool(CardType::Spell, spell_left);
-    fillFromPool(CardType::Gear, gear_left);
+    auto fillPool = [&](CardType type, int& quota) {
+        fillFromPool(type, quota, true);
+        fillFromPool(type, quota, false);
+    };
+    fillPool(CardType::Unit, unit_left);
+    fillPool(CardType::Spell, spell_left);
+    fillPool(CardType::Gear, gear_left);
 
     bool shifted = false;
     if (spell_left > 0 || gear_left > 0) {
@@ -868,13 +1400,13 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         unit_left += spell_left + gear_left;
         spell_left = 0;
         gear_left = 0;
-        fillFromPool(CardType::Unit, unit_left);
+        fillPool(CardType::Unit, unit_left);
     }
     if (unit_left > 0) {
         shifted = true;
         spell_left += unit_left;
         unit_left = 0;
-        fillFromPool(CardType::Spell, spell_left);
+        fillPool(CardType::Spell, spell_left);
     }
     if (static_cast<int>(deck.main_deck.size()) != kMainDeckCards)
         throw std::runtime_error("the legal pool for '" + found->name +
@@ -1140,7 +1672,6 @@ std::string formatLegendPlaybook(const CardDB& db, const CardRegistry& registry,
 
     const CardDef& legend = db.get(built.deck.legend);
     const CardDef& champion = db.get(built.deck.chosen_champion);
-    const DeckReport report = analyzeDeck(built.deck, db);
 
     std::ostringstream out;
     out << "Playbook for " << built.legend_query << "\n";
@@ -1202,29 +1733,81 @@ std::string formatLegendPlaybook(const CardDB& db, const CardRegistry& registry,
 
     out << "Plan\n";
     out << "----\n";
-    out << "Printed on " << legend.name << ":\n";
     const std::string legend_text = printedRaw(legend);
+    if (built.plan_name.empty()) out << "Plan: The printed line.\n";
+    else out << "Plan: " << built.plan_name << ".\n";
+    out << "Printed on " << legend.name << ": ";
     if (legend_text.empty()) out << "This card has no printed ability text.\n";
     else out << legend_text << "\n";
-    out << "\nPrinted on the chosen champion " << champion.name << ":\n";
+    if (!built.plan_detail.empty()) out << built.plan_detail << "\n";
+    const std::vector<NamedCopy> main_copies = copiesInMain(built.deck, db);
+    std::set<std::string> aside;
+    for (const std::string& name : built.curve_filler_lists) aside.insert(name);
+    for (const std::string& name : built.curve_filler_pool) aside.insert(name);
+    for (const std::string& name : built.plan_from_pool) aside.insert(name);
+    std::vector<std::string> list_carrier_names;
+    for (const NamedCopy& line : main_copies)
+        if (!aside.count(line.name)) list_carrier_names.push_back(line.name);
+    const std::vector<NamedCopy> list_carriers = pickNamed(main_copies, list_carrier_names);
+    const std::vector<NamedCopy> pool_carriers = pickNamed(main_copies, built.plan_from_pool);
+    if (list_carriers.empty() && pool_carriers.empty()) {
+        out << "Carries this plan: no card in this list.\n";
+    } else if (!list_carriers.empty()) {
+        out << "Carries this plan: " << joinNamed(list_carriers) << ".\n";
+        if (!pool_carriers.empty()) {
+            out << "Also from the card pool, because the saved lists do not fill 39 with cards that "
+                   "carry this plan: "
+                << joinNamed(pool_carriers) << ".\n";
+        }
+    } else {
+        out << "Carries this plan: " << joinNamed(pool_carriers) << ".\n";
+    }
+    std::vector<NamedCopy> early;
+    for (const NamedCopy& line : main_copies)
+        if (std::max(line.energy, line.power) <= 2) early.push_back(line);
+    if (early.empty()) {
+        const NamedCopy* cheapest = nullptr;
+        for (const NamedCopy& line : main_copies) {
+            if (aside.count(line.name)) continue;
+            if (!cheapest || std::max(line.energy, line.power) < std::max(cheapest->energy, cheapest->power))
+                cheapest = &line;
+        }
+        if (!cheapest && !main_copies.empty()) cheapest = &main_copies.front();
+        out << "Early turns pay ";
+        if (cheapest)
+            out << cheapest->copies << " " << cheapest->name << " (" << costPhrase(*cheapest) << ")";
+        else
+            out << "nothing in this list";
+        out << ". Going first, 2 runes are ready on turn 1 and 4 on turn 2. A cost is the greater of "
+               "the card's energy and its power.\n";
+    } else {
+        out << "Early turns pay " << joinNamed(early)
+            << ". Going first, 2 runes are ready on turn 1 and 4 on turn 2. A cost is the greater of "
+               "the card's energy and its power.\n";
+    }
+    const std::vector<NamedCopy> list_filler = pickNamed(main_copies, built.curve_filler_lists);
+    const std::vector<NamedCopy> pool_filler = pickNamed(main_copies, built.curve_filler_pool);
+    if (list_filler.empty() && pool_filler.empty()) {
+        out << "No slot is curve filler.\n";
+    } else {
+        if (!list_filler.empty()) {
+            out << "Curve filler: " << joinNamed(list_filler)
+                << ". The saved lists play these cards. These slots are outside the plan.\n";
+        }
+        if (!pool_filler.empty()) {
+            out << "Curve filler from the card pool: " << joinNamed(pool_filler) << ". ";
+            if (built.split_sources.empty())
+                out << "No saved list was found, so the card pool fills these slots.\n";
+            else
+                out << "The saved lists had no further card that could fill these slots on "
+                    << built.legality_date << ".\n";
+        }
+    }
+    out << "\nPrinted on the chosen champion " << champion.name << ": ";
     const std::string champion_text = printedRaw(champion);
     if (champion_text.empty()) out << "This card has no printed ability text.\n";
     else out << champion_text << "\n";
-    out << "\nThe deck breakdown reads these roles from printed cost, keywords, and ability text.\n";
-    if (report.roles.empty()) {
-        out << "The deck breakdown listed no role.\n";
-    } else {
-        for (const DeckRole& role : report.roles) {
-            out << "- " << role.title << " (" << role.reason << "): ";
-            for (size_t i = 0; i < role.cards.size(); ++i) {
-                if (i > 0) out << ", ";
-                out << role.cards[i].copies << " " << role.cards[i].name;
-                if (role.cards[i].champion) out << " (includes the champion)";
-            }
-            out << ".\n";
-        }
-    }
-    out << "A played plan past the early turns below is unread.\n\n";
+    out << "\n";
 
     out << "Early turns\n";
     out << "-----------\n";
