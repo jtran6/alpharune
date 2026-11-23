@@ -11,8 +11,10 @@
 #include <cctype>
 #include <filesystem>
 #include <fstream>
+#include <set>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace riftbound::test::deck_builder {
 
@@ -574,6 +576,12 @@ Runes:
 
     const std::string yi_book = formatLegendPlaybook(g_db, g_registry, yi, 0, 1);
     EXPECT_NE(yi_book.find("Plan: Defend alone."), std::string::npos) << yi_book;
+    EXPECT_NE(yi.plan_detail.find(
+                  "A friendly unit that defends alone gets the Might on that line."),
+              std::string::npos)
+        << yi.plan_detail;
+    EXPECT_EQ(yi.plan_detail.find("counters a spell"), std::string::npos) << yi.plan_detail;
+    EXPECT_EQ(yi.plan_detail.find("only unit"), std::string::npos) << yi.plan_detail;
     EXPECT_NE(yi_book.find("While a friendly unit defends alone, it gets +2 [M]."), std::string::npos)
         << yi_book;
     EXPECT_NE(yi_book.find("Legality date: 20261123"), std::string::npos) << yi_book;
@@ -585,6 +593,14 @@ Runes:
     EXPECT_NE(yi_book.find("list-b.txt"), std::string::npos) << yi_book;
     EXPECT_NE(yi_book.find("Early turns pay"), std::string::npos) << yi_book;
     EXPECT_TRUE(lineNamesAMainDeckCard(yi_book, "Carries this plan: ", yi)) << yi_book;
+    const auto carries_at = yi_book.find("Carries this plan: ");
+    ASSERT_NE(carries_at, std::string::npos) << yi_book;
+    const auto carries_end = yi_book.find('\n', carries_at);
+    const std::string carries_line = yi_book.substr(
+        carries_at, carries_end == std::string::npos ? std::string::npos : carries_end - carries_at);
+    EXPECT_EQ(carries_line.find("Defy"), std::string::npos) << carries_line;
+    EXPECT_EQ(carries_line.find("Discipline"), std::string::npos) << carries_line;
+    EXPECT_EQ(carries_line.find("En Garde"), std::string::npos) << carries_line;
     EXPECT_NE(yi_book.find("Curve filler: "), std::string::npos) << yi_book;
     EXPECT_TRUE(lineNamesAMainDeckCard(yi_book, "Curve filler: ", yi)) << yi_book;
     const auto filler_at = yi_book.find("Curve filler: ");
@@ -602,6 +618,10 @@ Runes:
     EXPECT_GT(garen_counts.spells, 0);
     const std::string garen_book = formatLegendPlaybook(g_db, g_registry, garen, 0, 1);
     EXPECT_NE(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
+    EXPECT_NE(garen.plan_detail.find("draws 2"), std::string::npos) << garen.plan_detail;
+    EXPECT_NE(garen.plan_detail.find("4+ units at that battlefield"), std::string::npos)
+        << garen.plan_detail;
+    EXPECT_EQ(garen.plan_detail.find("enough of your units"), std::string::npos) << garen.plan_detail;
     EXPECT_NE(garen_book.find("When you conquer, if you have 4+ units at that battlefield, draw 2."),
               std::string::npos)
         << garen_book;
@@ -613,6 +633,207 @@ Runes:
     EXPECT_TRUE(garen_book.find("No slot is curve filler.") != std::string::npos ||
                 garen_book.find("Curve filler") != std::string::npos)
         << garen_book;
+}
+
+std::string carriesLine(const std::string& book) {
+    const auto pos = book.find("Carries this plan: ");
+    if (pos == std::string::npos) return {};
+    const auto end = book.find('\n', pos);
+    return book.substr(pos, end == std::string::npos ? std::string::npos : end - pos);
+}
+
+TEST_F(DeckBuilderTest, PlanNamesThePrintedLineAndCarriersDoThatLine) {
+    auto check = [&](const char* query, const std::vector<const char*>& in_name,
+                     const std::vector<const char*>& in_detail,
+                     const std::vector<const char*>& absent) {
+        const DeckBuild built = buildLegendDeck(g_db, query, {});
+        expectLegalOnRadianceDate(built);
+        const MainCounts counts = countMain(built);
+        EXPECT_LT(counts.units, 39) << query;
+        EXPECT_GT(counts.spells, 0) << query;
+        for (const char* needle : in_name)
+            EXPECT_NE(built.plan_name.find(needle), std::string::npos)
+                << query << "\n" << built.plan_name;
+        for (const char* needle : in_detail)
+            EXPECT_NE(built.plan_detail.find(needle), std::string::npos)
+                << query << "\n" << built.plan_detail;
+        for (const char* needle : absent) {
+            EXPECT_EQ(built.plan_name.find(needle), std::string::npos)
+                << query << "\n" << built.plan_name;
+            EXPECT_EQ(built.plan_detail.find(needle), std::string::npos)
+                << query << "\n" << built.plan_detail;
+        }
+        const std::string book = formatLegendPlaybook(g_db, g_registry, built, 0, 1);
+        EXPECT_NE(book.find("Plan: " + built.plan_name + "."), std::string::npos) << query << "\n"
+                                                                                    << book;
+        EXPECT_NE(book.find("Legality date: 20261123"), std::string::npos) << book;
+        EXPECT_EQ(book.find("win rate"), std::string::npos) << book;
+        return built.plan_name;
+    };
+
+    std::set<std::string> names;
+    auto keep = [&](const std::string& name) {
+        EXPECT_TRUE(names.insert(name).second) << name;
+    };
+
+    keep(check("Akali, Rogue Assassin",
+               {"showdown", "to base", "Empowered"},
+               {"only if this legend is Empowered", "does not carry this line"},
+               {"Move a friendly unit."}));
+    keep(check("Yasuo, Unforgiven",
+               {"to or from its base"},
+               {"to or from its base"},
+               {"showdown", "Empowered"}));
+    keep(check("Jarvan IV, Exemplar of Demacia",
+               {"Deploy", "that battlefield"},
+               {"Deploy"},
+               {"showdown", "to base"}));
+    keep(check("Kha'Zix, Voidreaver",
+               {"exhausted", "to its base"},
+               {"exhausted friendly unit"},
+               {"showdown", "Move a friendly unit."}));
+    keep(check("Sett, The Boss",
+               {"recall", "ready me"},
+               {"readies this legend"},
+               {"4+", "draw 2", "enough of your units"}));
+    keep(check("Vi, Piltover Enforcer",
+               {"excess damage"},
+               {"excess damage"},
+               {"4+", "draw 2", "enough of your units"}));
+    keep(check("LeBlanc, Deceiver",
+               {"copy"},
+               {"copies a unit"},
+               {"4+", "draw 2", "enough of your units"}));
+    keep(check("Leona, Radiant Dawn",
+               {"When you stun"},
+               {"before this legend buffs"},
+               {"The line stuns an enemy unit and buffs"}));
+    keep(check("Fiora, Grand Duelist",
+               {"becomes"},
+               {"becomes Mighty"},
+               {"Mighty units", "play a Mighty", "when you play a Mighty unit"}));
+    keep(check("Irelia, Blade Dancer",
+               {"choose a friendly unit", "ready me"},
+               {"chooses a friendly unit"},
+               {"The line chooses a friendly unit"}));
+    keep(check("Nasus, Curator of the Sands",
+               {"runes"},
+               {"readies runes, not a unit"},
+               {"Ready a unit", "The line readies a unit"}));
+    keep(check("Sivir, Battle Mistress",
+               {"recycle", "ready me"},
+               {"recycles a rune"},
+               {"Ready a unit", "The line readies a unit"}));
+    keep(check("Lillia, Bashful Bloom",
+               {"Sprite", "Temporary"},
+               {"Temporary"},
+               {"Ready a unit", "The line readies a unit"}));
+    keep(check("Jayce, Defender of Tomorrow",
+               {"Ready a gear", "Ready 2 gear"},
+               {"does not attach"},
+               {"Equipment", "gear on a unit"}));
+    keep(check("Ivern, Green Father",
+               {"Brush"},
+               {"Brush"},
+               {"pays off a hold", "The line pays off a hold"}));
+
+    const auto akali_root = std::filesystem::temp_directory_path() / "riftbound-deck-builder-akali-plan";
+    std::filesystem::remove_all(akali_root);
+    const auto akali_dir = akali_root / "internal" / "deck-catalogue" / "lists";
+    std::filesystem::create_directories(akali_dir);
+    {
+        std::ofstream out(akali_dir / "list-a.txt");
+        out << R"(Legend:
+1 Akali, Rogue Assassin
+
+Champion:
+1 Akali, Deadly Weapon
+
+MainDeck:
+3 Stellacorn Herder
+3 Mournful Witness
+3 Astral Heron
+3 Kai'Sa, Survivor
+3 Blitzcrank, Impassive
+3 Noxus Hopeful
+3 Charm
+3 Defy
+3 Discipline
+3 Shuriken Flip
+3 Falling Star
+3 Back Off
+3 Rage Amplifier
+
+Battlefields:
+1 Sigil of the Storm
+1 Void Gate
+1 Forgotten Monument
+
+Runes:
+6 Fury Rune
+6 Calm Rune
+)";
+    }
+    const DeckBuild akali = buildLegendDeck(g_db, "Akali, Rogue Assassin", {akali_root.string()});
+    expectLegalOnRadianceDate(akali);
+    EXPECT_GE(countNamed(akali, "Charm"), 1);
+    EXPECT_GE(countNamed(akali, "Shuriken Flip"), 1);
+    EXPECT_GE(countNamed(akali, "Rage Amplifier"), 1);
+    const std::string akali_book = formatLegendPlaybook(g_db, g_registry, akali, 0, 1);
+    const std::string akali_carries = carriesLine(akali_book);
+    EXPECT_EQ(akali_carries.find("Charm"), std::string::npos) << akali_carries;
+    EXPECT_EQ(akali_carries.find("Shuriken Flip"), std::string::npos) << akali_carries;
+    EXPECT_EQ(akali_carries.find("Rage Amplifier"), std::string::npos) << akali_carries;
+    EXPECT_EQ(akali_carries.find("Defy"), std::string::npos) << akali_carries;
+    EXPECT_TRUE(lineNamesAMainDeckCard(akali_book, "Carries this plan: ", akali)) << akali_book;
+
+    const auto garen_root = std::filesystem::temp_directory_path() / "riftbound-deck-builder-garen-plan";
+    std::filesystem::remove_all(garen_root);
+    const auto garen_dir = garen_root / "internal" / "deck-catalogue" / "lists";
+    std::filesystem::create_directories(garen_dir);
+    {
+        std::ofstream out(garen_dir / "list-a.txt");
+        out << R"(Legend:
+1 Garen, Might of Demacia
+
+Champion:
+1 Garen, Rugged
+
+MainDeck:
+3 Soaring Scout
+3 Recruit (DE)
+3 Recruit (NX)
+3 Noxian Drummer
+3 Noxian Demolitionist
+3 Irresistible Faefolk
+3 Flurry of Blades
+3 Repulse
+3 Cannon Barrage
+3 Wallop
+3 Stare Down
+3 For Demacia!
+3 Cataclysm
+
+Battlefields:
+1 Altar to Unity
+1 Back-Alley Bar
+1 Bandle Tree
+
+Runes:
+6 Body Rune
+6 Order Rune
+)";
+    }
+    const DeckBuild garen = buildLegendDeck(g_db, "Garen, Might of Demacia", {garen_root.string()});
+    expectLegalOnRadianceDate(garen);
+    EXPECT_GE(countNamed(garen, "Cannon Barrage"), 1);
+    EXPECT_GE(countNamed(garen, "Wallop"), 1);
+    const std::string garen_book = formatLegendPlaybook(g_db, g_registry, garen, 0, 1);
+    const std::string garen_carries = carriesLine(garen_book);
+    EXPECT_EQ(garen_carries.find("Cannon Barrage"), std::string::npos) << garen_carries;
+    EXPECT_EQ(garen_carries.find("Wallop"), std::string::npos) << garen_carries;
+    EXPECT_TRUE(lineNamesAMainDeckCard(garen_book, "Carries this plan: ", garen)) << garen_book;
+    EXPECT_NE(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
 }
 
 }  // namespace riftbound::test::deck_builder

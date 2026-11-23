@@ -209,33 +209,6 @@ bool givesMight(const CardDef& card, const std::string& text) {
     return false;
 }
 
-bool readiesUnit(const std::string& text) {
-    const char* word = "ready";
-    for (size_t i = 0; i + 5 <= text.size(); ++i) {
-        if (text.compare(i, 5, word) != 0) continue;
-        if (i > 0 && !boundary(text[i - 1])) continue;
-        size_t end = i + 5;
-        while (end < text.size() && std::isalpha(static_cast<unsigned char>(text[end]))) ++end;
-        const std::string after = text.substr(end, 48);
-        const bool unit = containsPhrase(after, "unit") || containsPhrase(after, " me") ||
-                          containsPhrase(after, " it") || containsPhrase(after, "them") ||
-                          containsPhrase(after, "friendly");
-        const bool only_runes = containsPhrase(after, "rune") && !containsPhrase(after, "unit");
-        if (unit && !only_runes) return true;
-    }
-    return false;
-}
-
-bool countersSpell(const std::string& text) { return hasStem(text, "counter"); }
-
-bool dealsDamage(const std::string& text) {
-    return hasStem(text, "damage") || hasWord(text, "fight") || hasStem(text, "deal");
-}
-
-bool removesUnit(const std::string& text) {
-    return hasWord(text, "kill") || hasWord(text, "kills") || hasStem(text, "banish");
-}
-
 /// A spell that channels, or a unit or gear whose text says "Channel N rune(s)",
 /// does not carry a plan as filler. "Only channel" and "channel that many" stay
 /// out of that test, the same way `instructsChannel` reads them.
@@ -244,180 +217,391 @@ bool channelsAsFiller(const CardDef& card) {
     return instructsChannel(card);
 }
 
-bool protectsUnit(const CardDef& card, const std::string& text) {
-    return givesMight(card, text) || countersSpell(text) || card.keywords.has(Keyword::Deflect) ||
-           (containsPhrase(text, "prevent") && containsPhrase(text, "damage"));
+/// "Ready a gear" / "Ready 2 gear". The words after "ready" name a gear, not a unit
+/// and not runes.
+bool readiesGear(const std::string& text) {
+    const char* word = "ready";
+    for (size_t i = 0; i + 5 <= text.size(); ++i) {
+        if (text.compare(i, 5, word) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        size_t end = i + 5;
+        while (end < text.size() && std::isalpha(static_cast<unsigned char>(text[end]))) ++end;
+        const std::string after = text.substr(end, 32);
+        if (containsPhrase(after, "gear") && !containsPhrase(after, "unit")) return true;
+    }
+    return false;
 }
 
-enum class PlanKind {
+bool givesBuff(const std::string& text) {
+    return hasWord(text, "buff") || hasWord(text, "buffs") || hasWord(text, "buffed");
+}
+
+bool drawsForUnitsAtBattlefield(const std::string& text) {
+    if (!hasStem(text, "draw") || !containsPhrase(text, "unit") || !containsPhrase(text, "battlefield"))
+        return false;
+    for (char c : text)
+        if (std::isdigit(static_cast<unsigned char>(c)) != 0 || c == '+') return true;
+    return false;
+}
+
+/// The first number after "energy cost", when the line then readies runes.
+int runeReadyEnergyGate(const std::string& text) {
+    const auto at = text.find("energy cost");
+    if (at == std::string::npos) return 0;
+    if (!containsPhrase(text, "rune") || !hasStem(text, "ready")) return 0;
+    for (size_t i = at; i < text.size(); ++i) {
+        if (std::isdigit(static_cast<unsigned char>(text[i])) == 0) continue;
+        int n = 0;
+        while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i])) != 0)
+            n = n * 10 + (text[i++] - '0');
+        return n;
+    }
+    return 0;
+}
+
+std::string collapseSpace(std::string s) {
+    std::string out;
+    bool pending = false;
+    for (char c : s) {
+        if (c == '\n' || c == '\r' || c == '\t') c = ' ';
+        if (c == ' ') {
+            pending = !out.empty();
+            continue;
+        }
+        if (pending) out.push_back(' ');
+        pending = false;
+        out.push_back(c);
+    }
+    return trimCopy(out);
+}
+
+bool effectVerb(const std::string& lower) {
+    static const char* verbs[] = {
+        "move",     "ready",   "stun",    "draw",    "conquer", "hold",    "play",
+        "buff",     "channel", "kill",    "banish",  "hide",    "attach",  "equip",
+        "recycle",  "give",    "gain",    "spend",   "win",     "choose",  "discard",
+        "reveal",   "return",  "heal",    "recall",  "replace", "become",  "deal",
+        "fight",    "score",   "defend",  "attack",  "copy",    "reduce",  "assign"};
+    for (const char* verb : verbs)
+        if (hasStem(lower, verb)) return true;
+    return false;
+}
+
+/// The printed effect, reminders removed. A sentence that is only an Empower
+/// cost is not the effect. The playbook still quotes the raw card above this.
+std::string printedPlanName(const CardDef& legend) {
+    const std::string stripped = stripParentheticals(printedRaw(legend));
+    std::string name;
+    std::string cur;
+    auto take = [&](std::string sentence) {
+        sentence = collapseSpace(std::move(sentence));
+        if (sentence.empty() || !effectVerb(lowerCopy(sentence))) return;
+        if (!name.empty()) name.push_back(' ');
+        name += sentence;
+    };
+    for (char c : stripped) {
+        if (c == '\n' || c == '\r') c = ' ';
+        cur.push_back(c);
+        if (c == '.') {
+            take(cur);
+            cur.clear();
+        }
+    }
+    take(cur);
+    while (!name.empty() && (name.back() == '.' || name.back() == ' ')) name.pop_back();
+    if (name.empty()) return "The printed line";
+    return name;
+}
+
+/// What a spell or gear must do to carry this legend's own line. None means a
+/// spell does not carry it: the line's payoff is the legend's.
+enum class SpellNeed {
+    None,
     DefendAlone,
-    ChooseFriendly,
-    MoveFriendly,
-    ConquerUnits,
-    Equipment,
-    Stun,
-    Tank,
-    ChangeMight,
-    Mighty,
-    ReadyUnit,
-    Hidden,
-    Hold,
-    CombatWin,
-    Draw,
-    PlayUnit,
-    Fallback,
+    DrawForUnits,
+    ShowdownToBase,
+    Stuns,
+    BecomesMighty,
+    ChoosesFriendly,
+    RecycleRune,
+    Temporary,
+    ReadiesGear,
+    Brush,
+    Buff,
+    ExcessDamage,
+    CopiesUnit,
+    FriendlyBase,
+    Deploy,
+    ExhaustedToBase,
 };
 
 struct LegendPlan {
-    PlanKind kind = PlanKind::Fallback;
+    SpellNeed spell = SpellNeed::None;
     std::string name;
     std::string detail;
     std::string text;
-    bool mentions_ready = false;
-    bool mentions_empower = false;
+    /// A unit can be the unit the line uses.
+    bool unit_body = false;
+    /// Only a unit whose printed Might is 5 or more (the unit the line plays).
+    bool mighty_body = false;
+    /// Only a unit with Temporary.
+    bool temporary_body = false;
+    /// A gear is the object the line names.
+    bool gear_body = false;
+    /// Only a gear with Deploy.
+    bool deploy_gear = false;
+    /// A card whose energy cost is at least this. 0 means the cost is not the test.
+    int min_energy = 0;
 };
 
 LegendPlan readLegendPlan(const CardDef& legend) {
     LegendPlan plan;
     plan.text = planText(legend);
     const std::string& text = plan.text;
-    plan.mentions_ready = hasStem(text, "ready");
-    plan.mentions_empower = containsPhrase(text, "empower");
-    auto kind = [&](PlanKind which, const char* name, const char* detail) {
-        plan.kind = which;
-        plan.name = name;
+    const std::string printed = printedPlanName(legend);
+    auto printedAs = [&](const char* detail, SpellNeed spell) {
+        plan.name = printed;
         plan.detail = detail;
+        plan.spell = spell;
     };
-    if (hasStem(text, "defend") && containsPhrase(text, "alone")) {
-        kind(PlanKind::DefendAlone, "Defend alone",
-             "A friendly unit that defends alone gets the Might on that line. A unit carries it as "
-             "that body. A spell or a gear carries it when it raises Might, counters a spell, or "
-             "keeps that unit alone.");
-    } else if (containsPhrase(text, "choose a friendly unit") ||
-               (containsPhrase(text, "choose") && containsPhrase(text, "friendly unit"))) {
-        kind(PlanKind::ChooseFriendly, "Choose a friendly unit",
-             "The line chooses a friendly unit. A unit carries it as the one chosen. A spell or a "
-             "gear carries it when it chooses a friendly unit, readies a unit, raises Might, or "
-             "counters a spell.");
-    } else if (hasStem(text, "move") && containsPhrase(text, "friendly")) {
-        kind(PlanKind::MoveFriendly, "Move a friendly unit",
-             "The line moves a friendly unit. A unit carries it as the one that moves. A spell or a "
-             "gear carries it when it moves a unit.");
-    } else if (hasStem(text, "conquer") && containsPhrase(text, "unit")) {
-        kind(PlanKind::ConquerUnits, "Conquer with units",
-             "The line pays off a conquer when enough of your units are at that battlefield. A unit "
-             "carries it as one of those bodies. A spell or a gear carries it when it raises Might, "
-             "deals damage, kills, moves, readies a unit, or draws.");
-    } else if (containsPhrase(text, "equipment") || containsPhrase(text, "weaponmaster") ||
-               containsPhrase(text, "attach") || containsPhrase(text, "play a gear") ||
-               containsPhrase(text, "play gear") || containsPhrase(text, "gear abilities") ||
-               containsPhrase(text, "ready a gear") || containsPhrase(text, "ready 2 gear") ||
-               containsPhrase(text, "friendly gear")) {
-        kind(PlanKind::Equipment, "Equipment",
-             "The line is about gear on a unit. A gear carries it, and so does a card that attaches "
-             "or equips. A unit carries it as the one the gear is on.");
-    } else if (hasStem(text, "stun")) {
-        kind(PlanKind::Stun, "Stun",
-             "The line stuns an enemy unit and buffs a friendly one. A card that stuns carries it. A "
-             "unit carries it as the one that is buffed. A spell or a gear carries it when it raises "
-             "Might or counters a spell.");
-    } else if (containsPhrase(text, "[tank]")) {
-        kind(PlanKind::Tank, "Give Tank",
-             "The line gives a friendly unit Tank. A unit carries it as that body. A spell or a gear "
-             "carries it when it gives Tank, raises Might, or counters a spell.");
-    } else if (hasWord(text, "buff") || hasWord(text, "buffs") || givesMight(legend, text)) {
-        kind(PlanKind::ChangeMight, "Change Might",
-             "The line changes a unit's Might. A unit carries it as that body. A spell or a gear "
-             "carries it when it changes Might.");
-    } else if (containsPhrase(text, "mighty") && containsPhrase(text, "channel")) {
-        kind(PlanKind::Mighty, "Mighty units",
-             "The line pays off when you play a Mighty unit. A unit with 5 or more Might carries it, "
-             "and so does a card that raises Might. A card that tells a player to channel does not "
-             "fill a slot.");
-    } else if (hasStem(text, "ready") && containsPhrase(text, "unit")) {
-        kind(PlanKind::ReadyUnit, "Ready a unit",
-             "The line readies a unit. A unit carries it as that body. A spell or a gear carries it "
-             "when it readies a unit.");
-    } else if (containsPhrase(text, "hidden") || hasWord(text, "hide")) {
-        kind(PlanKind::Hidden, "Hidden",
-             "The line is about a hidden card. A card with Hidden carries it, and so does a card that "
-             "hides one.");
-    } else if (hasStem(text, "hold")) {
-        kind(PlanKind::Hold, "Hold",
-             "The line pays off a hold. A unit carries it as a body that can hold a battlefield. A "
-             "spell or a gear carries it when it holds or scores.");
-    } else if (containsPhrase(text, "win a combat")) {
-        kind(PlanKind::CombatWin, "Win a combat",
-             "The line pays off winning a combat. A unit carries it as a body in that combat. A spell "
-             "or a gear carries it when it raises Might, deals damage, kills, or draws.");
-    } else if (hasStem(text, "draw")) {
-        kind(PlanKind::Draw, "Draw",
-             "The line draws a card. A spell or a gear that draws carries it.");
-    } else if (containsPhrase(text, "play a unit") || containsPhrase(text, "when you play a unit")) {
-        kind(PlanKind::PlayUnit, "Play a unit",
-             "The line triggers when you play a unit. A unit carries it as that play.");
-    } else {
-        kind(PlanKind::Fallback, "The printed line",
-             "The printed line does not name a narrower action. A card that shares a word with it "
-             "carries it.");
+
+    // "While a friendly unit defends alone, it gets +2 [M]." The +2 is the
+    // legend's. "The only unit you control there" is not "defends alone."
+    if (hasStem(text, "defend") && hasWord(text, "alone")) {
+        plan.name = "Defend alone";
+        plan.detail =
+            "A friendly unit that defends alone gets the Might on that line. A unit carries it as "
+            "that body. A spell or a gear carries it when it says a unit defends alone.";
+        plan.spell = SpellNeed::DefendAlone;
+        plan.unit_body = true;
+        return plan;
     }
-    if (plan.kind == PlanKind::MoveFriendly && plan.mentions_ready)
-        plan.detail += " When the line also readies that unit, a card that readies a unit carries it.";
-    if (plan.kind == PlanKind::MoveFriendly && plan.mentions_empower)
-        plan.detail += " When the line cares that the legend is Empowered, a card with Empower carries it.";
+    // "When you conquer, if you have 4+ units at that battlefield, draw 2."
+    // The draw is the legend's. Another conquer line does not get this reading.
+    if (hasStem(text, "conquer") && containsPhrase(text, "4+") && containsPhrase(text, "unit") &&
+        containsPhrase(text, "at that battlefield") && containsPhrase(text, "draw 2")) {
+        plan.name = "Conquer with units";
+        plan.detail =
+            "The line draws 2 when you conquer if you have 4+ units at that battlefield. A unit "
+            "carries it as one of those units. A spell or a gear carries it when it draws for 4+ "
+            "units at a battlefield.";
+        plan.spell = SpellNeed::DrawForUnits;
+        plan.unit_body = true;
+        return plan;
+    }
+    // "[E]: If it's your turn, move a friendly unit in a showdown to base and
+    // if I'm Empowered, ready it." The ready checks this legend.
+    if (hasStem(text, "move") && containsPhrase(text, "friendly") && containsPhrase(text, "showdown") &&
+        containsPhrase(text, "to base") && hasStem(text, "ready") && containsPhrase(text, "empowered")) {
+        plan.name = "Move a friendly unit in a showdown to base, and ready it only if this legend is "
+                     "Empowered";
+        plan.detail =
+            "If it is your turn, the line moves a friendly unit in a showdown to base, and readies "
+            "that unit only if this legend is Empowered. A unit carries it as the one moved. A spell "
+            "or a gear carries it when it moves a friendly unit in a showdown to base. A card with "
+            "Empower does not carry this line.";
+        plan.spell = SpellNeed::ShowdownToBase;
+        plan.unit_body = true;
+        return plan;
+    }
+
+    const int gate = runeReadyEnergyGate(text);
+    if (gate > 0) {
+        plan.min_energy = gate;
+        printedAs("The plan is the printed line above. A card with that energy cost or more carries "
+                  "it as the play the line names. The line readies runes, not a unit.",
+                  SpellNeed::None);
+        plan.detail = "The plan is the printed line above. A card with energy cost " +
+                      std::to_string(gate) +
+                      " or more carries it as the play the line names. The line readies runes, not a "
+                      "unit.";
+        return plan;
+    }
+    if (readiesGear(text)) {
+        plan.gear_body = true;
+        printedAs("The plan is the printed line above. A gear carries it as the gear that is readied. "
+                  "A spell carries it when it readies a gear. Readying a gear does not attach it.",
+                  SpellNeed::ReadiesGear);
+        return plan;
+    }
+    if (containsPhrase(text, "sprite") && containsPhrase(text, "temporary") &&
+        containsPhrase(text, "play")) {
+        plan.temporary_body = true;
+        printedAs("The plan is the printed line above. A unit with Temporary carries it. The line "
+                  "plays a ready Sprite token, and that ability costs less for each friendly unit "
+                  "with Temporary.",
+                  SpellNeed::Temporary);
+        return plan;
+    }
+    if (hasStem(text, "recycle") && containsPhrase(text, "rune") && containsPhrase(text, "ready me")) {
+        printedAs("The plan is the printed line above. A spell or a gear carries it when it recycles "
+                  "a rune. The Gold token and readying this legend are this legend's.",
+                  SpellNeed::RecycleRune);
+        return plan;
+    }
+    if (hasStem(text, "stun") && givesBuff(text) && containsPhrase(text, "friendly")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the friendly unit that is "
+                  "buffed. A spell or a gear carries it when it stuns an enemy unit. The stun happens "
+                  "before this legend buffs.",
+                  SpellNeed::Stuns);
+        return plan;
+    }
+    if (hasStem(text, "become") && containsPhrase(text, "mighty")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit that becomes "
+                  "Mighty. A spell or a gear carries it when it makes a unit become Mighty. The "
+                  "channel is this legend's.",
+                  SpellNeed::BecomesMighty);
+        return plan;
+    }
+    if (containsPhrase(text, "play") && containsPhrase(text, "mighty")) {
+        plan.mighty_body = true;
+        printedAs("The plan is the printed line above. A unit with 5 or more Might carries it as the "
+                  "Mighty unit this line plays. The channel is this legend's.",
+                  SpellNeed::None);
+        return plan;
+    }
+    if (containsPhrase(text, "choose") && containsPhrase(text, "friendly unit")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the friendly unit that is "
+                  "chosen. A spell or a gear carries it when it chooses a friendly unit. Readying "
+                  "that unit, and readying this legend when you conquer, are this legend's.",
+                  SpellNeed::ChoosesFriendly);
+        return plan;
+    }
+    if (containsPhrase(text, "brush")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as a unit you conquer or "
+                  "hold with. A spell or a gear carries it when it names Brush. The line replaces "
+                  "that battlefield with a Brush token.",
+                  SpellNeed::Brush);
+        return plan;
+    }
+    if (containsPhrase(text, "would die") &&
+        (hasStem(text, "recall") || hasStem(text, "heal"))) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the buffed unit the "
+                  "replacement keeps. A spell or a gear carries it when it buffs a unit. When you "
+                  "conquer, the line readies this legend.",
+                  SpellNeed::Buff);
+        return plan;
+    }
+    if (containsPhrase(text, "excess") && containsPhrase(text, "damage")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit the line "
+                  "readies. A spell or a gear carries it when it assigns excess damage.",
+                  SpellNeed::ExcessDamage);
+        return plan;
+    }
+    if (hasStem(text, "copy") && containsPhrase(text, "unit")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit that is copied. "
+                  "A spell or a gear carries it when it copies a unit.",
+                  SpellNeed::CopiesUnit);
+        return plan;
+    }
+    if (hasStem(text, "move") && containsPhrase(text, "exhausted") && containsPhrase(text, "friendly") &&
+        containsPhrase(text, "base")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the unit those abilities "
+                  "buff or move. A spell or a gear carries it when it buffs a unit, or moves an "
+                  "exhausted friendly unit from a battlefield to its base.",
+                  SpellNeed::ExhaustedToBase);
+        return plan;
+    }
+    if (containsPhrase(text, "deploy") && hasStem(text, "move") && containsPhrase(text, "friendly")) {
+        plan.unit_body = true;
+        plan.deploy_gear = true;
+        printedAs("The plan is the printed line above. A gear with Deploy carries it. A unit carries "
+                  "it as the friendly unit the line moves to that battlefield.",
+                  SpellNeed::Deploy);
+        return plan;
+    }
+    if (hasStem(text, "move") && containsPhrase(text, "friendly") && containsPhrase(text, "base")) {
+        plan.unit_body = true;
+        printedAs("The plan is the printed line above. A unit carries it as the friendly unit that is "
+                  "moved. A spell or a gear carries it when it moves a friendly unit to or from its "
+                  "base.",
+                  SpellNeed::FriendlyBase);
+        return plan;
+    }
+
+    plan.name = printed;
+    plan.spell = SpellNeed::None;
+    plan.unit_body = containsPhrase(text, "friendly unit") || containsPhrase(text, "your unit") ||
+                     containsPhrase(text, "unit you") || containsPhrase(text, "units you");
+    plan.gear_body = containsPhrase(text, "equipment") || containsPhrase(text, "attach") ||
+                     containsPhrase(text, "play a gear") || containsPhrase(text, "friendly gear") ||
+                     containsPhrase(text, "your gear");
+    plan.detail = "The plan is the printed line above.";
+    if (plan.unit_body) plan.detail += " A unit carries it as the unit that line uses.";
+    if (plan.gear_body) plan.detail += " A gear carries it as the gear that line names.";
     return plan;
 }
 
 bool carriesPlan(const LegendPlan& plan, const CardDef& card,
-                 const std::set<std::string>& legend_words) {
+                 const std::set<std::string>& /*legend_words*/) {
     if (channelsAsFiller(card)) return false;
     const std::string text = planText(card);
     const bool unit = card.card_type == CardType::Unit;
     const bool gear = card.card_type == CardType::Gear;
-    switch (plan.kind) {
-        case PlanKind::DefendAlone:
-        case PlanKind::Tank:
-            return unit || protectsUnit(card, text) || containsPhrase(text, "alone") ||
-                   containsPhrase(text, "only unit") || containsPhrase(text, "[tank]") ||
-                   card.keywords.has(Keyword::Tank);
-        case PlanKind::ChooseFriendly:
-            return unit || readiesUnit(text) || protectsUnit(card, text) ||
-                   containsPhrase(text, "friendly unit");
-        case PlanKind::MoveFriendly:
-            return unit || hasStem(text, "move") || (plan.mentions_ready && readiesUnit(text)) ||
-                   (plan.mentions_empower &&
-                    (card.keywords.has(Keyword::Empower) || containsPhrase(text, "empower")));
-        case PlanKind::ConquerUnits:
-            return unit || protectsUnit(card, text) || dealsDamage(text) || removesUnit(text) ||
-                   hasStem(text, "move") || hasStem(text, "stun") || readiesUnit(text) ||
-                   hasStem(text, "draw") || hasStem(text, "attack") || hasStem(text, "defend") ||
-                   hasStem(text, "conquer");
-        case PlanKind::Equipment:
-            return unit || gear || card.keywords.has(Keyword::Equip) ||
-                   card.keywords.has(Keyword::Weaponmaster) || card.keywords.has(Keyword::QuickDraw) ||
-                   containsPhrase(text, "equip") || containsPhrase(text, "attach");
-        case PlanKind::Stun:
-            return unit || hasStem(text, "stun") || protectsUnit(card, text);
-        case PlanKind::ChangeMight:
-            return unit || givesMight(card, text);
-        case PlanKind::Mighty:
-            return (unit && card.might >= 5) || givesMight(card, text) || containsPhrase(text, "mighty");
-        case PlanKind::ReadyUnit:
-            return unit || readiesUnit(text);
-        case PlanKind::Hidden:
-            return card.keywords.has(Keyword::Hidden) || containsPhrase(text, "hidden") ||
-                   hasWord(text, "hide");
-        case PlanKind::Hold:
-            return unit || hasStem(text, "hold") || hasStem(text, "score");
-        case PlanKind::CombatWin:
-            return unit || protectsUnit(card, text) || dealsDamage(text) || removesUnit(text) ||
-                   hasStem(text, "attack") || hasStem(text, "combat") || hasStem(text, "draw");
-        case PlanKind::Draw:
-            return hasStem(text, "draw");
-        case PlanKind::PlayUnit:
-            return unit || (gear && containsPhrase(plan.text, "gear"));
-        case PlanKind::Fallback:
-            return wordOverlap(legend_words, card) > 0;
+    const bool spellish = card.card_type == CardType::Spell || gear;
+
+    if (plan.min_energy > 0) return card.energy_cost >= plan.min_energy;
+    if (unit && plan.unit_body) return true;
+    if (unit && plan.mighty_body && card.might >= 5) return true;
+    if (unit && plan.temporary_body &&
+        (card.keywords.has(Keyword::Temporary) || containsPhrase(text, "temporary")))
+        return true;
+    if (gear && plan.gear_body) return true;
+    if (gear && plan.deploy_gear &&
+        (card.keywords.has(Keyword::Deploy) || containsPhrase(text, "deploy")))
+        return true;
+    if (!spellish) return false;
+
+    switch (plan.spell) {
+        case SpellNeed::None:
+            return false;
+        case SpellNeed::DefendAlone:
+            return hasStem(text, "defend") && hasWord(text, "alone");
+        case SpellNeed::DrawForUnits:
+            return drawsForUnitsAtBattlefield(text);
+        case SpellNeed::ShowdownToBase:
+            return hasStem(text, "move") && containsPhrase(text, "friendly") &&
+                   containsPhrase(text, "showdown") && containsPhrase(text, "to base");
+        case SpellNeed::Stuns:
+            return hasStem(text, "stun");
+        case SpellNeed::BecomesMighty:
+            return (hasStem(text, "become") && containsPhrase(text, "mighty")) || givesMight(card, text);
+        case SpellNeed::ChoosesFriendly:
+            return containsPhrase(text, "choose") && containsPhrase(text, "friendly unit");
+        case SpellNeed::RecycleRune:
+            return hasStem(text, "recycle") && containsPhrase(text, "rune");
+        case SpellNeed::Temporary:
+            return containsPhrase(text, "temporary");
+        case SpellNeed::ReadiesGear:
+            return readiesGear(text);
+        case SpellNeed::Brush:
+            return containsPhrase(text, "brush");
+        case SpellNeed::Buff:
+            return givesBuff(text);
+        case SpellNeed::ExcessDamage:
+            return containsPhrase(text, "excess") && containsPhrase(text, "damage");
+        case SpellNeed::CopiesUnit:
+            return hasStem(text, "copy") && containsPhrase(text, "unit");
+        case SpellNeed::FriendlyBase:
+            return hasStem(text, "move") && containsPhrase(text, "friendly") &&
+                   containsPhrase(text, "base") &&
+                   (containsPhrase(text, "to or from") || containsPhrase(text, "to its base") ||
+                    containsPhrase(text, "from its base") || containsPhrase(text, "to base") ||
+                    containsPhrase(text, "from base"));
+        case SpellNeed::Deploy:
+            return containsPhrase(text, "deploy");
+        case SpellNeed::ExhaustedToBase:
+            return (hasStem(text, "move") && containsPhrase(text, "exhausted") &&
+                    containsPhrase(text, "friendly") && containsPhrase(text, "base")) ||
+                   givesBuff(text);
     }
     return false;
 }
