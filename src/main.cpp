@@ -22,12 +22,16 @@
 ///                       world=sampled (default) is honest: each simulation
 ///                       runs in a world drawn from what the player knows
 ///                       (agents/determinizer.h); world=perfect searches the
-///                       real game and sees hidden cards
+///                       real game and sees hidden cards. At the root it
+///                       mixes actions with at least three quarters of the
+///                       leader's visits, in proportion to those visits; a
+///                       clear best is played outright
 ///   alpha[:sims=N][,world=sampled|perfect]
-///                     — the same honest search as ismcts, for a seat in a
-///                       real game. Omitting sims uses AlphaAgent::kDefaultSims
-///                       (50), the ismcts:sims=50 matchup budget. Answers are
-///                       taken from the actions the engine offers.
+///                     — the same honest search as ismcts, including that
+///                       root mix, for a seat in a real game. Omitting sims
+///                       uses AlphaAgent::kDefaultSims (50), the
+///                       ismcts:sims=50 matchup budget. Answers are taken
+///                       from the actions the engine offers.
 /// (agents/mcts_agent.{h,cpp}; keep this and the --help text below in step
 /// with that file.)
 ///
@@ -390,9 +394,13 @@ int main(int argc, char* argv[]) {
         "                    each simulation runs in a world drawn from what\n"
         "                    the player knows (the opponent's unseen cards\n"
         "                    from a legal deck around their legend, both deck\n"
-        "                    orders shuffled except known slots). It plays\n"
-        "                    the most visited option. world=perfect searches\n"
-        "                    copies of the real game and sees hidden cards.\n"
+        "                    orders shuffled except known slots). At the\n"
+        "                    root it mixes actions with at least three\n"
+        "                    quarters of the leader's visits, in proportion\n"
+        "                    to those visits; a clear best is played outright.\n"
+        "                    world=perfect searches copies of the real game\n"
+        "                    and sees hidden cards. The mix only chooses\n"
+        "                    among legal actions.\n"
         "                    Caveat for both: a god-mode edit bypasses the\n"
         "                    history the mirror is built from. After one the\n"
         "                    agent searches from a copy of the live state at\n"
@@ -400,7 +408,8 @@ int main(int argc, char* argv[]) {
         "                    other decision at random.\n"
         "  alpha[:sims=N][,world=sampled|perfect]\n"
         "                    The same honest information-set search as ismcts,\n"
-        "                    for seating an opponent in a real game. With no\n"
+        "                    including that root mix, for seating an opponent\n"
+        "                    in a real game. With no\n"
         "                    sims, N is 50 (the ismcts:sims=50 matchup budget).\n"
         "                    world=sampled (default) draws each simulation from\n"
         "                    what the player knows. world=perfect searches the\n"
