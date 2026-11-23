@@ -6,7 +6,8 @@
 /// saved lists when those lists are on disk under internal/deck-catalogue or
 /// internal/tournament-data. With none, the split stays near 18 units, 18
 /// spells, and 3 gear. `DeckValidator::validate` is the judge, on legality
-/// date 20261123. A channel or ramp spell is not added to fill a type count.
+/// date 20261123. A card that tells a player to channel is not added to fill a
+/// type count. A card the saved lists already play is kept.
 ///
 /// The playbook's played lines are `PlayByPlay` accounts of `GameEngine::runGame`.
 /// Both seats play this list with `random-player:pass=0`. A section with no
@@ -39,6 +40,17 @@ struct DeckBuild {
     int units = 0;
     int spells = 0;
     int gear = 0;
+    /// Median of the saved lists, before it was brought to 39 cards. Zero when
+    /// no saved list was found. This is not the built list when the three
+    /// medians do not already sum to 39.
+    int median_units = 0;
+    int median_spells = 0;
+    int median_gear = 0;
+    /// The 39-card split those medians were adjusted to. Equals the median when
+    /// that already sums to 39. Zero when no saved list was found.
+    int asked_units = 0;
+    int asked_spells = 0;
+    int asked_gear = 0;
     /// Saved lists the unit/spell/gear split was taken from. Empty when none
     /// were found and the split stays near 18 / 18 / 3.
     std::vector<std::string> split_sources;

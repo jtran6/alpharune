@@ -8,6 +8,7 @@
 #include "rules/deck_builder.h"
 #include "rules/deck_validator.h"
 
+#include <cctype>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -248,6 +249,261 @@ Sideboard:
 
 TEST_F(DeckBuilderTest, UnknownLegendIsRejected) {
     EXPECT_THROW(buildLegendDeck(g_db, "Not A Real Legend", {}), std::runtime_error);
+}
+
+// "Channel N rune(s)" tells a player to channel. "Only channel" limits the
+// Channel Phase. "Channel that many" replaces a channel. Same reading as the builder.
+bool textInstructsChannel(const CardDef& card) {
+    std::string text = card.ability_text;
+    if (!card.effect_text.empty()) {
+        if (!text.empty()) text.push_back('\n');
+        text += card.effect_text;
+    }
+    std::string stripped;
+    int depth = 0;
+    for (char c : text) {
+        if (c == '(') {
+            ++depth;
+            continue;
+        }
+        if (c == ')' && depth > 0) {
+            --depth;
+            continue;
+        }
+        if (depth == 0) stripped.push_back(static_cast<char>(std::tolower(static_cast<unsigned char>(c))));
+    }
+    for (std::size_t pos = 0; (pos = stripped.find("channel", pos)) != std::string::npos;) {
+        const bool only = pos >= 5 && stripped.compare(pos - 5, 5, "only ") == 0;
+        std::size_t i = pos + 7;
+        if (i < stripped.size() && stripped[i] == 's') ++i;
+        while (i < stripped.size() && std::isspace(static_cast<unsigned char>(stripped[i]))) ++i;
+        if (!only && i < stripped.size() && std::isdigit(static_cast<unsigned char>(stripped[i]))) {
+            while (i < stripped.size() && std::isdigit(static_cast<unsigned char>(stripped[i]))) ++i;
+            while (i < stripped.size() && std::isspace(static_cast<unsigned char>(stripped[i]))) ++i;
+            if (stripped.compare(i, 4, "rune") == 0) return true;
+        }
+        pos += 7;
+    }
+    return false;
+}
+
+void expectNoChannelFiller(const DeckBuild& built) {
+    for (CardDefId id : built.deck.main_deck) {
+        const CardDef& card = g_db.get(id);
+        if (card.card_type != CardType::Unit && card.card_type != CardType::Gear) continue;
+        EXPECT_FALSE(textInstructsChannel(card)) << card.name;
+    }
+}
+
+TEST_F(DeckBuilderTest, PlaybookStatesTheMedianAndTheAdjustmentTo39) {
+    const auto root = std::filesystem::temp_directory_path() / "riftbound-deck-builder-median";
+    std::filesystem::remove_all(root);
+    const auto over_dir = root / "over" / "internal" / "deck-catalogue" / "lists";
+    const auto under_dir = root / "under" / "internal" / "deck-catalogue" / "lists";
+    std::filesystem::create_directories(over_dir);
+    std::filesystem::create_directories(under_dir);
+
+    const char* tail = R"(
+Battlefields:
+1 Hunters' Circle
+1 Firelights' Hideout
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Body Rune
+)";
+    {
+        std::ofstream out(over_dir / "list-a.txt");
+        out << R"(Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Irelia, Fervent
+3 Poppy, Paragon
+3 Skystrike Squadron
+3 Kato the Arm
+3 Qiyana, Victorious
+3 Allay, Eager Admirer
+2 Steel Paws
+3 En Garde
+3 Defy
+3 Charm
+3 Discipline
+3 Rampage
+3 Punch First
+1 Not So Fast
+)" << tail;
+    }
+    {
+        std::ofstream out(over_dir / "list-b.txt");
+        out << R"(Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Irelia, Fervent
+3 Poppy, Paragon
+3 Skystrike Squadron
+3 Kato the Arm
+3 Qiyana, Victorious
+3 Allay, Eager Admirer
+2 Steel Paws
+3 En Garde
+3 Defy
+3 Charm
+3 Discipline
+3 Rampage
+3 Punch First
+1 Trinity Force
+)" << tail;
+    }
+
+    const DeckBuild over = buildLegendDeck(g_db, "Master Yi, Wuju Bladesman", {(root / "over").string()});
+    expectLegalOnRadianceDate(over);
+    EXPECT_EQ(over.median_units, 20);
+    EXPECT_EQ(over.median_spells, 19);
+    EXPECT_EQ(over.median_gear, 1);
+    EXPECT_EQ(over.asked_units, 19);
+    EXPECT_EQ(over.asked_spells, 19);
+    EXPECT_EQ(over.asked_gear, 1);
+    const std::string over_book = formatLegendPlaybook(g_db, g_registry, over, 0, 1);
+    EXPECT_NE(over_book.find(
+                  "The median of these saved lists is 20 units, 19 spells, and 1 gear (40 cards)."),
+              std::string::npos)
+        << over_book;
+    EXPECT_NE(over_book.find(
+                  "1 unit was removed so those counts sum to 39: 19 units, 19 spells, and 1 gear."),
+              std::string::npos)
+        << over_book;
+    EXPECT_EQ(over_book.find("is the median of these saved lists"), std::string::npos) << over_book;
+
+    const char* units20 = R"(3 Irelia, Fervent
+3 Poppy, Paragon
+3 Skystrike Squadron
+3 Kato the Arm
+3 Qiyana, Victorious
+3 Allay, Eager Admirer
+2 Steel Paws
+)";
+    const char* units18 = R"(3 Irelia, Fervent
+3 Poppy, Paragon
+3 Skystrike Squadron
+3 Kato the Arm
+3 Qiyana, Victorious
+3 Allay, Eager Admirer
+)";
+    const char* units16 = R"(3 Irelia, Fervent
+3 Poppy, Paragon
+3 Skystrike Squadron
+3 Kato the Arm
+3 Qiyana, Victorious
+1 Steel Paws
+)";
+    auto writeUnder = [&](const char* file, const char* units, const char* spells, const char* gear) {
+        std::ofstream out(under_dir / file);
+        out << "Legend:\n1 Master Yi, Wuju Bladesman\n\nChampion:\n1 Master Yi, Tempered\n\nMainDeck:\n"
+            << units << spells << gear << tail;
+    };
+    writeUnder("list-a.txt", units20,
+               "3 En Garde\n3 Defy\n3 Charm\n3 Discipline\n3 Rampage\n",
+               "3 Trinity Force\n1 Hand Hammer\n");
+    writeUnder("list-b.txt", units18,
+               "3 En Garde\n3 Defy\n3 Charm\n3 Discipline\n3 Rampage\n1 Punch First\n",
+               "3 Trinity Force\n2 Hand Hammer\n");
+    writeUnder("list-c.txt", units16,
+               "3 En Garde\n3 Defy\n3 Charm\n3 Discipline\n3 Rampage\n3 Punch First\n1 Sabotage\n",
+               "3 Trinity Force\n1 Hand Hammer\n");
+
+    const DeckBuild under =
+        buildLegendDeck(g_db, "Master Yi, Wuju Bladesman", {(root / "under").string()});
+    expectLegalOnRadianceDate(under);
+    EXPECT_EQ(under.split_sources.size(), 3u);
+    EXPECT_EQ(under.median_units, 18);
+    EXPECT_EQ(under.median_spells, 16);
+    EXPECT_EQ(under.median_gear, 4);
+    EXPECT_EQ(under.asked_units, 18);
+    EXPECT_EQ(under.asked_spells, 17);
+    EXPECT_EQ(under.asked_gear, 4);
+    const std::string under_book = formatLegendPlaybook(g_db, g_registry, under, 0, 1);
+    EXPECT_NE(under_book.find(
+                  "The median of these saved lists is 18 units, 16 spells, and 4 gear (38 cards)."),
+              std::string::npos)
+        << under_book;
+    EXPECT_NE(under_book.find("1 spell was added so those counts sum to 39: 18 units, 17 spells, and "
+                              "4 gear."),
+              std::string::npos)
+        << under_book;
+    EXPECT_EQ(under_book.find("is the median of these saved lists"), std::string::npos) << under_book;
+}
+
+TEST_F(DeckBuilderTest, FillerLeavesOutChannelUnitsAndGearTheListsDidNotPlay) {
+    const DeckBuild storm = buildLegendDeck(g_db, "Relentless Storm", {});
+    expectLegalOnRadianceDate(storm);
+    expectNoChannelFiller(storm);
+    EXPECT_EQ(countNamed(storm, "Stormclaw Ursine"), 0);
+    EXPECT_EQ(countNamed(storm, "Boneshiver"), 0);
+    EXPECT_EQ(countNamed(storm, "Coalesced Energy"), 0);
+    EXPECT_EQ(countNamed(storm, "Baccai Witherclaw"), 0);
+
+    const DeckBuild scout = buildLegendDeck(g_db, "Swift Scout", {});
+    expectLegalOnRadianceDate(scout);
+    expectNoChannelFiller(scout);
+    EXPECT_EQ(countNamed(scout, "Treasure Trove"), 0);
+
+    const DeckBuild sands = buildLegendDeck(g_db, "Emperor of the Sands", {});
+    expectLegalOnRadianceDate(sands);
+    expectNoChannelFiller(sands);
+    EXPECT_EQ(countNamed(sands, "Tasty Faefolk"), 0);
+    EXPECT_EQ(countNamed(sands, "Resplendent Rostrum"), 0);
+
+    const auto root = std::filesystem::temp_directory_path() / "riftbound-deck-builder-channel";
+    std::filesystem::remove_all(root);
+    const auto dir = root / "internal" / "deck-catalogue" / "lists";
+    std::filesystem::create_directories(dir);
+    {
+        std::ofstream out(dir / "list-a.txt");
+        out << R"(Legend:
+1 Garen, Might of Demacia
+
+Champion:
+1 Garen, Rugged
+
+MainDeck:
+3 Soaring Scout
+3 Recruit (DE)
+3 Recruit (NX)
+3 Noxian Drummer
+3 Noxian Demolitionist
+3 Irresistible Faefolk
+3 Flurry of Blades
+3 Repulse
+3 Cannon Barrage
+3 Stare Down
+3 For Demacia!
+3 Cataclysm
+3 Symbol of the Solari
+
+Battlefields:
+1 Altar to Unity
+1 Back-Alley Bar
+1 Bandle Tree
+
+Runes:
+6 Body Rune
+6 Order Rune
+)";
+    }
+    const DeckBuild garen = buildLegendDeck(g_db, "Garen, Might of Demacia", {root.string()});
+    expectLegalOnRadianceDate(garen);
+    EXPECT_EQ(countNamed(garen, "Soaring Scout"), 3);
+    EXPECT_EQ(countNamed(garen, "Boneshiver"), 0);
+    EXPECT_EQ(countNamed(garen, "Stormclaw Ursine"), 0);
 }
 
 }  // namespace riftbound::test::deck_builder

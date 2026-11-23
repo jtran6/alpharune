@@ -3,8 +3,10 @@
 ///
 /// Saved lists under internal/deck-catalogue and internal/tournament-data set
 /// the main deck's unit, spell, and gear counts. With none, the split stays
-/// near 18, 18, and 3. Cards banned on 20261123 are left out. A channel or
-/// ramp spell is not added just to fill a type count. DeckValidator is the
+/// near 18, 18, and 3. When those three medians do not sum to 39, the playbook
+/// says the median and the adjustment. Cards banned on 20261123 are left out.
+/// A card that tells a player to channel is not added just to fill a type
+/// count. A card the saved lists already play is kept. DeckValidator is the
 /// judge on that date. Mirror games go through GameEngine::runGame with a
 /// PlayByPlay account.
 
@@ -130,6 +132,28 @@ bool isChannelOrRampSpell(const CardDef& card) {
     if (card.card_type != CardType::Spell) return false;
     const std::string text = lowerCopy(printedRaw(card));
     return text.find("channel") != std::string::npos;
+}
+
+/// A printed instruction to channel runes, "Channel X rune(s)" (CR 431.5).
+/// Filler uses this for units and gear. Spells stay on isChannelOrRampSpell.
+/// "Only channel" limits the Channel Phase (Sandstone Chimera) and is not an
+/// instruction. "If you would channel runes, channel that many" replaces a
+/// channel (Seraphic Wyvern) and is not one either.
+bool instructsChannel(const CardDef& card) {
+    const std::string text = lowerCopy(stripParentheticals(printedRaw(card)));
+    for (std::size_t pos = 0; (pos = text.find("channel", pos)) != std::string::npos;) {
+        const bool only = pos >= 5 && text.compare(pos - 5, 5, "only ") == 0;
+        std::size_t i = pos + (sizeof("channel") - 1);
+        if (i < text.size() && text[i] == 's') ++i;
+        while (i < text.size() && std::isspace(static_cast<unsigned char>(text[i]))) ++i;
+        if (!only && i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) {
+            while (i < text.size() && std::isdigit(static_cast<unsigned char>(text[i]))) ++i;
+            while (i < text.size() && std::isspace(static_cast<unsigned char>(text[i]))) ++i;
+            if (text.compare(i, 4, "rune") == 0) return true;
+        }
+        pos += sizeof("channel") - 1;
+    }
+    return false;
 }
 
 std::string bareTitle(const CardDef& legend) {
@@ -336,27 +360,67 @@ struct Split {
     int units = 18;
     int spells = 18;
     int gear = 3;
+    int sum() const { return units + spells + gear; }
+};
+
+/// `median` is each column on its own. `used` is that median brought to 39
+/// cards. The two are equal when the median already sums to 39.
+struct SplitPlan {
+    Split median;
+    Split used;
 };
 
 Split defaultSplit() { return {}; }
 
-Split splitFrom(const std::vector<int>& units, const std::vector<int>& spells,
-                const std::vector<int>& gear) {
-    Split split;
-    split.units = medianRounded(units);
-    split.spells = medianRounded(spells);
-    split.gear = medianRounded(gear);
-    auto sum = [&] { return split.units + split.spells + split.gear; };
+SplitPlan splitFrom(const std::vector<int>& units, const std::vector<int>& spells,
+                    const std::vector<int>& gear) {
+    SplitPlan plan;
+    plan.median.units = medianRounded(units);
+    plan.median.spells = medianRounded(spells);
+    plan.median.gear = medianRounded(gear);
+    plan.used = plan.median;
+    auto sum = [&] { return plan.used.sum(); };
     while (sum() > kMainDeckCards) {
-        if (split.units >= split.spells && split.units >= split.gear && split.units > 0) --split.units;
-        else if (split.spells >= split.gear && split.spells > 0) --split.spells;
-        else --split.gear;
+        if (plan.used.units >= plan.used.spells && plan.used.units >= plan.used.gear &&
+            plan.used.units > 0)
+            --plan.used.units;
+        else if (plan.used.spells >= plan.used.gear && plan.used.spells > 0)
+            --plan.used.spells;
+        else
+            --plan.used.gear;
     }
     while (sum() < kMainDeckCards) {
-        if (split.units <= split.spells) ++split.units;
-        else ++split.spells;
+        if (plan.used.units <= plan.used.spells) ++plan.used.units;
+        else ++plan.used.spells;
     }
-    return split;
+    return plan;
+}
+
+std::string adjustmentSentence(const Split& median, const Split& used) {
+    const int du = used.units - median.units;
+    const int ds = used.spells - median.spells;
+    const int dg = used.gear - median.gear;
+    std::vector<std::string> parts;
+    auto push = [&](int delta, const char* one, const char* many) {
+        if (delta == 0) return;
+        const int n = std::abs(delta);
+        parts.push_back(std::to_string(n) + " " + (n == 1 ? one : many));
+    };
+    push(du, "unit", "units");
+    push(ds, "spell", "spells");
+    push(dg, "gear", "gear");
+    std::ostringstream out;
+    for (std::size_t i = 0; i < parts.size(); ++i) {
+        if (i > 0) out << (i + 1 == parts.size() ? " and " : ", ");
+        out << parts[i];
+    }
+    const int changed = std::abs(du) + std::abs(ds) + std::abs(dg);
+    const bool added = du + ds + dg > 0;
+    if (parts.size() == 1 && changed == 1) out << (added ? " was added" : " was removed");
+    else out << (added ? " were added" : " were removed");
+    out << " so those counts sum to 39: " << used.units << " units, " << used.spells
+        << " spells, and " << used.gear << " gear.";
+    return out.str();
 }
 
 struct Seen {
@@ -631,7 +695,14 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
             }
             built.split_sources.push_back(list.display);
         }
-        target = splitFrom(unit_counts, spell_counts, gear_counts);
+        const SplitPlan plan = splitFrom(unit_counts, spell_counts, gear_counts);
+        target = plan.used;
+        built.median_units = plan.median.units;
+        built.median_spells = plan.median.spells;
+        built.median_gear = plan.median.gear;
+        built.asked_units = plan.used.units;
+        built.asked_spells = plan.used.spells;
+        built.asked_gear = plan.used.gear;
     }
     built.banned_left_out.assign(banned_names.begin(), banned_names.end());
 
@@ -754,6 +825,8 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
                     if (card.card_type != type || !legalHere(card)) return;
                     if (card.energy_cost < lo || card.energy_cost > hi) return;
                     if (type == CardType::Spell && isChannelOrRampSpell(card)) return;
+                    if ((type == CardType::Unit || type == CardType::Gear) && instructsChannel(card))
+                        return;
                     if (room(card) <= 0) return;
                     if (!best) {
                         best = &card;
@@ -834,8 +907,9 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         std::ostringstream why;
         why << "The split asked for " << target.units << " units, " << target.spells << " spells, and "
             << target.gear
-            << " gear. This list differs because a channel or ramp spell was not added to fill a "
-               "type count and a banned card was not kept. The open slots went to other cards.";
+            << " gear. This list differs because a card that tells a player to channel was not "
+               "added to fill a type count and a banned card was not kept. The open slots went to "
+               "other cards.";
         built.notes.push_back(why.str());
     }
 
@@ -1087,11 +1161,22 @@ std::string formatLegendPlaybook(const CardDB& db, const CardRegistry& registry,
     if (built.split_sources.empty()) {
         out << "No saved list for this legend was found under internal/deck-catalogue or "
                "internal/tournament-data. The split stays near 18 units, 18 spells, and 3 gear.\n";
-    } else {
+    } else if (built.median_units + built.median_spells + built.median_gear == kMainDeckCards) {
         out << "The unit, spell, and gear split is the median of these saved lists:\n";
         for (const std::string& source : built.split_sources) out << "- " << source << "\n";
+    } else {
+        const int median_cards = built.median_units + built.median_spells + built.median_gear;
+        out << "The median of these saved lists is " << built.median_units << " units, "
+            << built.median_spells << " spells, and " << built.median_gear << " gear ("
+            << median_cards << (median_cards == 1 ? " card" : " cards") << ").\n";
+        out << adjustmentSentence(Split{built.median_units, built.median_spells, built.median_gear},
+                                  Split{built.asked_units, built.asked_spells, built.asked_gear})
+            << "\n";
+        out << "These are the saved lists:\n";
+        for (const std::string& source : built.split_sources) out << "- " << source << "\n";
     }
-    out << "Channel and ramp spells are not added to fill a type count.\n";
+    out << "A card that tells a player to channel is not added to fill a type count. A card the "
+           "saved lists already play is kept.\n";
     if (!built.banned_left_out.empty()) {
         out << "Left out, banned on " << built.legality_date << ": ";
         for (std::size_t i = 0; i < built.banned_left_out.size(); ++i) {
