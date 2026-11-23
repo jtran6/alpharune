@@ -506,4 +506,113 @@ Runes:
     EXPECT_EQ(countNamed(garen, "Stormclaw Ursine"), 0);
 }
 
+bool lineNamesAMainDeckCard(const std::string& book, const char* label, const DeckBuild& built) {
+    const auto pos = book.find(label);
+    if (pos == std::string::npos) return false;
+    const auto end = book.find('\n', pos);
+    const std::string line = book.substr(pos, end == std::string::npos ? std::string::npos : end - pos);
+    for (CardDefId id : built.deck.main_deck)
+        if (line.find(g_db.get(id).name) != std::string::npos) return true;
+    return false;
+}
+
+TEST_F(DeckBuilderTest, PlaybookNamesAPlanForSavedListsAndForThePrintedAbility) {
+    const auto root = std::filesystem::temp_directory_path() / "riftbound-deck-builder-plan";
+    std::filesystem::remove_all(root);
+    const auto dir = root / "internal" / "deck-catalogue" / "lists";
+    std::filesystem::create_directories(dir);
+    const char* list = R"(Legend:
+1 Master Yi, Wuju Bladesman
+
+Champion:
+1 Master Yi, Tempered
+
+MainDeck:
+3 Irelia, Fervent
+3 Poppy, Paragon
+3 Skystrike Squadron
+3 Kato the Arm
+3 Qiyana, Victorious
+3 Allay, Eager Admirer
+3 En Garde
+3 Defy
+3 Discipline
+3 Charm
+3 Find Your Center
+3 Catalyst of Aeons
+3 Zhonya's Hourglass
+
+Battlefields:
+1 Hunters' Circle
+1 Firelights' Hideout
+1 Startipped Peak
+
+Runes:
+6 Calm Rune
+6 Body Rune
+)";
+    {
+        std::ofstream out(dir / "list-a.txt");
+        out << list;
+    }
+    {
+        std::ofstream out(dir / "list-b.txt");
+        out << list;
+    }
+
+    const DeckBuild yi = buildLegendDeck(g_db, "Master Yi, Wuju Bladesman", {root.string()});
+    expectLegalOnRadianceDate(yi);
+    const MainCounts yi_counts = countMain(yi);
+    EXPECT_LT(yi_counts.units, 39);
+    EXPECT_GT(yi_counts.spells, 0);
+    EXPECT_EQ(countNamed(yi, "Zhonya's Hourglass"), 0);
+    EXPECT_EQ(countNamed(yi, "Find Your Center"), 0);
+    EXPECT_EQ(countNamed(yi, "Catalyst of Aeons"), 0);
+    EXPECT_GE(countNamed(yi, "Discipline"), 1);
+    EXPECT_GE(countNamed(yi, "En Garde"), 1);
+    EXPECT_GE(countNamed(yi, "Charm"), 1);
+
+    const std::string yi_book = formatLegendPlaybook(g_db, g_registry, yi, 0, 1);
+    EXPECT_NE(yi_book.find("Plan: Defend alone."), std::string::npos) << yi_book;
+    EXPECT_NE(yi_book.find("While a friendly unit defends alone, it gets +2 [M]."), std::string::npos)
+        << yi_book;
+    EXPECT_NE(yi_book.find("Legality date: 20261123"), std::string::npos) << yi_book;
+    EXPECT_NE(yi_book.find(std::to_string(yi.units) + " units, " + std::to_string(yi.spells) +
+                           " spells, " + std::to_string(yi.gear) + " gear"),
+              std::string::npos)
+        << yi_book;
+    EXPECT_NE(yi_book.find("list-a.txt"), std::string::npos) << yi_book;
+    EXPECT_NE(yi_book.find("list-b.txt"), std::string::npos) << yi_book;
+    EXPECT_NE(yi_book.find("Early turns pay"), std::string::npos) << yi_book;
+    EXPECT_TRUE(lineNamesAMainDeckCard(yi_book, "Carries this plan: ", yi)) << yi_book;
+    EXPECT_NE(yi_book.find("Curve filler: "), std::string::npos) << yi_book;
+    EXPECT_TRUE(lineNamesAMainDeckCard(yi_book, "Curve filler: ", yi)) << yi_book;
+    const auto filler_at = yi_book.find("Curve filler: ");
+    ASSERT_NE(filler_at, std::string::npos) << yi_book;
+    const auto filler_end = yi_book.find('\n', filler_at);
+    const std::string filler_line =
+        yi_book.substr(filler_at, filler_end == std::string::npos ? std::string::npos : filler_end - filler_at);
+    EXPECT_NE(filler_line.find("Charm"), std::string::npos) << filler_line;
+    EXPECT_EQ(yi_book.find("win rate"), std::string::npos) << yi_book;
+
+    const DeckBuild garen = buildLegendDeck(g_db, "Garen, Might of Demacia", {});
+    expectLegalOnRadianceDate(garen);
+    const MainCounts garen_counts = countMain(garen);
+    EXPECT_LT(garen_counts.units, 39);
+    EXPECT_GT(garen_counts.spells, 0);
+    const std::string garen_book = formatLegendPlaybook(g_db, g_registry, garen, 0, 1);
+    EXPECT_NE(garen_book.find("Plan: Conquer with units."), std::string::npos) << garen_book;
+    EXPECT_NE(garen_book.find("When you conquer, if you have 4+ units at that battlefield, draw 2."),
+              std::string::npos)
+        << garen_book;
+    EXPECT_NE(garen_book.find("Legality date: 20261123"), std::string::npos) << garen_book;
+    EXPECT_NE(garen_book.find("No saved list"), std::string::npos) << garen_book;
+    EXPECT_NE(garen_book.find("Early turns pay"), std::string::npos) << garen_book;
+    EXPECT_TRUE(lineNamesAMainDeckCard(garen_book, "Carries this plan: ", garen)) << garen_book;
+    EXPECT_EQ(garen_book.find("win rate"), std::string::npos) << garen_book;
+    EXPECT_TRUE(garen_book.find("No slot is curve filler.") != std::string::npos ||
+                garen_book.find("Curve filler") != std::string::npos)
+        << garen_book;
+}
+
 }  // namespace riftbound::test::deck_builder

@@ -4,8 +4,11 @@
 /// Saved lists under internal/deck-catalogue and internal/tournament-data set
 /// the main deck's unit, spell, and gear counts. With none, the split stays
 /// near 18, 18, and 3. When those three medians do not sum to 39, the playbook
-/// says the median and the adjustment. Cards banned on 20261123 are left out.
-/// A card that tells a player to channel is not added just to fill a type
+/// says the median and the adjustment. The cards follow one plan read from the
+/// printed legend line. Cards the saved lists play that carry the plan are
+/// taken at the count those lists play. A card that does not carry the plan is
+/// curve filler, and the playbook names it. Cards banned on 20261123 are left
+/// out. A card that tells a player to channel is not added just to fill a type
 /// count. A card the saved lists already play is kept. DeckValidator is the
 /// judge on that date. Mirror games go through GameEngine::runGame with a
 /// PlayByPlay account.
@@ -16,7 +19,6 @@
 #include "cards/card_registry.h"
 #include "engine/game_engine.h"
 #include "io/play_by_play.h"
-#include "rules/deck_breakdown.h"
 #include "rules/deck_model.h"
 #include "rules/random_deck.h"
 
@@ -154,6 +156,317 @@ bool instructsChannel(const CardDef& card) {
         pos += sizeof("channel") - 1;
     }
     return false;
+}
+
+bool boundary(char c) { return std::isalnum(static_cast<unsigned char>(c)) == 0; }
+
+bool hasWord(const std::string& text, const char* word) {
+    const size_t n = std::char_traits<char>::length(word);
+    for (size_t i = 0; i + n <= text.size(); ++i) {
+        if (text.compare(i, n, word) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        if (i + n < text.size() && !boundary(text[i + n])) continue;
+        return true;
+    }
+    return false;
+}
+
+/// `stem` as a word, or as the start of one ("defend" matches "defends").
+bool hasStem(const std::string& text, const char* stem) {
+    const size_t n = std::char_traits<char>::length(stem);
+    for (size_t i = 0; i + n <= text.size(); ++i) {
+        if (text.compare(i, n, stem) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        return true;
+    }
+    return false;
+}
+
+bool containsPhrase(const std::string& text, const char* phrase) {
+    return text.find(phrase) != std::string::npos;
+}
+
+std::string planText(const CardDef& card) { return lowerCopy(stripParentheticals(printedRaw(card))); }
+
+bool givesMight(const CardDef& card, const std::string& text) {
+    if (card.keywords.has(Keyword::Assault) || card.keywords.has(Keyword::Shield) ||
+        card.keywords.has(Keyword::Disarm))
+        return true;
+    if (containsPhrase(text, "[shield") || containsPhrase(text, "[assault") ||
+        containsPhrase(text, "[disarm"))
+        return true;
+    if (hasWord(text, "buff") || hasWord(text, "buffs")) return true;
+    for (size_t i = 0; i + 3 < text.size(); ++i) {
+        if (text[i] != '+' && text[i] != '-') continue;
+        size_t j = i + 1;
+        while (j < text.size() && std::isspace(static_cast<unsigned char>(text[j]))) ++j;
+        if (j >= text.size() || !std::isdigit(static_cast<unsigned char>(text[j]))) continue;
+        while (j < text.size() && std::isdigit(static_cast<unsigned char>(text[j]))) ++j;
+        while (j < text.size() && std::isspace(static_cast<unsigned char>(text[j]))) ++j;
+        if (j + 2 < text.size() && text[j] == '[' && text[j + 1] == 'm' && text[j + 2] == ']')
+            return true;
+    }
+    return false;
+}
+
+bool readiesUnit(const std::string& text) {
+    const char* word = "ready";
+    for (size_t i = 0; i + 5 <= text.size(); ++i) {
+        if (text.compare(i, 5, word) != 0) continue;
+        if (i > 0 && !boundary(text[i - 1])) continue;
+        size_t end = i + 5;
+        while (end < text.size() && std::isalpha(static_cast<unsigned char>(text[end]))) ++end;
+        const std::string after = text.substr(end, 48);
+        const bool unit = containsPhrase(after, "unit") || containsPhrase(after, " me") ||
+                          containsPhrase(after, " it") || containsPhrase(after, "them") ||
+                          containsPhrase(after, "friendly");
+        const bool only_runes = containsPhrase(after, "rune") && !containsPhrase(after, "unit");
+        if (unit && !only_runes) return true;
+    }
+    return false;
+}
+
+bool countersSpell(const std::string& text) { return hasStem(text, "counter"); }
+
+bool dealsDamage(const std::string& text) {
+    return hasStem(text, "damage") || hasWord(text, "fight") || hasStem(text, "deal");
+}
+
+bool removesUnit(const std::string& text) {
+    return hasWord(text, "kill") || hasWord(text, "kills") || hasStem(text, "banish");
+}
+
+/// A spell that channels, or a unit or gear whose text says "Channel N rune(s)",
+/// does not carry a plan as filler. "Only channel" and "channel that many" stay
+/// out of that test, the same way `instructsChannel` reads them.
+bool channelsAsFiller(const CardDef& card) {
+    if (isChannelOrRampSpell(card)) return true;
+    return instructsChannel(card);
+}
+
+bool protectsUnit(const CardDef& card, const std::string& text) {
+    return givesMight(card, text) || countersSpell(text) || card.keywords.has(Keyword::Deflect) ||
+           (containsPhrase(text, "prevent") && containsPhrase(text, "damage"));
+}
+
+enum class PlanKind {
+    DefendAlone,
+    ChooseFriendly,
+    MoveFriendly,
+    ConquerUnits,
+    Equipment,
+    Stun,
+    Tank,
+    ChangeMight,
+    Mighty,
+    ReadyUnit,
+    Hidden,
+    Hold,
+    CombatWin,
+    Draw,
+    PlayUnit,
+    Fallback,
+};
+
+struct LegendPlan {
+    PlanKind kind = PlanKind::Fallback;
+    std::string name;
+    std::string detail;
+    std::string text;
+    bool mentions_ready = false;
+    bool mentions_empower = false;
+};
+
+LegendPlan readLegendPlan(const CardDef& legend) {
+    LegendPlan plan;
+    plan.text = planText(legend);
+    const std::string& text = plan.text;
+    plan.mentions_ready = hasStem(text, "ready");
+    plan.mentions_empower = containsPhrase(text, "empower");
+    auto kind = [&](PlanKind which, const char* name, const char* detail) {
+        plan.kind = which;
+        plan.name = name;
+        plan.detail = detail;
+    };
+    if (hasStem(text, "defend") && containsPhrase(text, "alone")) {
+        kind(PlanKind::DefendAlone, "Defend alone",
+             "A friendly unit that defends alone gets the Might on that line. A unit carries it as "
+             "that body. A spell or a gear carries it when it raises Might, counters a spell, or "
+             "keeps that unit alone.");
+    } else if (containsPhrase(text, "choose a friendly unit") ||
+               (containsPhrase(text, "choose") && containsPhrase(text, "friendly unit"))) {
+        kind(PlanKind::ChooseFriendly, "Choose a friendly unit",
+             "The line chooses a friendly unit. A unit carries it as the one chosen. A spell or a "
+             "gear carries it when it chooses a friendly unit, readies a unit, raises Might, or "
+             "counters a spell.");
+    } else if (hasStem(text, "move") && containsPhrase(text, "friendly")) {
+        kind(PlanKind::MoveFriendly, "Move a friendly unit",
+             "The line moves a friendly unit. A unit carries it as the one that moves. A spell or a "
+             "gear carries it when it moves a unit.");
+    } else if (hasStem(text, "conquer") && containsPhrase(text, "unit")) {
+        kind(PlanKind::ConquerUnits, "Conquer with units",
+             "The line pays off a conquer when enough of your units are at that battlefield. A unit "
+             "carries it as one of those bodies. A spell or a gear carries it when it raises Might, "
+             "deals damage, kills, moves, readies a unit, or draws.");
+    } else if (containsPhrase(text, "equipment") || containsPhrase(text, "weaponmaster") ||
+               containsPhrase(text, "attach") || containsPhrase(text, "play a gear") ||
+               containsPhrase(text, "play gear") || containsPhrase(text, "gear abilities") ||
+               containsPhrase(text, "ready a gear") || containsPhrase(text, "ready 2 gear") ||
+               containsPhrase(text, "friendly gear")) {
+        kind(PlanKind::Equipment, "Equipment",
+             "The line is about gear on a unit. A gear carries it, and so does a card that attaches "
+             "or equips. A unit carries it as the one the gear is on.");
+    } else if (hasStem(text, "stun")) {
+        kind(PlanKind::Stun, "Stun",
+             "The line stuns an enemy unit and buffs a friendly one. A card that stuns carries it. A "
+             "unit carries it as the one that is buffed. A spell or a gear carries it when it raises "
+             "Might or counters a spell.");
+    } else if (containsPhrase(text, "[tank]")) {
+        kind(PlanKind::Tank, "Give Tank",
+             "The line gives a friendly unit Tank. A unit carries it as that body. A spell or a gear "
+             "carries it when it gives Tank, raises Might, or counters a spell.");
+    } else if (hasWord(text, "buff") || hasWord(text, "buffs") || givesMight(legend, text)) {
+        kind(PlanKind::ChangeMight, "Change Might",
+             "The line changes a unit's Might. A unit carries it as that body. A spell or a gear "
+             "carries it when it changes Might.");
+    } else if (containsPhrase(text, "mighty") && containsPhrase(text, "channel")) {
+        kind(PlanKind::Mighty, "Mighty units",
+             "The line pays off when you play a Mighty unit. A unit with 5 or more Might carries it, "
+             "and so does a card that raises Might. A card that tells a player to channel does not "
+             "fill a slot.");
+    } else if (hasStem(text, "ready") && containsPhrase(text, "unit")) {
+        kind(PlanKind::ReadyUnit, "Ready a unit",
+             "The line readies a unit. A unit carries it as that body. A spell or a gear carries it "
+             "when it readies a unit.");
+    } else if (containsPhrase(text, "hidden") || hasWord(text, "hide")) {
+        kind(PlanKind::Hidden, "Hidden",
+             "The line is about a hidden card. A card with Hidden carries it, and so does a card that "
+             "hides one.");
+    } else if (hasStem(text, "hold")) {
+        kind(PlanKind::Hold, "Hold",
+             "The line pays off a hold. A unit carries it as a body that can hold a battlefield. A "
+             "spell or a gear carries it when it holds or scores.");
+    } else if (containsPhrase(text, "win a combat")) {
+        kind(PlanKind::CombatWin, "Win a combat",
+             "The line pays off winning a combat. A unit carries it as a body in that combat. A spell "
+             "or a gear carries it when it raises Might, deals damage, kills, or draws.");
+    } else if (hasStem(text, "draw")) {
+        kind(PlanKind::Draw, "Draw",
+             "The line draws a card. A spell or a gear that draws carries it.");
+    } else if (containsPhrase(text, "play a unit") || containsPhrase(text, "when you play a unit")) {
+        kind(PlanKind::PlayUnit, "Play a unit",
+             "The line triggers when you play a unit. A unit carries it as that play.");
+    } else {
+        kind(PlanKind::Fallback, "The printed line",
+             "The printed line does not name a narrower action. A card that shares a word with it "
+             "carries it.");
+    }
+    if (plan.kind == PlanKind::MoveFriendly && plan.mentions_ready)
+        plan.detail += " When the line also readies that unit, a card that readies a unit carries it.";
+    if (plan.kind == PlanKind::MoveFriendly && plan.mentions_empower)
+        plan.detail += " When the line cares that the legend is Empowered, a card with Empower carries it.";
+    return plan;
+}
+
+bool carriesPlan(const LegendPlan& plan, const CardDef& card,
+                 const std::set<std::string>& legend_words) {
+    if (channelsAsFiller(card)) return false;
+    const std::string text = planText(card);
+    const bool unit = card.card_type == CardType::Unit;
+    const bool gear = card.card_type == CardType::Gear;
+    switch (plan.kind) {
+        case PlanKind::DefendAlone:
+        case PlanKind::Tank:
+            return unit || protectsUnit(card, text) || containsPhrase(text, "alone") ||
+                   containsPhrase(text, "only unit") || containsPhrase(text, "[tank]") ||
+                   card.keywords.has(Keyword::Tank);
+        case PlanKind::ChooseFriendly:
+            return unit || readiesUnit(text) || protectsUnit(card, text) ||
+                   containsPhrase(text, "friendly unit");
+        case PlanKind::MoveFriendly:
+            return unit || hasStem(text, "move") || (plan.mentions_ready && readiesUnit(text)) ||
+                   (plan.mentions_empower &&
+                    (card.keywords.has(Keyword::Empower) || containsPhrase(text, "empower")));
+        case PlanKind::ConquerUnits:
+            return unit || protectsUnit(card, text) || dealsDamage(text) || removesUnit(text) ||
+                   hasStem(text, "move") || hasStem(text, "stun") || readiesUnit(text) ||
+                   hasStem(text, "draw") || hasStem(text, "attack") || hasStem(text, "defend") ||
+                   hasStem(text, "conquer");
+        case PlanKind::Equipment:
+            return unit || gear || card.keywords.has(Keyword::Equip) ||
+                   card.keywords.has(Keyword::Weaponmaster) || card.keywords.has(Keyword::QuickDraw) ||
+                   containsPhrase(text, "equip") || containsPhrase(text, "attach");
+        case PlanKind::Stun:
+            return unit || hasStem(text, "stun") || protectsUnit(card, text);
+        case PlanKind::ChangeMight:
+            return unit || givesMight(card, text);
+        case PlanKind::Mighty:
+            return (unit && card.might >= 5) || givesMight(card, text) || containsPhrase(text, "mighty");
+        case PlanKind::ReadyUnit:
+            return unit || readiesUnit(text);
+        case PlanKind::Hidden:
+            return card.keywords.has(Keyword::Hidden) || containsPhrase(text, "hidden") ||
+                   hasWord(text, "hide");
+        case PlanKind::Hold:
+            return unit || hasStem(text, "hold") || hasStem(text, "score");
+        case PlanKind::CombatWin:
+            return unit || protectsUnit(card, text) || dealsDamage(text) || removesUnit(text) ||
+                   hasStem(text, "attack") || hasStem(text, "combat") || hasStem(text, "draw");
+        case PlanKind::Draw:
+            return hasStem(text, "draw");
+        case PlanKind::PlayUnit:
+            return unit || (gear && containsPhrase(plan.text, "gear"));
+        case PlanKind::Fallback:
+            return wordOverlap(legend_words, card) > 0;
+    }
+    return false;
+}
+
+struct NamedCopy {
+    std::string name;
+    int copies = 0;
+    int energy = 0;
+    int power = 0;
+};
+
+std::vector<NamedCopy> copiesInMain(const DeckSubmission& deck, const CardDB& db) {
+    std::vector<NamedCopy> lines;
+    for (CardDefId id : deck.main_deck) {
+        const CardDef& card = db.get(id);
+        auto it = std::find_if(lines.begin(), lines.end(),
+                               [&](const NamedCopy& line) { return line.name == card.name; });
+        if (it == lines.end())
+            lines.push_back(NamedCopy{card.name, 1, card.energy_cost, card.power_cost});
+        else
+            ++it->copies;
+    }
+    return lines;
+}
+
+std::string costPhrase(const NamedCopy& line) {
+    std::string text = std::to_string(line.energy) + " energy";
+    if (line.power > 0) text += " and " + std::to_string(line.power) + " power";
+    return text;
+}
+
+std::string joinNamed(const std::vector<NamedCopy>& lines) {
+    std::ostringstream out;
+    for (size_t i = 0; i < lines.size(); ++i) {
+        if (i > 0) out << (i + 1 == lines.size() ? ", and " : ", ");
+        out << lines[i].copies << " " << lines[i].name << " (" << costPhrase(lines[i]) << ")";
+    }
+    return out.str();
+}
+
+std::vector<NamedCopy> pickNamed(const std::vector<NamedCopy>& lines,
+                                 const std::vector<std::string>& names) {
+    std::vector<NamedCopy> out;
+    for (const std::string& name : names) {
+        auto it = std::find_if(lines.begin(), lines.end(),
+                               [&](const NamedCopy& line) { return line.name == name; });
+        if (it != lines.end()) out.push_back(*it);
+    }
+    return out;
 }
 
 std::string bareTitle(const CardDef& legend) {
@@ -707,6 +1020,15 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
     built.banned_left_out.assign(banned_names.begin(), banned_names.end());
 
     const std::set<std::string> legend_words = wordsOf(printedRaw(*found));
+    const LegendPlan legend_plan = readLegendPlan(*found);
+    built.plan_name = legend_plan.name;
+    built.plan_detail = legend_plan.detail;
+    auto carries = [&](const CardDef& card) {
+        return carriesPlan(legend_plan, card, legend_words);
+    };
+    auto noteName = [&](std::vector<std::string>& names, const std::string& name) {
+        if (std::find(names.begin(), names.end(), name) == names.end()) names.push_back(name);
+    };
     auto room = [&](const CardDef& card) { return roomFor(card, copies, deck, db); };
     auto haveUnitAt = [&](int energy) {
         for (CardDefId id : deck.main_deck) {
@@ -720,7 +1042,7 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
     int spell_left = target.spells;
     int gear_left = target.gear;
 
-    auto take = [&](CardDefId id, int n, int& quota) {
+    auto take = [&](CardDefId id, int n, int& quota, bool filler, bool from_list) {
         if (n <= 0 || quota <= 0) return 0;
         const CardDef& card = db.get(id);
         if (!legalHere(card)) return 0;
@@ -729,39 +1051,48 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         if (n <= 0) return 0;
         addCopies(deck, copies, card, n);
         quota -= n;
+        if (filler) noteName(from_list ? built.curve_filler_lists : built.curve_filler_pool, card.name);
+        else if (!from_list) noteName(built.plan_from_pool, card.name);
         return n;
     };
 
+    auto betterSeen = [](const Seen& seen, const Seen* best) {
+        if (!best) return true;
+        if (seen.lists() != best->lists()) return seen.lists() > best->lists();
+        if (seen.typical() != best->typical()) return seen.typical() > best->typical();
+        return seen.id.raw() < best->id.raw();
+    };
+
+    // One copy at each early cost, from the lists. A unit that carries the plan
+    // comes first. A unit that does not is the curve filler for that cost.
     if (!played.empty()) {
         for (int energy : {1, 2, 3, 4}) {
             if (unit_left <= 0 || haveUnitAt(energy)) continue;
-            const Seen* best = nullptr;
+            const Seen* best_plan = nullptr;
+            const Seen* best_any = nullptr;
             for (const auto& [name, seen] : played) {
                 (void)name;
                 const CardDef& card = db.get(seen.id);
                 if (card.card_type != CardType::Unit || card.energy_cost != energy) continue;
                 if (room(card) <= 0 || seen.counts.empty()) continue;
-                if (!best || seen.lists() > best->lists() ||
-                    (seen.lists() == best->lists() && seen.typical() > best->typical()) ||
-                    (seen.lists() == best->lists() && seen.typical() == best->typical() &&
-                     seen.id.raw() < best->id.raw()))
-                    best = &seen;
+                if (betterSeen(seen, best_any)) best_any = &seen;
+                if (carries(card) && betterSeen(seen, best_plan)) best_plan = &seen;
             }
-            if (best) take(best->id, 1, unit_left);
+            const Seen* best = best_plan ? best_plan : best_any;
+            if (best) take(best->id, 1, unit_left, best_plan == nullptr, true);
         }
     }
 
-    // A card in at least a fifth of the lists is part of the build. It is taken
-    // at the count those lists play, and a further copy of it fills a leftover
-    // slot before a card from one list does. One saved list still counts: the
-    // fixture and a legend with a single list have a fifth that rounds below 1.
-    const int notable = std::max(1, static_cast<int>((lists.size() + 4) / 5));
-    auto byFrequency = [&](CardType type, int& quota, bool to_typical, int min_lists) {
+    // Saved-list cards that carry the plan, at the count those lists play.
+    // Cards that do not carry it fill what is left, and the playbook names them.
+    // The count stops at that median. A further copy would be a count no list plays.
+    auto rankSaved = [&](CardType type, bool want_plan) {
         std::vector<const Seen*> ranked;
         for (const auto& [name, seen] : played) {
             (void)name;
-            if (seen.lists() < min_lists) continue;
-            if (db.get(seen.id).card_type == type) ranked.push_back(&seen);
+            if (db.get(seen.id).card_type != type) continue;
+            if (carries(db.get(seen.id)) != want_plan) continue;
+            ranked.push_back(&seen);
         }
         std::sort(ranked.begin(), ranked.end(), [&](const Seen* a, const Seen* b) {
             if (a->lists() != b->lists()) return a->lists() > b->lists();
@@ -771,31 +1102,32 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
             if (da.energy_cost != db_.energy_cost) return da.energy_cost < db_.energy_cost;
             return a->id.raw() < b->id.raw();
         });
+        return ranked;
+    };
+    auto takeRanked = [&](const std::vector<const Seen*>& ranked, int& quota, bool filler) {
         for (const Seen* seen : ranked) {
             if (quota <= 0) break;
             const CardDef& card = db.get(seen->id);
             const int already = copiesOfName(deck, db, card.name);
             const int want = std::min(seen->typical(), CopyCounts::kCopiesPerName);
-            const int n = to_typical ? want - already : CopyCounts::kCopiesPerName - already;
-            take(seen->id, n, quota);
+            take(seen->id, want - already, quota, filler, true);
         }
     };
-    auto fillType = [&](CardType type, int& quota) {
+    auto fillSaved = [&](CardType type, int& quota) {
         if (played.empty() || quota <= 0) return;
-        byFrequency(type, quota, true, notable);
-        byFrequency(type, quota, false, notable);
-        byFrequency(type, quota, true, 1);
-        byFrequency(type, quota, false, 1);
+        takeRanked(rankSaved(type, true), quota, false);
+        takeRanked(rankSaved(type, false), quota, true);
     };
-    fillType(CardType::Unit, unit_left);
-    fillType(CardType::Spell, spell_left);
-    fillType(CardType::Gear, gear_left);
+    fillSaved(CardType::Unit, unit_left);
+    fillSaved(CardType::Spell, spell_left);
+    fillSaved(CardType::Gear, gear_left);
 
-    // Pool cards fill what the saved lists did not. Costs are spread the way a
+    // Pool cards fill what the saved lists did not. A card the lists already
+    // play is not raised past the count they play. Costs are spread the way a
     // played list is spread (more 1s and 2s than 5s). Inside a cost, a card
-    // that shares words with the legend comes first. That is a preference, not
-    // a keyword rule, and a channel or ramp spell is never the filler.
-    auto fillFromPool = [&](CardType type, int& quota) {
+    // that shares words with the legend comes first. A channel spell, and a
+    // unit or gear that says "Channel N rune(s)", is not this filler.
+    auto fillFromPool = [&](CardType type, int& quota, bool plan_only) {
         if (quota <= 0) return;
         struct Band {
             int lo;
@@ -823,10 +1155,16 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
                 auto consider = [&](CardDefId id) {
                     const CardDef& card = db.get(id);
                     if (card.card_type != type || !legalHere(card)) return;
+                    if (played.count(card.name)) return;
                     if (card.energy_cost < lo || card.energy_cost > hi) return;
                     if (type == CardType::Spell && isChannelOrRampSpell(card)) return;
                     if ((type == CardType::Unit || type == CardType::Gear) && instructsChannel(card))
                         return;
+                    if (plan_only) {
+                        if (!carries(card)) return;
+                    } else if (carries(card)) {
+                        return;
+                    }
                     if (room(card) <= 0) return;
                     if (!best) {
                         best = &card;
@@ -843,7 +1181,7 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
                 for (CardDefId id : pool->signatures) consider(id);
                 if (!best) break;
                 const int n = std::min(need - got, std::min(quota, std::min(CopyCounts::kCopiesPerName, room(*best))));
-                const int added = take(best->id, n, quota);
+                const int added = take(best->id, n, quota, !plan_only, false);
                 if (added <= 0) break;
                 got += added;
             }
@@ -858,9 +1196,13 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         }
         if (quota > 0) fillBand(0, 99, quota);
     };
-    fillFromPool(CardType::Unit, unit_left);
-    fillFromPool(CardType::Spell, spell_left);
-    fillFromPool(CardType::Gear, gear_left);
+    auto fillPool = [&](CardType type, int& quota) {
+        fillFromPool(type, quota, true);
+        fillFromPool(type, quota, false);
+    };
+    fillPool(CardType::Unit, unit_left);
+    fillPool(CardType::Spell, spell_left);
+    fillPool(CardType::Gear, gear_left);
 
     bool shifted = false;
     if (spell_left > 0 || gear_left > 0) {
@@ -868,13 +1210,13 @@ DeckBuild buildLegendDeck(const CardDB& db, const std::string& legend_query,
         unit_left += spell_left + gear_left;
         spell_left = 0;
         gear_left = 0;
-        fillFromPool(CardType::Unit, unit_left);
+        fillPool(CardType::Unit, unit_left);
     }
     if (unit_left > 0) {
         shifted = true;
         spell_left += unit_left;
         unit_left = 0;
-        fillFromPool(CardType::Spell, spell_left);
+        fillPool(CardType::Spell, spell_left);
     }
     if (static_cast<int>(deck.main_deck.size()) != kMainDeckCards)
         throw std::runtime_error("the legal pool for '" + found->name +
@@ -1140,7 +1482,6 @@ std::string formatLegendPlaybook(const CardDB& db, const CardRegistry& registry,
 
     const CardDef& legend = db.get(built.deck.legend);
     const CardDef& champion = db.get(built.deck.chosen_champion);
-    const DeckReport report = analyzeDeck(built.deck, db);
 
     std::ostringstream out;
     out << "Playbook for " << built.legend_query << "\n";
@@ -1202,29 +1543,81 @@ std::string formatLegendPlaybook(const CardDB& db, const CardRegistry& registry,
 
     out << "Plan\n";
     out << "----\n";
-    out << "Printed on " << legend.name << ":\n";
     const std::string legend_text = printedRaw(legend);
+    if (built.plan_name.empty()) out << "Plan: The printed line.\n";
+    else out << "Plan: " << built.plan_name << ".\n";
+    out << "Printed on " << legend.name << ": ";
     if (legend_text.empty()) out << "This card has no printed ability text.\n";
     else out << legend_text << "\n";
-    out << "\nPrinted on the chosen champion " << champion.name << ":\n";
+    if (!built.plan_detail.empty()) out << built.plan_detail << "\n";
+    const std::vector<NamedCopy> main_copies = copiesInMain(built.deck, db);
+    std::set<std::string> aside;
+    for (const std::string& name : built.curve_filler_lists) aside.insert(name);
+    for (const std::string& name : built.curve_filler_pool) aside.insert(name);
+    for (const std::string& name : built.plan_from_pool) aside.insert(name);
+    std::vector<std::string> list_carrier_names;
+    for (const NamedCopy& line : main_copies)
+        if (!aside.count(line.name)) list_carrier_names.push_back(line.name);
+    const std::vector<NamedCopy> list_carriers = pickNamed(main_copies, list_carrier_names);
+    const std::vector<NamedCopy> pool_carriers = pickNamed(main_copies, built.plan_from_pool);
+    if (list_carriers.empty() && pool_carriers.empty()) {
+        out << "Carries this plan: no card in this list.\n";
+    } else if (!list_carriers.empty()) {
+        out << "Carries this plan: " << joinNamed(list_carriers) << ".\n";
+        if (!pool_carriers.empty()) {
+            out << "Also from the card pool, because the saved lists do not fill 39 with cards that "
+                   "carry this plan: "
+                << joinNamed(pool_carriers) << ".\n";
+        }
+    } else {
+        out << "Carries this plan: " << joinNamed(pool_carriers) << ".\n";
+    }
+    std::vector<NamedCopy> early;
+    for (const NamedCopy& line : main_copies)
+        if (std::max(line.energy, line.power) <= 2) early.push_back(line);
+    if (early.empty()) {
+        const NamedCopy* cheapest = nullptr;
+        for (const NamedCopy& line : main_copies) {
+            if (aside.count(line.name)) continue;
+            if (!cheapest || std::max(line.energy, line.power) < std::max(cheapest->energy, cheapest->power))
+                cheapest = &line;
+        }
+        if (!cheapest && !main_copies.empty()) cheapest = &main_copies.front();
+        out << "Early turns pay ";
+        if (cheapest)
+            out << cheapest->copies << " " << cheapest->name << " (" << costPhrase(*cheapest) << ")";
+        else
+            out << "nothing in this list";
+        out << ". Going first, 2 runes are ready on turn 1 and 4 on turn 2. A cost is the greater of "
+               "the card's energy and its power.\n";
+    } else {
+        out << "Early turns pay " << joinNamed(early)
+            << ". Going first, 2 runes are ready on turn 1 and 4 on turn 2. A cost is the greater of "
+               "the card's energy and its power.\n";
+    }
+    const std::vector<NamedCopy> list_filler = pickNamed(main_copies, built.curve_filler_lists);
+    const std::vector<NamedCopy> pool_filler = pickNamed(main_copies, built.curve_filler_pool);
+    if (list_filler.empty() && pool_filler.empty()) {
+        out << "No slot is curve filler.\n";
+    } else {
+        if (!list_filler.empty()) {
+            out << "Curve filler: " << joinNamed(list_filler)
+                << ". The saved lists play these cards. These slots are outside the plan.\n";
+        }
+        if (!pool_filler.empty()) {
+            out << "Curve filler from the card pool: " << joinNamed(pool_filler) << ". ";
+            if (built.split_sources.empty())
+                out << "No saved list was found, so the card pool fills these slots.\n";
+            else
+                out << "The saved lists had no further card that could fill these slots on "
+                    << built.legality_date << ".\n";
+        }
+    }
+    out << "\nPrinted on the chosen champion " << champion.name << ": ";
     const std::string champion_text = printedRaw(champion);
     if (champion_text.empty()) out << "This card has no printed ability text.\n";
     else out << champion_text << "\n";
-    out << "\nThe deck breakdown reads these roles from printed cost, keywords, and ability text.\n";
-    if (report.roles.empty()) {
-        out << "The deck breakdown listed no role.\n";
-    } else {
-        for (const DeckRole& role : report.roles) {
-            out << "- " << role.title << " (" << role.reason << "): ";
-            for (size_t i = 0; i < role.cards.size(); ++i) {
-                if (i > 0) out << ", ";
-                out << role.cards[i].copies << " " << role.cards[i].name;
-                if (role.cards[i].champion) out << " (includes the champion)";
-            }
-            out << ".\n";
-        }
-    }
-    out << "A played plan past the early turns below is unread.\n\n";
+    out << "\n";
 
     out << "Early turns\n";
     out << "-----------\n";
