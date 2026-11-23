@@ -275,7 +275,11 @@ endif()
 
 # ─── LibTorch (opt-in) ────────────────────────────────────────────────────────
 # Off by default. Configure with -DRIFTBOUND_BUILD_LIBTORCH=ON to enable
-# training (riftbound_train) and inference (LibTorchAgent) targets.
+# the V3 trainer (riftbound_train) and the V3 forward test
+# (riftbound_v3_tests).
+option(RIFTBOUND_BUILD_LIBTORCH
+    "Build the V3 LibTorch trainer and forward test. Fetches LibTorch 2.5.1 unless LIBTORCH_DIR is set."
+    OFF)
 #
 # Resolution order for the libtorch root:
 #   1. LIBTORCH_DIR (CMake cache var) — point at an extracted libtorch tree
@@ -326,6 +330,7 @@ if(RIFTBOUND_BUILD_LIBTORCH)
     find_package(Torch REQUIRED)
     message(STATUS "LibTorch found at ${LIBTORCH_DIR}")
     message(STATUS "  Torch CXX flags: ${TORCH_CXX_FLAGS}")
+    separate_arguments(RIFTBOUND_TORCH_CXX_FLAGS UNIX_COMMAND "${TORCH_CXX_FLAGS}")
     set(RIFTBOUND_HAVE_LIBTORCH ON CACHE INTERNAL "")
 endif()
 
@@ -504,6 +509,101 @@ riftbound_use_pch(riftbound_core)
 riftbound_enable_warnings(riftbound_core)
 target_link_libraries(riftbound_core PUBLIC ${RIFTBOUND_CORE_LIBS})
 
+# ─── V3 LibTorch trainer ─────────────────────────────────────────────────────
+# Opt-in via -DRIFTBOUND_BUILD_LIBTORCH=ON. The policy head is one logit per
+# action description (kNumSlots). Self-play is OpenSpiel MCTSBot with PUCT.
+# V2, V4, V5, Deep CFR and ReBeL are not built.
+if(RIFTBOUND_HAVE_LIBTORCH)
+    add_library(riftbound_ml STATIC
+        src/ml/v3_model.cpp
+        src/ml/libtorch_evaluator.cpp
+    )
+    target_include_directories(riftbound_ml PUBLIC
+        src
+        ${TORCH_INCLUDE_DIRS}
+        ${open_spiel_SOURCE_DIR}
+        ${open_spiel_SOURCE_DIR}/open_spiel/abseil-cpp
+    )
+    target_link_libraries(riftbound_ml PUBLIC
+        riftbound_core
+        "${TORCH_LIBRARIES}"
+        open_spiel_core
+        absl::algorithm absl::flags absl::flags_parse absl::flat_hash_map
+        absl::optional absl::random_random absl::str_format absl::strings absl::time
+    )
+    target_compile_options(riftbound_ml PUBLIC ${RIFTBOUND_TORCH_CXX_FLAGS})
+    riftbound_enable_warnings(riftbound_ml)
+
+    add_library(riftbound_training STATIC
+        src/config/config.cpp
+        src/training/replay_buffer.cpp
+        src/training/trainer_v3.cpp
+        src/training/heuristic_evaluator.cpp
+        src/training/self_play.cpp
+        src/training/config_driver.cpp
+    )
+    target_include_directories(riftbound_training PUBLIC
+        src
+        ${open_spiel_SOURCE_DIR}
+        ${open_spiel_SOURCE_DIR}/open_spiel/abseil-cpp
+    )
+    target_link_libraries(riftbound_training PUBLIC riftbound_ml)
+    target_compile_options(riftbound_training PUBLIC ${RIFTBOUND_TORCH_CXX_FLAGS})
+    riftbound_enable_warnings(riftbound_training)
+
+    # riftbound_game.cpp's REGISTER_SPIEL_GAME initializer is stripped out of
+    # a static library, so the game sources are on the executable itself.
+    add_executable(riftbound_train
+        src/training/riftbound_train.cpp
+        src/openspiel/riftbound_game.cpp
+        src/openspiel/riftbound_state.cpp
+        $<TARGET_OBJECTS:algorithms>
+        $<TARGET_OBJECTS:game_transforms>
+        $<TARGET_OBJECTS:utils>
+    )
+    target_link_libraries(riftbound_train PRIVATE
+        riftbound_training
+        open_spiel_core
+        Boost::program_options
+        Boost::system
+        absl::algorithm absl::flags absl::flags_parse absl::flat_hash_map
+        absl::optional absl::random_random absl::str_format absl::strings absl::time
+    )
+    target_include_directories(riftbound_train PRIVATE
+        src
+        ${open_spiel_SOURCE_DIR}
+        ${open_spiel_SOURCE_DIR}/open_spiel/abseil-cpp
+    )
+    target_compile_options(riftbound_train PRIVATE ${RIFTBOUND_TORCH_CXX_FLAGS})
+    riftbound_enable_warnings(riftbound_train)
+    set_target_properties(riftbound_train PROPERTIES
+        BUILD_RPATH "${LIBTORCH_DIR}/lib"
+        INSTALL_RPATH "${LIBTORCH_DIR}/lib")
+
+    # Shape and gradient smoke for V3. Does not link the engine: the test
+    # feeds the MLP a random tensor. A self-play step is riftbound_train.
+    add_executable(riftbound_v3_tests
+        tests/test_v3_model_forward.cpp
+        src/ml/v3_model.cpp
+    )
+    target_include_directories(riftbound_v3_tests PRIVATE
+        src
+        ${TORCH_INCLUDE_DIRS}
+    )
+    target_link_libraries(riftbound_v3_tests PRIVATE
+        GTest::gtest_main
+        "${TORCH_LIBRARIES}"
+    )
+    target_compile_options(riftbound_v3_tests PRIVATE ${RIFTBOUND_TORCH_CXX_FLAGS})
+    riftbound_enable_warnings(riftbound_v3_tests)
+    set_target_properties(riftbound_v3_tests PROPERTIES
+        BUILD_RPATH "${LIBTORCH_DIR}/lib"
+        INSTALL_RPATH "${LIBTORCH_DIR}/lib")
+    include(GoogleTest)
+    gtest_discover_tests(riftbound_v3_tests
+        PROPERTIES ENVIRONMENT "LD_LIBRARY_PATH=${LIBTORCH_DIR}/lib")
+endif()
+
 # ─── Engine library ──────────────────────────────────────────────────────────
 # (will grow as we add engine, rules, agents, io modules)
 
@@ -612,13 +712,9 @@ target_link_libraries(deck_fuzz PRIVATE riftbound_core Threads::Threads)
 target_include_directories(deck_fuzz PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 riftbound_enable_warnings(deck_fuzz)
 
-# Config parsing (src/config/) moved to riftbound-trainer along with the
-# training driver — engine has no current consumers. A future engine
-# binary (riftbound_play web UI) that wants config-file input will
-# define its own focused schema.
-#
-# LibTorch-dependent model code (V2/V3/V4/V5, ReBeL inference, training
-# driver, probe binaries) lives in the riftbound-trainer sibling repo.
+# V3 training (src/config, src/training, src/ml/v3_model.*) is built only
+# with -DRIFTBOUND_BUILD_LIBTORCH=ON, as riftbound_train above. V2 and the
+# later nets are not in this tree.
 
 # ─── Tests ────────────────────────────────────────────────────────────────────
 
@@ -628,7 +724,10 @@ enable_testing()
 # tests/ and tests/cards/ are picked up automatically — no manual list to edit.
 file(GLOB_RECURSE RIFTBOUND_TEST_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/tests/*.cpp")
-# Model-forward + CFR util tests live in riftbound-trainer.
+# The V3 forward test includes LibTorch. It is its own binary
+# (riftbound_v3_tests) when RIFTBOUND_BUILD_LIBTORCH=ON, and it is not
+# part of riftbound_tests either way: that binary does not link LibTorch.
+list(FILTER RIFTBOUND_TEST_SOURCES EXCLUDE REGEX "test_v3_model_forward\\.cpp$")
 
 add_executable(riftbound_tests ${RIFTBOUND_TEST_SOURCES})
 
