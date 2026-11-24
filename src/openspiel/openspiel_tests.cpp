@@ -1475,12 +1475,113 @@ TEST_F(IsMctsHonestTest, EveryWorldOfAGameAgreesWithWhatTheSearcherKnows) {
             EXPECT_EQ(total, kSims);
             EXPECT_EQ(s.simulations, kSims);
             ASSERT_GE(s.chosen, 0);
-            EXPECT_EQ(s.visits[s.chosen], best) << "the move played is not the most visited";
+            ASSERT_LT(s.chosen, static_cast<int>(s.visits.size()));
+            EXPECT_TRUE(::riftbound::inRootVisitMix(s.visits[static_cast<size_t>(s.chosen)], best))
+                << "the move played is outside the root mix (visits "
+                << s.visits[static_cast<size_t>(s.chosen)] << ", best " << best << ")";
         }
     }
     EXPECT_GT(searched, 100);
     EXPECT_EQ(worlds, static_cast<long>(searched) * 10);
     RecordProperty("worlds_checked", static_cast<int>(worlds));
+}
+
+// ─── Root mix: close visits are sampled; a clear best stays pure ───────────
+//
+// chooseMixedRootAction is the play IsMctsSearch::step returns. These tests
+// drive it with visit counts, not with a game, so the frequencies are the
+// rule itself. A searched game still checks the played action is inside the
+// band (IsMctsHonestTest.EveryWorldOfAGameAgreesWithWhatTheSearcherKnows).
+
+/// |count / trials - weight / support| < 3%.
+void expectVisitShare(int count, int trials, int weight, int support) {
+    const long long gap = std::llabs(static_cast<long long>(count) * support -
+                                     static_cast<long long>(weight) * trials);
+    const long long tol = static_cast<long long>(trials) * support * 3 / 100;
+    EXPECT_LT(gap, tol) << "count " << count << " of " << trials
+                        << ", weight " << weight << " / " << support;
+}
+
+TEST(IsMctsRootMix, AClearBestIsAlwaysChosen) {
+    const std::vector<std::vector<int>> pure = {
+        {100, 10, 1},
+        {3, 40, 5},   // the leader is not the first action
+        {8, 5},       // 5/8 is under three quarters
+        {9, 6},       // 6/9 is under three quarters
+        {4, 2, 2},
+        {1, 0, 0},
+    };
+    for (const auto& visits : pure) {
+        int leader = 0;
+        for (int i = 1; i < static_cast<int>(visits.size()); ++i)
+            if (visits[static_cast<size_t>(i)] > visits[static_cast<size_t>(leader)]) leader = i;
+        for (uint64_t seed = 1; seed <= 200; ++seed) {
+            std::mt19937_64 rng(seed);
+            EXPECT_EQ(::riftbound::chooseMixedRootAction(visits, rng), leader) << "seed " << seed;
+        }
+        // A pure play does not draw, so the generator is unmoved.
+        std::mt19937_64 drawn(99);
+        std::mt19937_64 untouched(99);
+        EXPECT_EQ(::riftbound::chooseMixedRootAction(visits, drawn), leader);
+        EXPECT_EQ(drawn(), untouched());
+    }
+    std::mt19937_64 rng(1);
+    EXPECT_EQ(::riftbound::chooseMixedRootAction({}, rng), -1);
+    EXPECT_EQ(::riftbound::chooseMixedRootAction({0, 0, 0}, rng), -1);
+}
+
+TEST(IsMctsRootMix, CloseActionsFollowVisitCountsAcrossSeeds) {
+    // 6 is exactly three quarters of 8, so both are mixed. 1 is not.
+    EXPECT_TRUE(::riftbound::inRootVisitMix(6, 8));
+    EXPECT_FALSE(::riftbound::inRootVisitMix(5, 8));
+    const std::vector<int> visits = {6, 8, 1};
+    constexpr int kSeeds = 8000;
+    std::vector<int> counts(visits.size(), 0);
+    for (int seed = 1; seed <= kSeeds; ++seed) {
+        std::mt19937_64 rng(static_cast<uint64_t>(seed));
+        const int chosen = ::riftbound::chooseMixedRootAction(visits, rng);
+        ASSERT_GE(chosen, 0);
+        ASSERT_LT(chosen, static_cast<int>(visits.size()));
+        ++counts[static_cast<size_t>(chosen)];
+    }
+    EXPECT_EQ(counts[2], 0) << "a clearly worse action was played";
+    EXPECT_GT(counts[0], 0);
+    EXPECT_GT(counts[1], 0);
+    expectVisitShare(counts[0], kSeeds, visits[0], visits[0] + visits[1]);
+    expectVisitShare(counts[1], kSeeds, visits[1], visits[0] + visits[1]);
+
+    // The leader need not be first, and a worse action between two close
+    // ones stays out. 75 is exactly three quarters of 100; 50 is not.
+    const std::vector<int> gapped = {100, 50, 75};
+    EXPECT_TRUE(::riftbound::inRootVisitMix(75, 100));
+    EXPECT_FALSE(::riftbound::inRootVisitMix(50, 100));
+    std::vector<int> gapped_counts(gapped.size(), 0);
+    for (int seed = 1; seed <= kSeeds; ++seed) {
+        std::mt19937_64 rng(static_cast<uint64_t>(seed) + 100000);
+        const int chosen = ::riftbound::chooseMixedRootAction(gapped, rng);
+        ASSERT_GE(chosen, 0);
+        ++gapped_counts[static_cast<size_t>(chosen)];
+    }
+    EXPECT_EQ(gapped_counts[1], 0);
+    EXPECT_GT(gapped_counts[0], 0);
+    EXPECT_GT(gapped_counts[2], 0);
+    expectVisitShare(gapped_counts[0], kSeeds, gapped[0], gapped[0] + gapped[2]);
+    expectVisitShare(gapped_counts[2], kSeeds, gapped[2], gapped[0] + gapped[2]);
+}
+
+TEST(IsMctsRootMix, TheSameSeedRepeatsTheSameChoice) {
+    const std::vector<int> visits = {6, 8, 1};
+    std::set<int> seen;
+    for (uint64_t seed = 1; seed <= 500; ++seed) {
+        std::mt19937_64 a(seed);
+        std::mt19937_64 b(seed);
+        const int first = ::riftbound::chooseMixedRootAction(visits, a);
+        const int second = ::riftbound::chooseMixedRootAction(visits, b);
+        EXPECT_EQ(first, second) << "seed " << seed;
+        seen.insert(first);
+    }
+    // The repeated choice is a draw: more than one close action shows up.
+    EXPECT_GT(seen.size(), 1u);
 }
 
 TEST(IsMctsAgentTest, ThePerfectWorldVariantIsAlsoAFunctionOfItsSeeds) {

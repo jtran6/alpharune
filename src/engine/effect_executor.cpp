@@ -2244,36 +2244,46 @@ void EffectExecutor::exhaustObject(GameObjectId target) {
 }
 
 void EffectExecutor::channelRunes(PlayerId player, int count, bool enter_exhausted) {
-    RIFT_TRACE(events_, std::string("EFFECT: ") + toString(player) + " channels " +
-                     std::to_string(count) + " runes" +
-                     (enter_exhausted ? " exhausted" : ""));
-    auto& ps = state_.player(player);
-    for (int i = 0; i < count; ++i) {
-        if (ps.rune_deck.empty()) break;
-        auto rune_id = ps.rune_deck.back();
-        ps.rune_deck.pop_back();
+    auto take = [&](int n, bool exhausted) {
+        RIFT_TRACE(events_, std::string("EFFECT: ") + toString(player) + " channels " +
+                         std::to_string(n) + " runes" +
+                         (exhausted ? " exhausted" : ""));
+        auto& ps = state_.player(player);
+        for (int i = 0; i < n; ++i) {
+            if (ps.rune_deck.empty()) break;
+            auto rune_id = ps.rune_deck.back();
+            ps.rune_deck.pop_back();
 
-        auto& rune = state_.getObject(rune_id);
-        rune.zone = ZoneType::Base;
-        rune.location = BaseLocation{player};
-        rune.is_exhausted = enter_exhausted;
+            auto& rune = state_.getObject(rune_id);
+            rune.zone = ZoneType::Base;
+            rune.location = BaseLocation{player};
+            rune.is_exhausted = exhausted;
 
-        RIFT_TRACE(events_, "  CHANNELED: " + rune.name + " (id=" +
-                         toString(rune_id) +
-                         (enter_exhausted ? ", exhausted" : ", ready") + ")");
-        events_.emit(RuneChanneledEvent{rune_id, player});
-        events_.emit(EnteredBoardEvent{
-            rune_id, player, CardType::Rune, BaseLocation{player}, false});
-    }
+            RIFT_TRACE(events_, "  CHANNELED: " + rune.name + " (id=" +
+                             toString(rune_id) +
+                             (exhausted ? ", exhausted" : ", ready") + ")");
+            events_.emit(RuneChanneledEvent{rune_id, player});
+            events_.emit(EnteredBoardEvent{
+                rune_id, player, CardType::Rune, BaseLocation{player}, false});
+        }
+    };
+    take(count, enter_exhausted);
     // Seraphic Wyvern: "If you would channel runes, channel that many plus 1
-    // exhausted rune instead." The extra is not itself a channel that adds
-    // another (the flag is set aside for the extra).
-    if (count > 0 && ps.extra_exhausted_channel > 0) {
-        const int extra = ps.extra_exhausted_channel;
-        ps.extra_exhausted_channel = 0;
-        channelRunes(player, extra, true);
-        ps.extra_exhausted_channel = extra;
+    // exhausted rune instead." Count the copies still in play. The last
+    // Cleanup's extra_exhausted_channel still includes a copy this spell has
+    // already bounced (Retreat). The extra batch is not itself a channel that
+    // adds another (CR 370.2).
+    if (count <= 0) return;
+    int extra = 0;
+    for (auto& [id, obj] : state_.objects.inPlay()) {
+        if (obj.controller != player || obj.card_def_id == kInvalidId) continue;
+        const Card* card = cardFor(obj.card_def_id);
+        if (!card) continue;
+        const int each = card->extraExhaustedChannel();
+        if (each <= 0) continue;
+        extra += each * (1 + textCopiesOn(id));
     }
+    if (extra > 0) take(extra, true);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

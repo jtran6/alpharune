@@ -2343,8 +2343,12 @@ TEST_F(PerfEngineDeathBatch, ZhonyasHourglass_ItsControllerDecidesWhichDeathItRe
         EXPECT_TRUE(p1.wasOffered(second));
         EXPECT_FALSE(p1.wasOffered(enemy));
         EXPECT_TRUE(p2.prompts.empty());
-        expectRecalled(saved);
+        // The recall does not heal. The damage is still lethal, so the next
+        // pass of that cleanup kills the chosen unit at its base.
+        EXPECT_FALSE(onBoard(saved));
+        EXPECT_EQ(o(saved).last_location, std::optional<LocationId>{BaseLocation{P1}});
         EXPECT_EQ(o(lost).zone, ZoneType::Trash);
+        EXPECT_NE(o(lost).last_location, std::optional<LocationId>{BaseLocation{P1}});
         EXPECT_EQ(o(hourglass).zone, ZoneType::Trash) << "killed instead";
         EXPECT_EQ(o(enemy).zone, ZoneType::Trash);
     }
@@ -2363,7 +2367,9 @@ TEST_F(PerfEngineDeathBatch, Pin_OneReplaceableDeathAsksNothing) {
         settleLikeTheEngine(e);
     }, &p1);
     EXPECT_TRUE(p1.prompts.empty());
-    expectRecalled(only);
+    EXPECT_FALSE(onBoard(only));
+    EXPECT_EQ(o(only).last_location, std::optional<LocationId>{BaseLocation{P1}})
+        << "recalled, then killed by the damage the recall left";
     EXPECT_EQ(o(hourglass).zone, ZoneType::Trash);
     EXPECT_EQ(o(enemy).zone, ZoneType::Trash);
 }
@@ -2875,8 +2881,8 @@ TEST_F(PerfEngineDecisionHeaders, ACardsPromptCarriesItsOwnText) {
 
 
 // ─── 9.PP3: Zhonya's Hourglass hidden at a battlefield lost without a death ─
-// "[Hidden] ... If a friendly unit would die, kill this instead. Heal that
-// unit, exhaust it, and recall it." P1's only unit at the battlefield is
+// "[Hidden] ... The next time a friendly unit would die, kill this instead.
+// Recall that unit exhausted." P1's only unit at the battlefield is
 // returned to hand by an enemy spell: nothing dies.
 //  - Played from facedown in response (CR 811.6 [Reaction]; 811.1.d.1.a: a
 //    hidden gear is played to that battlefield): it is not used, and the
@@ -2986,15 +2992,16 @@ TEST_F(PerfEngineHiddenHourglass, PlayedInResponse_NothingDies_ItIsRecalledToBas
     EXPECT_FALSE(g.attached_to.has_value());
     EXPECT_FALSE(g.is_exhausted) << "unused";
 
-    // A later death, anywhere: it is replaced from the base.
+    // A later death, anywhere: it is replaced from the base. The recall leaves
+    // the damage, so the following cleanup pass kills the unit at its base.
     const GameObjectId later = addUnit(P1, kShipyardSkulker, 0, 1);
     withEngine([&](GameEngine& e) {
         e.mutableState().getObject(later).damage_marked = 99;
         e.testHook_processLethalDamage();
         settleLikeTheEngine(e);
     });
-    ASSERT_TRUE(onBoard(later)) << "its death was replaced";
-    EXPECT_TRUE(o(later).isAtBase());
+    EXPECT_FALSE(onBoard(later));
+    EXPECT_EQ(o(later).last_location, std::optional<LocationId>{BaseLocation{P1}});
     EXPECT_EQ(o(hourglass).zone, ZoneType::Trash) << "killed instead";
 }
 

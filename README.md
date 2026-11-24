@@ -35,8 +35,9 @@ so any tree-search algorithm (MCTS, ISMCTS, CFR, …) can plug straight in.
   a list that contains a card the ban has reached.
 - **Deterministic.** Given a seed, the same game replays identically.
 - **OpenSpiel integration.** `RiftboundGame` / `RiftboundState` implement
-  the OpenSpiel `Game` / `State` interfaces. MCTS, ISMCTS, random, and
-  random-player agents work out of the box.
+  the OpenSpiel `Game` / `State` interfaces. MCTS, ISMCTS, `alpha`, random,
+  and random-player agents work out of the box. `alpha` is the honest
+  information-set search with a default of 50 simulations.
 - **Deck breakdown.** `--deck-breakdown D.txt` prints one list's curve,
   roles, and draw chances, then exits. No second deck and no game.
 - **Play-by-play.** After a single game, and after each game of a batch of
@@ -178,7 +179,43 @@ omit it). `pass=0` plays whenever anything else is legal. `random` can pass
 on any decision. `mcts:sims=N` searches the real position, including the
 opponent's hand and both deck orders. `ismcts:sims=N` searches worlds drawn
 from what the deciding player knows. Add `,world=perfect` to search the
-real hidden cards instead.
+real hidden cards instead. `alpha` is the honest search, worlds drawn
+from what the seat knows, with the 50-simulation budget already filled in
+(the same budget as `ismcts:sims=50`). `alpha:sims=N` changes the budget.
+`alpha` plays one of the actions the engine offers.
+
+## Play-by-play PDF
+
+`scripts/play_by_play_pdf.py` is the play-by-play PDF exporter. `write_pdf`
+is the layout. A later export calls it.
+
+A turn is a card you can read at a glance. The header names whose turn it
+is, the score, and the runes at the start and at the end. Under that, the
+engine's lines stay in order, and type and space separate them. A play is
+its own line, and the cost is marked, Accelerate included when it was
+paid. A move is quieter. A conquer or a hold is a result band. A combat is
+a box: who fought, then who took damage. A hide stays on its line. A
+facedown play still says it was from face down. A unit still names the
+player who controls it, in parentheses.
+
+A line that names a card shows that card's picture from the card class,
+beside the line: the card played and what it was played on, the unit that
+moved, the battlefield conquered or held, the units in a combat, and the
+cards in the mulligan. The pictures are not gathered into a gallery. A
+picture that cannot be fetched is left out. The words stay.
+
+```bash
+./build/riftbound \
+    --deck1 decks/fiora.txt --deck2 decks/yi_rebuild.txt \
+    --agent1 random-player:pass=0 --agent2 random-player:pass=0 \
+    --seed 1 --games 1 --web off --render-html off \
+  | python3 scripts/play_by_play_pdf.py --output game.pdf
+```
+
+`python3 scripts/play_by_play_pdf.py --self-check` checks that a wrapped
+line stays inside its turn, that a combat box does not run into the next
+line, and that a card picture sits beside its line. It needs `reportlab`
+and `pymupdf`, which are not engine dependencies.
 
 ## Tournament lists
 
@@ -217,6 +254,17 @@ The fastest way to play a game yourself, as Player 1, against a
     --deck2 decks/yi_rebuild.txt
 ```
 
+To seat the default honest-search opponent instead, pass `alpha`. That is
+50 simulations in worlds drawn from what the seat knows, the same budget as
+`ismcts:sims=50`. Any deck file works as `--deck1` or `--deck2`:
+
+```bash
+./build/riftbound \
+    --agent1 human --agent2 alpha \
+    --deck1 decks/fiora.txt \
+    --deck2 decks/yi_rebuild.txt
+```
+
 Because a seat is `human`, the binary auto-starts a small Boost.Beast
 web server and prints a URL:
 
@@ -234,7 +282,7 @@ Useful flags:
 | Flag | Default | Meaning |
 |---|---|---|
 | `--deck-breakdown` | | Read one deck file, print its curve, roles, and draw chances, then exit. |
-| `--agent1` / `--agent2` | `random` | Per-seat agent: `human`, `random`, `random-player[:pass=P]`, `mcts:sims=N`, `ismcts:sims=N[,world=sampled\|perfect]`. |
+| `--agent1` / `--agent2` | `random` | Per-seat agent: `human`, `random`, `random-player[:pass=P]`, `mcts:sims=N`, `ismcts:sims=N[,world=sampled\|perfect]`, `alpha[:sims=N][,world=sampled\|perfect]` (default 50 simulations, honest worlds). |
 | `--game-mode` | `duel` | `duel` draws each setup battlefield. `match` has each player choose theirs. |
 | `--web` | `auto` | `auto` starts the UI whenever a seat is human; `on` forces it (spectate AI-vs-AI); `off` disables it. |
 | `--port` / `--bind` | `8080` / `127.0.0.1` | Where the UI listens. Use `--bind 0.0.0.0` to reach it from another machine: the printed URL then carries an access token that the server requires. |
@@ -280,7 +328,7 @@ underlying WebSocket protocol is in [`docs/play-api.md`](docs/play-api.md).
 
 | Binary | Purpose |
 |---|---|
-| `build/riftbound` | Unified game runner. Single game, batch, web UI, spectator, `--deck-breakdown`, agents (`random` / `random-player` / `human` / `mcts:sims=N` / `ismcts:sims=N`), HTML replay, play-by-play, trace/debug logging — all driven by CLI flags. |
+| `build/riftbound` | Unified game runner. Single game, batch, web UI, spectator, `--deck-breakdown`, agents (`random` / `random-player` / `human` / `mcts:sims=N` / `ismcts:sims=N` / `alpha`), HTML replay, play-by-play, trace/debug logging — all driven by CLI flags. |
 | `build/riftbound_tests` | Google Test suite. |
 | `build/src/openspiel/riftbound_clone_equiv_test` | Validates Clone() correctness — clones mid-game, runs the same actions on original + clone, asserts identical terminal state. |
 | `build/src/openspiel/riftbound_clone_microbench` | Microbenchmark — times Clone() throughput. |
@@ -323,6 +371,7 @@ python3 scripts/fetch_cards.py
 | `scripts/card_coverage.py` | Classify every `src/cards/<type>/<id>_<slug>.cpp` (implemented / metadata-only / stub / vanilla) and its in-code gap comments; exits non-zero while any card is a stub. `--write-lists` refreshes `docs/card-coverage/`. |
 | `scripts/generate_replays.py` | Run `build/riftbound --render-html on` once per deck pair under `decks/` (the binary plays one pair per run) and file the HTML replays per pair. Visual V&V after card changes. |
 | `scripts/rules_to_md.py` | Regenerate `rules/core-rules.md` from the rules PDF. |
+| `scripts/play_by_play_pdf.py` | The play-by-play PDF exporter. `write_pdf` is the layout: whose turn, the score, the runes, the marked cost, the combat, and a conquer or a hold, with each card's picture beside its line. |
 
 ## Repository layout
 

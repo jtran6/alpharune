@@ -81,7 +81,12 @@ public:
                            const std::vector<GameObjectId>& /*targets*/) {}
 
     // ── Permanent enters board ──
-    /// Called when this permanent (unit/gear) enters the board from play.
+    /// Called as this permanent is played, before it is put on the chain: a
+    /// play from hand (GameEngine::executePlayCard), a play from facedown
+    /// (executePlayFromHidden), and an effect play (EffectExecutor::
+    /// playIgnoringCost / playPayingCost). Hiding is not a play and does not
+    /// call it (CR 811.1.c.1). "When you play me" is a trigger, announced
+    /// once the permanent has entered.
     virtual void onPlay(CardContext& /*ctx*/) {}
     /// "As you play me, choose / name ..." (CR 355.1): the choice made as the
     /// card is played, before its cost — no chain item, no priority window.
@@ -853,6 +858,12 @@ public:
     /// Ambush action generator consults this per-card relaxation.
     /// (Rengar, Trophy Hunter 682.)
     virtual bool ambushToEnemyBattlefields() const { return false; }
+
+    /// Exhausted runes this permanent adds to a channel while it is in play
+    /// (Seraphic Wyvern: "plus 1 exhausted rune"). A channel counts the copies
+    /// still in play, not the last Cleanup's total: a copy that has already
+    /// left does not add one (CR 365.1, 370.1.a.2).
+    virtual int extraExhaustedChannel() const { return 0; }
 
     /// Passive aura contribution. Called during `recalculateAuras` ONCE
     /// per (card, controller) that has at least one instance in play (on

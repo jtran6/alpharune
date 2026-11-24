@@ -379,6 +379,13 @@ void EventBus::addPlayOther(GameObjectId card, std::string phrase) {
         note.other.push_back(std::move(phrase));
 }
 
+void EventBus::noteAccelerate(GameObjectId card) {
+    if (!recordingPlayCost(*this)) return;
+    auto& note = play_costs_[card.raw()];
+    note.accelerate = true;
+    note.known = true;
+}
+
 const PlayCostNote* EventBus::playCost(GameObjectId card) const {
     auto it = play_costs_.find(card.raw());
     if (it == play_costs_.end() || !it->second.known) return nullptr;

@@ -5,6 +5,7 @@
 #include "core/game_object.h"
 #include "engine/game_engine.h"  // StepResult / StepKind
 
+#include "agents/battlefield_assignment.h"
 #include "agents/board_score.h"
 #include "agents/determinizer.h"
 #include "agents/friendly_harm.h"
@@ -33,6 +34,10 @@
 namespace riftbound {
 
 namespace {
+
+std::vector<Intent> linesWorthSearching(const GameState& state,
+                                        const std::vector<Intent>& legal,
+                                        const CardRegistry& cards);
 
 // A heuristic evaluator that scores Riftbound positions directly from
 // the engine state instead of running noisy random rollouts to terminal.
@@ -73,7 +78,11 @@ public:
 
         double val = 0.0;
         if (board_value_) {
-            val = boardScore(s);
+            const CardRegistry* reg = nullptr;
+            if (const auto game = rb->GetGame())
+                if (const auto* rg = dynamic_cast<const openspiel::RiftboundGame*>(game.get()))
+                    reg = &rg->cardRegistry();
+            val = reg ? boardScore(s, *reg) : boardScore(s);
         } else {
             const auto& p1 = s.player(PlayerId::Player1);
             const auto& p2 = s.player(PlayerId::Player2);
@@ -179,7 +188,7 @@ public:
             if (const auto* rg = dynamic_cast<const openspiel::RiftboundGame*>(game.get()))
                 reg = &rg->cardRegistry();
         const std::vector<Intent> kept =
-            reg ? searchCandidates(engine_state, intents, *reg) : intents;
+            reg ? linesWorthSearching(engine_state, intents, *reg) : intents;
         const bool pruned = kept.size() != intents.size();
         std::vector<std::pair<::open_spiel::Action, double>> weighted;
         weighted.reserve(intents.size());
@@ -493,9 +502,11 @@ namespace {
 ///   for them, so every opponent decision would be a new node in every world.
 ///   (Measured: keyed that way, honest ISMCTS-50 won 6 of 20 against random
 ///   where random itself wins 34%; keyed by the root player, 21 of 30.)
-/// * The move played is the most visited root option (ties by the RNG), not
-///   a draw in proportion to the visits; the visits are reported
-///   (SearchSummary) for a recorder.
+/// * The move played at the root is `chooseMixedRootAction`: a draw in
+///   proportion to visits among actions with at least three quarters of the
+///   leader's visits. A clear best is that action alone and is not drawn.
+///   The draw is the search RNG, so a seed repeats the choice. Every
+///   option's visits are still reported (SearchSummary) for a recorder.
 const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
     const auto game = world.GetGame();
     if (!game) return nullptr;
@@ -503,7 +514,16 @@ const CardRegistry* registryOf(const openspiel::RiftboundState& world) {
     return rg ? &rg->cardRegistry() : nullptr;
 }
 
-/// Action ids from `legal` that searchCandidates keeps. The engine's list is
+/// searchCandidates, then the battlefield assignment (defend-alone, and not
+/// stacking a unit that could conquer somewhere else). Friendly-harm pruning
+/// stays in front: a line it drops is not put back by the assignment filter.
+std::vector<Intent> linesWorthSearching(const GameState& state,
+                                        const std::vector<Intent>& legal,
+                                        const CardRegistry& cards) {
+    return keepBattlefieldAssignment(state, searchCandidates(state, legal, cards), cards);
+}
+
+/// Action ids from `legal` that the search keeps. The engine's list is
 /// not changed. When every option was an empty friendly harm, the result is
 /// empty: those lines are not put back.
 std::vector<::open_spiel::Action> actionsWorthSearching(
@@ -512,7 +532,8 @@ std::vector<::open_spiel::Action> actionsWorthSearching(
     const CardRegistry* reg = registryOf(world);
     if (!reg) return legal;
     const auto& intents = world.legalIntents();
-    const std::vector<Intent> kept = searchCandidates(world.engineState(), intents, *reg);
+    const std::vector<Intent> kept =
+        linesWorthSearching(world.engineState(), intents, *reg);
     if (kept.empty()) return {};
     if (kept.size() == intents.size()) return legal;
     const std::vector<int> ids = openspiel::actionIds(intents, world.engineState());
@@ -571,21 +592,10 @@ public:
             sum += child.return_sum;
         }
         out.root_value = total > 0 ? sum / total : 0.0;
-        // Most visited, ties broken by the RNG.
-        int best = -1;
-        std::vector<int> tied;
-        for (const auto& [index, child] : root_) {
-            if (child.visits > best) { best = child.visits; tied.assign(1, index); }
-            else if (child.visits == best) tied.push_back(index);
-        }
-        if (tied.empty()) {
-            // Nothing worth searching was visited. Do not default to a
-            // dropped friendly-harm line.
-            out.chosen = -1;
-        } else {
-            std::uniform_int_distribution<size_t> dist(0, tied.size() - 1);
-            out.chosen = tied[tied.size() == 1 ? 0 : dist(rng_)];
-        }
+        // Visit-weighted draw among actions close to the leader. Nothing
+        // visited (every line was dropped as empty friendly harm, or the
+        // world offered none) stays -1: do not default to a dropped line.
+        out.chosen = chooseMixedRootAction(out.visits, rng_);
         return out;
     }
 
@@ -621,7 +631,7 @@ private:
         std::vector<char> worth(live_legal.size(), 1);
         if (const CardRegistry* reg = registryOf(world)) {
             const std::vector<Intent> kept =
-                searchCandidates(world.engineState(), live_legal, *reg);
+                linesWorthSearching(world.engineState(), live_legal, *reg);
             if (kept.size() != live_legal.size()) {
                 for (size_t i = 0; i < live_legal.size(); ++i)
                     worth[i] = std::find(kept.begin(), kept.end(), live_legal[i]) != kept.end();
@@ -763,6 +773,33 @@ private:
 
 } // namespace
 
+int chooseMixedRootAction(const std::vector<int>& visits, std::mt19937_64& rng) {
+    int best = 0;
+    for (int count : visits)
+        if (count > best) best = count;
+    if (best <= 0) return -1;
+
+    std::vector<int> support;
+    support.reserve(visits.size());
+    int total = 0;
+    for (int i = 0; i < static_cast<int>(visits.size()); ++i) {
+        if (!inRootVisitMix(visits[static_cast<size_t>(i)], best)) continue;
+        support.push_back(i);
+        total += visits[static_cast<size_t>(i)];
+    }
+    // The leader itself qualifies, so a positive best has a support.
+    if (support.size() == 1 || total <= 0) return support.empty() ? -1 : support.front();
+
+    std::uniform_int_distribution<int> dist(0, total - 1);
+    const int draw = dist(rng);
+    int covered = 0;
+    for (int index : support) {
+        covered += visits[static_cast<size_t>(index)];
+        if (draw < covered) return index;
+    }
+    return support.back();
+}
+
 // ─── IsMctsAgent ───────────────────────────────────────────────────────────
 
 struct IsMctsAgent::Impl {
@@ -886,6 +923,51 @@ Intent IsMctsAgent::selectAction(const GameState& state,
         return legal_actions.front();
     }
     return legal_actions[impl_->last.chosen];
+}
+
+// ─── AlphaAgent ────────────────────────────────────────────────────────────
+
+struct AlphaAgent::Impl {
+    IsMctsAgent inner;
+    Impl(std::string d1, std::string d2, std::string registry,
+         uint64_t engine_seed, uint64_t search_seed, int sims,
+         IsMctsAgent::WorldModel world, MatchFormat format)
+        : inner(std::move(d1), std::move(d2), std::move(registry),
+                engine_seed, search_seed, sims, world, format) {}
+};
+
+AlphaAgent::AlphaAgent(std::string deck1_path,
+                       std::string deck2_path,
+                       std::string registry_path,
+                       uint64_t    engine_seed,
+                       uint64_t    search_seed,
+                       int         sims,
+                       IsMctsAgent::WorldModel world,
+                       MatchFormat format) {
+    if (sims <= 0) {
+        throw std::invalid_argument(
+            "AlphaAgent requires sims > 0 (the bare 'alpha' seat uses " +
+            std::to_string(kDefaultSims) + ")");
+    }
+    impl_ = std::make_unique<Impl>(std::move(deck1_path), std::move(deck2_path),
+                                   std::move(registry_path), engine_seed, search_seed,
+                                   sims, world, format);
+}
+
+AlphaAgent::~AlphaAgent() = default;
+
+Intent AlphaAgent::selectAction(const GameState& state,
+                                const std::vector<Intent>& legal_actions) {
+    if (legal_actions.empty()) {
+        return Intent::concede(decidingPlayer(state, legal_actions));
+    }
+    const Intent chosen = impl_->inner.selectAction(state, legal_actions);
+    for (const Intent& offered : legal_actions) {
+        if (offered == chosen) return offered;
+    }
+    // The search answers from the list it was given. If that ever fails,
+    // still play an offered action.
+    return legal_actions.front();
 }
 
 } // namespace riftbound

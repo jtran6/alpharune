@@ -33,6 +33,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -82,12 +83,17 @@ private:
 /// What the last search of an `IsMctsAgent` found at its root, per option of
 /// the live decision. For a recorder: the visit distribution is the search's
 /// policy (a teacher's target), `root_value` its estimate of the position.
+/// `chosen` is the action the root mix played, which can be any option close
+/// to the most visited one.
 struct SearchSummary {
     /// False when the decision was answered without a search (one option, the
     /// setup battlefield choice, or no position to search from); the vectors
     /// are then empty and `chosen` is still the index answered.
     bool searched = false;
-    /// Index into the live legal list of the option played.
+    /// Index into the live legal list of the option played. When `searched`,
+    /// this is the root mix (`chooseMixedRootAction`): proportional to visits
+    /// among actions close to the most visited, or that action alone when the
+    /// others are clearly behind.
     int chosen = -1;
     /// Per live legal index: root visits, and the mean return of the deciding
     /// player over them (0 where unvisited).
@@ -97,6 +103,30 @@ struct SearchSummary {
     double root_value = 0.0;
     int simulations = 0;
 };
+
+/// An action shares the root mix when its visit count is at least this
+/// fraction of the most-visited action. 3/4: a near-tie is mixed, and a
+/// wider gap stays a pure play.
+constexpr int kRootMixNumer = 3;
+constexpr int kRootMixDenom = 4;
+
+/// True when `count` is in the root mix against a leader of `best` visits.
+/// Zero never qualifies. The comparison is `count * 4 >= best * 3`, so a
+/// count of exactly three quarters of the leader is included.
+inline bool inRootVisitMix(int count, int best) {
+    return best > 0 && count > 0 &&
+           static_cast<long long>(count) * kRootMixDenom >=
+               static_cast<long long>(best) * kRootMixNumer;
+}
+
+/// Index of the action ISMCTS and alpha play from root visit counts.
+///
+/// The support is every index `inRootVisitMix` accepts. One of them is
+/// drawn with probability proportional to its visits, walking the support
+/// in index order, from `rng`. A support of one is returned without
+/// drawing, so a clear best does not depend on the seed and does not
+/// advance `rng`. Returns -1 when nothing was visited.
+int chooseMixedRootAction(const std::vector<int>& visits, std::mt19937_64& rng);
 
 /// Information-set MCTS — same wiring shape as MctsAgent. The search is the
 /// algorithm of OpenSpiel's `ISMCTSBot` (UCT, one world per simulation, tree
@@ -116,10 +146,15 @@ struct SearchSummary {
 ///
 /// `WorldModel::Perfect` searches in copies of the real game instead: it sees
 /// the opponent's hand and both deck orders. A benchmark rung only, never a
-/// teacher.
+/// teacher. The root mix is the same either way: it chooses among legal
+/// actions and does not change what a world is allowed to see.
 ///
-/// The move played is the most visited root option (ties broken by the
-/// agent's RNG); `lastSearch()` gives the whole root.
+/// The move played is `chooseMixedRootAction` on the root visits: every
+/// action with at least three quarters of the leader's visits is drawn in
+/// proportion to its own visits, from the search seed. One action in that
+/// set is played outright, so a clear best stays pure and does not draw.
+/// The same seed repeats the same choice. `lastSearch()` still reports
+/// every option's visits.
 ///
 /// Decisions not searched: the setup battlefield choice of a Match (CR 488.5;
 /// the opponent's pick is held by the engine's suspended call, which a world
@@ -158,6 +193,42 @@ public:
     void setCheckWorlds(bool on);
     /// Worlds checked so far.
     long worldsChecked() const;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> impl_;
+};
+
+/// A seat for a real game: the honest information-set search (`IsMctsAgent`,
+/// sampled worlds), answering only with an action the engine offered. The
+/// action it plays is that search's root mix.
+///
+/// CLI: `alpha`, or `alpha:sims=N[,world=sampled|perfect]`. With no `sims`,
+/// the budget is `kDefaultSims` — 50, the same budget as the
+/// `ismcts:sims=50` matchup seat. `world=perfect` searches the real hidden
+/// cards instead.
+class AlphaAgent : public AgentInterface {
+public:
+    /// Simulation budget of a bare `alpha` spec.
+    static constexpr int kDefaultSims = 50;
+
+    AlphaAgent(std::string deck1_path,
+               std::string deck2_path,
+               std::string registry_path,
+               uint64_t    engine_seed,
+               uint64_t    search_seed,
+               int         sims = kDefaultSims,
+               IsMctsAgent::WorldModel world = IsMctsAgent::WorldModel::Sampled,
+               MatchFormat format = MatchFormat::BestOf1);
+    ~AlphaAgent() override;
+
+    AlphaAgent(const AlphaAgent&) = delete;
+    AlphaAgent& operator=(const AlphaAgent&) = delete;
+
+    Intent selectAction(
+        const GameState& state,
+        const std::vector<Intent>& legal_actions
+    ) override;
 
 private:
     struct Impl;

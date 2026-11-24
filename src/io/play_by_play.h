@@ -19,6 +19,14 @@
 /// turn says how many runes that player has when the turn starts and again
 /// when it ends. Each play says what was paid for it. A free play and a play
 /// that ignores its cost say so. A quiet probe writes nothing.
+///
+/// A unit is named with the player who controls it when the line is written,
+/// as "Bedeviling Stranger (P2)". A control change shows the new controller.
+/// A unit that has already left the board keeps the controller it had when
+/// the line's event saw it: leaving the board gives the card back to its
+/// owner. Battlefields, spells, legends, and runes are not marked. A play
+/// that paid [Accelerate] names it with the energy and power ("for 8 energy,
+/// 1 power, and Accelerate"). A play that did not pay it says nothing extra.
 
 #include "core/events.h"
 #include "core/game_state.h"
@@ -128,6 +136,13 @@ private:
     std::string paidFor(GameObjectId card) const;
     std::string placeName(const LocationId& loc, PlayerId actor) const;
     std::string objectName(GameObjectId id) const;
+    /// A unit, with the player who controls it now: "Lecturing Yordle (P1)".
+    /// A card that is not a unit is its name alone.
+    std::string unitLabel(GameObjectId id) const;
+    /// The same, for a combat line written after the unit may have left.
+    /// Still on the board: the controller now. Already gone: `seen`.
+    std::string unitAsOfLine(GameObjectId id, PlayerId seen,
+                             const std::string& seen_name) const;
     std::string legendName(PlayerId player) const;
     void collectUnits(const std::vector<GameObjectId>& ids,
                       std::vector<GameObjectId>& out) const;

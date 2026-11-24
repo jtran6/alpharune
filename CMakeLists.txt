@@ -459,6 +459,7 @@ add_library(riftbound_core
     src/core/keyed_slots.cpp
     src/rules/deck_validator.cpp
     src/rules/deck_breakdown.cpp
+    src/rules/deck_builder.cpp
     src/rules/random_deck.cpp
     src/rules/deck_model.cpp
     src/engine/game_engine.cpp
@@ -475,6 +476,7 @@ add_library(riftbound_core
     # the rules engine does not.
     src/agents/friendly_harm.cpp
     src/agents/board_score.cpp
+    src/agents/battlefield_assignment.cpp
     src/io/state_renderer.cpp
     src/io/play_by_play.cpp
     src/io/replay_writer.cpp
@@ -682,6 +684,8 @@ target_link_libraries(riftbound_tests PRIVATE
     riftbound_core
     GTest::gtest_main
 )
+# AlphaAgent.IsSelectableAndPlaysALegalGame seats the agent through this binary.
+add_dependencies(riftbound_tests riftbound)
 
 # The tests parse the same engine headers plus GoogleTest and the shared card
 # fixture; they get their own PCH (different include paths and definitions

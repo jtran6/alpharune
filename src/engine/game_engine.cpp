@@ -2609,6 +2609,7 @@ bool GameEngine::offerAccelerateOnItsOwn(PlayerId player, GameObjectId card_id, 
         return false;
     events_.addPlayEnergy(card_id, half->first);
     events_.addPlayPower(card_id, half->second);
+    events_.noteAccelerate(card_id);
     RIFT_TRACE(events_, "ACCELERATE: " + state_.getObject(card_id).name + " pays [" +
                      std::to_string(half->first) + "] + " + std::to_string(half->second) +
                      " power to enter ready");
@@ -4113,6 +4114,16 @@ namespace {
 std::vector<std::vector<GameObjectId>> spellTargetSets(
     const Card* card, const GameState& state, PlayerId player,
     const TargetRequirements& req, const std::vector<GameObjectId>& legal);
+
+// The spell is not on the chain yet. Name it while its target is chosen so
+// search can read the printed line, and clear it when the choice returns.
+struct ChoosingSpell {
+    GameState& state;
+    explicit ChoosingSpell(GameState& s, GameObjectId spell) : state(s) {
+        state.choosing_spell = spell;
+    }
+    ~ChoosingSpell() { state.choosing_spell = kInvalidId; }
+};
 }  // namespace
 
 bool GameEngine::chooseSpellBeforeItsCost(PlayerId player, GameObjectId card_id,
@@ -4168,6 +4179,7 @@ bool GameEngine::chooseSpellBeforeItsCost(PlayerId player, GameObjectId card_id,
                     i.chosen_objects = {t};
                     options.push_back(std::move(i));
                 }
+                ChoosingSpell choosing(state_, card_id);
                 const Intent chosen = decideNow(player, options, PromptKind::Target, card_id,
                                                 "choose a target for " + card.name);
                 GameObjectId t = legal.front();
@@ -4218,6 +4230,7 @@ bool GameEngine::chooseSpellBeforeItsCost(PlayerId player, GameObjectId card_id,
                 options.push_back(std::move(none));
             }
             // Asked even with one set, as every play-time target is.
+            ChoosingSpell choosing(state_, card_id);
             const Intent chosen = decideNow(player, options, PromptKind::Target, card_id,
                                             "choose the targets for " + card.name);
             play_targets = chosen.chosen_objects;
@@ -5461,6 +5474,9 @@ void GameEngine::executeStandardMove(const Intent& intent) {
                 join.type = IntentType::MakeChoice;
                 join.player = intent.player;
                 join.chosen_objects = {uid};
+                // Where the join arrives. The assignment drops one that stacks
+                // this unit on a fight it was sent to conquer somewhere else.
+                join.move_destination = dest;
                 options.push_back(std::move(join));
             }
             const Intent chosen = decideNow(intent.player, options, PromptKind::MoveJoin, kInvalidId,
@@ -5846,7 +5862,9 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
     // (Batch8Test.U7_NoHiddenCardPrintsAMandatoryAdditionalCost).
     // A cost increase still applies (CR 356.1.b.3, 356.3) and is paid while
     // the card is still hidden, so "(Hidden cards have [Reaction].)" is true
-    // for that payment. A failure leaves the card facedown.
+    // for that payment. A failure leaves the card facedown. Mystic Vortex's
+    // showdown [A] is that increase: the same power recycle a Deflect costs,
+    // and it is paid here, before Deflect is asked.
     Card::PlayCostAdjust ignoring_base;
     ignoring_base.ignore_cost = true;
     if (card.isPermanent())
@@ -5873,6 +5891,44 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         card.card_counters.erase("__energy_charged");
         events_.clearPlayCost(intent.card);
         return;
+    }
+
+    // Deflect is an optional payment of the same [A] the increase just spent
+    // (CR 809). One ready rune can start the play and cannot also pay a
+    // Deflect of 1. Declining — or accepting when nothing is left — does not
+    // take the play back: the spell is still played, with no target, and
+    // resolves as a fizzle.
+    std::vector<GameObjectId> spell_targets = intent.targets;
+    if (card.isSpell() && !spell_targets.empty() &&
+        !(played_card && played_card->ignoresDeflect())) {
+        int deflect = 0;
+        for (auto t : spell_targets)
+            deflect += deflectCostFor(state_, intent.player, t);
+        if (deflect > 0) {
+            Intent pay;
+            pay.type = IntentType::MakeChoice;
+            pay.player = intent.player;
+            pay.chosen_value = 1;
+            pay.choice_label = "Pay " + std::to_string(deflect) + " [A] Deflect";
+            Intent decline = pay;
+            decline.chosen_value = 0;
+            decline.choice_label = "Don't pay Deflect";
+            decline.declines = true;
+            const Intent answer = decideNow(
+                intent.player, {pay, decline}, PromptKind::AdditionalCost, intent.card,
+                "Pay " + std::to_string(deflect) +
+                    " [A] Deflect? Declining plays the spell and it fizzles");
+            const bool accepted = !answer.declines && answer.chosen_value.value_or(0) == 1;
+            const bool can_pay = effect_executor_->payableAnyPower(
+                                     intent.player, SpendFor::Spell) >= deflect;
+            if (!accepted || !can_pay) {
+                spell_targets.clear();
+                RIFT_TRACE(events_, std::string(accepted ? "DEFLECT_UNPAID: " : "DEFLECT_DECLINED: ") +
+                                 toString(intent.player) + " does not pay " +
+                                 std::to_string(deflect) +
+                                 " [A] — the spell is played and fizzles");
+            }
+        }
     }
 
     // Remove from facedown zone
@@ -5925,6 +5981,18 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         card.card_counters["__announce_play"] = ps.cards_played_this_turn;
         card.card_counters["__announce_energy"] = charged;
         card.card_counters["__announce_not_hand"] = 1;
+        // The same "as this is played" instructions a play from hand runs
+        // (executePlayCard; CR 135.2.b.3, CR 355.1), before the permanent is
+        // on the chain. Hiding is not a play and does not come through here
+        // (CR 811.1.c.1). "When you play me" is announced once it has entered.
+        if (card.card_def_id != kInvalidId) {
+            if (Card* card_obj = card_registry_.get(card.card_def_id)) {
+                CardContext on_play_ctx{state_, events_, *effect_executor_,
+                                         intent.player, intent.card};
+                const EffectExecutor::ActingFor acting(*effect_executor_, intent.card);
+                card_obj->onPlay(on_play_ctx);
+            }
+        }
         chain_manager_->addPermanent(intent.card, intent.player);
         runChain();
     } else if (card.isSpell()) {
@@ -5938,7 +6006,7 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
         events_.emit(CardPlayedEvent{intent.card, intent.player,
             card.card_type, ps.cards_played_this_turn, charged});
         const auto chain_id =
-            chain_manager_->addSpell(intent.card, intent.player, intent.targets);
+            chain_manager_->addSpell(intent.card, intent.player, spell_targets);
         for (auto& added : state_.chain.items) {
             if (added.id != chain_id) continue;
             added.total_energy_spent = charged;
@@ -5948,7 +6016,9 @@ void GameEngine::executePlayFromHidden(const Intent& intent) {
             // with that target already chosen (the hidden-play intent names it):
             // tell pickTarget, as executePlaySpell does, or the card asks again
             // and the unit the Deflect was paid for is not the one affected.
-            if (chosen_at_play) {
+            // A declined Deflect cleared the targets: the spell resolves with
+            // none and fizzles, so pickTarget is not told one was chosen.
+            if (chosen_at_play && !spell_targets.empty()) {
                 while (added.resume_data.size() < 6) added.resume_data.push_back(0);
                 added.resume_data[5] = 1;
             }
@@ -6826,7 +6896,9 @@ static int extraAnyPowerCost(const GameState& state, PlayerId player, const Game
 // was hidden at (executePlayFromHidden / ChainManager); a spell's targets are
 // tied to that battlefield, target by target (CR 811.1.d.2, .4).
 // The base cost is ignored (CR 811.1.b). A cost increase is not (CR 356.1.b.3,
-// 356.3), and a target's Deflect is paid on top of that increase.
+// 356.3) and is paid while the card is still hidden. A target's Deflect is a
+// later optional [A] from that same recycle: a short rune does not withhold
+// the play. Declining the Deflect plays the spell and it fizzles.
 void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_type,
                                            std::vector<Intent>& actions) const {
     const auto& ps = state_.player(player);
@@ -6858,10 +6930,14 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
             if (card.isUnit() && bf.blocks_unit_play && ps.next_unit_any_battlefield <= 0)
                 continue;
             // The base is ignored. What remains — a cost increase — must be
-            // payable or the card is not played (CR 356.1.b.3).
+            // payable or the card is not played (CR 356.1.b.3). Deflect is not
+            // part of this gate: one rune that pays the increase still starts
+            // the play.
             Card::PlayCostAdjust ignored_base;
             ignored_base.ignore_cost = true;
-            if (!canAffordWith(player, card_id, 0, ignored_base)) continue;
+            if (card.card_def_id != kInvalidId &&
+                !canAffordWith(player, card_id, 0, ignored_base))
+                continue;
 
             if (card.card_def_id != kInvalidId && card.isSpell()) {
                 Card* card_obj = card_registry_.get(card.card_def_id);
@@ -6904,16 +6980,9 @@ void GameEngine::generateHiddenPlayActions(PlayerId player, IntentType intent_ty
                                     !card_obj->hiddenTargetFreeOfBattlefield(
                                         static_cast<int>(slot))) { ok = false; break; }
                             if (!ok) continue;
-                            // The increase is paid before the targets' Deflect
-                            // (executePlayFromHidden, then addSpell). A target
-                            // whose Deflect does not fit on top of it is not
-                            // an option.
-                            int deflect = 0;
-                            for (auto t : tset) deflect += deflectCostFor(state_, player, t);
-                            const int increase = extraAnyPowerCost(state_, player, card);
-                            const int payable = resource::payablePower(
-                                state_, player, Domain::Count, SpendFor::Spell);
-                            if (deflect + increase > payable) continue;
+                            // Deflect does not withhold the target. The play is
+                            // offered, and executePlayFromHidden asks the [A]
+                            // after the increase. Declining fizzles the spell.
                             Intent play;
                             play.type = intent_type;
                             play.player = player;
@@ -9890,6 +9959,11 @@ void GameEngine::recallMisplacedObjects() {
     std::vector<GameObjectId> misplaced;
     for (auto& [id, obj] : state_.objects.onBoard()) {
         if (!obj.location.has_value() || obj.is_hidden) continue;   // facedown cards stay put
+        // Still on the chain: this location is where the play enters, and the
+        // play is announced there (CR 383.4.a.2). Recalling a gear to base
+        // now would announce it at base (Rakelstake). Once it has entered,
+        // the next Cleanup recalls an unattached gear (CR 323.6).
+        if (obj.zone == ZoneType::Chain) continue;
         if (obj.controller == PlayerId::None) continue;
         const LocationId home{BaseLocation{obj.controller}};
         bool recall = false;
@@ -10051,22 +10125,10 @@ void GameEngine::drawCards(PlayerId player, int count) {
 }
 
 void GameEngine::channelRunes(PlayerId player, int count) {
-    auto& ps = state_.player(player);
-    for (int i = 0; i < count; ++i) {
-        if (ps.rune_deck.empty()) break;
-        auto rune_id = ps.rune_deck.back();
-        ps.rune_deck.pop_back();
-
-        auto& rune = state_.getObject(rune_id);
-        rune.zone = ZoneType::Base;
-        rune.location = BaseLocation{player};
-
-        RIFT_TRACE(events_, "  CHANNELED: " + rune.name + " (id=" +
-                         toString(rune_id) + ", ready)");
-        events_.emit(RuneChanneledEvent{rune_id, player});
-        events_.emit(EnteredBoardEvent{
-            rune_id, player, CardType::Rune, BaseLocation{player}, false});
-    }
+    // The same channel a spell uses, so a Wyvern still in play adds its
+    // exhausted rune here too (the Channel Phase). Copies that have left
+    // are not counted.
+    effect_executor_->channelRunes(player, count, /*enter_exhausted=*/false);
 }
 
 void GameEngine::shuffleDeck(PlayerId player) {
@@ -10721,6 +10783,11 @@ GameEngine::CostPaymentAdvance GameEngine::beginCostPayment(
         card.card_counters.find("__ignore_energy") != card.card_counters.end();
     const bool ignore_power = ps.transient_ignore_power || adj.ignore_cost;
     events_.notePlayCost(card_obj, energy_needed, power_needed, ignore_energy, ignore_power);
+    // [Accelerate] paid with this cost (decideAccelerate sets the counter to
+    // 2). The energy and power above already include it; the account names it.
+    if (auto paid = card.card_counters.find(Card::kAccelerateDecided);
+        paid != card.card_counters.end() && paid->second == 2)
+        events_.noteAccelerate(card_obj);
     return beginPaymentOf(player, card_obj, energy_needed, power_needed, def.domains);
 }
 

@@ -238,16 +238,17 @@ TEST_F(Batch4aTest, D18_AstralHeron_TheUnusedDiscountEndsWithTheTurn) {
 // "Deal 3 to a unit. / Deal 3 to a unit." Nothing dies between the two
 // instructions: lethal damage is found by the cleanup after the spell (CR
 // 321.1, 323.4). Both halves on a 2 [M] unit whose controller has a Zhonya's
-// Hourglass: one death, replaced once — the unit is healed and recalled.
+// Hourglass: one death, replaced once. The recall leaves the damage, so the
+// next cleanup pass kills the unit at its base.
 TEST_F(Batch4aTest, D20_FallingStar_BothHalvesOnOneUnitAreOneDeath) {
     auto victim = addUnit(P2, kShipyardSkulker, 2, 0);
     auto hourglass = gear(P2, kZhonyasHourglass);
     auto spell = addToHand(P1, kFallingStar);
     EnginePathAgent agent(prefer({victim}));
     playThroughEngine(spell, &agent);
-    EXPECT_TRUE(onBoard(victim)) << "the one death was replaced by the Hourglass";
-    EXPECT_TRUE(o(victim).isAtBase()) << "recalled";
-    EXPECT_EQ(o(victim).damage_marked, 0) << "healed";
+    EXPECT_FALSE(onBoard(victim)) << "recalled with lethal damage still marked";
+    EXPECT_EQ(o(victim).last_location, std::optional<LocationId>{BaseLocation{P2}})
+        << "the replacement recalled it before that damage killed it";
     EXPECT_FALSE(onBoard(hourglass)) << "killed instead";
 }
 

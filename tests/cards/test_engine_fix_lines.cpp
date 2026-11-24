@@ -659,7 +659,7 @@ TEST_F(EngineFixLines, Exile_RecklessInnovatorAtRakelstakePredictsOnce) {
     EXPECT_EQ(looked, 1) << "the first unit here Predicts; the gear here and the "
                             "unit at the other battlefield do not";
     const auto play = account.find(
-        "P2 plays Reckless Innovator to Rakelstake for 4 energy and 1 power.");
+        "P2 plays Reckless Innovator (P2) to Rakelstake for 4 energy, 1 power, and Accelerate.");
     const std::string predicted_line = "P2 Predicts.";
     const auto predicted = account.find(predicted_line);
     EXPECT_NE(play, std::string::npos) << account;
@@ -669,7 +669,7 @@ TEST_F(EngineFixLines, Exile_RecklessInnovatorAtRakelstakePredictsOnce) {
               std::string::npos) << account;
     EXPECT_NE(account.find("P2 plays Bushwhack Trap to Rakelstake for 1 energy."),
               std::string::npos) << account;
-    EXPECT_NE(account.find("P2 plays Pouty Poro to Packed Amphitheater for 2 energy."),
+    EXPECT_NE(account.find("P2 plays Pouty Poro (P2) to Packed Amphitheater for 2 energy."),
               std::string::npos) << account;
 }
 

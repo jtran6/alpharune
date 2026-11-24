@@ -13,8 +13,12 @@
 /// says "friendly" / "unit you control", or must_be_friendly) stays, and so
 /// does a banish that plays the unit again. A draw or a Predict stays when
 /// no enemy is a legal target. Playing a unit stays: the body is the line,
-/// even when an optional or enemy-only line of text parses as harm. A
-/// dropped list is not put back when nothing else remains.
+/// even when an optional or enemy-only line of text parses as harm. A spell
+/// that says "Give a unit +N [M]" is scored the other way. The printed card
+/// does not say the unit is his, so an opponent's unit stays legal and stays
+/// in the search when it is the only unit. While a friendly unit is also a
+/// legal target, that is the line that is scored. A dropped list is not put
+/// back when nothing else remains.
 
 #include "core/intent.h"
 

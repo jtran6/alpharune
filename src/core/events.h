@@ -436,6 +436,9 @@ struct PlayCostNote {
     bool ignore_energy = false;
     bool ignore_power = false;
     bool known = false;
+    /// The play paid [Accelerate]. The energy and power above already include
+    /// what it cost. The play-by-play names the word beside them.
+    bool accelerate = false;
     std::vector<std::string> other;
 
     int totalEnergy() const { return energy + extra_energy; }
@@ -630,6 +633,8 @@ public:
     void addPlayEnergy(GameObjectId card, int n);
     void addPlayPower(GameObjectId card, int n);
     void addPlayOther(GameObjectId card, std::string phrase);
+    /// This play paid [Accelerate]. The energy and power are noted separately.
+    void noteAccelerate(GameObjectId card);
     const PlayCostNote* playCost(GameObjectId card) const;
 
     /// While this is a card, a kill, an exhaust, a discard, or a resource
