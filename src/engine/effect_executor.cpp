@@ -3457,6 +3457,13 @@ bool EffectExecutor::playIgnoringCost(PlayerId player, GameObjectId card,
     // Ignoring its cost, the play may still pay the card's optional
     // additional cost (CR 356.1.b; testing phase U7).
     if (offer_optional_cost_) offer_optional_cost_(player, card);
+    // The base is ignored. A cost increase, a granted [Repeat] and a "next
+    // spell" rider are still this play's (CR 356.1.b.3, 356.3, 820). Paid
+    // before the card leaves its zone: a failure plays nothing.
+    if (pay_ignored_cost_ && !pay_ignored_cost_(player, card)) {
+        events_.clearPlayCost(card);
+        return false;
+    }
     return playIgnoringCostDecided(player, card, location, -1);
 }
 

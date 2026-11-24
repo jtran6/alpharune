@@ -801,6 +801,18 @@ public:
     /// GameEngine::maybePayOptionalAdditionalCost, injected.
     using OfferOptionalCostFn = std::function<void(PlayerId, GameObjectId)>;
     void setOfferOptionalCost(OfferOptionalCostFn fn) { offer_optional_cost_ = std::move(fn); }
+    /// Cost increases and other costs that remain after the base is ignored
+    /// (CR 356.1.b.3, 356.3): paid before the card leaves its zone. False
+    /// leaves the card where it is. Without an engine, nothing is owed.
+    using PayIgnoredCostFn = std::function<bool(PlayerId, GameObjectId)>;
+    void setPayIgnoredCost(PayIgnoredCostFn fn) { pay_ignored_cost_ = std::move(fn); }
+    /// Whether that remainder can be paid now. True when no engine is wired,
+    /// so a bare executor still offers the play.
+    using CanPayIgnoredCostFn = std::function<bool(PlayerId, GameObjectId)>;
+    void setCanPayIgnoredCost(CanPayIgnoredCostFn fn) { can_pay_ignored_cost_ = std::move(fn); }
+    bool canPayIgnoredCost(PlayerId player, GameObjectId card) const {
+        return !can_pay_ignored_cost_ || can_pay_ignored_cost_(player, card);
+    }
     void setPlayCostFns(CanAffordFn can, PayCostFn pay) {
         can_afford_ = std::move(can);
         pay_cost_ = std::move(pay);
@@ -974,6 +986,8 @@ private:
     const CardRegistry* card_registry_ = nullptr;  // optional; needed for playIgnoringCost onPlay dispatch
     OfferAccelerateFn offer_accelerate_;
     OfferOptionalCostFn offer_optional_cost_;
+    PayIgnoredCostFn pay_ignored_cost_;
+    CanPayIgnoredCostFn can_pay_ignored_cost_;
     std::vector<GameObjectId> seeing_;   // seenOnTopOfDeck in progress
     /// playIgnoringCost, told what became of [Accelerate]: -1 not decided yet
     /// (offered here), else Card::kAccelerateDecided's value (2 = paid).

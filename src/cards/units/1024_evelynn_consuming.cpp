@@ -17,6 +17,12 @@ public:
     const CardDef& def() const override { return def_; }
 
     TriggerType triggerType() const override { return TriggerType::WhenYouPlayACard; }
+    // "From face down" is the trigger condition (CR 383.2.a.1): a play from
+    // hand does not put this ability on the chain.
+    bool triggerCondition(const GameState& state, GameObjectId, PlayerId,
+                          TriggerType, GameObjectId subject) const override {
+        return playedFromFacedown(state, subject);
+    }
     void onTrigger(CardContext& ctx, const std::vector<GameObjectId>&) override {
         if (!ctx.state.chain.resuming) return;
         auto sub = ctx.state.chain.resuming->triggering_subject;

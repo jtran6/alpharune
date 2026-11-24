@@ -39,6 +39,20 @@ public:
     }
 };
 
+// Picks the decline of a yes/no. A facedown Deflect prompt's "no" is that
+// option; everything else is passed or taken as offered.
+class DeclineDeflectAgent : public AgentInterface {
+public:
+    Intent selectAction(const GameState&, const std::vector<Intent>& legal) override {
+        for (const auto& i : legal)
+            if (i.declines) return i;
+        for (const auto& i : legal)
+            if (i.type == IntentType::PassPriority || i.type == IntentType::PassFocus)
+                return i;
+        return legal.empty() ? Intent{} : legal.front();
+    }
+};
+
 class HiddenPlayLineTest : public CardTestFixture {
 protected:
     std::unique_ptr<GameEngine> engine_;
@@ -346,9 +360,10 @@ TEST_F(HiddenPlayLineTest, FacedownEdgeOfNightIsAnnouncedAtRakelstake) {
     (void)looked;
 }
 
-// The showdown [A] and a target's [Deflect] are one payment (CR 356.1.b.3,
-// CR 809). One ready rune pays either of them, not both, so Hidden Blade is
-// not offered at Storm Raptor. Two runes pay both, and the kill lands there.
+// The showdown [A] is paid while the card is hidden. Deflect is the same
+// power recycle, asked afterwards, and a short rune does not withhold the
+// play. Two runes pay both, and the kill lands. The agent takes the first
+// option, which is paying the Deflect.
 TEST_F(HiddenPlayLineTest, FacedownHiddenBladePaysTheVortexTaxAndTheDeflectTogether) {
     battlefieldCard(0, kMysticVortex);
     auto mine = hold(P1, 0);
@@ -372,8 +387,8 @@ TEST_F(HiddenPlayLineTest, FacedownHiddenBladePaysTheVortexTaxAndTheDeflectToget
     s().player(P1).rune_pool.universal_power = 1;
     {
         const auto legal = engine_->generateLegalActions();
-        EXPECT_EQ(findPlayNaming(legal, blade, raptor), nullptr)
-            << "floating [A] for one of the two costs does not pay both";
+        EXPECT_NE(findPlayNaming(legal, blade, raptor), nullptr)
+            << "one [A] starts the play; Deflect is not a reason to withhold it";
     }
     s().player(P1).rune_pool.universal_power = 2;
     {
@@ -388,8 +403,8 @@ TEST_F(HiddenPlayLineTest, FacedownHiddenBladePaysTheVortexTaxAndTheDeflectToget
         const auto legal = engine_->generateLegalActions();
         EXPECT_NE(findPlayNaming(legal, blade, mine), nullptr)
             << "the [A] increase alone still offers a unit with no Deflect";
-        EXPECT_EQ(findPlayNaming(legal, blade, raptor), nullptr)
-            << "one rune cannot pay the showdown [A] and [Deflect] 1";
+        EXPECT_NE(findPlayNaming(legal, blade, raptor), nullptr)
+            << "one rune starts the play at the Deflect unit too";
     }
 
     auto second = rune(P1, Domain::Fury);
@@ -405,6 +420,43 @@ TEST_F(HiddenPlayLineTest, FacedownHiddenBladePaysTheVortexTaxAndTheDeflectToget
     EXPECT_TRUE(inRuneDeck(P1, first));
     EXPECT_TRUE(inRuneDeck(P1, second));
     EXPECT_EQ(s().player(P1).power_spent_this_turn, 2);
+}
+
+// One ready rune pays Mystic Vortex's [A] and cannot also pay Deflect 1.
+// Declining the Deflect still plays Hidden Blade. It resolves with no target
+// and does not kill.
+TEST_F(HiddenPlayLineTest, DeclinedDeflectFizzlesTheFacedownSpell) {
+    battlefieldCard(0, kMysticVortex);
+    hold(P1, 0);
+    auto raptor = fromDef(P2, kStormRaptor);
+    o(raptor).zone = ZoneType::BattlefieldZone;
+    o(raptor).location = BattlefieldLocation{BattlefieldId::fromRaw(0)};
+    o(raptor).deflect_value = card_db.get(kStormRaptor).deflect_value;
+    s().turn.ns_state = NeutralShowdownState::Showdown;
+    s().turn.oc_state = OpenClosedState::Open;
+    s().turn.focus_holder = P1;
+    s().battlefields[0].showdown_in_progress = true;
+    engine_->testHook_cleanup();
+
+    auto blade = hiddenEarlier(P1, kHiddenBlade, 0);
+    s().turn.turn_number = 2;
+    auto power = rune(P1, Domain::Fury);
+    const auto legal = engine_->generateLegalActions();
+    const Intent* play = findPlayNaming(legal, blade, raptor);
+    ASSERT_NE(play, nullptr);
+
+    DeclineDeflectAgent declining;
+    AnswerAgent other;
+    engine_->testHook_setAgents(&declining, &other);
+    engine_->testHook_executeIntent(*play);
+    settleLikeTheEngine(*engine_);
+
+    EXPECT_EQ(o(raptor).zone, ZoneType::BattlefieldZone);
+    EXPECT_TRUE(o(raptor).location.has_value());
+    EXPECT_FALSE(o(blade).is_hidden);
+    EXPECT_EQ(o(blade).zone, ZoneType::Trash);
+    EXPECT_TRUE(inRuneDeck(P1, power));
+    EXPECT_EQ(s().player(P1).power_spent_this_turn, 1);
 }
 
 // The same turn it is hidden, it is not yet a Reaction (CR 811.1.b).
