@@ -61,13 +61,13 @@ int gameSeed(int config_seed, int iter, int game) {
 }
 
 std::string gameString(const std::string& registry, const DeckPair& pair, int seed) {
-    // game_mode=match: each player chooses the setup battlefield (CR 488.5).
-    // The registry parameter is accepted and ignored.
+    // No game_mode: the default is duel, which draws each setup battlefield
+    // at random. Match would search those two picks and write them into the
+    // replay buffer. The registry parameter is accepted and ignored.
     return "riftbound(deck1=" + pair.deck1 +
            ",deck2=" + pair.deck2 +
            ",registry=" + registry +
-           ",seed=" + std::to_string(seed) +
-           ",game_mode=match)";
+           ",seed=" + std::to_string(seed) + ")";
 }
 
 ::riftbound::ml::V3ModelConfig buildV3ModelConfig(

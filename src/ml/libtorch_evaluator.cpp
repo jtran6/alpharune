@@ -12,7 +12,6 @@
 #include <filesystem>
 #include <fstream>
 #include <limits>
-#include <mutex>
 #include <stdexcept>
 #include <vector>
 
@@ -60,7 +59,12 @@ V3ModelConfig configFromSidecar(const std::string& checkpoint_path) {
 
 class LibTorchEvaluatorV3 : public ::open_spiel::algorithms::Evaluator {
 public:
-    explicit LibTorchEvaluatorV3(V3Model model) : model_(std::move(model)) {}
+    // Eval mode once. V3 has no dropout or batch norm, and self-play does
+    // not overlap a training step, so forwards of this shared module run
+    // concurrently.
+    explicit LibTorchEvaluatorV3(V3Model model) : model_(std::move(model)) {
+        model_->eval();
+    }
 
     LibTorchEvaluatorV3(const std::string& checkpoint_path, const V3ModelConfig& cfg)
         : model_(cfg) {
@@ -124,17 +128,12 @@ public:
 
 private:
     V3ModelImpl::Output forward(const ::open_spiel::State& state) {
-        // Each self-play worker builds its own evaluator around the same
-        // module. One lock covers every forward of every evaluator.
-        static std::mutex forward_mu;
-        std::lock_guard<std::mutex> lock(forward_mu);
         auto cp = state.CurrentPlayer();
         if (cp != 0 && cp != 1) cp = 0;
         auto x = flatFeatures(state, static_cast<int>(cp));
         auto device = model_->parameters().begin()->device();
         if (x.device() != device) x = x.to(device);
         torch::NoGradGuard no_grad;
-        model_->eval();
         return model_->forward(x);
     }
 
